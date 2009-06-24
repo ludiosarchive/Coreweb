@@ -1,7 +1,7 @@
-Divmod._global = Divmod.window = this;
+CW._global = CW.window = this;
 
 
-Divmod.vars = function(obj) {
+CW.vars = function(obj) {
 	var L = [];
 	for (var i in obj) {
 		L.push([i, obj[i]]);
@@ -10,7 +10,7 @@ Divmod.vars = function(obj) {
 };
 
 
-Divmod.dir = function(obj) {
+CW.dir = function(obj) {
 	var L = [];
 	for (var i in obj) {
 		L.push(i);
@@ -19,22 +19,22 @@ Divmod.dir = function(obj) {
 };
 
 
-Divmod.__classDebugCounter__ = 0;
+CW.__classDebugCounter__ = 0;
 
 /**
- * This tracks the number of instances of L{Divmod.Class} subclasses.
+ * This tracks the number of instances of L{CW.Class} subclasses.
  */
-Divmod.__instanceCounter__ = 0;
+CW.__instanceCounter__ = 0;
 
-/* C{Divmod._CONSTRUCTOR} chosen to be C{{}} because it has the nice property of
+/* C{CW._CONSTRUCTOR} chosen to be C{{}} because it has the nice property of
  *    ({} === {}) === false
- *    (Divmod._CONSTRUCTOR === Divmod._CONSTRUCTOR) === true
+ *    (CW._CONSTRUCTOR === CW._CONSTRUCTOR) === true
  *
  *    which avoids any ambiguitity when "instantiating" instances.
  */
-Divmod._CONSTRUCTOR = {};
+CW._CONSTRUCTOR = {};
 
-Divmod.Class = function() {};
+CW.Class = function() {};
 
 /**
  * Create a new subclass.
@@ -51,13 +51,13 @@ Divmod.Class = function() {};
  * @param subclassName: Name of the new subclass if C{classNameOrModule} is a
  *	 module object
  *
- * @rtype: C{Divmod.Class}
+ * @rtype: C{CW.Class}
  */
-Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
-	Divmod.__classDebugCounter__ += 1;
+CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
+	CW.__classDebugCounter__ += 1;
 
 	/*
-	 * subclass() must always be called on Divmod.Class or an object returned
+	 * subclass() must always be called on CW.Class or an object returned
 	 * from subclass() - so in this execution context, C{this} is the "class"
 	 * object.
 	 */
@@ -81,22 +81,22 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 			 * similarly, C{Class.apply(null, args)} or C{Class.call(null,
 			 * args)}), then C{this} is actually some random object - maybe the
 			 * global execution context object, maybe the window, maybe a
-			 * pseudo-namespace object (ie, C{Divmod}), maybe null.  Whichever,
-			 * invoke C{new subClass(Divmod._CONSTRUCTOR)} to create an object
+			 * pseudo-namespace object (ie, C{CW}), maybe null.  Whichever,
+			 * invoke C{new subClass(CW._CONSTRUCTOR)} to create an object
 			 * with the right prototype without invoking C{__init__}.
 			 */
-			self = new subClass(Divmod._CONSTRUCTOR);
+			self = new subClass(CW._CONSTRUCTOR);
 		}
 		/*
 		 * Once we have an instance, if C{asConstructor} is not the magic internal
-		 * object C{Divmod._CONSTRUCTOR}, pass all our arguments on to the
+		 * object C{CW._CONSTRUCTOR}, pass all our arguments on to the
 		 * instance's C{__init__}.
 		 */
-		if (asConstructor !== Divmod._CONSTRUCTOR) {
-			Divmod.__instanceCounter__++;
+		if (asConstructor !== CW._CONSTRUCTOR) {
+			CW.__instanceCounter__++;
 
 			/* set an ID unique to this instance */
-			self.__id__ = Divmod.__instanceCounter__;
+			self.__id__ = CW.__instanceCounter__;
 
 			self.__class__ = subClass;
 			self.__init__.apply(self, arguments);
@@ -114,12 +114,12 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 	/*
 	 * This is how you spell inheritance in JavaScript.
 	 */
-	subClass.prototype = new superClass(Divmod._CONSTRUCTOR);
+	subClass.prototype = new superClass(CW._CONSTRUCTOR);
 
 	/*
 	 * Make the subclass subclassable in the same way.
 	 */
-	subClass.subclass = Divmod.Class.subclass;
+	subClass.subclass = CW.Class.subclass;
 
 	/*
 	 * Support both new and old-style subclassing.
@@ -137,7 +137,7 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 
 	var classIdentifier;
 	if(className === undefined) {
-		classIdentifier = '#' + Divmod.__classDebugCounter__;
+		classIdentifier = '#' + CW.__classDebugCounter__;
 	} else {
 		classIdentifier = className;
 	}
@@ -236,8 +236,8 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 };
 
 
-Divmod.Class.prototype.__init__ = function() {
-	Divmod.debug("In Divmod.Class.prototype.__init__");
+CW.Class.prototype.__init__ = function() {
+	CW.debug("In CW.Class.prototype.__init__");
 	/* throw new Error("If you ever hit this code path something has gone horribly wrong");
 	 */
 };
@@ -248,8 +248,8 @@ Divmod.Class.prototype.__init__ = function() {
  * @ivar stack: On Firefox, a string describing the call stack at the time the
  * error was instantiated (/not/ thrown).
  */
-Divmod.Error = Divmod.Class.subclass("Divmod.Error");
-Divmod.Error.methods(
+CW.Error = CW.Class.subclass("CW.Error");
+CW.Error.methods(
 	function __init__(self, /* optional */ message) {
 		self.message = message;
 		self.stack = Error().stack;
@@ -268,24 +268,24 @@ Divmod.Error.methods(
 /**
  * Sequence container index out of bounds.
  */
-Divmod.IndexError = Divmod.Error.subclass("Divmod.IndexError");
+CW.IndexError = CW.Error.subclass("CW.IndexError");
 
 
 /**
  * Base class for all warning classes.
  */
-Divmod.Warning = Divmod.Class.subclass("Divmod.Warning");
-Divmod.DeprecationWarning = Divmod.Warning.subclass("Divmod.DeprecationWarning");
+CW.Warning = CW.Class.subclass("CW.Warning");
+CW.DeprecationWarning = CW.Warning.subclass("CW.DeprecationWarning");
 
-Divmod.Module = Divmod.Class.subclass('Divmod.Module');
-Divmod.Module.method(
+CW.Module = CW.Class.subclass('CW.Module');
+CW.Module.method(
 	function __init__(self, name) {
 		self.name = name;
 	});
 
 
-Divmod.Logger = Divmod.Class.subclass('Divmod.Logger');
-Divmod.Logger.methods(
+CW.Logger = CW.Class.subclass('CW.Logger');
+CW.Logger.methods(
 	function __init__(self) {
 		self.observers = [];
 	},
@@ -351,22 +351,22 @@ Divmod.Logger.methods(
 );
 
 
-Divmod.logger = new Divmod.Logger();
-Divmod.msg = function() {
-	return Divmod.logger.msg.apply(Divmod.logger, arguments);
+CW.logger = new CW.Logger();
+CW.msg = function() {
+	return CW.logger.msg.apply(CW.logger, arguments);
 };
 
-Divmod.err = function() {
-	return Divmod.logger.err.apply(Divmod.logger, arguments);
+CW.err = function() {
+	return CW.logger.err.apply(CW.logger, arguments);
 };
 
-Divmod.debug = function(kind, msg) {
-	Divmod.logger.emit({'isError': false,
+CW.debug = function(kind, msg) {
+	CW.logger.emit({'isError': false,
 			'message': msg, 'debug': true,
 			'channel': kind});
 };
 
-Divmod.log = Divmod.debug;
+CW.log = CW.debug;
 
 /**
  * Emit a warning log event.  Warning events have four keys::
@@ -375,27 +375,27 @@ Divmod.log = Divmod.debug;
  *
  *   message, which is a human-readable explanation of the warning.
  *
- *   category, which is a L{Divmod.Warning} subclass categorizing the warning.
+ *   category, which is a L{CW.Warning} subclass categorizing the warning.
  *
  *   channel, which is always C{'warning'}.
  */
-Divmod.warn = function warn(message, category) {
-	Divmod.logger.emit({'isError': false,
+CW.warn = function warn(message, category) {
+	CW.logger.emit({'isError': false,
 				'message': message,
 				'category': category,
 				'channel': 'warning'});
 };
 
 /*
- * Set up the Firebug console as a Divmod log observer.
+ * Set up the Firebug console as a CW log observer.
  */
-if(Divmod.window.firebug) { // non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
-	Divmod.logger.addObserver(function (evt) {
+if(CW.window.firebug) { // non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
+	CW.logger.addObserver(function (evt) {
 		if (evt.isError) {
-			console.log("Divmod error: " + evt.message);
+			console.log("CW error: " + evt.message);
 			console.log(evt.error);
 		} else {
-			console.log("Divmod log: " + evt.message);
+			console.log("CW log: " + evt.message);
 		}
 	});
 }
@@ -408,7 +408,7 @@ if(Divmod.window.firebug) { // non-firebug use can cause infinite loop in Safari
  *
  * This assumes that no one has added anything to C{Array.prototype}.
  */
-Divmod.arraysEqual = function arraysEqual(a, b) {
+CW.arraysEqual = function arraysEqual(a, b) {
 	var i;
 	if (!(a instanceof Array && b instanceof Array)) {
 		return false;
@@ -430,17 +430,17 @@ Divmod.arraysEqual = function arraysEqual(a, b) {
 };
 
 
-Divmod.startswith = function(haystack, starter) {
+CW.startswith = function(haystack, starter) {
 	return !!(haystack.substr(0, starter.length) === starter); // '==' yields same test results
 };
 
 
-Divmod.now = function() {
+CW.now = function() {
 	return +new Date;
 };
 
 
-Divmod.random = function() {
+CW.random = function() {
 	return (''+Math.random()).substr(2);
 };
 
@@ -459,14 +459,14 @@ Divmod.random = function() {
  * L{preferWrapped} is C{true} if browser can handle '()'-wrapped strings faster
  *    than those that are not '()'-wrapped.
  */
-Divmod.JSON = function() {
-	if(Divmod.window.JSON && JSON.stringify && JSON.parse) {
-		Divmod.debug("Using browser's native JSON stringifier and parser instead of json2/eval.");
+CW.JSON = function() {
+	if(CW.window.JSON && JSON.stringify && JSON.parse) {
+		CW.debug("Using browser's native JSON stringifier and parser instead of json2/eval.");
 		return {
 			stringify: JSON.stringify,
 			parse: JSON.parse,
 			parseWrapped: function(s) {
-				Divmod.debug("Why give Divmod.JSON '()'-wrapped JSON strings"+
+				CW.debug("Why give CW.JSON '()'-wrapped JSON strings"+
 				" when this browser is faster with unwrapped ones?");
 				JSON.parse(s.substr(1, s.length-2));
 			},

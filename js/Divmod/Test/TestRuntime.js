@@ -1,5 +1,5 @@
 /**
- * Unit Tests for Divmod.Runtime.
+ * Unit Tests for CW.Runtime.
  *
  * There are not enough tests here, because the unit test framework for
  * Javascript, and perhaps more importantly the mock browser document
@@ -10,17 +10,17 @@
  * tests.
  */
 
-// import Divmod.UnitTest
-// import Divmod.Runtime
+// import CW.UnitTest
+// import CW.Runtime
 
-Divmod.Test.TestRuntime.FakeRequest = Divmod.Class.subclass(
-	'Divmod.Test.TestRuntime.FakeRequest');
+CW.Test.TestRuntime.FakeRequest = CW.Class.subclass(
+	'CW.Test.TestRuntime.FakeRequest');
 
 /**
  * A fake implementation of http://www.w3.org/TR/XMLHttpRequest/ -
  * specifically as implemented by Firefox.
  */
-Divmod.Test.TestRuntime.FakeRequest.methods(
+CW.Test.TestRuntime.FakeRequest.methods(
 	/**
 	 * Initialize attributes to starting values.
 	 */
@@ -72,32 +72,32 @@ Divmod.Test.TestRuntime.FakeRequest.methods(
  * javascript.  If we do implement a way to run the tests in browsers such as
  * IE and Opera, we may need to implement something different.
  */
-Divmod.Test.TestRuntime.FakeRequest.prototype.__defineGetter__(
+CW.Test.TestRuntime.FakeRequest.prototype.__defineGetter__(
 	"status",
 	function () {
 		if (this.networkError) {
-			throw Divmod.Test.TestRuntime.FakeRequestStatusAccessError();
+			throw CW.Test.TestRuntime.FakeRequestStatusAccessError();
 		}
 		return this._status;
 	});
 
-Divmod.Test.TestRuntime.FakeRequestStatusAccessError = Divmod.Error.subclass(
-	"Divmod.Test.TestRuntime.FakeRequestStatusAccessError");
+CW.Test.TestRuntime.FakeRequestStatusAccessError = CW.Error.subclass(
+	"CW.Test.TestRuntime.FakeRequestStatusAccessError");
 
-Divmod.Test.TestRuntime.NetworkTests = Divmod.UnitTest.TestCase.subclass(
-	'Divmod.Test.TestRuntime.NetworkTests');
+CW.Test.TestRuntime.NetworkTests = CW.UnitTest.TestCase.subclass(
+	'CW.Test.TestRuntime.NetworkTests');
 /**
  * These tests cover functionality related to responding to XMLHttpRequest
  * objects.
  */
-Divmod.Test.TestRuntime.NetworkTests.methods(
+CW.Test.TestRuntime.NetworkTests.methods(
 	/**
 	 * Create a platform object and reassign its makeHTTPRequest method, since
 	 * these tests should be for the logical state transitions associated with
 	 * the request, not browser-specific naming hacks.
 	 */
 	function setUp(self) {
-		self.platform = Divmod.Runtime.Platform();
+		self.platform = CW.Runtime.Platform();
 		self.platform.makeHTTPRequest = function () {
 			return self.makeHTTPRequest();
 		}
@@ -108,7 +108,7 @@ Divmod.Test.TestRuntime.NetworkTests.methods(
 	 * we can control the behavior of the fake XMLHttpRequest object.
 	 */
 	function makeHTTPRequest(self) {
-		self.httpRequest = Divmod.Test.TestRuntime.FakeRequest();
+		self.httpRequest = CW.Test.TestRuntime.FakeRequest();
 		return self.httpRequest;
 	},
 
@@ -126,14 +126,14 @@ Divmod.Test.TestRuntime.NetworkTests.methods(
 							   ['GET', '/hello/world', true]);
 		self.assertArraysEqual(self.httpRequest.sent, ['']);
 
-		self.assert(gp[1] instanceof Divmod.Defer.Deferred);
+		self.assert(gp[1] instanceof CW.Defer.Deferred);
 		gp[1].addCallback(function (result) {
 			realResult = result;
 		});
 		self.assertIdentical(realResult, null);
 		self.httpRequest._status = 1234;
 		self.httpRequest.responseText = "this is some text";
-		self.httpRequest.readyState = Divmod.Runtime.Platform.XHR_DONE;
+		self.httpRequest.readyState = CW.Runtime.Platform.XHR_DONE;
 		self.httpRequest.onreadystatechange();
 		self.assertIdentical(realResult.status, 1234);
 		self.assertIdentical(realResult.response, "this is some text");
@@ -174,13 +174,13 @@ Divmod.Test.TestRuntime.NetworkTests.methods(
 		var gp = self.platform.getPage("/hello");
 		var errbacked = false;
 		self.httpRequest.networkError = true;
-		self.httpRequest.readyState = Divmod.Runtime.Platform.XHR_DONE;
+		self.httpRequest.readyState = CW.Runtime.Platform.XHR_DONE;
 		self.httpRequest.onreadystatechange();
 		gp[1].addErrback(function (err) {
 			errbacked = true;
 			self.assert(
 				err instanceof
-				Divmod.Test.TestRuntime.FakeRequestStatusAccessError);
+				CW.Test.TestRuntime.FakeRequestStatusAccessError);
 		});
 		self.assert(errbacked);
 	},
@@ -211,9 +211,9 @@ Divmod.Test.TestRuntime.NetworkTests.methods(
 
 
 
-Divmod.Test.TestRuntime.RuntimeTests = Divmod.UnitTest.TestCase.subclass(
-	'Divmod.Test.TestRuntime.RuntimeTests');
-Divmod.Test.TestRuntime.RuntimeTests.methods(
+CW.Test.TestRuntime.RuntimeTests = CW.UnitTest.TestCase.subclass(
+	'CW.Test.TestRuntime.RuntimeTests');
+CW.Test.TestRuntime.RuntimeTests.methods(
 	/**
 	 * Assert that the various *_NODE attributes are present with the correct
 	 * values.
@@ -415,9 +415,9 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 		firstNode.appendChild(secondNode);
 		firstNode.appendChild(fourthNode);
 		var nodes = [];
-		Divmod.Runtime.theRuntime.traverse(firstNode, function (aNode) {
+		CW.Runtime.theRuntime.traverse(firstNode, function (aNode) {
 			nodes.push(aNode);
-			return Divmod.Runtime.Platform.DOM_DESCEND;
+			return CW.Runtime.Platform.DOM_DESCEND;
 		});
 
 		self.assertIdentical(nodes.length, 4);
@@ -444,13 +444,13 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 		node.id = id;
 		document.body.appendChild(node);
 		self.assertIdentical(
-			Divmod.Runtime.theRuntime.getElementByIdWithNode(node, id),
+			CW.Runtime.theRuntime.getElementByIdWithNode(node, id),
 			node);
 
 		self.assertThrows(
-			Divmod.Runtime.NodeNotFound,
+			CW.Runtime.NodeNotFound,
 			function() {
-				Divmod.Runtime.theRuntime.getElementByIdWithNode(
+				CW.Runtime.theRuntime.getElementByIdWithNode(
 					node, 'wrong');
 			});
 
@@ -464,7 +464,7 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 		document.body.appendChild(node);
 
 		self.assertIdentical(
-			Divmod.Runtime.theRuntime.getElementByIdWithNode(node, id).id,
+			CW.Runtime.theRuntime.getElementByIdWithNode(node, id).id,
 			id);
 	},
 
@@ -477,7 +477,7 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 		 * Save some typing.
 		 */
 		function find(root, attrName, attrValue) {
-			return Divmod.Runtime.theRuntime.firstNodeByAttribute(
+			return CW.Runtime.theRuntime.firstNodeByAttribute(
 				root, attrName, attrValue);
 		}
 		var root = document.createElement('div');
@@ -518,25 +518,25 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 	function test_firstNodeByAttributeThrows(self) {
 		var root = document.createElement('span');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.firstNodeByAttribute(
+				return CW.Runtime.theRuntime.firstNodeByAttribute(
 					root, 'foo', 'bar');
 			});
 
 		root.setAttribute('foo', 'quux');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.firstNodeByAttribute(
+				return CW.Runtime.theRuntime.firstNodeByAttribute(
 					root, 'foo', 'bar');
 			});
 
 		root.setAttribute('baz', 'bar');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.firstNodeByAttribute(
+				return CW.Runtime.theRuntime.firstNodeByAttribute(
 					root, 'foo', 'bar');
 			});
 	},
@@ -547,7 +547,7 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 	 */
 	function test_nodeByAttribute(self) {
 		function find(root, attrName, attrValue) {
-			return Divmod.Runtime.theRuntime.nodeByAttribute(
+			return CW.Runtime.theRuntime.nodeByAttribute(
 				root, attrName, attrValue);
 		};
 		var root = document.createElement('div');
@@ -585,7 +585,7 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 	 */
 	function test_nodeByAttributeThrowsOnMultiple(self) {
 		function find(root, attrName, attrValue) {
-			return Divmod.Runtime.theRuntime.nodeByAttribute(
+			return CW.Runtime.theRuntime.nodeByAttribute(
 				root, attrName, attrValue);
 		};
 
@@ -646,25 +646,25 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 	function test_nodeByAttributeThrowsOnMissing(self) {
 		var root = document.createElement('span');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.nodeByAttribute(
+				return CW.Runtime.theRuntime.nodeByAttribute(
 					root, 'foo', 'bar');
 			});
 
 		root.setAttribute('foo', 'quux');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.nodeByAttribute(
+				return CW.Runtime.theRuntime.nodeByAttribute(
 					root, 'foo', 'bar');
 			});
 
 		root.setAttribute('baz', 'bar');
 		self.assertThrows(
-			Divmod.Runtime.NodeAttributeError,
+			CW.Runtime.NodeAttributeError,
 			function() {
-				return Divmod.Runtime.theRuntime.nodeByAttribute(
+				return CW.Runtime.theRuntime.nodeByAttribute(
 					root, 'foo', 'bar');
 			});
 	},
@@ -682,26 +682,26 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 		root.appendChild(childA);
 		root.appendChild(childB);
 
-		var nodes = Divmod.Runtime.theRuntime.nodesByAttribute(
+		var nodes = CW.Runtime.theRuntime.nodesByAttribute(
 			root, 'foo', 'bar');
 		self.assertIdentical(nodes.length, 2);
 		self.assertIdentical(nodes[0], root);
 		self.assertIdentical(nodes[1], childB);
 
-		nodes = Divmod.Runtime.theRuntime.nodesByAttribute(
+		nodes = CW.Runtime.theRuntime.nodesByAttribute(
 			root, 'baz', 'quux');
 		self.assertIdentical(nodes.length, 0);
 	},
 
 	/**
-	 * L{Divmod.Runtime.Platform.loadStylesheet} should create an appropriate
+	 * L{CW.Runtime.Platform.loadStylesheet} should create an appropriate
 	 * C{<link>} element.
 	 */
 	function test_loadStylesheet(self) {
 		var location = 'http://test_loadStylesheet';
 		var headNode = document.createElement('head');
 		document.body.appendChild(headNode); // eh, whatever
-		Divmod.Runtime.theRuntime.loadStylesheet(location);
+		CW.Runtime.theRuntime.loadStylesheet(location);
 		self.assertIdentical(headNode.childNodes.length, 1);
 		var child = headNode.childNodes[0];
 		self.assertIdentical(child.tagName, 'LINK');
@@ -711,12 +711,12 @@ Divmod.Test.TestRuntime.RuntimeTests.methods(
 	});
 
 
-Divmod.Test.TestRuntime.SpidermonkeyRuntimeTests = Divmod.UnitTest.TestCase.subclass(
-	'Divmod.Test.TestRuntime.SpidermonkeyRuntimeTests');
+CW.Test.TestRuntime.SpidermonkeyRuntimeTests = CW.UnitTest.TestCase.subclass(
+	'CW.Test.TestRuntime.SpidermonkeyRuntimeTests');
 /**
  * Tests for the Spidermonkey runtime.
  */
-Divmod.Test.TestRuntime.SpidermonkeyRuntimeTests.methods(
+CW.Test.TestRuntime.SpidermonkeyRuntimeTests.methods(
 	/**
 	 * I{addLoadEvent} should add the handler to the list of load events.
 	 */
@@ -727,27 +727,27 @@ Divmod.Test.TestRuntime.SpidermonkeyRuntimeTests.methods(
 		};
 
 		self.assertIdentical(marker, false);
-		Divmod.Runtime.theRuntime.addLoadEvent(handler);
+		CW.Runtime.theRuntime.addLoadEvent(handler);
 		self.assertIdentical(marker, false);
-		self.assertIdentical(Divmod.Runtime.theRuntime.loadEvents.length, 1);
-		Divmod.Runtime.theRuntime.loadEvents[0]();
+		self.assertIdentical(CW.Runtime.theRuntime.loadEvents.length, 1);
+		CW.Runtime.theRuntime.loadEvents[0]();
 		self.assertIdentical(marker, true);
 	});
 
 
 
-Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase = Divmod.UnitTest.TestCase.subclass(
-	'Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase');
+CW.Test.TestRuntime.ConnectSingleDOMEventTestCase = CW.UnitTest.TestCase.subclass(
+	'CW.Test.TestRuntime.ConnectSingleDOMEventTestCase');
 /**
- * Tests for L{Divmod.Runtime.Platform.connectSingleDOMEvent}.
+ * Tests for L{CW.Runtime.Platform.connectSingleDOMEvent}.
  */
-Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
+CW.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
 	/**
-	 * Make an instance of a L{Divmod.Class} subclass which keeps track of
+	 * Make an instance of a L{CW.Class} subclass which keeps track of
 	 * method calls.
 	 */
 	function setUp(self) {
-		var ConnectSingleDOMEventTester = Divmod.Class.subclass(
+		var ConnectSingleDOMEventTester = CW.Class.subclass(
 			'ConnectSingleDOMEventTester');
 		ConnectSingleDOMEventTester.methods(
 			function __init__(self) {
@@ -764,13 +764,13 @@ Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
 
 	/**
 	 * Verify that the handler set by
-	 * L{Divmod.Runtime.Platform.connectSingleDOMEvent} calls the method with
+	 * L{CW.Runtime.Platform.connectSingleDOMEvent} calls the method with
 	 * the given name on the handler object and passes it the node that the
 	 * DOM event handler was passed.
 	 */
 	function test_callsMethod(self) {
 		var node = {};
-		Divmod.Runtime.theRuntime.connectSingleDOMEvent(
+		CW.Runtime.theRuntime.connectSingleDOMEvent(
 			'onclick', self.handlerObject, node, 'onclickHandler');
 		node['onclick'](node);
 		self.assertIdentical(
@@ -781,12 +781,12 @@ Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
 
 	/**
 	 * Verify that the handler set by
-	 * L{Divmod.Runtime.Platform.connectSingleDOMEvent} returns the value it
+	 * L{CW.Runtime.Platform.connectSingleDOMEvent} returns the value it
 	 * got from the handler method.
 	 */
 	function test_forwardsReturnValue(self) {
 		var node = {};
-		Divmod.Runtime.theRuntime.connectSingleDOMEvent(
+		CW.Runtime.theRuntime.connectSingleDOMEvent(
 			'onclick', self.handlerObject, node, 'onclickHandler');
 		self.assertIdentical(
 			node['onclick'](node),
@@ -795,12 +795,12 @@ Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
 
 	/**
 	 * Verify that the handler set by
-	 * L{Divmod.Runtime.Platform.connectSingleDOMEvent} removes itself after
+	 * L{CW.Runtime.Platform.connectSingleDOMEvent} removes itself after
 	 * it's called.
 	 */
 	function test_removesHandlerAfterCall(self) {
 		var node = {};
-		Divmod.Runtime.theRuntime.connectSingleDOMEvent(
+		CW.Runtime.theRuntime.connectSingleDOMEvent(
 			'onclick', self.handlerObject, node, 'onclickHandler');
 		node['onclick'](node);
 		self.assertIdentical(node['onclick'], undefined);
@@ -808,21 +808,21 @@ Divmod.Test.TestRuntime.ConnectSingleDOMEventTestCase.methods(
 
 	/**
 	 * Verify that the handler set by
-	 * L{Divmod.Runtime.Platform.connectSingleDOMEvent} removes the handler
-	 * object's entry from L{Divmod.Runtime._eventHandlerObjects}.
+	 * L{CW.Runtime.Platform.connectSingleDOMEvent} removes the handler
+	 * object's entry from L{CW.Runtime._eventHandlerObjects}.
 	 */
 	function test_forgetsObject(self) {
 		var node = {};
-		Divmod.Runtime.theRuntime.connectSingleDOMEvent(
+		CW.Runtime.theRuntime.connectSingleDOMEvent(
 			'onclick', self.handlerObject, node, 'onclickHandler');
 		/* sanity check */
 		self.assertIdentical(
-			Divmod.Runtime._eventHandlerObjects[
+			CW.Runtime._eventHandlerObjects[
 				self.handlerObject.__id__],
 			self.handlerObject);
 		node['onclick'](node);
 		self.assertIdentical(
-			Divmod.Runtime._eventHandlerObjects[
+			CW.Runtime._eventHandlerObjects[
 				self.handlerObject.__id__],
 			undefined);
 	});

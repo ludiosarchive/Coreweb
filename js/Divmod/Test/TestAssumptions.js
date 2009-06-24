@@ -1,15 +1,15 @@
-// import Divmod.UnitTest
+// import CW.UnitTest
 
 
 /**
  * Test assumptions about JavaScript in each browser.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'Nulls').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
 	/*
 	 * Browser detection from jQuery 1.3.2.
 	 */
 	function setUp(self) {
-		var userAgent = Divmod.window.navigator.userAgent.toLowerCase();
+		var userAgent = CW.window.navigator.userAgent.toLowerCase();
 		self.probablyMSIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
 	},
 
@@ -162,7 +162,7 @@ there';
  *    and that we get enough discrete 'readyState 3' events in browsers that do XHR streaming.
  */
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'XHR').methods(
 
 	function setUp(self) {
 		self.baseURL = '/test/utf8stream/?';
@@ -222,7 +222,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 		// this might need to be much better in actual Neptune code.
 
 		// picks up FF1/2/3, Safari 3/4, Chrome
-		self.browserProperlySupportsXHRStream = (ua.indexOf("Gecko") != -1) && (!Divmod.window.opera);
+		self.browserProperlySupportsXHRStream = (ua.indexOf("Gecko") != -1) && (!CW.window.opera);
 
 
 		/**
@@ -237,7 +237,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 
 		var allResponseTexts = [];
 
-		var d = Divmod.Defer.Deferred();
+		var d = CW.Defer.Deferred();
 
 		var stateCounters = {};
 
@@ -264,7 +264,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 			attachEvent("onunload", fOnUnload);
 		}
 
-		xhr.open('POST', self.baseURL + Divmod.random(), true);
+		xhr.open('POST', self.baseURL + CW.random(), true);
 		xhr.onreadystatechange = function(ev) {
 			var state = 0.0 + xhr.readyState;
 
@@ -307,14 +307,14 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 
 					if('\v' == 'v') {
 						// IE
-						self.assertIdentical(4, Divmod.dir(stateCounters).length);
+						self.assertIdentical(4, CW.dir(stateCounters).length);
 						self.assertIdentical(1, stateCounters["1"]);
 						self.assertIdentical(1, stateCounters["2"]);
 						self.assertIdentical(1, stateCounters["3"]);
 						self.assertIdentical(1, stateCounters["4"]);
 					} else if(window.opera) {
 						// Opera (it never fires for state 1)
-						self.assertIdentical(3, Divmod.dir(stateCounters).length);
+						self.assertIdentical(3, CW.dir(stateCounters).length);
 						self.assertIdentical(1, stateCounters["2"]);
 						self.assertIdentical(1, stateCounters["3"]);
 						self.assertIdentical(1, stateCounters["4"]);
@@ -333,7 +333,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 						}
 					}
 
-					//print(Divmod.JSON.stringify(stateCounters) + '<br>');
+					//print(CW.JSON.stringify(stateCounters) + '<br>');
 				}
 
 			} catch (error) {
@@ -369,7 +369,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 
 		if('\v' == 'v') {
 			expectedLoss = ((self.msgLen)*self.howManyMsgs) - ((self.msgLen-1)*1);
-		} else if (Divmod.window.opera) {
+		} else if (CW.window.opera) {
 			expectedLoss = (self.howManyMsgs); // just the NULLs inside the messages.
 		} else {
 			expectedLoss = 0;
@@ -381,7 +381,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
 	function finalXHRObservations(self, xhr, allResponseTexts) {
 		var finalResponseText = xhr.responseText;
 
-		print(Divmod.JSON.stringify(finalResponseText) + '<br>');
+		print(CW.JSON.stringify(finalResponseText) + '<br>');
 
 		var expectedLoss = self._getExpectedLoss();
 
@@ -411,7 +411,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestAssumptions, 'XHR').methods(
  *
  * The workaround is to never send Latin1 XHR to Firefox 3 < 3.0.7.
  */
-Divmod.Test.TestAssumptions.XHR.subclass(Divmod.Test.TestAssumptions, 'XHRLatin1').methods(
+CW.Test.TestAssumptions.XHR.subclass(CW.Test.TestAssumptions, 'XHRLatin1').methods(
 
 	function setUp(self) {
 		self.baseURL = '/test/latin1stream/?';
@@ -443,7 +443,7 @@ Divmod.Test.TestAssumptions.XHR.subclass(Divmod.Test.TestAssumptions, 'XHRLatin1
 /**
  * See above comment to know why it fails in Firefox 3, < 3.0.7.
  */
-Divmod.Test.TestAssumptions.XHR.subclass(Divmod.Test.TestAssumptions, 'RainbowXHRLatin1').methods(
+CW.Test.TestAssumptions.XHR.subclass(CW.Test.TestAssumptions, 'RainbowXHRLatin1').methods(
 
 	function setUp(self) {
 		self.baseURL = '/test/rainbow_latin1stream/?';

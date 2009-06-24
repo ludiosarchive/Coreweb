@@ -1,15 +1,15 @@
 /**
- * Tests for the Divmod object model.
+ * Tests for the CW object model.
  */
 
 
-// import Divmod.UnitTest
+// import CW.UnitTest
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 	function test_class(self) {
-		var Eater = Divmod.Class.subclass('Eater');
+		var Eater = CW.Class.subclass('Eater');
 
 		Eater.methods(
 			function __init__(self, foodFactory) {
@@ -45,12 +45,12 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 		Eater.classIncr();
 		Eater.classIncr();
 
-		// if attribute-copying 'polymorphism' is in Divmod.Class.subclass
+		// if attribute-copying 'polymorphism' is in CW.Class.subclass
 //		BetterEater.classIncr();
 //		BetterEater.classIncr();
 		// endif
 
-		// if attribute-copying removed in Divmod.Class.subclass
+		// if attribute-copying removed in CW.Class.subclass
 		self.assertIdentical(undefined, BetterEater.classIncr);
 		// endif
 
@@ -58,11 +58,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 		self.assert(Eater.classCounter == 3, 'classmethod fuckup');
 
-		// if attribute-copying 'polymorphism' is in Divmod.Class.subclass
+		// if attribute-copying 'polymorphism' is in CW.Class.subclass
 //		self.assert(BetterEater.classCounter == 2, 'classmethod fuckup');
 		// endif
 
-		// if attribute-copying removed in Divmod.Class.subclass
+		// if attribute-copying removed in CW.Class.subclass
 		self.assertIdentical(undefined, BetterEater.classCounter);
 		// endif
 	},
@@ -73,12 +73,12 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 	 * subclass name to the global namespace.
 	 */
 	function test_twoParamSubclass(self) {
-		var cls = Divmod.Class.subclass(Divmod.Test.TestObject, 'InheritTest');
+		var cls = CW.Class.subclass(CW.Test.TestObject, 'InheritTest');
 		try {
-			self.assertIdentical(Divmod.Test.TestObject.InheritTest, cls);
-			self.assertIdentical(cls.__name__, 'Divmod.Test.TestObject.InheritTest');
+			self.assertIdentical(CW.Test.TestObject.InheritTest, cls);
+			self.assertIdentical(cls.__name__, 'CW.Test.TestObject.InheritTest');
 		} finally {
-			delete Divmod.Test.TestObject.InheritTest;
+			delete CW.Test.TestObject.InheritTest;
 		}
 	},
 
@@ -87,17 +87,17 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 	 * Modules have a __name__ attribute which gives their name.
 	 */
 	function test_moduleName(self) {
-		var mod = Divmod.Test.TestObject;
-		self.assertIdentical(mod.__name__, 'Divmod.Test.TestObject');
+		var mod = CW.Test.TestObject;
+		self.assertIdentical(mod.__name__, 'CW.Test.TestObject');
 	},
 
 
 	/**
-	 * Test that Divmod.Class subclasses have a __name__ attribute which gives
+	 * Test that CW.Class subclasses have a __name__ attribute which gives
 	 * their name.
 	 */
 	function test_className(self) {
-		var cls = Divmod.Class.subclass("test_object.test_className.cls");
+		var cls = CW.Class.subclass("test_object.test_className.cls");
 		self.assertIdentical(cls.__name__, "test_object.test_className.cls");
 
 		/* Make sure subclasses don't inherit __name__ from their superclass.
@@ -108,11 +108,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 
 	/**
-	 * Test that instances of Divmod.Class have a __class__ attribute which refers
+	 * Test that instances of CW.Class have a __class__ attribute which refers
 	 * to their class.
 	 */
 	function test_instanceClassReference(self) {
-		var cls = Divmod.Class.subclass("test_object.test_instanceClassReference.cls");
+		var cls = CW.Class.subclass("test_object.test_instanceClassReference.cls");
 		var instance;
 
 		instance = cls();
@@ -129,32 +129,32 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 	},
 
 	/**
-	 * Calling C{toString} on a L{Divmod.Class} should return something
+	 * Calling C{toString} on a L{CW.Class} should return something
 	 * informative.
 	 */
 	function test_classToString(self) {
-		var cls = Divmod.Class.subclass('test_classToString');
+		var cls = CW.Class.subclass('test_classToString');
 		self.assertIdentical(cls.toString(), '<Class test_classToString>');
 	},
 
 
 	/**
-	 * Calling C{toString} on a L{Divmod.Class} instance should return
+	 * Calling C{toString} on a L{CW.Class} instance should return
 	 * something informative.
 	 */
 	function test_instanceToString(self) {
-		var cls = Divmod.Class.subclass('test_instanceToString');
+		var cls = CW.Class.subclass('test_instanceToString');
 		self.assertIdentical(
 			cls().toString(), '<"Instance" of test_instanceToString>');
 	},
 
 
 	/**
-	 * Like L{test_classToString}, but for unnamed L{Divmod.Class} subclasses.
+	 * Like L{test_classToString}, but for unnamed L{CW.Class} subclasses.
 	 */
 	function test_unnamedClassToString(self) {
-		var cls = Divmod.Class.subclass();
-		var classDebugCounter = Divmod.__classDebugCounter__;
+		var cls = CW.Class.subclass();
+		var classDebugCounter = CW.__classDebugCounter__;
 		self.assertIdentical(
 			cls.toString(), '<Class #' + classDebugCounter + '>');
 	},
@@ -162,11 +162,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 	/**
 	 * Like L{test_instanceToString} but for instances of unnamed
-	 * L{Divmod.Class} subclasses.
+	 * L{CW.Class} subclasses.
 	 */
 	function test_unnamedInstanceToString(self) {
-		var cls = Divmod.Class.subclass();
-		var classDebugCounter = Divmod.__classDebugCounter__;
+		var cls = CW.Class.subclass();
+		var classDebugCounter = CW.__classDebugCounter__;
 		self.assertIdentical(
 			cls().toString(),
 			'<"Instance" of #' + classDebugCounter + '>');
@@ -174,31 +174,31 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 
 	/**
-	 * Test that L{Divmod.__instanceCounter__} is not incremented when a new
+	 * Test that L{CW.__instanceCounter__} is not incremented when a new
 	 * *class* is created.
 	 */
 	function test_instanceCounterNoInstances(self) {
-		var instanceCounter = Divmod.__instanceCounter__;
-		var cls = Divmod.Class.subclass('test_instanceCounterNoInstances');
+		var instanceCounter = CW.__instanceCounter__;
+		var cls = CW.Class.subclass('test_instanceCounterNoInstances');
 		self.assertIdentical(
-			Divmod.__instanceCounter__,
+			CW.__instanceCounter__,
 			instanceCounter);
 	},
 
 
 	/**
-	 * Test that L{Divmod.__instanceCounter__} is incremented when a class is
+	 * Test that L{CW.__instanceCounter__} is incremented when a class is
 	 * instantiated.
 	 */
 	function test_instanceCounterIncremented(self) {
-		var cls = Divmod.Class.subclass('test_instanceCounterIncremented');
-		var instanceCounter = Divmod.__instanceCounter__;
+		var cls = CW.Class.subclass('test_instanceCounterIncremented');
+		var instanceCounter = CW.__instanceCounter__;
 		cls();
 		self.assertIdentical(
-			Divmod.__instanceCounter__, instanceCounter + 1);
+			CW.__instanceCounter__, instanceCounter + 1);
 		cls();
 		self.assertIdentical(
-			Divmod.__instanceCounter__, instanceCounter + 2);
+			CW.__instanceCounter__, instanceCounter + 2);
 	},
 
 
@@ -207,23 +207,23 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 	 * to instantiate classes.
 	 */
 	function test_instanceCounterIncrementedNew(self) {
-		var cls = Divmod.Class.subclass('test_instanceCounterIncremented');
-		var instanceCounter = Divmod.__instanceCounter__;
+		var cls = CW.Class.subclass('test_instanceCounterIncremented');
+		var instanceCounter = CW.__instanceCounter__;
 		new cls();
 		self.assertIdentical(
-			Divmod.__instanceCounter__, instanceCounter + 1);
+			CW.__instanceCounter__, instanceCounter + 1);
 		new cls();
 		self.assertIdentical(
-			Divmod.__instanceCounter__, instanceCounter + 2);
+			CW.__instanceCounter__, instanceCounter + 2);
 	},
 
 
 	/**
 	 * Verify that the C{__id__} attribute is not the same for two instances
-	 * of the same L{Divmod.Class}.
+	 * of the same L{CW.Class}.
 	 */
 	function test_uniqueID(self) {
-		var cls = Divmod.Class.subclass('test_uniqueID');
+		var cls = CW.Class.subclass('test_uniqueID');
 		if(cls().__id__ === cls().__id__) {
 			self.fail('__id__ attribute not unique');
 		}
@@ -232,10 +232,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 	function test_newlessInstantiation(self) {
 		/*
-		 * Test that Divmod.Class subclasses can be instantiated without using
+		 * Test that CW.Class subclasses can be instantiated without using
 		 * `new', as well as using .apply() and .call().
 		 */
-		var SomeClass = Divmod.Class.subclass("SomeClass");
+		var SomeClass = CW.Class.subclass("SomeClass");
 		SomeClass.methods(
 			function __init__(self, x, y) {
 				self.x = x;
@@ -257,28 +257,28 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 
 //	function test_namedAny(self) {
-//		self.assert(Divmod.namedAny('not.a.real.package.or.name') == undefined);
-//		self.assert(Divmod.namedAny('Divmod') == Divmod);
-//		self.assert(Divmod.namedAny('Divmod.namedAny') == Divmod.namedAny);
+//		self.assert(CW.namedAny('not.a.real.package.or.name') == undefined);
+//		self.assert(CW.namedAny('CW') == CW);
+//		self.assert(CW.namedAny('CW.namedAny') == CW.namedAny);
 //
 //		var path = [];
-//		self.assert(Divmod.namedAny('Divmod', path) == Divmod);
+//		self.assert(CW.namedAny('CW', path) == CW);
 //		self.assert(path.length == 0);
 //
-//		self.assert(Divmod.namedAny('Divmod.namedAny', path) == Divmod.namedAny);
+//		self.assert(CW.namedAny('CW.namedAny', path) == CW.namedAny);
 //		self.assert(path.length == 1);
-//		self.assert(path[0] == Divmod);
+//		self.assert(path[0] == CW);
 //	},
 
 
 //	/**
-//	 * Test that L{Divmod.objectify} properly zips two lists into an object with
+//	 * Test that L{CW.objectify} properly zips two lists into an object with
 //	 * properties from the first list bound to the objects from the second.
 //	 */
 //	function test_objectify(self) {
 //		var keys = ["one", "two", "red", "blue"];
 //		var values = [1, 2, [255, 0, 0], [0, 0, 255]];
-//		var obj = Divmod.objectify(keys, values);
+//		var obj = CW.objectify(keys, values);
 //		self.assertIdentical(obj.one, 1);
 //		self.assertIdentical(obj.two, 2);
 //		self.assertArraysEqual(obj.red, [255, 0, 0]);
@@ -290,16 +290,16 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 //		var msg = "Lengths of keys and values must be the same.";
 //		var error;
 //
-//		error = self.assertThrows(Error, function() { Divmod.objectify([], ["foo"]); });
-//		self.assert(Divmod.startswith(error.message, msg));
+//		error = self.assertThrows(Error, function() { CW.objectify([], ["foo"]); });
+//		self.assert(CW.startswith(error.message, msg));
 //
-//		error = self.assertThrows(Error, function() { Divmod.objectify(["foo"], []); });
-//		self.assert(Divmod.startswith(error.message, msg));
+//		error = self.assertThrows(Error, function() { CW.objectify(["foo"], []); });
+//		self.assert(CW.startswith(error.message, msg));
 //	},
 
 
 	function test_method(self) {
-		var MethodClassTest = Divmod.Class.subclass('MethodClassTest');
+		var MethodClassTest = CW.Class.subclass('MethodClassTest');
 
 		MethodClassTest.method(function bar(self) {
 				return function() {
@@ -328,15 +328,15 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 	function test_logger(self) {
 		// calling this now will remove any erroneous log observers, allowing
 		// the test below to behave deterministically.
-		Divmod.msg('flushing log');
+		CW.msg('flushing log');
 
 		var logEvents = [];
 
-		var removeObserver = Divmod.logger.addObserver(
+		var removeObserver = CW.logger.addObserver(
 			function(event) { logEvents.push(event); });
 
 		var logmsg = "(logging system test error) Hello, world";
-		Divmod.msg(logmsg);
+		CW.msg(logmsg);
 
 		self.assertIdentical(1, logEvents.length);
 		self.assertIdentical(false, logEvents[0].isError);
@@ -345,25 +345,25 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 		logEvents = [];
 
 		var logerr = "(logging system test error) Doom, world.";
-		Divmod.err(new Error(logerr), logmsg);
+		CW.err(new Error(logerr), logmsg);
 
 		self.assertIdentical(1, logEvents.length);
 		self.assertIdentical(true, logEvents[0].isError);
 		self.assertIdentical(true, logEvents[0].error instanceof Error);
-		self.assert(Divmod.startswith(logEvents[0].error.message, logerr));
+		self.assert(CW.startswith(logEvents[0].error.message, logerr));
 		self.assertIdentical(logmsg, logEvents[0].message);
 
 		removeObserver();
 		logEvents = [];
-		Divmod.msg(logmsg);
+		CW.msg(logmsg);
 		self.assertIdentical(0, logEvents.length);
 
 		var observererr = "(logging system test error) Observer had a bug.";
-		Divmod.logger.addObserver(function(event) { throw new Error(observererr); });
-		Divmod.logger.addObserver(function(event) { logEvents.push(event); });
+		CW.logger.addObserver(function(event) { throw new Error(observererr); });
+		CW.logger.addObserver(function(event) { logEvents.push(event); });
 
-		Divmod.msg(logmsg);
-		Divmod.msg(logerr);
+		CW.msg(logmsg);
+		CW.msg(logerr);
 		self.assertIdentical(3, logEvents.length, "Incorrect number of events logged");
 		self.assertIdentical(false, logEvents[0].isError, "First event should not have been an error");
 		self.assertIdentical(logmsg, logEvents[0].message, "First event had wrong message");
@@ -378,13 +378,13 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestObject').methods(
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestObject, 'TestBareObject').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 	/*
 	 * Verify that method/methods-free classes (prototype. only) work fine.
 	 */
 	function test_bareClass(self) {
-		var Bare = Divmod.Class.subclass('Bare');
+		var Bare = CW.Class.subclass('Bare');
 
 		Bare.prototype.__init__ = function(firstFood) {
 			this.food = [firstFood];

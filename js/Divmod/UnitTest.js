@@ -1,27 +1,27 @@
 /**
  * JavaScript unit testing framework, modeled on xUnit.
  *
- * Heavy modified from the Divmod UnitTest.js to add support
+ * Heavy modified from the CW UnitTest.js to add support
  * for Deferreds in test methods, setUp, and tearDown.
  */
 
 
-// import Divmod
-// import Divmod.Inspect
-//// import Divmod.Runtime
+// import CW
+// import CW.Inspect
+//// import CW.Runtime
 
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
  * that if a method name starts with C{test_}, then it is a test.
  */
-Divmod.UnitTest.loadFromClass = function loadFromClass(testClass) {
+CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 	var prefix = 'test_';
-	var suite = Divmod.UnitTest.TestSuite();
-	var methods = Divmod.Inspect.methods(testClass);
+	var suite = CW.UnitTest.TestSuite();
+	var methods = CW.Inspect.methods(testClass);
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
-		if (Divmod.startswith(name, prefix)) {
+		if (CW.startswith(name, prefix)) {
 			suite.addTest(testClass(name));
 		}
 	}
@@ -30,30 +30,30 @@ Divmod.UnitTest.loadFromClass = function loadFromClass(testClass) {
 
 
 /**
- * Return C{true} is given value is a subclass of L{Divmod.UnitTest.TestCase},
+ * Return C{true} is given value is a subclass of L{CW.UnitTest.TestCase},
  * C{false} otherwise.
  */
-Divmod.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
+CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 	if (klass.subclassOf === undefined) {
 		return false;
 	}
-	return klass.subclassOf(Divmod.UnitTest.TestCase);
+	return klass.subclassOf(CW.UnitTest.TestCase);
 };
 
 
 /**
  * Return a suite which contains every test defined in C{testModule}.
  */
-Divmod.UnitTest.loadFromModule = function loadFromModule(testModule, moduleOfModules /*=false*/) {
-	var suite = Divmod.UnitTest.TestSuite();
+CW.UnitTest.loadFromModule = function loadFromModule(testModule, moduleOfModules /*=false*/) {
+	var suite = CW.UnitTest.TestSuite();
 	for (var name in testModule) {
 		if(!moduleOfModules) {
-			if (Divmod.UnitTest.isTestCaseClass(testModule[name])) {
-				suite.addTest(Divmod.UnitTest.loadFromClass(testModule[name]));
+			if (CW.UnitTest.isTestCaseClass(testModule[name])) {
+				suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
 			}
 		} else {
 			// There's no "is a module" flag so this is kind of an ugly hack
-			suite.addTest(Divmod.UnitTest.loadFromModule(testModule[name]));
+			suite.addTest(CW.UnitTest.loadFromModule(testModule[name]));
 		}
 	}
 	return suite;
@@ -64,8 +64,8 @@ Divmod.UnitTest.loadFromModule = function loadFromModule(testModule, moduleOfMod
 /**
  * Raised to indicate that a test has failed.
  */
-Divmod.UnitTest.AssertionError = Divmod.Error.subclass('Divmod.UnitTest.AssertionError');
-Divmod.UnitTest.AssertionError.methods(
+CW.UnitTest.AssertionError = CW.Error.subclass('CW.UnitTest.AssertionError');
+CW.UnitTest.AssertionError.methods(
 	function toString(self) {
 		return 'AssertionError: ' + self.message;
 	});
@@ -78,19 +78,19 @@ Divmod.UnitTest.AssertionError.methods(
  * @ivar testsRun: The number of tests that have been run using this as the
  *				 result.
  *
- * @type failures: Array of [L{TestCase}, L{Divmod.Error}] pairs
+ * @type failures: Array of [L{TestCase}, L{CW.Error}] pairs
  * @ivar failures: The assertion failures that have occurred in this test run,
  *				 paired with the tests that generated them.
  *
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type errors: Array of [L{TestCase}, L{Divmod.Error}] pairs
+ * @type errors: Array of [L{TestCase}, L{CW.Error}] pairs
  * @ivar errors: The errors that were raised by tests in this test run, paired
  *			   with the tests that generated them.
  */
-Divmod.UnitTest.TestResult = Divmod.Class.subclass('Divmod.UnitTest.TestResult');
-Divmod.UnitTest.TestResult.methods(
+CW.UnitTest.TestResult = CW.Class.subclass('CW.UnitTest.TestResult');
+CW.UnitTest.TestResult.methods(
 	function __init__(self) {
 		self.testsRun = 0;
 		self.failures = [];
@@ -103,7 +103,7 @@ Divmod.UnitTest.TestResult.methods(
 	 * Called by C{TestCase.run} at the start of the test.
 	 *
 	 * @param test: The test that just started.
-	 * @type test: L{Divmod.UnitTest.TestCase}
+	 * @type test: L{CW.UnitTest.TestCase}
 	 */
 	function startTest(self, test) {
 		self.testsRun++;
@@ -114,7 +114,7 @@ Divmod.UnitTest.TestResult.methods(
 	 * Called by C{TestCase.run} at the end of the test run.
 	 *
 	 * @param test: The test that just finished.
-	 * @type test: L{Divmod.UnitTest.TestCase}
+	 * @type test: L{CW.UnitTest.TestCase}
 	 */
 	function stopTest(self, test) {
 	},
@@ -124,10 +124,10 @@ Divmod.UnitTest.TestResult.methods(
 	 * Report an error that occurred while running the given test.
 	 *
 	 * @param test: The test that had an error.
-	 * @type test: L{Divmod.UnitTest.TestCase}
+	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param error: The error that occurred.
-	 * @type error: Generally a L{Divmod.Error} instance.
+	 * @type error: Generally a L{CW.Error} instance.
 	 */
 	function addError(self, test, error) {
 		self.errors.push([test, error]);
@@ -140,10 +140,10 @@ Divmod.UnitTest.TestResult.methods(
 	 * This has NOTHING to do with Failure objects.
 	 *
 	 * @param test: The test with the failed assertion.
-	 * @type test: L{Divmod.UnitTest.TestCase}
+	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{Divmod.UnitTest.AssertionError} instance.
+	 * @type failure: A L{CW.UnitTest.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -154,7 +154,7 @@ Divmod.UnitTest.TestResult.methods(
 	 * Report that the given test succeeded.
 	 *
 	 * @param test: The test that succeeded.
-	 * @type test: L{Divmod.UnitTest.TestCase}
+	 * @type test: L{CW.UnitTest.TestCase}
 	 */
 	function addSuccess(self, test) {
 		self.successes.push(test);
@@ -180,14 +180,14 @@ Divmod.UnitTest.TestResult.methods(
 
 // no more subunit/spidermonkey
 /*
-Divmod.UnitTest.SubunitTestClient = Divmod.UnitTest.TestResult.subclass('Divmod.UnitTest.SubunitTestClient');
-Divmod.UnitTest.SubunitTestClient.methods(
+CW.UnitTest.SubunitTestClient = CW.UnitTest.TestResult.subclass('CW.UnitTest.SubunitTestClient');
+CW.UnitTest.SubunitTestClient.methods(
 	function _write(self, string) {
 		print(string);
 	},
 
 	function _sendException(self, error) {
-		var f = Divmod.Defer.Failure(error);
+		var f = CW.Defer.Failure(error);
 		self._write(f.toPrettyText(f.filteredParseStack()));
 	},
 
@@ -216,8 +216,8 @@ Divmod.UnitTest.SubunitTestClient.methods(
 /**
  * Represents a collection of tests. Implements the Composite pattern.
  */
-Divmod.UnitTest.TestSuite = Divmod.Class.subclass('Divmod.UnitTest.TestSuite');
-Divmod.UnitTest.TestSuite.methods(
+CW.UnitTest.TestSuite = CW.Class.subclass('CW.UnitTest.TestSuite');
+CW.UnitTest.TestSuite.methods(
 	function __init__(self, /* optional */ tests) {
 		self.tests = [];
 		if (tests != undefined) {
@@ -230,7 +230,7 @@ Divmod.UnitTest.TestSuite.methods(
 	 * Add the given test to the suite.
 	 *
 	 * @param test: The test to add.
-	 * @type test: L{Divmod.UnitTest.TestCase} or L{Divmod.UnitTest.TestSuite}
+	 * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
 	 */
 	function addTest(self, test) {
 		self.tests.push(test);
@@ -241,7 +241,7 @@ Divmod.UnitTest.TestSuite.methods(
 	 * Add the given tests to the suite.
 	 *
 	 * @param tests: An array of tests to add.
-	 * @type tests: [L{Divmod.UnitTest.TestCase} or L{Divmod.UnitTest.TestSuite}]
+	 * @type tests: [L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}]
 	 */
 	function addTests(self, tests) {
 		for (var i = 0; i < tests.length; ++i) {
@@ -259,7 +259,7 @@ Divmod.UnitTest.TestSuite.methods(
 		var total = 0;
 		var visitor = function (test) { total += test.countTestCases(); };
 
-		var countVisitor = Divmod.UnitTest.SynchronousVisitor();
+		var countVisitor = CW.UnitTest.SynchronousVisitor();
 		countVisitor.traverse(visitor, self.tests);
 
 		return total;
@@ -271,7 +271,7 @@ Divmod.UnitTest.TestSuite.methods(
 	 */
 	function visit(self, visitor) {
 		// safari has serious maximum recursion problems
-		var sVisitor = Divmod.UnitTest.SerialVisitor(); // or ConcurrentVisitor
+		var sVisitor = CW.UnitTest.SerialVisitor(); // or ConcurrentVisitor
 		return sVisitor.traverse(visitor, self.tests);
 	},
 
@@ -283,7 +283,7 @@ Divmod.UnitTest.TestSuite.methods(
 	 * Useful for counting the # of tests and not much else.
 	 */
 	function visitSync(self, visitor) {
-		var testVisitor = Divmod.UnitTest.SynchronousVisitor();
+		var testVisitor = CW.UnitTest.SynchronousVisitor();
 		testVisitor.traverse(visitor, self.tests);
 	},
 
@@ -293,7 +293,7 @@ Divmod.UnitTest.TestSuite.methods(
 	 * Run all of the tests in the suite.
 	 */
 	function run(self, result) {
-		Divmod.UnitTest.installMonkeys();
+		CW.UnitTest.installMonkeys();
 
 		var d = self.visit(function (test) { return test.run(result); });
 
@@ -314,7 +314,7 @@ Divmod.UnitTest.TestSuite.methods(
 /**
  * I represent a single unit test. Subclass me for your own tests.
  *
- * I will be instantiated once per your own test_ method, by L{Divmod.UnitTest.loadFromClass}.
+ * I will be instantiated once per your own test_ method, by L{CW.UnitTest.loadFromClass}.
  *
  * I know which asserts/compares are "internal" (called by my own logic) because:
  * some browsers don't have tracebacks in JS,
@@ -326,8 +326,8 @@ Divmod.UnitTest.TestSuite.methods(
  */
 
 
-Divmod.UnitTest.TestCase = Divmod.Class.subclass('Divmod.UnitTest.TestCase');
-Divmod.UnitTest.TestCase.methods(
+CW.UnitTest.TestCase = CW.Class.subclass('CW.UnitTest.TestCase');
+CW.UnitTest.TestCase.methods(
 	/**
 	 * Construct a test.
 	 *
@@ -364,7 +364,7 @@ Divmod.UnitTest.TestCase.methods(
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
 	function visit(self, visitor) {
-		//return Divmod.Defer.succeed(visitor(self));
+		//return CW.Defer.succeed(visitor(self));
 		return visitor(self);
 	},
 
@@ -379,7 +379,7 @@ Divmod.UnitTest.TestCase.methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: Divmod.UnitTest.AssertionError
+	 * @throw: CW.UnitTest.AssertionError
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -391,10 +391,10 @@ Divmod.UnitTest.TestCase.methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: Divmod.UnitTest.AssertionError
+	 * @throw: CW.UnitTest.AssertionError
 	 */
 	function getFailError(self, reason) {
-		return Divmod.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
+		return CW.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
 	},
 
 
@@ -441,12 +441,12 @@ Divmod.UnitTest.TestCase.methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{Divmod.UnitTest.AssertionError} if C{predicate} returns
+	 * @raises L{CW.UnitTest.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
 					 /* optional */ message, internalCompare /*=false*/) {
-		var repr = Divmod.UnitTest.repr;
+		var repr = CW.UnitTest.repr;
 		if (!predicate(a, b)) {
 			var msg = repr(a) + " " + description + " " + repr(b);
 			if (message != null) {
@@ -464,7 +464,7 @@ Divmod.UnitTest.TestCase.methods(
 	 * Assert that C{a} and C{b} are equal. Recurses into arrays and dicts.
 	 */
 	function assertArraysEqual(self, a, b, /* optional */ message) {
-		self.compare(Divmod.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
+		self.compare(CW.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
 		self._assertCounter += 1;
 	},
 
@@ -514,7 +514,7 @@ Divmod.UnitTest.TestCase.methods(
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
 				self.assert(
-					Divmod.startswith(e.message, expectedMessage),
+					CW.startswith(e.message, expectedMessage),
 					"Error started with wrong message: " + e.message, true);
 			}
 		}
@@ -534,14 +534,14 @@ Divmod.UnitTest.TestCase.methods(
 	 *
 	 * This "Failure" has to do with the "Failure" objects, not the assert failures.
 	 *
-	 * @param deferred: The L{Divmod.Defer.Deferred} which is expected to fail.
+	 * @param deferred: The L{CW.Defer.Deferred} which is expected to fail.
 	 *
-	 * @param errorTypes: An C{Array} of L{Divmod.Error} subclasses which are
+	 * @param errorTypes: An C{Array} of L{CW.Error} subclasses which are
 	 * the allowed failure types for the given Deferred.
 	 *
 	 * @throw Error: Thrown if C{errorTypes} has a length of 0.
 	 *
-	 * @rtype: L{Divmod.Defer.Deferred}
+	 * @rtype: L{CW.Defer.Deferred}
 	 *
 	 * @return: A Deferred which will fire with the error instance with which
 	 * the input Deferred fails if it is one of the types specified in
@@ -605,13 +605,13 @@ Divmod.UnitTest.TestCase.methods(
 			oneDeferredOrResult = aFunction();
 		} catch (err) { // this checks for immediate (synchronous) failures only. what() could still fail later.
 			immediatelyFailed = true;
-			oneDeferredOrResult = Divmod.Defer.fail(err);
+			oneDeferredOrResult = CW.Defer.fail(err);
 		}
 
 
 		if (!immediatelyFailed) {
-			if (!(oneDeferredOrResult instanceof Divmod.Defer.Deferred)) {
-				oneDeferredOrResult = Divmod.Defer.succeed(oneDeferredOrResult);
+			if (!(oneDeferredOrResult instanceof CW.Defer.Deferred)) {
+				oneDeferredOrResult = CW.Defer.succeed(oneDeferredOrResult);
 			}
 		}
 
@@ -634,7 +634,7 @@ Divmod.UnitTest.TestCase.methods(
 		//// XXX: This probably isn't the best place to put this, but it's the
 		//// only place for the time being; see #2806 for the proper way to deal
 		//// with this.
-		//////Divmod.Runtime.initRuntime(); // no runtime, thanks.
+		//////CW.Runtime.initRuntime(); // no runtime, thanks.
 
 		setUpD = self._maybeWrapWithDeferred(function(){return self.setUp();});
 
@@ -647,7 +647,7 @@ Divmod.UnitTest.TestCase.methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function(aFailure) {
-					if (aFailure.error instanceof Divmod.UnitTest.AssertionError) {
+					if (aFailure.error instanceof CW.UnitTest.AssertionError) {
 						result.addFailure(self, aFailure.error);
 					} else {
 						result.addError(self, aFailure.error);
@@ -675,8 +675,8 @@ Divmod.UnitTest.TestCase.methods(
 					tearDownD.addBoth(function(){
 						if (success) {
 							var whichProblems = [];
-							for(var pendingType in Divmod.UnitTest.delayedCalls) {
-								for(var ticket in Divmod.UnitTest.delayedCalls[pendingType]) {
+							for(var pendingType in CW.UnitTest.delayedCalls) {
+								for(var ticket in CW.UnitTest.delayedCalls[pendingType]) {
 									whichProblems.push(pendingType);
 								}
 							}
@@ -684,13 +684,13 @@ Divmod.UnitTest.TestCase.methods(
 							if(whichProblems.length > 0) {
 								success = false;
 
-								result.addError(self, new Divmod.Error(
+								result.addError(self, new CW.Error(
 								"Test ended with "+ whichProblems.length +
 								" pending call(s): " + whichProblems));
 
 								// Cleanup everything. If we don't do this, test output is impossible
 								// to decipher, because delayed calls "spill over" to future tests.
-								Divmod.UnitTest.stopTrackingDelayedCalls();
+								CW.UnitTest.stopTrackingDelayedCalls();
 							}
 
 							if(success) {
@@ -721,7 +721,7 @@ Divmod.UnitTest.TestCase.methods(
 	}
 
 
-//   Reference Deferred-free implementation from original Divmod UnitTest.js
+//   Reference Deferred-free implementation from original CW UnitTest.js
 //
 //	/**
 //	 * Actually run this test.
@@ -733,7 +733,7 @@ Divmod.UnitTest.TestCase.methods(
 //		// XXX: This probably isn't the best place to put this, but it's the
 //		// only place for the time being; see #2806 for the proper way to deal
 //		// with this.
-//		Divmod.Runtime.initRuntime();
+//		CW.Runtime.initRuntime();
 //
 //		try {
 //			self.setUp();
@@ -744,7 +744,7 @@ Divmod.UnitTest.TestCase.methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof Divmod.UnitTest.AssertionError) {
+//			if (e instanceof CW.UnitTest.AssertionError) {
 //				result.addFailure(self, e);
 //			} else {
 //				result.addError(self, e);
@@ -772,7 +772,7 @@ Divmod.UnitTest.TestCase.methods(
 //	function _noOpera10Trailer(self, error) {
 //		// Wow. Opera 10 only lets us replace the message text once per test method or something,
 //		// so we return the cleaned message.
-//		if(Divmod.window.opera) {
+//		if(CW.window.opera) {
 //			var copy = '' + error.message;
 //			var replacement = copy.replace(/\r\nstacktrace: n.*/, '');
 //			//alert('replacement is ' + replacement);
@@ -790,7 +790,7 @@ Divmod.UnitTest.TestCase.methods(
 /**
  * Return a nicely formatted summary from the given L{TestResult}.
  */
-Divmod.UnitTest.formatSummary = function formatSummary(result) {
+CW.UnitTest.formatSummary = function formatSummary(result) {
 	var summary;
 	if (result.wasSuccessful()) {
 		summary = "PASSED "
@@ -814,19 +814,19 @@ Divmod.UnitTest.formatSummary = function formatSummary(result) {
  * Return a formatted string containing all the errors and failures in a result
  *
  * @param result: A test result.
- * @type result: L{Divmod.UnitTest.TestResult}
+ * @type result: L{CW.UnitTest.TestResult}
  */
-Divmod.UnitTest.formatErrors = function formatErrors(result) {
+CW.UnitTest.formatErrors = function formatErrors(result) {
 	var format = '';
 	var i;
 	for (i = 0; i < result.errors.length; ++i) {
-		format += Divmod.UnitTest.formatError('ERROR',
+		format += CW.UnitTest.formatError('ERROR',
 											  result.errors[i][0],
 											  result.errors[i][1]);
 		format += '<br>\n';
 	}
 	for (i = 0; i < result.failures.length; ++i) {
-		format += Divmod.UnitTest.formatError('FAILURE',
+		format += CW.UnitTest.formatError('FAILURE',
 											  result.failures[i][0],
 											  result.failures[i][1]);
 		format += '<br>\n';
@@ -840,9 +840,9 @@ Divmod.UnitTest.formatErrors = function formatErrors(result) {
  * Return a formatted string containing all the successes in a result
  *
  * @param result: A test result.
- * @type result: L{Divmod.UnitTest.TestResult}
+ * @type result: L{CW.UnitTest.TestResult}
  */
-Divmod.UnitTest.formatSuccesses = function formatErrors(result) {
+CW.UnitTest.formatSuccesses = function formatErrors(result) {
 	var format = '';
 	var i;
 	for (i = 0; i < result.successes.length; ++i) {
@@ -857,16 +857,16 @@ Divmod.UnitTest.formatSuccesses = function formatErrors(result) {
  * Return a formatting string showing the failure/error that occurred in a test.
  *
  * @param test: A test which had a failure or error.
- * @type test: L{Divmod.UnitTest.TestCase}
+ * @type test: L{CW.UnitTest.TestCase}
  *
  * @param error: An error or failure which occurred in the test.
- * @type error: L{Divmod.Error}
+ * @type error: L{CW.Error}
  */
-Divmod.UnitTest.formatError = function formatError(kind, test, error) {
+CW.UnitTest.formatError = function formatError(kind, test, error) {
 	var ret = '[' + kind + '] ' + test.id() + ':\n\n' + error.message + '\n';
 
 	// this is just really annoying
-	//var f = Divmod.Defer.Failure(error);
+	//var f = CW.Defer.Failure(error);
 	//ret += f.toPrettyText(f.filteredParseStack()) + '\n';
 	
 	return ret;
@@ -880,18 +880,18 @@ Divmod.UnitTest.formatError = function formatError(kind, test, error) {
  * don't use this in a web browser.
  *
  * @param test: The test to run.
- * @type test: L{Divmod.UnitTest.TestCase} or L{Divmod.UnitTest.TestSuite}
+ * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
-Divmod.UnitTest.run = function run(test) {
-	var result = Divmod.UnitTest.TestResult();
+CW.UnitTest.run = function run(test) {
+	var result = CW.UnitTest.TestResult();
 	var start = new Date().getTime();
 	var d = test.run(result);
 	d.addCallback(function(){
 		var timeTaken = new Date().getTime() - start;
-		print('<b>' + Divmod.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
-		print(Divmod.UnitTest.formatErrors(result));
+		print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
+		print(CW.UnitTest.formatErrors(result));
 		print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
-		print('<div id="successes">' + Divmod.UnitTest.formatSuccesses(result) + '</div>');
+		print('<div id="successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
 	});
 	return d;
 };
@@ -900,8 +900,8 @@ Divmod.UnitTest.run = function run(test) {
 
 // no more subunit/spidermonkey
 /*
-Divmod.UnitTest.runRemote = function runRemote(test) {
-	var result = Divmod.UnitTest.SubunitTestClient();
+CW.UnitTest.runRemote = function runRemote(test) {
+	var result = CW.UnitTest.SubunitTestClient();
 	test.run(result);
 };*/
 
@@ -910,7 +910,7 @@ Divmod.UnitTest.runRemote = function runRemote(test) {
  * Return a string representation of an arbitrary value, similar to
  * Python's builtin repr() function.
  */
-Divmod.UnitTest.repr = function repr(value) {
+CW.UnitTest.repr = function repr(value) {
 
 	var cgiEscape = function(s) {
 		return value.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
@@ -941,7 +941,7 @@ Divmod.UnitTest.repr = function repr(value) {
 
 /* copy pasted from Nevow.Athena.Test.
 *
-* By having Deferreds in Divmod.UnitTest we lose the ability to test Deferreds before using them.
+* By having Deferreds in CW.UnitTest we lose the ability to test Deferreds before using them.
 */
 
 
@@ -950,15 +950,15 @@ Divmod.UnitTest.repr = function repr(value) {
  * suite without waiting for the Deferred from a visit to fire before
  * proceeding to the next method.
  */
-Divmod.UnitTest.ConcurrentVisitor = Divmod.Class.subclass('Divmod.UnitTest.ConcurrentVisitor');
-Divmod.UnitTest.ConcurrentVisitor.methods(
+CW.UnitTest.ConcurrentVisitor = CW.Class.subclass('CW.UnitTest.ConcurrentVisitor');
+CW.UnitTest.ConcurrentVisitor.methods(
 	function traverse(self, visitor, tests) {
 		var deferreds = [];
-		Divmod.msg("Running " + tests.length + " methods/TestCases.");
+		CW.msg("Running " + tests.length + " methods/TestCases.");
 		for (var i = 0; i < tests.length; ++i) {
 			deferreds.push(tests[i].visit(visitor));
 		}
-		return Divmod.Defer.DeferredList(deferreds);
+		return CW.Defer.DeferredList(deferreds);
 	});
 
 
@@ -967,11 +967,11 @@ Divmod.UnitTest.ConcurrentVisitor.methods(
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
  */
-Divmod.UnitTest.SerialVisitor = Divmod.Class.subclass('Divmod.UnitTest.SerialVisitor');
-Divmod.UnitTest.SerialVisitor.methods(
+CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
+CW.UnitTest.SerialVisitor.methods(
 	function traverse(self, visitor, tests) {
 //		print('Using SerialVisitor on ' + tests);
-		var completionDeferred = Divmod.Defer.Deferred();
+		var completionDeferred = CW.Defer.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
 	},
@@ -1011,11 +1011,11 @@ Divmod.UnitTest.SerialVisitor.methods(
 // * suite, waiting for the Deferred from a visit to fire before proceeding to
 // * the next method.
 // */
-//Divmod.UnitTest.SerialVisitor = Divmod.Class.subclass('Divmod.UnitTest.SerialVisitor');
-//Divmod.UnitTest.SerialVisitor.methods(
+//CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
+//CW.UnitTest.SerialVisitor.methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
-//		var completionDeferred = Divmod.Defer.Deferred();
+//		var completionDeferred = CW.Defer.Deferred();
 //		self._traverse(visitor, tests, completionDeferred);
 //		return completionDeferred;
 //	},
@@ -1044,8 +1044,8 @@ Divmod.UnitTest.SerialVisitor.methods(
  *
  * This was the old behavior.
  */
-Divmod.UnitTest.SynchronousVisitor = Divmod.Class.subclass('Divmod.UnitTest.SynchronousVisitor');
-Divmod.UnitTest.SynchronousVisitor.methods(
+CW.UnitTest.SynchronousVisitor = CW.Class.subclass('CW.UnitTest.SynchronousVisitor');
+CW.UnitTest.SynchronousVisitor.methods(
 	function traverse(self, visitor, tests) {
 		for (var i = 0; i < tests.length; ++i) {
 			// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
@@ -1060,26 +1060,26 @@ Divmod.UnitTest.SynchronousVisitor.methods(
  *
  * This is called right before the tests start, and after the teardown of *any test* that ends dirty.
  */
-Divmod.UnitTest.stopTrackingDelayedCalls = function() {
-	Divmod.UnitTest.delayedCalls = {
+CW.UnitTest.stopTrackingDelayedCalls = function() {
+	CW.UnitTest.delayedCalls = {
 		'setTimeout_pending': {},
 		'setInterval_pending': {}
 	};
 };
 
 
-Divmod.UnitTest.stopTrackingDelayedCalls();
+CW.UnitTest.stopTrackingDelayedCalls();
 
 
 
 // TODO: maybe generalize Timeout and Interval monkeys? with a monkeyMaker?
 
 
-Divmod.UnitTest.setTimeoutMonkey = function(callable, when) {
+CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 	var replacementCallable = function() {
-//		var originalLen = Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length;
-		delete Divmod.UnitTest.delayedCalls['setTimeout_pending'][this];
-//		var newLen = Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length;
+//		var originalLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
+		delete CW.UnitTest.delayedCalls['setTimeout_pending'][this];
+//		var newLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
@@ -1092,73 +1092,73 @@ Divmod.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 	var ticket = null;
 
-	if(Divmod.window.setTimeout_bak) {
+	if(CW.window.setTimeout_bak) {
 		ticket = setTimeout_bak(function(){replacementCallable.call(ticket, [])}, when);
-	} else if(Divmod.window.frames[0] && Divmod.window.frames[0].setTimeout) {
-		ticket = Divmod.window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
+	} else if(CW.window.frames[0] && CW.window.frames[0].setTimeout) {
+		ticket = CW.window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
 	} else {
-		throw new Error("neither setTimeout_bak nor Divmod.window.frames[0].setTimeout was available.");
+		throw new Error("neither setTimeout_bak nor CW.window.frames[0].setTimeout was available.");
 	}
 
-	Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
+	CW.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
 
 	return ticket;
 }
 
 
 
-Divmod.UnitTest.setIntervalMonkey = function(callable, when) {
+CW.UnitTest.setIntervalMonkey = function(callable, when) {
 	// interval callable repeats forever until we clearInterval,
 	// so we don't need any fancy replacementCallable.
 
 	var ticket = null;
 
-	if(Divmod.window.setInterval_bak) {
+	if(CW.window.setInterval_bak) {
 		ticket = setInterval_bak(callable, when);
-	} else if(Divmod.window.frames[0] && Divmod.window.frames[0].setInterval) {
-		ticket = Divmod.window.frames[0].setInterval(callable, when);
+	} else if(CW.window.frames[0] && CW.window.frames[0].setInterval) {
+		ticket = CW.window.frames[0].setInterval(callable, when);
 	} else {
-		throw new Error("neither setInterval_bak nor Divmod.window.frames[0].setInterval was available.");
+		throw new Error("neither setInterval_bak nor CW.window.frames[0].setInterval was available.");
 	}
 
-	Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
+	CW.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
 
 	return ticket;
 }
 
 
 
-Divmod.UnitTest.clearTimeoutMonkey = function(ticket) {
+CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	var output = null;
 
-	if(Divmod.window.clearTimeout_bak) {
+	if(CW.window.clearTimeout_bak) {
 		output = clearTimeout_bak(ticket);
-	} else if(Divmod.window.frames[0] && Divmod.window.frames[0].clearTimeout) {
-		output = Divmod.window.frames[0].clearTimeout(ticket);
+	} else if(CW.window.frames[0] && CW.window.frames[0].clearTimeout) {
+		output = CW.window.frames[0].clearTimeout(ticket);
 	} else {
-		throw new Error("neither clearTimeout_bak nor Divmod.window.frames[0].clearTimeout was available.");
+		throw new Error("neither clearTimeout_bak nor CW.window.frames[0].clearTimeout was available.");
 	}
 
-	delete Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+	delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 	return output;
 }
 
 
 
-Divmod.UnitTest.clearIntervalMonkey = function(ticket) {
+CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	var output = null;
 	
-	if(Divmod.window.clearInterval_bak) {
+	if(CW.window.clearInterval_bak) {
 		output = clearInterval_bak(ticket);
-	} else if(Divmod.window.frames[0] && Divmod.window.frames[0].clearInterval) {
-		output = Divmod.window.frames[0].clearInterval(ticket);
+	} else if(CW.window.frames[0] && CW.window.frames[0].clearInterval) {
+		output = CW.window.frames[0].clearInterval(ticket);
 	} else {
-		throw new Error("neither clearInterval_bak nor Divmod.window.frames[0].clearInterval was available.");
+		throw new Error("neither clearInterval_bak nor CW.window.frames[0].clearInterval was available.");
 	}
 
-	delete Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket];
+	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
 	return output;
 }
 
@@ -1166,10 +1166,10 @@ Divmod.UnitTest.clearIntervalMonkey = function(ticket) {
 /**
  * This needs to be called before tests are started.
  */
-Divmod.UnitTest.installMonkeys = function() {
+CW.UnitTest.installMonkeys = function() {
 
-	if(Divmod.UnitTest.monkeysAreInstalled) {
-		Divmod.debug('Monkeys already installed.');
+	if(CW.UnitTest.monkeysAreInstalled) {
+		CW.debug('Monkeys already installed.');
 		return;
 	}
 
@@ -1179,34 +1179,34 @@ Divmod.UnitTest.installMonkeys = function() {
 	// (it is indeed mildly broken in Safari 4 beta [2009-03-07])
 	//    not anymore when https://bugs.webkit.org/show_bug.cgi?id=24453 is Fixed and Safari 4 ships with it.
 	if('\v' !== 'v') { // if not IE
-		// TODO: build a Divmod.Support module that has
+		// TODO: build a CW.Support module that has
 		// "supportsSetTimeoutReferenceSwap" instead of making all these IE assumptions
 
-		Divmod.window.setTimeout_bak = Divmod.window.setTimeout;
-		Divmod.window.setTimeout = Divmod.UnitTest.setTimeoutMonkey;
-		Divmod.window.clearTimeout_bak = Divmod.window.clearTimeout;
-		Divmod.window.clearTimeout = Divmod.UnitTest.clearTimeoutMonkey;
+		CW.window.setTimeout_bak = CW.window.setTimeout;
+		CW.window.setTimeout = CW.UnitTest.setTimeoutMonkey;
+		CW.window.clearTimeout_bak = CW.window.clearTimeout;
+		CW.window.clearTimeout = CW.UnitTest.clearTimeoutMonkey;
 
-		Divmod.window.setInterval_bak = Divmod.window.setInterval;
-		Divmod.window.setInterval = Divmod.UnitTest.setIntervalMonkey;
-		Divmod.window.clearInterval_bak = Divmod.window.clearInterval;
-		Divmod.window.clearInterval = Divmod.UnitTest.clearIntervalMonkey;
+		CW.window.setInterval_bak = CW.window.setInterval;
+		CW.window.setInterval = CW.UnitTest.setIntervalMonkey;
+		CW.window.clearInterval_bak = CW.window.clearInterval;
+		CW.window.clearInterval = CW.UnitTest.clearIntervalMonkey;
 	} else {
 		execScript('\
 			function setTimeout(callable, when) {\
-				return Divmod.UnitTest.setTimeoutMonkey(callable, when);\
+				return CW.UnitTest.setTimeoutMonkey(callable, when);\
 			}\
 			function clearTimeout(ticket) {\
-				return Divmod.UnitTest.clearTimeoutMonkey(ticket);\
+				return CW.UnitTest.clearTimeoutMonkey(ticket);\
 			}\
 			function setInterval(callable, when) {\
-				return Divmod.UnitTest.setIntervalMonkey(callable, when);\
+				return CW.UnitTest.setIntervalMonkey(callable, when);\
 			}\
 			function clearInterval(ticket) {\
-				return Divmod.UnitTest.clearIntervalMonkey(ticket);\
+				return CW.UnitTest.clearIntervalMonkey(ticket);\
 			}'
 		);
 	}
 
-	Divmod.UnitTest.monkeysAreInstalled = true;
+	CW.UnitTest.monkeysAreInstalled = true;
 }

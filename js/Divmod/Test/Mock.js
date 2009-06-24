@@ -1,9 +1,9 @@
 /**
- * L{Divmod.UnitTest.TestCase}s that are used by L{Divmod.Test.TestUnitTest}
+ * L{CW.UnitTest.TestCase}s that are used by L{CW.Test.TestUnitTest}
  * in order to test the unit testing framework.
  */
 
-// import Divmod.UnitTest
+// import CW.UnitTest
 
 /**
  * L{TestCase} subclass that we use as the primary subject of our tests in
@@ -11,10 +11,10 @@
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_WasRun').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		Divmod.Test.Mock._WasRun.upcall(self, '__init__', methodName);
+		CW.Test.Mock._WasRun.upcall(self, '__init__', methodName);
 	},
 
 	function setUp(self) {
@@ -30,7 +30,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_WasRun').methods(
 	},
 
 	function test_error(self) {
-		throw Divmod.Error("error");
+		throw CW.Error("error");
 	},
 
 	function tearDown(self) {
@@ -40,10 +40,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_WasRun').methods(
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_BadSetUp').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		Divmod.Test.Mock._BadSetUp.upcall(self, '__init__', methodName);
+		CW.Test.Mock._BadSetUp.upcall(self, '__init__', methodName);
 	},
 
 	function setUp(self) {
@@ -61,10 +61,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_BadSetUp').methods(
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_BadTearDown').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		Divmod.Test.Mock._BadTearDown.upcall(self, '__init__', methodName);
+		CW.Test.Mock._BadTearDown.upcall(self, '__init__', methodName);
 	},
 
 	function setUp(self) {
@@ -82,7 +82,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_BadTearDown').methods(
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_setTimeoutLoose').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_setTimeoutLoose').methods(
 	function test_method(self) {
 		setTimeout(function(){}, 300); // this has to be long enough, or IE will fail.
 	}
@@ -90,7 +90,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_setTimeoutLoose').methods(
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.Mock, '_setIntervalLoose').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_setIntervalLoose').methods(
 	function test_method(self) {
 		setInterval(function(){}, 10);
 	}

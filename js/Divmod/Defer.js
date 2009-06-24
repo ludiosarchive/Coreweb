@@ -1,4 +1,4 @@
-// import Divmod
+// import CW
 
 /**
  * General limitations:
@@ -7,11 +7,11 @@
  * unhandled errors like twisted.internet.defer does.
  */
 
-Divmod.Class.subclass(Divmod.Defer, 'AlreadyCalledError');
+CW.Class.subclass(CW.Defer, 'AlreadyCalledError');
 
-Divmod.Class.subclass(Divmod.Defer, 'Failure');
+CW.Class.subclass(CW.Defer, 'Failure');
 
-Divmod.Defer.Failure.prototype.__init__ = function(error) {
+CW.Defer.Failure.prototype.__init__ = function(error) {
 	this.error = error;
 }
 
@@ -19,18 +19,18 @@ Divmod.Defer.Failure.prototype.__init__ = function(error) {
  * Return the underlying Error instance if it is an instance of the given
  * error class, otherwise return null;
  */
-Divmod.Defer.Failure.prototype.check = function(errorType) {
+CW.Defer.Failure.prototype.check = function(errorType) {
 	if (this.error instanceof errorType) {
 		return this.error;
 	}
 	return null;
 }
 
-Divmod.Defer.Failure.prototype.toString = function() {
+CW.Defer.Failure.prototype.toString = function() {
 	return 'Failure: ' + this.error;
 }
 
-Divmod.Defer.Failure.prototype.parseStack = function() {
+CW.Defer.Failure.prototype.parseStack = function() {
 	//console.log('this.error', this.error);
 	var stackString = this.error.stack;
 	var frames = [];
@@ -78,7 +78,7 @@ Divmod.Defer.Failure.prototype.parseStack = function() {
  *			lineNumber: <line number as int>,
  *			func: <function that the frame is inside as string>}]
  */
-Divmod.Defer.Failure.prototype.filteredParseStack = function() {
+CW.Defer.Failure.prototype.filteredParseStack = function() {
 	var frames = this.parseStack();
 	var ret = [];
 	for (var i = 0; i < frames.length; ++i) {
@@ -99,7 +99,7 @@ Divmod.Defer.Failure.prototype.filteredParseStack = function() {
  *
  * @return: string
  */
-Divmod.Defer.Failure.prototype.frameToPrettyText = function(frame) {
+CW.Defer.Failure.prototype.frameToPrettyText = function(frame) {
 	return '  Function "' + frame.func + '":\n	' + frame.fname + ':'
 		+ frame.lineNumber;
 }
@@ -108,7 +108,7 @@ Divmod.Defer.Failure.prototype.frameToPrettyText = function(frame) {
 /**
  * Return a nicely formatted stack trace using L{Failure.frameToPrettyText}.
  */
-Divmod.Defer.Failure.prototype.toPrettyText = function(/* optional */ frames) {
+CW.Defer.Failure.prototype.toPrettyText = function(/* optional */ frames) {
 	if (frames == undefined) {
 		frames = this.parseStack();
 	}
@@ -120,7 +120,7 @@ Divmod.Defer.Failure.prototype.toPrettyText = function(/* optional */ frames) {
 }
 
 
-Divmod.Defer.Failure.prototype.toPrettyNode = function() {
+CW.Defer.Failure.prototype.toPrettyNode = function() {
 	var stack = this.error.stack;
 	if (!stack) {
 		return document.createTextNode(this.toString());
@@ -147,14 +147,14 @@ Divmod.Defer.Failure.prototype.toPrettyNode = function() {
 };
 
 
-Divmod.Class.subclass(Divmod.Defer, 'Deferred');
+CW.Class.subclass(CW.Defer, 'Deferred');
 
-Divmod.Defer.Deferred.prototype.__init__ = function() {
+CW.Defer.Deferred.prototype.__init__ = function() {
 	this._callbacks = [];
 	this._called = false;
 	this._pauseLevel = 0;
 };
-Divmod.Defer.Deferred.prototype.addCallbacks = function(callback, errback, callbackArgs, errbackArgs) {
+CW.Defer.Deferred.prototype.addCallbacks = function(callback, errback, callbackArgs, errbackArgs) {
 	if (!callbackArgs) {
 		callbackArgs = [];
 	}
@@ -167,7 +167,7 @@ Divmod.Defer.Deferred.prototype.addCallbacks = function(callback, errback, callb
 	}
 	return this;
 };
-Divmod.Defer.Deferred.prototype.addCallback = function(callback) {
+CW.Defer.Deferred.prototype.addCallback = function(callback) {
 	var callbackArgs = [];
 	for (var i = 2; i < arguments.length; ++i) {
 		callbackArgs.push(arguments[i]);
@@ -175,7 +175,7 @@ Divmod.Defer.Deferred.prototype.addCallback = function(callback) {
 	this.addCallbacks(callback, null, callbackArgs, null);
 	return this;
 };
-Divmod.Defer.Deferred.prototype.addErrback = function(errback) {
+CW.Defer.Deferred.prototype.addErrback = function(errback) {
 	var errbackArgs = [];
 	for (var i = 2; i < arguments.length; ++i) {
 		errbackArgs.push(arguments[i]);
@@ -183,7 +183,7 @@ Divmod.Defer.Deferred.prototype.addErrback = function(errback) {
 	this.addCallbacks(null, errback, null, errbackArgs);
 	return this;
 };
-Divmod.Defer.Deferred.prototype.addBoth = function(callback) {
+CW.Defer.Deferred.prototype.addBoth = function(callback) {
 	var callbackArgs = [];
 	for (var i = 2; i < arguments.length; ++i) {
 		callbackArgs.push(arguments[i]);
@@ -191,10 +191,10 @@ Divmod.Defer.Deferred.prototype.addBoth = function(callback) {
 	this.addCallbacks(callback, callback, callbackArgs, callbackArgs);
 	return this;
 };
-Divmod.Defer.Deferred.prototype._pause = function() {
+CW.Defer.Deferred.prototype._pause = function() {
 	this._pauseLevel++;
 };
-Divmod.Defer.Deferred.prototype._unpause = function() {
+CW.Defer.Deferred.prototype._unpause = function() {
 	this._pauseLevel--;
 	if (this._pauseLevel) {
 		return;
@@ -204,17 +204,17 @@ Divmod.Defer.Deferred.prototype._unpause = function() {
 	}
 	this._runCallbacks();
 };
-Divmod.Defer.Deferred.prototype._isFailure = function(obj) {
-	return (obj instanceof Divmod.Defer.Failure);
+CW.Defer.Deferred.prototype._isFailure = function(obj) {
+	return (obj instanceof CW.Defer.Failure);
 };
-Divmod.Defer.Deferred.prototype._isDeferred = function(obj) {
-	return (obj instanceof Divmod.Defer.Deferred);
+CW.Defer.Deferred.prototype._isDeferred = function(obj) {
+	return (obj instanceof CW.Defer.Deferred);
 };
-Divmod.Defer.Deferred.prototype._continue = function(result) {
+CW.Defer.Deferred.prototype._continue = function(result) {
 	this._result = result;
 	this._unpause();
 };
-Divmod.Defer.Deferred.prototype._runCallbacks = function() {
+CW.Defer.Deferred.prototype._runCallbacks = function() {
 	var self = this;
 	var callback;
 	var args;
@@ -247,42 +247,42 @@ Divmod.Defer.Deferred.prototype._runCallbacks = function() {
 					break;
 				}
 			} catch (e) {
-				self._result = Divmod.Defer.Failure(e);
+				self._result = CW.Defer.Failure(e);
 			}
 		}
 	}
 
 	if (self._isFailure(self._result)) {
 		// This might be spurious
-		Divmod.err(self._result.error);
+		CW.err(self._result.error);
 	}
 };
-Divmod.Defer.Deferred.prototype._startRunCallbacks = function(result) {
+CW.Defer.Deferred.prototype._startRunCallbacks = function(result) {
 	if (this._called) {
-		throw new Divmod.Defer.AlreadyCalledError();
+		throw new CW.Defer.AlreadyCalledError();
 	}
 	this._called = true;
 	this._result = result;
 	this._runCallbacks();
 };
-Divmod.Defer.Deferred.prototype.callback = function(result) {
+CW.Defer.Deferred.prototype.callback = function(result) {
 	this._startRunCallbacks(result);
 };
-Divmod.Defer.Deferred.prototype.errback = function(err) {
+CW.Defer.Deferred.prototype.errback = function(err) {
 	if (!this._isFailure(err)) {
-		err = new Divmod.Defer.Failure(err);
+		err = new CW.Defer.Failure(err);
 	}
 	this._startRunCallbacks(err);
 };
 
-Divmod.Defer.succeed = function succeed(result) {
-	var d = new Divmod.Defer.Deferred();
+CW.Defer.succeed = function succeed(result) {
+	var d = new CW.Defer.Deferred();
 	d.callback(result);
 	return d;
 };
 
-Divmod.Defer.fail = function fail(err) {
-	var d = new Divmod.Defer.Deferred();
+CW.Defer.fail = function fail(err) {
+	var d = new CW.Defer.Deferred();
 	d.errback(err);
 	return d;
 };
@@ -291,20 +291,20 @@ Divmod.Defer.fail = function fail(err) {
 /**
  * First error to occur in a DeferredList if fireOnOneErrback is set.
  *
- * @ivar err: the L{Divmod.Defer.Failure} that occurred.
+ * @ivar err: the L{CW.Defer.Failure} that occurred.
  *
  * @ivar index: the index of the Deferred in the DeferredList where it
  * happened.
  */
-Divmod.Error.subclass(Divmod.Defer, 'FirstError');
+CW.Error.subclass(CW.Defer, 'FirstError');
 
-Divmod.Defer.FirstError.prototype.__init__ = function(err, index) {
-	Divmod.Defer.FirstError.upcall(this, '__init__', []);
+CW.Defer.FirstError.prototype.__init__ = function(err, index) {
+	CW.Defer.FirstError.upcall(this, '__init__', []);
 	this.err = err;
 	this.index = index;
 };
 
-Divmod.Defer.FirstError.prototype.toString = function() {
+CW.Defer.FirstError.prototype.toString = function() {
 	return '<FirstError @ ' + this.index + ': ' + this.err.toString() + '>';
 };
 
@@ -321,11 +321,11 @@ Divmod.Defer.FirstError.prototype.toString = function() {
  * DeferredList, as a DeferredList won't swallow the errors.  (Although a more
  * convenient way to do this is simply to set the consumeErrors flag)
  */
-Divmod.Defer.Deferred.subclass(Divmod.Defer, 'DeferredList');
+CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList');
 
 	/* Initialize a DeferredList.
 	 *
-	 * @type deferredList: C{Array} of L{Divmod.Defer.Deferred}s
+	 * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
 	 *
 	 * @param deferredList: The list of deferreds to track.
 	 *
@@ -339,14 +339,14 @@ Divmod.Defer.Deferred.subclass(Divmod.Defer, 'DeferredList');
 	 * original deferreds should be consumed by this DeferredList.  This is
 	 * useful to prevent spurious warnings being logged.
 	 */
-Divmod.Defer.DeferredList.prototype.__init__ = function (deferredList,
+CW.Defer.DeferredList.prototype.__init__ = function (deferredList,
 				  /* optional */
 				  fireOnOneCallback /* = false */,
 				  fireOnOneErrback /* = false */,
 				  consumeErrors /* = false */) {
 	var self = this;
 	self.resultList = new Array(deferredList.length);
-	Divmod.Defer.DeferredList.upcall(self, '__init__', []);
+	CW.Defer.DeferredList.upcall(self, '__init__', []);
 	// don't callback in the fireOnOneCallback case because the result
 	// type is different.
 	if (deferredList.length == 0 && !fireOnOneCallback) {
@@ -383,7 +383,7 @@ Divmod.Defer.DeferredList.prototype.__init__ = function (deferredList,
 	}
 };
 
-Divmod.Defer.DeferredList.prototype._cbDeferred = function(result, success, index) {
+CW.Defer.DeferredList.prototype._cbDeferred = function(result, success, index) {
 	this.resultList[index] = [success, result];
 
 	this.finishedCount += 1;
@@ -391,7 +391,7 @@ Divmod.Defer.DeferredList.prototype._cbDeferred = function(result, success, inde
 		if (success && this.fireOnOneCallback) {
 			this.callback([result, index]);
 		} else if (!success && this.fireOnOneErrback) {
-			this.errback(new Divmod.Defer.FirstError(result, index));
+			this.errback(new CW.Defer.FirstError(result, index));
 		} else if (this.finishedCount == this.resultList.length) {
 			this.callback(this.resultList);
 		}
@@ -410,10 +410,10 @@ Divmod.Defer.DeferredList.prototype._cbDeferred = function(result, success, inde
  * This builds on C{DeferredList} but is useful since you don't need to parse
  * the result for success/failure.
  *
- * @type deferredList: C{Array} of L{Divmod.Defer.Deferred}s
+ * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
  */
-Divmod.Defer.gatherResults = function gatherResults(deferredList) {
-	var d = new Divmod.Defer.DeferredList(deferredList, false, true, false);
+CW.Defer.gatherResults = function gatherResults(deferredList) {
+	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
 	d.addCallback(function(results) {
 		var undecorated = [];
 		for (var i = 0; i < results.length; ++i) {

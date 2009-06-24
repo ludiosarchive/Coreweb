@@ -1,25 +1,25 @@
 /**
- * Tests for Divmod.Inspect
+ * Tests for CW.Inspect
  */
 
-// import Divmod.UnitTest
-// import Divmod.Inspect
+// import CW.UnitTest
+// import CW.Inspect
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestInspect, 'TestInspect').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 	/**
-	 * Test that L{Divmod.Inspect.methods} returns all the methods of a class
+	 * Test that L{CW.Inspect.methods} returns all the methods of a class
 	 * object.
 	 */
 	function test_methods(self) {
 
-		/* Divmod.Class has no visible toString method for some reason.  If this
+		/* CW.Class has no visible toString method for some reason.  If this
 		 * ever changes, feel free to change this test.
 		 */
-		self.assertArraysEqual(Divmod.Inspect.methods(Divmod.Class),
+		self.assertArraysEqual(CW.Inspect.methods(CW.Class),
 							   ["__init__"]);
 
-		var TestClass = Divmod.Class.subclass("test_inspect.test_methods.TestClass");
+		var TestClass = CW.Class.subclass("test_inspect.test_methods.TestClass");
 		TestClass.methods(function method() {});
 
 		/* Subclasses get two methods automagically, __init__ and toString.  If
@@ -32,10 +32,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestInspect, 'TestInspect').method
 		var isIE='\v'=='v';
 
 		if(!isIE) {
-			self.assertArraysEqual(Divmod.Inspect.methods(TestClass),
+			self.assertArraysEqual(CW.Inspect.methods(TestClass),
 							   ["__init__", "method", "toString"]);
 		} else {
-			self.assertArraysEqual(Divmod.Inspect.methods(TestClass),
+			self.assertArraysEqual(CW.Inspect.methods(TestClass),
 							   ["__init__", "method"]);
 		}
 
@@ -43,10 +43,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestInspect, 'TestInspect').method
 		TestSubclass.methods(function anotherMethod() {});
 
 		if(!isIE) {
-			self.assertArraysEqual(Divmod.Inspect.methods(TestSubclass),
+			self.assertArraysEqual(CW.Inspect.methods(TestSubclass),
 								   ["__init__", "anotherMethod", "method", "toString"]);
 		} else {
-			self.assertArraysEqual(Divmod.Inspect.methods(TestSubclass),
+			self.assertArraysEqual(CW.Inspect.methods(TestSubclass),
 								   ["__init__", "anotherMethod", "method"]);
 		}
 	},
@@ -63,37 +63,37 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestInspect, 'TestInspect').method
 		error = self.assertThrows(
 			Error,
 			function() {
-				return Divmod.Inspect.methods([]);
+				return CW.Inspect.methods([]);
 			});
-		self.assert(Divmod.startswith(error.message, msg));
+		self.assert(CW.startswith(error.message, msg));
 
 		error = self.assertThrows(
 			Error,
 			function() {
-				return Divmod.Inspect.methods({});
+				return CW.Inspect.methods({});
 			});
 		//alert(error.message.replace('Stacktrace', 'Funtime'));
-		self.assert(Divmod.startswith(error.message, msg));
+		self.assert(CW.startswith(error.message, msg));
 
 		error = self.assertThrows(
 			Error,
 			function() {
-				return Divmod.Inspect.methods(0);
+				return CW.Inspect.methods(0);
 			});
-		self.assert(Divmod.startswith(error.message, msg));
+		self.assert(CW.startswith(error.message, msg));
 
 		error = self.assertThrows(
 			Error,
 			function() {
-				return Divmod.Inspect.methods("");
+				return CW.Inspect.methods("");
 			});
-		self.assert(Divmod.startswith(error.message, msg));
+		self.assert(CW.startswith(error.message, msg));
 
 		error = self.assertThrows(
 			Error,
 			function() {
-				return Divmod.Inspect.methods(Divmod.Class());
+				return CW.Inspect.methods(CW.Class());
 			});
-		self.assert(Divmod.startswith(error.message, msg));
+		self.assert(CW.startswith(error.message, msg));
 	}
 );

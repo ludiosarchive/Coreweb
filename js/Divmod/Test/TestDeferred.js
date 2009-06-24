@@ -1,18 +1,18 @@
 /**
- * Tests for Divmod.Defer
+ * Tests for CW.Defer
  */
 
 
-// import Divmod.Defer
-// import Divmod.UnitTest
+// import CW.Defer
+// import CW.UnitTest
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestFailure').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	function setUp(self) {
 		try {
-			throw Divmod.Error("message");
+			throw CW.Error("message");
 		} catch (e) {
-			self.failure = Divmod.Defer.Failure(e);
+			self.failure = CW.Defer.Failure(e);
 		}
 	},
 
@@ -35,7 +35,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestFailure').metho
 	 * that formats frames using L{Failure.frameToPrettyText}.
 	 */
 	function test_toPrettyText(self) {
-		if(Divmod.window.opera && Divmod.window.opera.version() >= 10) {
+		if(CW.window.opera && CW.window.opera.version() >= 10) {
 			print("{SKIPPING} test_toPrettyText because of Opera 10.<br>");
 			return;
 		}
@@ -97,11 +97,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestFailure').metho
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_succeedDeferred(self) {
 		var result = null;
 		var error = null;
-		var d = Divmod.Defer.succeed("success");
+		var d = CW.Defer.succeed("success");
 		d.addCallback(function(res) {
 			result = res;
 		});
@@ -116,7 +116,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 	function test_failDeferred(self) {
 		var result = null;
 		var error = null;
-		var d = Divmod.Defer.fail(Error("failure"));
+		var d = CW.Defer.fail(Error("failure"));
 		d.addCallback(function(res) {
 			result = res;
 		});
@@ -134,7 +134,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 		var thisCaller = function (rlst) { thisCalled = true; }
 		var thatCaller = function (err) { thatCalled = true; }
 
-		var d = new Divmod.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 
 		d.addCallbacks(thisCaller, thatCaller);
 		d.callback(true);
@@ -144,9 +144,9 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 		thisCalled = thatCalled = false;
 
-		d = new Divmod.Defer.Deferred();
+		d = new CW.Defer.Deferred();
 		d.addCallbacks(thisCaller, thatCaller);
-		d.errback(new Divmod.Defer.Failure(Error("Test error for errback testing")));
+		d.errback(new CW.Defer.Failure(Error("Test error for errback testing")));
 
 		self.assert(!thisCalled);
 		self.assert(thatCalled);
@@ -157,7 +157,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 		var interimResult = null;
 		var finalResult = null;
 
-		var d = new Divmod.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		d.addCallback(function(result) {
 			interimResult = result;
 			return "final result";
@@ -174,7 +174,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 	function test_addCallbacksAfterResult(self) {
 		var callbackResult = null;
-		var d = new Divmod.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		d.callback("callback");
 		d.addCallbacks(
 			function(result) {
@@ -187,8 +187,8 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 	function test_deferredReturnedFromCallback(self) {
 		var theResult = null;
-		var interimDeferred = new Divmod.Defer.Deferred();
-		var outerDeferred = new Divmod.Defer.Deferred();
+		var interimDeferred = new CW.Defer.Deferred();
+		var outerDeferred = new CW.Defer.Deferred();
 
 		outerDeferred.addCallback(
 			function(ignored) {
@@ -213,10 +213,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 
 	function test_deferredList(self) {
-		var defr1 = new Divmod.Defer.Deferred();
-		var defr2 = new Divmod.Defer.Deferred();
-		var defr3 = new Divmod.Defer.Deferred();
-		var dl = new Divmod.Defer.DeferredList([defr1, defr2, defr3]);
+		var defr1 = new CW.Defer.Deferred();
+		var defr2 = new CW.Defer.Deferred();
+		var defr3 = new CW.Defer.Deferred();
+		var dl = new CW.Defer.DeferredList([defr1, defr2, defr3]);
 
 		var result;
 		function cb(resultList) {
@@ -239,7 +239,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 		self.assertIdentical("1", result[0][1]);
 		self.assertIdentical(2, result[1].length);
 		self.assertIdentical(false, result[1][0]);
-		self.assertIdentical(true, result[1][1] instanceof Divmod.Defer.Failure);
+		self.assertIdentical(true, result[1][1] instanceof CW.Defer.Failure);
 		self.assertIdentical("Must be uncastable to num for IE.", result[1][1].error.message);
 		self.assertIdentical(2, result[2].length);
 		self.assertIdentical(true, result[2][0]);
@@ -248,12 +248,12 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 
 	/**
-	 * L{Divmod.Defer.DeferredList} should fire immediately if the list of
+	 * L{CW.Defer.DeferredList} should fire immediately if the list of
 	 * deferreds is empty.
 	 */
 	function test_emptyDeferredList(self) {
 		var result = null;
-		var dl = new Divmod.Defer.DeferredList([]).addCallback(function(res) {
+		var dl = new CW.Defer.DeferredList([]).addCallback(function(res) {
 			result = res;
 		});
 		self.assert(result instanceof Array);
@@ -262,12 +262,12 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 
 	/**
-	 * L{Divmod.Defer.DeferredList} should fire immediately if the list of
+	 * L{CW.Defer.DeferredList} should fire immediately if the list of
 	 * deferreds is empty, even when C{fireOnOneErrback} is passed.
 	 */
 	function test_emptyDeferredListErrback(self) {
 		var result;
-		Divmod.Defer.DeferredList([], false, true).addCallback(
+		CW.Defer.DeferredList([], false, true).addCallback(
 			function(theResult) {
 				result = theResult;
 			}
@@ -279,8 +279,8 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 	function test_fireOnOneCallback(self) {
 		var result = null;
-		var dl = new Divmod.Defer.DeferredList(
-			[new Divmod.Defer.Deferred(), Divmod.Defer.succeed("success")],
+		var dl = new CW.Defer.DeferredList(
+			[new CW.Defer.Deferred(), CW.Defer.succeed("success")],
 			true, false, false);
 		dl.addCallback(function(res) {
 			result = res;
@@ -292,22 +292,22 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestDeferred, 'TestDeferred').meth
 
 	function test_fireOnOneErrback(self) {
 		var result = null;
-		var dl = new Divmod.Defer.DeferredList(
-			[new Divmod.Defer.Deferred(),
-			 Divmod.Defer.fail(new Error("failure"))],
+		var dl = new CW.Defer.DeferredList(
+			[new CW.Defer.Deferred(),
+			 CW.Defer.fail(new Error("failure"))],
 			false, true, false);
 		dl.addErrback(function(err) {
 			result = err;
 		});
-		self.assert(result instanceof Divmod.Defer.Failure);
-		self.assert(result.error instanceof Divmod.Defer.FirstError);
+		self.assert(result instanceof CW.Defer.Failure);
+		self.assert(result.error instanceof CW.Defer.FirstError);
 	},
 
 
 	function test_gatherResults(self) {
 		var result = null;
-		var dl = Divmod.Defer.gatherResults([Divmod.Defer.succeed("1"),
-											 Divmod.Defer.succeed("2")]);
+		var dl = CW.Defer.gatherResults([CW.Defer.succeed("1"),
+											 CW.Defer.succeed("2")]);
 		dl.addCallback(function(res) {
 			result = res;
 		});

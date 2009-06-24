@@ -1,9 +1,9 @@
-//Divmod.Neptune.Constants = {
+//CW.Neptune.Constants = {
 //	 WAITING_NEXT: 1
 //	,STILL_READING: 2
 //};
 
-Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
+CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 
 	function __init__(self) {
 		self.xhr = new XMLHttpRequest();
@@ -45,7 +45,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 
 
 	function connect(self) {
-		self.xhr.open('POST', '/xhrstream/?nodelay?' + Divmod.random(), true);
+		self.xhr.open('POST', '/xhrstream/?nodelay?' + CW.random(), true);
 		//self.xhr.overrideMimeType('text/plain; charset=utf-8');
 		self._removeManyHeaders();
 		self.xhr.onprogress = function(ev1) {
@@ -105,7 +105,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 		 * until the next 2*(16384) checkpoint, then 2*2*16384, and so on.
 		 */
 
-		if(Divmod.window.opera) {
+		if(CW.window.opera) {
 			self.forceReadInterval = setInterval(function(){self._dataReceived.apply(self, []);},50);
 		}
 		self.connStatus = "maybealive";
@@ -149,7 +149,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 
 		if(self.lastHeaders == null) {
 			self.lastHeaders = self.xhr.getAllResponseHeaders();
-			print(Divmod.JSON.stringify(self.lastHeaders));
+			print(CW.JSON.stringify(self.lastHeaders));
 		}
 
 		if(responseLengthNow < self.minimumLengthToCare) {
@@ -174,7 +174,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 			//var code = (''+self.xhr.responseText).substr(self.uniPosition, 1).charCodeAt(0);
 			var code = self.xhr.responseText.charCodeAt(self.uniPosition);
 
-			//print('char is' + Divmod.JSON.stringify(self.xhr.responseText.substr(self.uniPosition, 1)) + 'code is ' + code + '<br>');
+			//print('char is' + CW.JSON.stringify(self.xhr.responseText.substr(self.uniPosition, 1)) + 'code is ' + code + '<br>');
 			if(isNaN(code)) {
 				throw new Error("No code yet? We should never see this message.");
 			}
@@ -194,7 +194,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 			try {
 				self.messageReceived(completeMessage);
 			} catch(e) {
-				Divmod.log("Failed to process message, but the show must go on.");
+				CW.log("Failed to process message, but the show must go on.");
 			}
 
 			self.uniPosition += (1 + messageLength); // 1 + because the code takes up space too
@@ -208,7 +208,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 			}
 		}
 
-		//print(Divmod.JSON.stringify(self.xhr.responseText) + '<br>');
+		//print(CW.JSON.stringify(self.xhr.responseText) + '<br>');
 		//self.uniPosition = self.xhr.responseText.length; // can't do this. it could have already changed.
 	},
 
@@ -216,7 +216,7 @@ Divmod.Class.subclass(Divmod.Neptune, "XHRStream").methods(
 	function messageReceived(self, message) {
 		//print("got a message.<br>");
 		print(message + '<br>');
-		//print(Divmod.now() + " " + Divmod.JSON.stringify(eval('(' + message + ')')) + '<br>');
+		//print(CW.now() + " " + CW.JSON.stringify(eval('(' + message + ')')) + '<br>');
 	}
 );
 

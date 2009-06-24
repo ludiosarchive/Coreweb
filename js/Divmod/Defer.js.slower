@@ -1,9 +1,9 @@
-// import Divmod
+// import CW
 
-Divmod.Defer.AlreadyCalledError = Divmod.Class.subclass("Divmod.Defer.AlreadyCalledError");
+CW.Defer.AlreadyCalledError = CW.Class.subclass("CW.Defer.AlreadyCalledError");
 
-Divmod.Defer.Failure = Divmod.Class.subclass("Divmod.Defer.Failure");
-Divmod.Defer.Failure.methods(
+CW.Defer.Failure = CW.Class.subclass("CW.Defer.Failure");
+CW.Defer.Failure.methods(
 	function __init__(self, error) {
 		self.error = error;
 	},
@@ -137,9 +137,9 @@ Divmod.Defer.Failure.methods(
 		return resultNode;
 	});
 
-Divmod.Defer.Deferred = Divmod.Class.subclass("Divmod.Defer.Deferred");
+CW.Defer.Deferred = CW.Class.subclass("CW.Defer.Deferred");
 
-Divmod.Defer.Deferred.methods(
+CW.Defer.Deferred.methods(
 	function __init__(self) {
 		self._callbacks = [];
 		self._called = false;
@@ -197,10 +197,10 @@ Divmod.Defer.Deferred.methods(
 		self._runCallbacks();
 	},
 	function _isFailure(self, obj) {
-		return (obj instanceof Divmod.Defer.Failure);
+		return (obj instanceof CW.Defer.Failure);
 	},
 	function _isDeferred(self, obj) {
-		return (obj instanceof Divmod.Defer.Deferred);
+		return (obj instanceof CW.Defer.Deferred);
 	},
 	function _continue(self, result) {
 		self._result = result;
@@ -236,19 +236,19 @@ Divmod.Defer.Deferred.methods(
 						break;
 					}
 				} catch (e) {
-					self._result = Divmod.Defer.Failure(e);
+					self._result = CW.Defer.Failure(e);
 				}
 			}
 		}
 
 		if (self._isFailure(self._result)) {
 			// This might be spurious
-			Divmod.err(self._result.error);
+			CW.err(self._result.error);
 		}
 	},
 	function _startRunCallbacks(self, result) {
 		if (self._called) {
-			throw new Divmod.Defer.AlreadyCalledError();
+			throw new CW.Defer.AlreadyCalledError();
 		}
 		self._called = true;
 		self._result = result;
@@ -259,19 +259,19 @@ Divmod.Defer.Deferred.methods(
 	},
 	function errback(self, err) {
 		if (!self._isFailure(err)) {
-			err = new Divmod.Defer.Failure(err);
+			err = new CW.Defer.Failure(err);
 		}
 		self._startRunCallbacks(err);
 	});
 
-Divmod.Defer.succeed = function succeed(result) {
-	var d = new Divmod.Defer.Deferred();
+CW.Defer.succeed = function succeed(result) {
+	var d = new CW.Defer.Deferred();
 	d.callback(result);
 	return d;
 };
 
-Divmod.Defer.fail = function fail(err) {
-	var d = new Divmod.Defer.Deferred();
+CW.Defer.fail = function fail(err) {
+	var d = new CW.Defer.Deferred();
 	d.errback(err);
 	return d;
 };
@@ -280,15 +280,15 @@ Divmod.Defer.fail = function fail(err) {
 /**
  * First error to occur in a DeferredList if fireOnOneErrback is set.
  *
- * @ivar err: the L{Divmod.Defer.Failure} that occurred.
+ * @ivar err: the L{CW.Defer.Failure} that occurred.
  *
  * @ivar index: the index of the Deferred in the DeferredList where it
  * happened.
  */
-Divmod.Defer.FirstError = Divmod.Error.subclass('Divmod.Defer.FirstError');
-Divmod.Defer.FirstError.methods(
+CW.Defer.FirstError = CW.Error.subclass('CW.Defer.FirstError');
+CW.Defer.FirstError.methods(
 	function __init__(self, err, index) {
-		Divmod.Defer.FirstError.upcall(self, '__init__');
+		CW.Defer.FirstError.upcall(self, '__init__');
 		self.err = err;
 		self.index = index;
 	},
@@ -310,11 +310,11 @@ Divmod.Defer.FirstError.methods(
  * DeferredList, as a DeferredList won't swallow the errors.  (Although a more
  * convenient way to do this is simply to set the consumeErrors flag)
  */
-Divmod.Defer.DeferredList = Divmod.Defer.Deferred.subclass('Divmod.Defer.DeferredList');
-Divmod.Defer.DeferredList.methods(
+CW.Defer.DeferredList = CW.Defer.Deferred.subclass('CW.Defer.DeferredList');
+CW.Defer.DeferredList.methods(
 	/* Initialize a DeferredList.
 	 *
-	 * @type deferredList: C{Array} of L{Divmod.Defer.Deferred}s
+	 * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
 	 *
 	 * @param deferredList: The list of deferreds to track.
 	 *
@@ -335,7 +335,7 @@ Divmod.Defer.DeferredList.methods(
 					  fireOnOneErrback /* = false */,
 					  consumeErrors /* = false */) {
 		self.resultList = new Array(deferredList.length);
-		Divmod.Defer.DeferredList.upcall(self, '__init__');
+		CW.Defer.DeferredList.upcall(self, '__init__');
 		// don't callback in the fireOnOneCallback case because the result
 		// type is different.
 		if (deferredList.length == 0 && !fireOnOneCallback) {
@@ -380,7 +380,7 @@ Divmod.Defer.DeferredList.methods(
 			if (success && self.fireOnOneCallback) {
 				self.callback([result, index]);
 			} else if (!success && self.fireOnOneErrback) {
-				self.errback(new Divmod.Defer.FirstError(result, index));
+				self.errback(new CW.Defer.FirstError(result, index));
 			} else if (self.finishedCount == self.resultList.length) {
 				self.callback(self.resultList);
 			}
@@ -399,10 +399,10 @@ Divmod.Defer.DeferredList.methods(
  * This builds on C{DeferredList} but is useful since you don't need to parse
  * the result for success/failure.
  *
- * @type deferredList: C{Array} of L{Divmod.Defer.Deferred}s
+ * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
  */
-Divmod.Defer.gatherResults = function gatherResults(deferredList) {
-	var d = new Divmod.Defer.DeferredList(deferredList, false, true, false);
+CW.Defer.gatherResults = function gatherResults(deferredList) {
+	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
 	d.addCallback(function(results) {
 		var undecorated = [];
 		for (var i = 0; i < results.length; ++i) {

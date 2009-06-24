@@ -1,18 +1,18 @@
 /**
- * Tests for Divmod.UnitTest, the Javascript unit-testing framework.
- * Uses mock test cases provided by Divmod.Test.(Mock|DMock).
+ * Tests for CW.UnitTest, the Javascript unit-testing framework.
+ * Uses mock test cases provided by CW.Test.(Mock|DMock).
  */
 
-// import Divmod.UnitTest
-// import Divmod.Test.Mock
-// import Divmod.Test.DMock
+// import CW.UnitTest
+// import CW.Test.Mock
+// import CW.Test.DMock
 
 
 /**
  * A mock L{TestResult} object that we use to test that L{startTest} and L{stopTest}
  * are called appropriately.
  */
-Divmod.Class.subclass(Divmod.Test.TestUnitTest, 'MockResult').methods(
+CW.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
 	function __init__(self) {
 		self.log = '';
 	},
@@ -33,14 +33,14 @@ Divmod.Class.subclass(Divmod.Test.TestUnitTest, 'MockResult').methods(
 
 
 /**
- * Tests for assertions in L{Divmod.UnitTest.TestCase}.
+ * Tests for assertions in L{CW.UnitTest.TestCase}.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	/**
 	 * Test that L{assert} raises an exception if its expression is false.
 	 */
 	function test_assert(self) {
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () { self.assert(false, "message"); })
 	},
 
@@ -51,13 +51,13 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 
 	function test_isTestCaseClass(self) {
 		self.assertIdentical(
-			true, Divmod.UnitTest.isTestCaseClass(
-				Divmod.Test.TestUnitTest.AssertionTests));
+			true, CW.UnitTest.isTestCaseClass(
+				CW.Test.TestUnitTest.AssertionTests));
 		self.assertIdentical(
-			false, Divmod.UnitTest.isTestCaseClass(
-				Divmod.Test.TestUnitTest.AssertionTests()));
+			false, CW.UnitTest.isTestCaseClass(
+				CW.Test.TestUnitTest.AssertionTests()));
 		self.assertIdentical(
-			false, Divmod.UnitTest.isTestCaseClass(1));
+			false, CW.UnitTest.isTestCaseClass(1));
 	},
 
 
@@ -66,7 +66,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 */
 
 	function test_assertFailureImmediate(self) {
-		var d = Divmod.Defer.Deferred();
+		var d = CW.Defer.Deferred();
 		d.errback(Error("Throwing an Error.")); // right now
 		self.assertFailure(d, [Error]);
 		return d;
@@ -78,7 +78,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 */
 
 	function test_assertFailureDelayed(self) {
-		var d = Divmod.Defer.Deferred();
+		var d = CW.Defer.Deferred();
 		setTimeout(function(){d.errback(Error("Throwing an Error."));}, 10);
 		self.assertFailure(d, [Error]);
 		return d;
@@ -91,9 +91,9 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 */
 	function test_assertThrowsPositive(self) {
 		try {
-			self.assertThrows(Divmod.UnitTest.AssertionError,
+			self.assertThrows(CW.UnitTest.AssertionError,
 							  function () {
-								  throw Divmod.UnitTest.AssertionError();
+								  throw CW.UnitTest.AssertionError();
 							  });
 		} catch (e) {
 			//self._cleanupOpera10Error(e);
@@ -109,11 +109,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	function test_assertThrowsNoException(self) {
 		var raised = true;
 		try {
-			self.assertThrows(Divmod.UnitTest.AssertionError,
+			self.assertThrows(CW.UnitTest.AssertionError,
 							  function () { });
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof Divmod.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.UnitTest.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -130,11 +130,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	function test_assertThrowsNoException(self) {
 		var raised = true;
 		try {
-			self.assertThrows(Divmod.UnitTest.AssertionError,
+			self.assertThrows(CW.UnitTest.AssertionError,
 							  function () { }, "this message will never be cared about");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof Divmod.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.UnitTest.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -151,11 +151,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	function test_assertThrowsWrongException(self) {
 		var raised = true;
 		try {
-			self.assertThrows(Divmod.UnitTest.AssertionError,
-							  function () { throw Divmod.IndexError(); });
+			self.assertThrows(CW.UnitTest.AssertionError,
+							  function () { throw CW.IndexError(); });
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof Divmod.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.UnitTest.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -172,11 +172,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	function test_assertThrowsWrongMessage(self) {
 		var raised = true;
 		try {
-			self.assertThrows(Divmod.IndexError,
-							  function () { throw Divmod.IndexError("correct message"); }, "wrong message");
+			self.assertThrows(CW.IndexError,
+							  function () { throw CW.IndexError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof Divmod.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.UnitTest.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -199,7 +199,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 * Test that L{compare} raises an error if its callable returns C{false}.
 	 */
 	function test_compareNegative(self) {
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.compare(
 								  function (a, b) { return a === b; },
@@ -216,7 +216,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 		try {
 			self.compare(function () {return false;}, "<->", "a", "b");
 		} catch (e) {
-			self.assert(Divmod.startswith(e.message, '[0] "a" <-> "b"'));
+			self.assert(CW.startswith(e.message, '[0] "a" <-> "b"'));
 		}
 	},
 
@@ -230,7 +230,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 			self.compare(function () {return false;}, "<->", "a", "b",
 						 "Hello");
 		} catch (e) {
-			self.assert(Divmod.startswith(e.message, '[0] "a" <-> "b": Hello'));
+			self.assert(CW.startswith(e.message, '[0] "a" <-> "b": Hello'));
 		}
 	},
 
@@ -241,11 +241,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 * arguments.
 	 */
 	function test_assertIdenticalNegative(self) {
-		var e = self.assertThrows(Divmod.UnitTest.AssertionError,
+		var e = self.assertThrows(CW.UnitTest.AssertionError,
 								  function () {
 									  self.assertIdentical('apple', 'orange');
 								  });
-		self.assert(Divmod.startswith(
+		self.assert(CW.startswith(
 			e.message,
 			'[0] "apple" <font color=\"red\">not ===</font> "orange"'));
 	},
@@ -259,7 +259,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 		try {
 			self.assertIdentical('apple', 'orange', 'some message');
 		} catch (e) {
-			self.assert(Divmod.startswith(
+			self.assert(CW.startswith(
 				e.message,
 				'[0] "apple" <font color=\"red\">not ===</font> "orange": some message'));
 		}
@@ -280,11 +280,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 */
 	function test_assertIdenticalDifferentTypes(self) {
 		var raised = true;
-		var e = self.assertThrows(Divmod.UnitTest.AssertionError,
+		var e = self.assertThrows(CW.UnitTest.AssertionError,
 								  function () {
 									  self.assertIdentical(1, '1');
 								  });
-		self.assert(Divmod.startswith(
+		self.assert(CW.startswith(
 			e.message,
 			"[0] 1 <font color=\"red\">not ===</font> \"1\""));
 	},
@@ -305,24 +305,24 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	 * arrays.
 	 */
 	function test_assertArraysEqualNegative(self) {
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.assertArraysEqual([1, 2], [1, 2, 3]);
 						  });
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.assertArraysEqual({'foo': 2}, [2]);
 						  });
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.assertArraysEqual(1, [1]);
 						  });
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.assertArraysEqual(function () { return 1; },
 													 function () { return 2; });
 						  });
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () {
 							  self.assertArraysEqual(function () { },
 													 function () { });
@@ -337,7 +337,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 	function test_assertIdentical(self) {
 		var foo = [1, 2];
 		self.assertIdentical(foo, foo);
-		self.assertThrows(Divmod.UnitTest.AssertionError,
+		self.assertThrows(CW.UnitTest.AssertionError,
 						  function () { self.assertIdentical(foo, [1, 2]); });
 	}
 );
@@ -347,10 +347,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'AssertionTests').me
 /**
  * Tests for L{TestCase}.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	function setUp(self) {
-		self.mockModule = Divmod.Test.Mock;
-		self.result = Divmod.UnitTest.TestResult();
+		self.mockModule = CW.Test.Mock;
+		self.result = CW.UnitTest.TestResult();
 	},
 
 	/**
@@ -429,7 +429,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	 * succeeded.
 	 */
 	function test_resultAccumulation(self) {
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		var bad = self.mockModule._WasRun('test_bad');
 		var good = self.mockModule._WasRun('test_good');
 		var error = self.mockModule._WasRun('test_error');
@@ -442,14 +442,14 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(self.result.failures[0][1]
-						instanceof Divmod.UnitTest.AssertionError);
-			self.assert(Divmod.startswith(self.result.failures[0][1].message, "[0] fail this test deliberately"));
+						instanceof CW.UnitTest.AssertionError);
+			self.assert(CW.startswith(self.result.failures[0][1].message, "[0] fail this test deliberately"));
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof Divmod.Error);
+			self.assert(self.result.errors[0][1] instanceof CW.Error);
 
-			self.assert(Divmod.startswith(self.result.errors[0][1].message, "error"));
+			self.assert(CW.startswith(self.result.errors[0][1].message, "error"));
 			self.assertArraysEqual(self.result.successes, [good]);
 		});
 		return d;
@@ -520,7 +520,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	function test_startAndStopTest(self) {
 		var test = self.mockModule._WasRun('test_good');
 		var id = test.id();
-		var result = Divmod.Test.TestUnitTest.MockResult();
+		var result = CW.Test.TestUnitTest.MockResult();
 		var d = test.run(result);
 		d.addCallback(function(){
 			self.assertIdentical(
@@ -536,7 +536,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	 * get the results of all of the tests.
 	 */
 	function test_testSuite(self) {
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		suite.addTest(self.mockModule._WasRun('test_good'));
 		suite.addTest(self.mockModule._WasRun('test_bad'));
 
@@ -555,7 +555,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	 */
 	function test_countTestCases(self) {
 		self.assertIdentical(self.countTestCases(), 1);
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		self.assertIdentical(suite.countTestCases(), 0);
 		suite.addTest(self);
 		self.assertIdentical(suite.countTestCases(), 1);
@@ -605,14 +605,14 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 
 			// this is needed here because we're testing the async visit() and this is the only visitor
 			// for the async visit() that doesn't natively return a Deferred.
-			return Divmod.Defer.succeed(null);
+			return CW.Defer.succeed(null);
 		}
-		var d = Divmod.UnitTest.TestSuite().visit(visitor);
+		var d = CW.UnitTest.TestSuite().visit(visitor);
 
 		d.addCallback(function(){
 			self.assertArraysEqual(log, []);
 			var tests = [self.mockModule._WasRun('test_good1'), self.mockModule._WasRun('test_good2')];
-			var suite = Divmod.UnitTest.TestSuite(tests);
+			var suite = CW.UnitTest.TestSuite(tests);
 
 			var d2 = suite.visit(visitor);
 			d2.addCallback(function(){
@@ -633,8 +633,8 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	function test_issubclass(self) {
 		self.assert(self.__class__.subclassOf(self.__class__),
 					"Thing should subclass itself");
-		self.assert(self.__class__.subclassOf(Divmod.UnitTest.TestCase));
-		self.assert(!Divmod.UnitTest.TestCase.subclassOf(self.__class__));
+		self.assert(self.__class__.subclassOf(CW.UnitTest.TestCase));
+		self.assert(!CW.UnitTest.TestCase.subclassOf(self.__class__));
 	},
 
 
@@ -642,7 +642,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setTimeoutLoose(self) {
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
 
@@ -651,8 +651,8 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof Divmod.Error);
-			self.assert(Divmod.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setTimeout_pending"));
+			self.assert(self.result.errors[0][1] instanceof CW.Error);
+			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setTimeout_pending"));
 		});
 		return d;
 	},
@@ -662,7 +662,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setIntervalLoose(self) {
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		var error = self.mockModule._setIntervalLoose('test_method');
 		suite.addTests([error]);
 
@@ -672,8 +672,8 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			//print('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message + '<br>');
-			self.assert(self.result.errors[0][1] instanceof Divmod.Error); // seen some cases where IE6 disagree with this, and the thing below.
-			self.assert(Divmod.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setInterval_pending"));
+			self.assert(self.result.errors[0][1] instanceof CW.Error); // seen some cases where IE6 disagree with this, and the thing below.
+			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setInterval_pending"));
 		});
 		return d;
 	},
@@ -691,7 +691,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 	function test_setTimeoutLooseNested(self) {
 		setTimeout(function(){}, 300);
 
-		var suite = Divmod.UnitTest.TestSuite();
+		var suite = CW.UnitTest.TestSuite();
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
 
@@ -700,12 +700,12 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof Divmod.Error);
-			self.assert(Divmod.startswith(self.result.errors[0][1].message, "Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending"));
+			self.assert(self.result.errors[0][1] instanceof CW.Error);
+			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending"));
 
 			// the inner test stopped tracking all the pending calls.
-			for (var k in Divmod.UnitTest.delayedCalls) {
-				self.assertArraysEqual([], Divmod.dir(Divmod.UnitTest.delayedCalls[k]));
+			for (var k in CW.UnitTest.delayedCalls) {
+				self.assertArraysEqual([], CW.dir(CW.UnitTest.delayedCalls[k]));
 			}
 		});
 		return d;
@@ -714,19 +714,19 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestCaseTest').meth
 
 
 
-Divmod.Test.TestUnitTest.TestCaseTest.subclass(Divmod.Test.TestUnitTest, 'TestCaseTestD').methods(
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
-		self.mockModule = Divmod.Test.DMock;
-		self.result = Divmod.UnitTest.TestResult();
+		self.mockModule = CW.Test.DMock;
+		self.result = CW.UnitTest.TestResult();
 	}
 );
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 	function setUp(self) {
-		self.mockModule = Divmod.Test.Mock;
+		self.mockModule = CW.Test.Mock;
 	},
 
 
@@ -737,7 +737,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 		var ids = [];
 		var visitor = function (test) { ids.push(test.id()); };
 
-		var v = Divmod.UnitTest.SynchronousVisitor();
+		var v = CW.UnitTest.SynchronousVisitor();
 		v.traverse(visitor, suite.tests);
 		
 		return ids;
@@ -749,7 +749,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 	 * C{TestCase} subclass that contains no tests.
 	 */
 	function test_loadFromClassEmpty(self) {
-		var suite = Divmod.UnitTest.loadFromClass(Divmod.UnitTest.TestCase);
+		var suite = CW.UnitTest.loadFromClass(CW.UnitTest.TestCase);
 		self.assertArraysEqual([], self.getTestIDs(suite));
 	},
 
@@ -759,7 +759,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 	 * test methods in a given C{TestCase} subclass.
 	 */
 	function test_loadFromClass(self) {
-		var suite = Divmod.UnitTest.loadFromClass(self.mockModule._WasRun);
+		var suite = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
 		self.assertArraysEqual([self.mockModule.__name__ + '._WasRun.test_bad',
 							self.mockModule.__name__ + '._WasRun.test_error',
 							self.mockModule.__name__ + '._WasRun.test_good'], self.getTestIDs(suite));
@@ -772,7 +772,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 	 */
 	function test_loadFromModuleEmpty(self) {
 		var module = {};
-		var suite = Divmod.UnitTest.loadFromModule(module);
+		var suite = CW.UnitTest.loadFromModule(module);
 
 		self.assertIdentical(suite.countTestCases(), 0);
 	},
@@ -784,9 +784,9 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 	 */
 	function test_loadFromModule(self) {
 		var MockThis = {'__name__': 'MockThis'};
-		MockThis.SomeTestCase = Divmod.UnitTest.TestCase.subclass('MockThis.SomeTestCase');
+		MockThis.SomeTestCase = CW.UnitTest.TestCase.subclass('MockThis.SomeTestCase');
 		MockThis.SomeTestCase.methods(function test_method(self) {});
-		var suite = Divmod.UnitTest.loadFromModule(MockThis);
+		var suite = CW.UnitTest.loadFromModule(MockThis);
 		self.assertArraysEqual(self.getTestIDs(suite), ['MockThis.SomeTestCase.test_method']);
 
 		// TODO: need to implement "unclean reactor" style errors that barf if you left deferreds
@@ -795,20 +795,20 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest ,'LoaderTests').metho
 
 
 
-Divmod.Test.TestUnitTest.LoaderTests.subclass(Divmod.Test.TestUnitTest, 'LoaderTestsD').methods(
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
 
 	function setUp(self) {
-		self.mockModule = Divmod.Test.DMock;
+		self.mockModule = CW.Test.DMock;
 	}
 
 );
 
 
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	function setUp(self) {
-		self.result = Divmod.UnitTest.TestResult();
-		self.mockModule = Divmod.Test.Mock;
+		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.Mock;
 	},
 
 
@@ -817,7 +817,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 	 * passed, and that no tests were run.
 	 */
 	function test_formatSummaryEmpty(self) {
-		self.assertIdentical(Divmod.UnitTest.formatSummary(self.result),
+		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 							 "PASSED (tests=0)");
 	},
 
@@ -832,7 +832,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertIdentical(Divmod.UnitTest.formatSummary(self.result),
+			self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 								 "PASSED (tests=1)");
 		});
 		return d;
@@ -850,7 +850,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 		var test = self.mockModule._WasRun('test_bad');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(Divmod.UnitTest.formatSummary(self.result),
+		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 							 "FAILED (tests=1, failures=1)");
 		});
 		return d;
@@ -864,7 +864,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 		var test = self.mockModule._WasRun('test_error');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(Divmod.UnitTest.formatSummary(self.result),
+		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 							 "FAILED (tests=1, errors=1)");
 		});
 		return d;
@@ -876,11 +876,11 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 	 * has both failed and errored tests.
 	 */
 	function test_formatSummaryMultiple(self) {
-		var test = Divmod.UnitTest.loadFromClass(self.mockModule._WasRun);
+		var test = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(Divmod.UnitTest.formatSummary(self.result),
+		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 							 "FAILED (tests=3, errors=1, failures=1)");
 		});
 		return d;
@@ -891,7 +891,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 	 * Check that L{formatErrors} returns an empty string for an empty result.
 	 */
 	function test_formatErrorsEmpty(self) {
-		self.assertIdentical(Divmod.UnitTest.formatErrors(self.result), '');
+		self.assertIdentical(CW.UnitTest.formatErrors(self.result), '');
 	},
 
 
@@ -903,7 +903,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertIdentical(Divmod.UnitTest.formatErrors(self.result), '');
+			self.assertIdentical(CW.UnitTest.formatErrors(self.result), '');
 		});
 		return d;
 	},
@@ -919,14 +919,14 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 		var test = self.mockModule._WasRun('test_bad');
 		var error, failure;
 		try {
-			throw Divmod.Error("error-message");
+			throw CW.Error("error-message");
 		} catch (e) {
 			error = e;
 			//self._noOpera10Trailer(error);
-			failure = Divmod.Defer.Failure(error);
+			failure = CW.Defer.Failure(error);
 		}
-		self.assert(Divmod.startswith(
-			Divmod.UnitTest.formatError('FAILURE', test, error),
+		self.assert(CW.startswith(
+			CW.UnitTest.formatError('FAILURE', test, error),
 			'[FAILURE] '+self.mockModule.__name__+'._WasRun.test_bad:\n\nerror-message' // do not suffix \n here! Opera 10 will not pass! */
 			)); //removed + failure.toPrettyText(failure.filteredParseStack()) + '\n'
 	},
@@ -940,7 +940,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 	 // TODO: make this test less of a copy/paste from UnitTest. Just check that the errors/failures are there.
 
 	function test_formatErrors(self) {
-		var test = Divmod.UnitTest.loadFromClass(self.mockModule._WasRun);
+		var test = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
 		var d = test.run(self.result);
 
 		d.addCallback(function(){
@@ -948,18 +948,18 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 			var expected = '';
 			var i;
 			for (i = 0; i < self.result.errors.length; ++i) {
-				expected += Divmod.UnitTest.formatError('ERROR',
+				expected += CW.UnitTest.formatError('ERROR',
 													self.result.errors[i][0],
 													self.result.errors[i][1]);
 				expected += '<br>\n';
 			}
 			for (i = 0; i < self.result.failures.length; ++i) {
-				expected += Divmod.UnitTest.formatError('FAILURE',
+				expected += CW.UnitTest.formatError('FAILURE',
 													self.result.failures[i][0],
 													self.result.failures[i][1]);
 				expected += '<br>\n';
 			}
-			var observed = Divmod.UnitTest.formatErrors(self.result);
+			var observed = CW.UnitTest.formatErrors(self.result);
 			self.assertIdentical(observed, expected);
 
 		});
@@ -970,24 +970,24 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'RunnerTest').method
 
 
 
-Divmod.Test.TestUnitTest.RunnerTest.subclass(Divmod.Test.TestUnitTest, 'RunnerTestD').methods(
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').methods(
 	function setUp(self) {
-		self.result = Divmod.UnitTest.TestResult();
-		self.mockModule = Divmod.Test.DMock;
+		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.DMock;
 	}
 );
 
 
 
 /**
- * Tests for L{Divmod.Runtime.Platform.repr}.
+ * Tests for L{CW.Runtime.Platform.repr}.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'ReprTests').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	/**
 	 * Test that repr(undefined) and repr(null) work.
 	 */
 	function test_undefinedAndNull(self) {
-		var repr = Divmod.UnitTest.repr;
+		var repr = CW.UnitTest.repr;
 		self.assertIdentical(repr(null), 'null');
 		self.assertIdentical(repr(undefined), 'undefined');
 	},
@@ -996,7 +996,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'ReprTests').methods
 	 * Test that some simple values have a reasonable repr().
 	 */
 	function test_simpleValues(self) {
-		var repr = Divmod.UnitTest.repr;
+		var repr = CW.UnitTest.repr;
 		self.assertIdentical(repr(5), '5');
 		self.assertIdentical(repr('foo'), '"foo"');
 		self.assert(repr(['foo']).search('foo') >= 0);
@@ -1006,9 +1006,9 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'ReprTests').methods
 
 
 /**
- * Tests for L{Divmod.UnitTest.setTimeoutMonkey} and L{Divmod.UnitTest.setIntervalMonkey}.
+ * Tests for L{CW.UnitTest.setTimeoutMonkey} and L{CW.UnitTest.setIntervalMonkey}.
  */
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestMonkeys').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 	/**
 	 * Test that setTimeout and clearTimeout are special actions that save ticket numbers,
 	 * and can be cancelled, and do actually stop when cancelled.
@@ -1026,20 +1026,20 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestMonkeys').metho
 		};
 
 		var ticket1 = setTimeout(neverRunMe, 10);
-		self.assertIdentical(1, Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
+		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
 
 		var ticket2 = setTimeout(pleaseRunMe, 11);
-		self.assertIdentical(2, Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
+		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
 
 		clearTimeout(ticket1);
 		// ticket2 is *not* cleared. we want to test that setTimeout does work.
-		self.assertIdentical(1, Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertIdentical(undefined, Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
+		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
 
-		var d = Divmod.Defer.Deferred();
+		var d = CW.Defer.Deferred();
 
 		setTimeout(function() {
 			// Do this try/catch/errback to avoid breaking the test runner
@@ -1049,7 +1049,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestMonkeys').metho
 			try {
 				self.assertIdentical(false, neverRunMeWasRun);
 				self.assertIdentical(true, pleaseRunMeWasRun);
-				self.assertIdentical(0, Divmod.dir(Divmod.UnitTest.delayedCalls['setTimeout_pending']).length);
+				self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
 			} catch(e) {
 				errBacked = true;
 				d.errback(e);
@@ -1079,20 +1079,20 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestMonkeys').metho
 		};
 
 		var ticket1 = setInterval(neverRunMe, 10);
-		self.assertIdentical(1, Divmod.dir(Divmod.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
+		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
 
 		var ticket2 = setInterval(pleaseRunMe, 10);
-		self.assertIdentical(2, Divmod.dir(Divmod.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
+		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
 
 		clearInterval(ticket1);
 		// ticket2 is *not* cleared yet. we want to test that setInterval does work.
-		self.assertIdentical(1, Divmod.dir(Divmod.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertIdentical(undefined, Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
-		self.assertNotIdentical(undefined, Divmod.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
+		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
 
-		var d = Divmod.Defer.Deferred();
+		var d = CW.Defer.Deferred();
 
 		setTimeout(function() {
 			// Do this try/catch/errback to avoid breaking the test runner
@@ -1104,9 +1104,9 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestUnitTest, 'TestMonkeys').metho
 				self.assertIdentical(0, neverRunMeWasRun);
 				// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
 				self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
-				self.assertIdentical(1, Divmod.dir(Divmod.UnitTest.delayedCalls['setInterval_pending']).length);
+				self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 				clearInterval(ticket2);
-				self.assertIdentical(0, Divmod.dir(Divmod.UnitTest.delayedCalls['setInterval_pending']).length);
+				self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 			} catch(e) {
 				errBacked = true;
 				d.errback(e);

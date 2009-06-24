@@ -1,27 +1,27 @@
 /**
- * Tests for Divmod.__init__
+ * Tests for CW.__init__
  *
- * Apparently not related to Divmod's Base.js.
+ * Apparently not related to CW's Base.js.
  */
 
-// import Divmod.UnitTest
+// import CW.UnitTest
 
-Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 
 	// if ever need some kind of "bootstrap" we'll add it back
 //	/**
-//	 * Verify that the Divmod module's bootstrap function sets its '_location'
+//	 * Verify that the CW module's bootstrap function sets its '_location'
 //	 * attribute.
 //	 */
 //	function test_divmodBootstrap(self) {
-//		var notDivmod = {};
-//		notDivmod.bootstrap = Divmod.bootstrap;
+//		var notCW = {};
+//		notCW.bootstrap = CW.bootstrap;
 //		var STUFF = "hello there";
-//		notDivmod.bootstrap(STUFF);
-//		self.assertIdentical(notDivmod._location, STUFF);
+//		notCW.bootstrap(STUFF);
+//		self.assertIdentical(notCW._location, STUFF);
 //	},
 
-	// We don't care about Divmod.Base's old JSON code, but test our own.
+	// We don't care about CW.Base's old JSON code, but test our own.
 	
 	/**
 	 * Assert that JSON encoder is doing at least basic escaping.
@@ -35,7 +35,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 		// (control characters like RTL are unlikely to cause problems. TODO: confirm?)
 
 		var s = '\r\n\f\b\t\u0000';
-		var repr = Divmod.JSON.stringify(s);
+		var repr = CW.JSON.stringify(s);
 
 		var expected = '"\\r\\n\\f\\b\\t\\u0000"';
 
@@ -55,7 +55,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 	 */
 	function test_serializeJSON(self) {
 		var expr = [{}, {1: "2"}, {"c": [null, NaN, [{x: ["\\", "'", ""]}]]}];
-		var json = Divmod.JSON.stringify(expr);
+		var json = CW.JSON.stringify(expr);
 
 		// We assume that if the browser has a native JSON encoder,
 		// it won't be adding spaces. (FF 3.1 behavior seems to match this)
@@ -69,10 +69,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 	 * equal.
 	 */
 	function test_arraysEqualPositive(self) {
-		self.assert(Divmod.arraysEqual([], []));
-		self.assert(Divmod.arraysEqual([1, 2], [1, 2]));
+		self.assert(CW.arraysEqual([], []));
+		self.assert(CW.arraysEqual([1, 2], [1, 2]));
 		var x = {a: 1, b: 2};
-		self.assert(Divmod.arraysEqual([x, 3], [x, 3]));
+		self.assert(CW.arraysEqual([x, 3], [x, 3]));
 	},
 
 
@@ -81,10 +81,10 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 	 * considered equal.
 	 */
 	function test_arraysEqualNegative(self) {
-		self.assert(!Divmod.arraysEqual([], [null]));
-		self.assert(!Divmod.arraysEqual([1], [2]));
-		self.assert(!Divmod.arraysEqual({'a': undefined}, {'b': 2}));
-		self.assert(!Divmod.arraysEqual(
+		self.assert(!CW.arraysEqual([], [null]));
+		self.assert(!CW.arraysEqual([1], [2]));
+		self.assert(!CW.arraysEqual({'a': undefined}, {'b': 2}));
+		self.assert(!CW.arraysEqual(
 						function () { return 1; },
 						function () { return 2; }));
 	},
@@ -95,7 +95,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 	 * considered equal.
 	 */
 	function test_arraysSparseEqualNegative(self) {
-		self.assert(!Divmod.arraysEqual([1,"2",undefined,10], [1,"2",undefined,11]));
+		self.assert(!CW.arraysEqual([1,"2",undefined,10], [1,"2",undefined,11]));
 	},
 
 
@@ -109,7 +109,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 
 		var a2 = [1,"2"];
 		a2[3] = 11;
-		self.assert(!Divmod.arraysEqual(a1, a2));
+		self.assert(!CW.arraysEqual(a1, a2));
 	},
 
 
@@ -123,7 +123,7 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 		a[3] = '3';
 		b[3] = '3';
 		b[2] = '2';
-		self.assert(!Divmod.arraysEqual(a, b));
+		self.assert(!CW.arraysEqual(a, b));
 	},
 
 
@@ -131,20 +131,20 @@ Divmod.UnitTest.TestCase.subclass(Divmod.Test.TestBase, 'TestBase').methods(
 	 * Check that startswith is working as expected.
 	 */
 	function test_startswith(self) {
-		self.assert(Divmod.startswith("hello", "h"));
-		self.assert(Divmod.startswith("hello", ""));
-		self.assert(Divmod.startswith("hello", "hell"));
-		self.assert(Divmod.startswith("hello", "hello"));
-		self.assert(!Divmod.startswith("something else", "not related"));
-		self.assert(!Divmod.startswith("not related", "something else"));
-		self.assert(!Divmod.startswith("hello", "hello!"));
-		self.assertThrows(Error, function(){self.assert(!Divmod.startswith(null, "hello"));});
-		self.assertThrows(Error, function(){self.assert(!Divmod.startswith("hello", null));});
-		self.assertThrows(Error, function(){self.assert(!Divmod.startswith(undefined, "hello"));});
-		self.assertThrows(Error, function(){self.assert(!Divmod.startswith("hello", undefined));});
-		self.assert(!Divmod.startswith("3he", 3));
-		self.assertThrows(Error, function(){Divmod.startswith(3, "3");});
-		self.assertThrows(Error, function(){Divmod.startswith(33, "33");});
-		self.assertThrows(Error, function(){Divmod.startswith(33, "3");});
+		self.assert(CW.startswith("hello", "h"));
+		self.assert(CW.startswith("hello", ""));
+		self.assert(CW.startswith("hello", "hell"));
+		self.assert(CW.startswith("hello", "hello"));
+		self.assert(!CW.startswith("something else", "not related"));
+		self.assert(!CW.startswith("not related", "something else"));
+		self.assert(!CW.startswith("hello", "hello!"));
+		self.assertThrows(Error, function(){self.assert(!CW.startswith(null, "hello"));});
+		self.assertThrows(Error, function(){self.assert(!CW.startswith("hello", null));});
+		self.assertThrows(Error, function(){self.assert(!CW.startswith(undefined, "hello"));});
+		self.assertThrows(Error, function(){self.assert(!CW.startswith("hello", undefined));});
+		self.assert(!CW.startswith("3he", 3));
+		self.assertThrows(Error, function(){CW.startswith(3, "3");});
+		self.assertThrows(Error, function(){CW.startswith(33, "33");});
+		self.assertThrows(Error, function(){CW.startswith(33, "3");});
 	}
 );
