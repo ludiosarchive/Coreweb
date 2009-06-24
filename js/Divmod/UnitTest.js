@@ -1,7 +1,8 @@
-// -*- test-case-name: nevow.test.test_javascript -*-
-
 /**
  * JavaScript unit testing framework, modeled on xUnit.
+ *
+ * Heavy modified from the Divmod UnitTest.js to add support
+ * for Deferreds in test methods, setUp, and tearDown.
  */
 
 

@@ -1,5 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript.JavaScriptTestSuite.testJSBase
-
 /***
 
 	This code was adapted and taken from MochiKit
@@ -220,6 +218,25 @@ Divmod.Base._newCallStack = function(target, path, once) {
 };
 
 Divmod.Base.addToCallStack = function(target, path, func, once) {
+	/**
+	addToCallStack(target, path, func[, once]):
+
+	Note that addToCallStack is not compatible with MochiKit.Signal.
+	Once an event is connected with MochiKit.Signal, no other APIs may be
+	used for that same event.
+
+	Set the property path of target to a function that calls the
+	existing function at that property (if any), then calls func.
+
+	If target[path]() returns exactly false, then func will not be called.
+
+	If once is true, then target[path] is set to null after the function
+	call stack has completed.
+
+	If called several times for the same target[path], it will create a
+	stack of functions (instead of just a pair).
+	*/
+
 	var existing = target[path];
 	var regfunc = existing;
 	if (!(typeof existing == 'function' && typeof existing.callStack == "object" && existing.callStack != null)) {
