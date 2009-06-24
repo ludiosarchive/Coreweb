@@ -237,6 +237,7 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 
 
 Divmod.Class.prototype.__init__ = function() {
+	Divmod.debug("In Divmod.Class.prototype.__init__");
 	/* throw new Error("If you ever hit this code path something has gone horribly wrong");
 	 */
 };
