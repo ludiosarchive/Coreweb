@@ -719,28 +719,6 @@ Divmod.UnitTest.TestCase.methods(
 		
 	}
 
-//	/**
-//	 * Helpful Opera 10 adds garbage to end of your e.message strings.
-//	 *
-//	 * TODO: maybe consider handling the full stacktraces
-//	 * if user has "Exceptions Have Stacktrace" enabled.
-//	 */
-//	function _noOpera10Trailer(self, error) {
-//		// Wow. Opera 10 only lets us replace the message text once per test method or something,
-//		// so we return the cleaned message.
-//		if(Divmod.window.opera) {
-//			var copy = '' + error.message;
-//			var replacement = copy.replace(/\r\nstacktrace: n.*/, '');
-//			//alert('replacement is ' + replacement);
-//			try {
-//			error.message = replacement; // this only works sometimes as mentioned above
-//			} catch(ignored) {}
-//			return replacement;
-//		}
-//		return error.message;
-//	}
-
-);
 
 //   Reference Deferred-free implementation from original Divmod UnitTest.js
 //
@@ -782,7 +760,30 @@ Divmod.UnitTest.TestCase.methods(
 //			result.addSuccess(self);
 //		}
 //		result.stopTest(self);
-//	});
+//	};
+
+//	/**
+//	 * Helpful Opera 10 adds garbage to end of your e.message strings.
+//	 *
+//	 * TODO: maybe consider handling the full stacktraces
+//	 * if user has "Exceptions Have Stacktrace" enabled.
+//	 */
+//	function _noOpera10Trailer(self, error) {
+//		// Wow. Opera 10 only lets us replace the message text once per test method or something,
+//		// so we return the cleaned message.
+//		if(Divmod.window.opera) {
+//			var copy = '' + error.message;
+//			var replacement = copy.replace(/\r\nstacktrace: n.*/, '');
+//			//alert('replacement is ' + replacement);
+//			try {
+//			error.message = replacement; // this only works sometimes as mentioned above
+//			} catch(ignored) {}
+//			return replacement;
+//		}
+//		return error.message;
+//	}
+
+);
 
 
 /**
