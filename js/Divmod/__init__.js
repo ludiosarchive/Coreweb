@@ -461,7 +461,12 @@ Divmod.random = function() {
 Divmod.JSON = function() {
 	if(Divmod.window.JSON && JSON.stringify && JSON.parse) {
 		Divmod.debug("Using browser's native JSON stringifier and parser.");
-		return {stringify: JSON.stringify, parse: JSON.parse, preferWrapped: false};
+		return {
+			stringify: JSON.stringify,
+			parse: JSON.parse,
+			parseWrapped: function(s) { JSON.parse(s.substr(1, s.length-2)); },
+			preferWrapped: false
+		};
 	}
 
 	// C{escapable} covers all the characters we'll need to specially handle
@@ -567,6 +572,9 @@ Divmod.JSON = function() {
 		},
 		parse: function(value) {
 			return eval('(' + value + ')');
+		},
+		parseWrapped: function(value) {
+			return eval(value);
 		},
 		preferWrapped: false
 	};
