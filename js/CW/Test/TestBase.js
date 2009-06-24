@@ -1,7 +1,5 @@
 /**
  * Tests for CW.__init__
- *
- * Apparently not related to CW's Base.js.
  */
 
 // import CW.UnitTest

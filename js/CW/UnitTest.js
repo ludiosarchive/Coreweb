@@ -1,7 +1,7 @@
 /**
  * JavaScript unit testing framework, modeled on xUnit.
  *
- * Heavy modified from the CW UnitTest.js to add support
+ * Heavy modified from the Divmod UnitTest.js to add support
  * for Deferreds in test methods, setUp, and tearDown.
  */
 
@@ -721,7 +721,7 @@ CW.UnitTest.TestCase.methods(
 	}
 
 
-//   Reference Deferred-free implementation from original CW UnitTest.js
+//   Reference Deferred-free implementation from original Divmod UnitTest.js
 //
 //	/**
 //	 * Actually run this test.
