@@ -460,11 +460,15 @@ Divmod.random = function() {
  */
 Divmod.JSON = function() {
 	if(Divmod.window.JSON && JSON.stringify && JSON.parse) {
-		Divmod.debug("Using browser's native JSON stringifier and parser.");
+		Divmod.debug("Using browser's native JSON stringifier and parser instead of json2/eval.");
 		return {
 			stringify: JSON.stringify,
 			parse: JSON.parse,
-			parseWrapped: function(s) { JSON.parse(s.substr(1, s.length-2)); },
+			parseWrapped: function(s) {
+				Divmod.debug("Why give Divmod.JSON '()'-wrapped JSON strings"+
+				" when this browser is faster with unwrapped ones?");
+				JSON.parse(s.substr(1, s.length-2));
+			},
 			preferWrapped: false
 		};
 	}
