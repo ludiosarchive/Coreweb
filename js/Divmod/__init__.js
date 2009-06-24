@@ -452,12 +452,16 @@ Divmod.random = function() {
  *    fewer/more characters are encoded to \u escapes
  *    FF3.1 stringifier will convert \t and other "short characters" to \u escapes instead of \\t 
  *
- * 'Safe' parsing was removed. We'll just use eval().
+ * Compared to json2.js, 'safe' parsing was removed. We use eval().
+ *
+ * L{parseWrapped} JSON-parses already-'()'-wrapped strings.
+ * L{preferWrapped} is C{true} if browser can handle '()'-wrapped strings faster
+ *    than those that are not '()'-wrapped.
  */
 Divmod.JSON = function() {
 	if(Divmod.window.JSON && JSON.stringify && JSON.parse) {
 		Divmod.debug("Using browser's native JSON stringifier and parser.");
-		return {stringify: JSON.stringify, parse: JSON.parse};
+		return {stringify: JSON.stringify, parse: JSON.parse, preferWrapped: false};
 	}
 
 	// C{escapable} covers all the characters we'll need to specially handle
@@ -563,7 +567,8 @@ Divmod.JSON = function() {
 		},
 		parse: function(value) {
 			return eval('(' + value + ')');
-		}
+		},
+		preferWrapped: false
 	};
 }();
 
