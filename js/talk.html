@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+			"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Talk.</title>
+
+<style type="text/css">
+#debug {
+	font-size: 11px;
+	font-family: Tahoma, sans-serif;
+}
+</style>
+
+</head>
+
+<body>
+Talk.<br><br>
+
+<a href="/talk/">Self-link. For Testing Opera unload, or testing Chrome's "site" grouping.</a><br><br>
+
+<div id="debug"></div>
+
+
+<!-- try to connect to 'master' inside the iframe to prevent the popup warning (DIDN'T WORK) -->
+<!--
+<iframe frameborder="2" name="aframe" id="aframe" href="about:blank" width=200 height=200></iframe>
+-->
+
+<script type="text/javascript">
+
+<!--
+
+/*
+This seems to work cross-domain in: FF3.5, IE7, IE8, probably more
+
+TODO: fix issue where popup tries to open in FF3.5.
+Maybe unload event isn't removing the cookie fast enough?
+ */
+
+document.domain = 'linuxwan.com';
+
+
+
+// doesn't seem to do anything really?
+//history.navigationMode = 'compatible';
+
+
+if (!window.console || !console.firebug) {
+	var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml",
+	"group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
+
+	window.console = {};
+	for (var i = 0; i < names.length; ++i) {
+		window.console[names[i]] = function() {};
+	}
+}
+
+var debug = function(msg) {
+	console.log(msg);
+	document.getElementById('debug').innerHTML += (msg + '<br>\n');
+};
+
+
+C_COOKIE_UPDATE_MS = 100;
+
+var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+
+var tab_id = "bp" + (""+Math.random()).slice(2); // IE doesn't allow . or - in name, see http://msdn.microsoft.com/en-us/library/ms536651(VS.85).aspx
+window.name = tab_id;
+
+debug('I am ' + tab_id);
+
+slave_pages = {};
+
+var i_am_master = false;
+
+
+/* TODO: do we need to monitor for tabs that closed but didn't send us an onunload event? (Opera?) */
+
+
+
+/* slaves call these methods */
+
+var notify_closing = function(remote_tab_id) {
+	debug('remote tab ' + remote_tab_id + ' gone.');
+	delete slave_pages[remote_tab_id];
+};
+
+var hello_from = function(remote_tab_id, remote_tab_window) {
+	debug('new remote tab ' + remote_tab_id);
+	slave_pages[remote_tab_id] = remote_tab_window;
+};
+
+var find_master_and_gc = function() {
+	/* s[0] is cookie key, s[1] is cookie value. value for masters is the last time. */
+
+	//var date_now = new Date().getTime();
+	var date_now = parseInt(new Date().getTime(), 10);
+
+	debug('document.cookie: ' + document.cookie);
+
+	var c = document.cookie.split('; ');
+	debug('# of cookies: ' + c.length);
+
+	var largest_so_far = 0;
+	var s, final_s;
+	for (var i=0; i < c.length; i++) {
+		//debug('looking at cookie: ' + c[i]);
+		s = c[i].split('=');
+		if(s[0].substr(0,2) == 'bp') {
+			//debug('bp');
+			// if this m_ cookie hasn't been updated in 20 seconds, unset it.
+			if(s[1] < (date_now - (C_COOKIE_UPDATE_MS*4))) {
+				nuke_cookie(s[0]);
+				
+			// if this is the most recent cookie we've found so far, assign final_s
+			} else if(s[1] > largest_so_far) {
+				final_s = s;
+				largest_so_far = s[1];
+			}
+		}
+	}
+
+	if(final_s && (final_s[1] > (date_now - (C_COOKIE_UPDATE_MS*2)))) {
+		debug('final_s: ' + final_s[0] + ',' + final_s[1]);
+		return final_s;
+	}
+};
+
+var nuke_cookie = function(cookie_name) {
+	document.cookie = cookie_name + '=0000000000000; path=/; expires=Thu, 01-Jan-80 00:00:01 GMT;';
+};
+
+var check_master_alive_interval = undefined;
+
+
+var check_master_alive = function(set_interval_ignored, remote_force_try_become_master) {
+	// IE needs this additional first master_ref check
+	var master_lost = false;
+
+	// this .closed check is needed for Opera (9.62, Win). Otherwise Opera still thinks the window is open.
+	try {
+		if(master_ref.closed) {
+			master_lost = true;
+		}
+	} catch(e) {}
+	
+	try {
+		var temp_tab_id = master_ref.tab_id; // was (master_ref && master_ref.tab_id);
+	} catch (e) { // we need 'catch' for IE (instead of just a regular variable true-ness check). IE fails hard.
+		master_lost = true;
+	}
+	if(master_lost || remote_force_try_become_master === true) {
+		debug('lost my master');
+		debug('was this check_master_alive forced by master tab? ' + remote_force_try_become_master);
+		clearInterval(check_master_alive_interval);
+
+		var old_master = final_s[0];
+		final_s = find_master_and_gc();
+		try {
+			var new_master = final_s[0];
+		} catch (e) {}
+
+		if(final_s && (old_master != new_master)) {
+			connect_to_master(final_s[0]);
+		} else {
+			// nobody has done it yet, so become the new master
+			become_master();
+		}
+	}
+};
+
+var connect_to_master = function(which_master) {
+	debug('attach to master ' + which_master);
+	
+	if(which_master == tab_id) {
+		throw new Error("Fatal error. Tried to connect to our own tab.");
+	}
+
+	master_ref = open('', which_master);
+	master_ref.hello_from(tab_id, window);
+	check_master_alive_interval = setInterval(check_master_alive, 1000);
+};
+
+var become_master = function() {
+	debug('become_master');
+
+	i_am_master = true; // nothing can make us lose our master status, except for our tab getting closed
+
+	update_cookie();
+	setInterval(update_cookie, C_COOKIE_UPDATE_MS);
+};
+
+var update_cookie = function() {
+	document.cookie = tab_id +'=' + new Date().getTime()+';path=/;domain=.linuxwan.com';
+};
+
+var basic_listener = function(obj, evType, fn) {
+	// right now, useCapture always false
+	// this all fails silently
+	// "IE's attachEvent returns either true or false depending on whether or not the operation was successful"
+	if (obj.addEventListener) {
+		obj.addEventListener(evType, fn, false);
+	} else if(obj.attachEvent){
+		//if(obj === document && (evType == 'focus' || evType == 'blur')) {
+		//	// IE doesn't support focus/blur on document
+		//	return;
+		//}
+		obj.attachEvent('on' + evType, fn);
+	}
+};
+
+var broadcast_my_death = function() {
+	/* FF3 seems to keep object order stable (new keys go on the end), so in theory, this should get us the earliest tab to connect. */
+	/* for some reason IE7 raised an exception on: k in slave_pages */
+	for (var k in slave_pages) {
+		if(slave_pages[k].check_master_alive) { /* we should check, in case the tab closed but sent no onunload. this happens in Opera. */
+			slave_pages[k].check_master_alive(null, true /*remote_force_try_become_master*/);
+			break;
+		}
+	}
+
+};
+
+var tab_closing = function() {
+	if(i_am_master) {
+		nuke_cookie(tab_id);
+		broadcast_my_death();
+	} else {
+		master_ref.notify_closing(tab_id);
+	}
+};
+
+basic_listener(window, 'unload', tab_closing);
+
+
+
+final_s = find_master_and_gc();
+
+if(!final_s) {
+	become_master();
+} else {
+	connect_to_master(final_s[0]);
+}
+
+
+
+
+// -->
+
+</script>
+
+<x></y>
+</body>
+</html>

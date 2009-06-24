@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+            "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>test keepalive GET</title>
+</head>
+<body>
+<script>
+
+var __bp = {window:window};
+
+__bp.time_now = function() {
+	return new Date().getTime();
+};
+
+__bp.activexobject = function(s) {
+	return new ActiveXObject(s);
+};
+
+__bp.get_xmlhttprequest_obj = function() {
+	var that = this;
+	return (that.window.ActiveXObject ? function() {
+		try {
+			return that.activexobject('Msxml2.XMLHTTP');
+		} catch (e) {
+			try {
+				return that.activexobject('Microsoft.XMLHTTP');
+			} catch (e_) {
+				return new XMLHttpRequest();
+			}
+		}
+	}() : new XMLHttpRequest());
+};
+
+__bp.send_ajax_async = function(url, response_handler, args) {
+	var that = this;
+	var x = that.get_xmlhttprequest_obj();
+
+	if ('\v' == 'v') {
+		fOnUnload = function() {
+			if (x.readyState != 4) {
+				x.onreadystatechange = new Function;
+				// Safe to abort here since onreadystatechange handler removed
+				x.abort();
+			}
+		};
+		attachEvent("onunload", fOnUnload);
+	}
+
+	x.open('GET', url + '?' + that.time_now() + ',' + that.random_js_session, true);
+
+	x.onreadystatechange = function() {
+		if(x.readyState !== 4) {
+			return;
+		}
+
+		if ('\v' == 'v') {
+			// without this, IE *will* leak like crazy,
+			//    and Drip will *not* be able to figure out what the problem is.
+			// (Idea from Sergey Ilinsky's XMLHttpRequest.js)
+			x.onreadystatechange = new Function;
+			detachEvent("onunload", fOnUnload);
+		}
+
+		var split_response = x.responseText.split(',');
+		if(split_response.length === 2) {
+			var client_additional_info = split_response[1];
+			if(client_additional_info === '0') {
+				that.need_send_full_plugins = 1;
+			}
+		}
+
+		setTimeout(response_handler, 0);
+	};
+
+	//x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	x.setRequestHeader('Content-length', args.length);
+	x.send(args); // we used to have:  + '\t' + that.time_now()
+
+};
+
+function again() {
+	setTimeout(function(){
+		__bp.send_ajax_async('/', function(){again()}, 'a few bytes in GET. Does it work? No. (FF3, )');
+	}, 250);
+}
+
+again();
+
+</script>
+</body>
+</html>

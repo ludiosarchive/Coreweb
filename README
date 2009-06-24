@@ -1,0 +1,10 @@
+Coreweb should contain JavaScript and Flash (haXe/AS3) files that assist in
+building web applications, but not related to any server-side technology.
+
+For example, client-side Comet code should not be here, because Comet (as of 2009)
+requires a custom-built (and unstandardized) server.
+
+Another example: client-side code to synchronize the client's clock with a server
+should not be here, because that requires a custom-built server.
+
+The code in Coreweb should not rely on Python at all.
