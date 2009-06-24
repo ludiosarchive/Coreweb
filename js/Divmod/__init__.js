@@ -1,106 +1,4 @@
-
-Divmod.debugging = false;
-//
-///**
-// * Initialize state in this module that only the server knows about.
-// *
-// * See the Python module "nevow.athena" for where this is expected to be
-// * called.
-// *
-// * @param transportRoot: a string, the URL where the root of the server-side
-// * Athena transport hierarchy for the current page is located.
-// */
-//Divmod.bootstrap = function (transportRoot) {
-//	this._location = transportRoot;
-//};
-//
-//
-//Divmod.baseURL = function() {
-//	// Use "cached" value if it exists
-//	if (Divmod._baseURL != undefined) {
-//		return Divmod._baseURL;
-//	}
-//	var nevowURL = Nevow.Athena.page.baseURL();
-//	// "Cache" and return
-//	Divmod._baseURL = nevowURL;
-//	return Divmod._baseURL;
-//};
-//
-//
-//Divmod.importURL = function(moduleName) {
-//	return Divmod.baseURL() + 'jsmodule/' + moduleName;
-//};
-//
-
-///**
-// * Create an object with properties from C{keys} bound to the corresponding
-// * objects from C{values}.  This is like C{dict(zip(keys, values))} in Python.
-// *
-// * @type keys: Array of strings
-// * @param keys: The names of the properties to bind on the resulting object.
-// *
-// * @type values: Array of anything
-// * @param values: The values to which to bind the properties.
-// *
-// * @rtype: object
-// * @return: An object where C{o[keys[i]] == values[i]} for all values of C{i}
-// * from C{[i..keys.length)}.
-// *
-// * @throw Error: Thrown if C{keys.length != values.length}.
-// */
-//Divmod.objectify = function objectify(keys, values) {
-//	if (keys.length != values.length) {
-//		throw Error("Lengths of keys and values must be the same.");
-//	}
-//
-//	var result = {};
-//	for (var i = 0; i < keys.length; ++i) {
-//		result[keys[i]] = values[i];
-//	}
-//	return result;
-//};
-
-
 Divmod._global = Divmod.window = this;
-
-
-// namedAny looks handy, but we don't need it at this time.
-///* Retrieve an object via its fully-qualified javascript name.
-// *
-// * @type name: C{string}
-// * @param name: The name of an object.  For example, "Divmod.namedAny".
-// *
-// * @type path: C{array}
-// * @param path: An optional output array.  If provided, it will have the
-// * superior objects on the path to the given object pushed onto it.  For
-// * example, for "foo.bar.baz", C{foo} and then C{foo.bar} will be pushed
-// * onto it.
-// */
-//Divmod.namedAny = function(name, /* optional output */ path) {
-//	var namedParts = name.split('.');
-//	var obj = Divmod._global;
-//	for (var i = 0; i < namedParts.length; ++i) {
-//		obj = obj[namedParts[i]];
-//		if (obj == undefined) {
-//			Divmod.debug('widget', 'Failed in namedAny for ' + name + ' at ' + namedParts[i]);
-//			break;
-//		}
-//		if (i != namedParts.length - 1 && path != undefined) {
-//			path.push(obj);
-//		}
-//	}
-//	return obj;
-//};
-
-
-// just use Math.max
-//Divmod.max = function(a, b) {
-//	if (a >= b) {
-//		return a;
-//	} else {
-//		return b;
-//	}
-//};
 
 
 Divmod.vars = function(obj) {
@@ -247,6 +145,7 @@ Divmod.Class.subclass = function(classNameOrModule, /* optional */ subclassName)
 
 	// disabling attribute-copying for now, in attempt to simplify and increase speed.
 	// TestObject.test_class tests were changed as well.
+	// If this is enabled again, probably exclude 'method' and 'methods' too.
 
 //	/*
 //	 * Copy class methods and attributes, so that you can do
@@ -505,6 +404,8 @@ if(Divmod.window.firebug) { // non-firebug use can cause infinite loop in Safari
 /**
  * Return C{true} if the two arrays contain identical elements and C{false}
  * otherwise.
+ *
+ * This assumes that no one has added anything to C{Array.prototype}.
  */
 Divmod.arraysEqual = function arraysEqual(a, b) {
 	var i;
@@ -529,7 +430,7 @@ Divmod.arraysEqual = function arraysEqual(a, b) {
 
 
 Divmod.startswith = function(haystack, starter) {
-	return !!(haystack.substr(0, starter.length) === starter); // == yields same test results
+	return !!(haystack.substr(0, starter.length) === starter); // '==' yields same test results
 };
 
 
