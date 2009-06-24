@@ -1,5 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript -*-
-
 /**
  * Tests for Divmod.__init__
  *

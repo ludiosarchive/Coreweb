@@ -1,5 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript -*-
-
 /**
  * Tests for Divmod.UnitTest, the Javascript unit-testing framework.
  * Uses mock test cases provided by Divmod.Test.(Mock|DMock).

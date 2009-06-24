@@ -1,5 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript -*-
-
 // import Divmod.UnitTest
 
 

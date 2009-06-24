@@ -1,5 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript.JSUnitTests.test_runtime -*-
-
 /**
  * Unit Tests for Divmod.Runtime.
  *

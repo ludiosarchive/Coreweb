@@ -1,4 +1,3 @@
-// -*- test-case-name: nevow.test.test_javascript -*-
 // import Divmod
 // import Divmod.Base
 // import Divmod.Defer
