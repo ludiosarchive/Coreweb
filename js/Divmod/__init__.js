@@ -435,7 +435,7 @@ Divmod.startswith = function(haystack, starter) {
 
 
 Divmod.now = function() {
-	return (new Date).getTime();
+	return +new Date;
 };
 
 
