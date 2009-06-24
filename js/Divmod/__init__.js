@@ -561,15 +561,6 @@ Divmod.JSON = function() {
 			}
 		}
 
-
-
-	// if we want to use parser only?
-	
-//	if(Divmod.window.JSON && JSON.parse) {
-//		Divmod.debug("Using browser's native JSON parser.");
-//		return {stringify: function (value) {return str('', {'': value});}, parse: JSON.parse};
-//	}
-
 	return {
 		stringify: function (value) {
 			return str('', {'': value});
