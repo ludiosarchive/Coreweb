@@ -21,7 +21,6 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 
 
 	function _removeManyHeaders(self) {
-		__BEGIN_SHUFFLE_LINES__=1;
 		self._safeSet("User-Agent", null);
 		self._safeSet("Accept", null);
 		self._safeSet("Accept-Language", null);
@@ -40,7 +39,6 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 		// Browser decides if connections are kept alive. We could be operating over HTTP 1.0.
 //		self.safeSet("Connection", "keep-alive");
 //		self.safeSet("Keep-Alive", null);
-		__END_SHUFFLE_LINES__=1;
 	},
 
 
