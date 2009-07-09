@@ -1,3 +1,4 @@
+/* {LICENSE:primary,Nevow} */
 CW._global = CW.window = this;
 
 

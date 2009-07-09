@@ -131,8 +131,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_callThisDontCallThat(self) {
 		var thisCalled = false;
 		var thatCalled = false;
-		var thisCaller = function (rlst) { thisCalled = true; }
-		var thatCaller = function (err) { thatCalled = true; }
+		var thisCaller = function (rlst) { thisCalled = true; };
+		var thatCaller = function (err) { thatCalled = true; };
 
 		var d = new CW.Defer.Deferred();
 

@@ -13,7 +13,7 @@ CW.Class.subclass(CW.Defer, 'Failure');
 
 CW.Defer.Failure.prototype.__init__ = function(error) {
 	this.error = error;
-}
+};
 
 /**
  * Return the underlying Error instance if it is an instance of the given
@@ -24,25 +24,19 @@ CW.Defer.Failure.prototype.check = function(errorType) {
 		return this.error;
 	}
 	return null;
-}
+};
 
 CW.Defer.Failure.prototype.toString = function() {
 	return 'Failure: ' + this.error;
-}
+};
 
 CW.Defer.Failure.prototype.parseStack = function() {
 	//console.log('this.error', this.error);
-	var stackString = this.error.stack;
-	var frames = [];
+	var
+		stackString = this.error.stack,
+		frames = [],
+		i, line, parts, func, rest, divide, fname, lineNumber;
 
-	var i;
-	var line;
-	var parts;
-	var func;
-	var rest;
-	var divide;
-	var fname;
-	var lineNumber;
 	if(stackString !== undefined) {
 		var lines = stackString.split('\n');
 		for (i = 0, line = lines[i]; i < lines.length; ++i, line = lines[i]) {
@@ -66,7 +60,7 @@ CW.Defer.Failure.prototype.parseStack = function() {
 		}
 	}
 	return frames;
-}
+};
 
 
 /**
@@ -90,7 +84,7 @@ CW.Defer.Failure.prototype.filteredParseStack = function() {
 		ret.push(f);
 	};
 	return ret;
-}
+};
 
 
 /**
@@ -102,7 +96,7 @@ CW.Defer.Failure.prototype.filteredParseStack = function() {
 CW.Defer.Failure.prototype.frameToPrettyText = function(frame) {
 	return '  Function "' + frame.func + '":\n	' + frame.fname + ':'
 		+ frame.lineNumber;
-}
+};
 
 
 /**
@@ -117,7 +111,7 @@ CW.Defer.Failure.prototype.toPrettyText = function(/* optional */ frames) {
 		ret += this.frameToPrettyText(frames[i]) + '\n';
 	}
 	return ret + this.error;
-}
+};
 
 
 CW.Defer.Failure.prototype.toPrettyNode = function() {
@@ -352,6 +346,8 @@ CW.Defer.DeferredList.prototype.__init__ = function (deferredList,
 	if (deferredList.length == 0 && !fireOnOneCallback) {
 		self.callback(self.resultList);
 	}
+
+	// note: null == undefined
 
 	if (fireOnOneCallback == undefined) {
 		fireOnOneCallback = false;
