@@ -263,7 +263,8 @@ CW.Error.methods(
 	 */
 	function toString(self) {
 		return self.__name__ + ': ' + self.message;
-	});
+	}
+);
 
 /**
  * Sequence container index out of bounds.
@@ -281,7 +282,8 @@ CW.Module = CW.Class.subclass('CW.Module');
 CW.Module.method(
 	function __init__(self, name) {
 		self.name = name;
-	});
+	}
+);
 
 
 CW.Logger = CW.Class.subclass('CW.Logger');
