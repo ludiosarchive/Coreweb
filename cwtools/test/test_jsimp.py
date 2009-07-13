@@ -82,7 +82,6 @@ class PathForModuleTests(unittest.TestCase):
 			jsimp.pathForModule("something.more.mod2", basePath=d.path))
 
 
-
 	def test_noSuchJS(self):
 		d = FilePath(self.mktemp())
 
@@ -102,7 +101,7 @@ class PathForModuleTests(unittest.TestCase):
 
 
 
-class MakeTagsTests(unittest.TestCase):
+class ScriptForTests(unittest.TestCase):
 
 	def test_tags(self):
 		d = FilePath(self.mktemp())
@@ -112,7 +111,7 @@ class MakeTagsTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		html = jsimp.makeTags('p.mod1', basePath=d.path)
+		html = jsimp.scriptFor('p.mod1', basePath=d.path)
 		self.assertEqual(
 			"""<script>p.mod1={'__name__':'p.mod1'};%s</script>""" % (contents,),
 			html
