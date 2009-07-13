@@ -52,7 +52,8 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/mod1.js',
-			jsimp.pathForModule("something.mod1", basePath=d.path))
+			jsimp.Script("something.mod1", d.path).getFilename()
+		)
 
 
 	def test_fileDepth2(self):
@@ -63,7 +64,8 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/more/mod2.js',
-			jsimp.pathForModule("something.more.mod2", basePath=d.path))
+			jsimp.Script("something.more.mod2", d.path).getFilename()
+		)
 
 
 	def test_fileDepth2WithInitJS(self):
@@ -75,11 +77,11 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/more/__init__.js',
-			jsimp.pathForModule("something.more", basePath=d.path))
+			jsimp.Script("something.more", d.path).getFilename())
 
 		self.assertEqual(
 			'something/more/mod2.js',
-			jsimp.pathForModule("something.more.mod2", basePath=d.path))
+			jsimp.Script("something.more.mod2", d.path).getFilename())
 
 
 	def test_noSuchJS(self):
@@ -87,7 +89,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertRaises(
 			jsimp.NoSuchJSError,
-			lambda: jsimp.pathForModule("doesnt.exist", basePath=d.path))
+			lambda: jsimp.Script("doesnt.exist", d.path).getFilename())
 
 
 	def test_noSuchJSInitJS(self):
@@ -97,7 +99,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertRaises(
 			jsimp.NoSuchJSError,
-			lambda: jsimp.pathForModule("doesnt.exist", basePath=d.path))
+			lambda: jsimp.Script("doesnt.exist", d.path).getFilename())
 
 
 
@@ -111,7 +113,7 @@ class ScriptForTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		html = jsimp.scriptFor('p.mod1', basePath=d.path)
+		html = jsimp.Script('p.mod1', d.path).scriptContent()
 		self.assertEqual(
 			"""<script>p.mod1={'__name__':'p.mod1'};%s</script>""" % (contents,),
 			html

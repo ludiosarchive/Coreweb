@@ -51,13 +51,13 @@ class Script(object):
 
 		if os.path.isdir(os.path.join(self.basePath, '/'.join(parts))):
 			full = '/'.join(parts + ['__init__.js'])
-			if not os.path.exists(fileForPath(full, self.basePath)):
+			if not os.path.exists(os.path.join(self.basePath, full)):
 				raise NoSuchJSError(
 					"Directory for package "
 					"%r exists but missing the __init__.js required for this import." % (self.name,))
 		else:
 			full = '/'.join(parts) + '.js'
-			if not os.path.exists(fileForPath(full, self.basePath)):
+			if not os.path.exists(os.path.join(self.basePath, full)):
 				raise NoSuchJSError("Tried to find %r but no such file %r" % (self.name, full))
 
 		return full
@@ -68,7 +68,7 @@ class Script(object):
 
 
 	def getContent(self):
-		return open(getAbsoluteFilename(), 'rb').read()
+		return open(self.getAbsoluteFilename(), 'rb').read()
 
 
 	def _underscoreName(self):
