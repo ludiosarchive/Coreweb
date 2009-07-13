@@ -3,14 +3,14 @@ import struct
 
 from twisted.python import log
 
-from z9.spider import uriparse # TODO XXX REFACTOR TO MODULE
+from webmagic import uriparse
 
 #globalBasePath = os.environ.get('JSPATH', None)
 #if not globalBasePath:
 #	log.msg("No JSPATH in env variables, program might fail very soon.")
 
 
-class NoSuchJSError(Exception):
+class FindScriptError(Exception):
 	"""
 	Module/package doesn't exist, or __init__.js is missing.
 	"""
@@ -34,11 +34,66 @@ def cacheBreakerForPath(path, os=os):
 
 
 
+def _getAllDeps(theScripts, depsFor=None, inverse=None):
+	if depsFor is None:
+		depsFor = {}
+
+	for s in theScripts:
+		if s in depsFor:
+			continue
+
+		deps = s.getDependencies()
+		depsFor[s] = deps
+		if deps:
+			##print 'recursing', deps, depsFor
+			_getAllDeps(deps, depsFor) # ignore return
+
+	return depsFor
+
+
+
+def getScriptOrderFor(theScripts, depsFor=None):
+	"""
+	Return an optimal <script> tag order for L{theScripts}, a sequence
+	of L{Script} objects.
+
+	Internally, this creates a dependency tree and then reads it breadth-first.
+	"""
+
+
+
+
 class Script(object):
+	"""
+	Represents a JavaScript file.
+
+	Modifying private attributes will screw up everything.
+	"""
+
+	__slots__ = ['_name', '_basePath', '_mountedAt', '__weakref__']
+
 	def __init__(self, name, basePath, mountedAt=None):
-		self.name = name
-		self.basePath = basePath
-		self.mountedAt = mountedAt
+		# The __setattr__ blocks a simple `self.value = value'
+		self._name = name
+		self._basePath = basePath
+		self._mountedAt = mountedAt
+
+
+	def __eq__(self, other):
+		if not isinstance(other, Script):
+			return False
+		return (self._name == other._name and
+			self._basePath == other._basePath and
+			self._mountedAt == other._mountedAt)
+
+
+	def __hash__(self):
+		return hash((self._name, self._basePath, self._mountedAt))
+
+
+	def __repr__(self):
+		return '<Script %r in %r @ %r>' % (
+			self._name, os.path.split(self._basePath)[-1], self._mountedAt)
 
 
 	def getFilename(self):
@@ -47,28 +102,54 @@ class Script(object):
 
 		An __init__.js file is not required in a package directory.
 		"""
-		parts = self.name.split('.')
+		parts = self._name.split('.')
 
-		if os.path.isdir(os.path.join(self.basePath, '/'.join(parts))):
+		if os.path.isdir(os.path.join(self._basePath, '/'.join(parts))):
 			full = '/'.join(parts + ['__init__.js'])
-			if not os.path.exists(os.path.join(self.basePath, full)):
-				raise NoSuchJSError(
+			if not os.path.exists(os.path.join(self._basePath, full)):
+				raise FindScriptError(
 					"Directory for package "
-					"%r exists but missing the __init__.js required for this import." % (self.name,))
+					"%r exists but missing the __init__.js required for this import." % (self._name,))
 		else:
 			full = '/'.join(parts) + '.js'
-			if not os.path.exists(os.path.join(self.basePath, full)):
-				raise NoSuchJSError("Tried to find %r but no such file %r" % (self.name, full))
+			if not os.path.exists(os.path.join(self._basePath, full)):
+				raise FindScriptError("Tried to find %r but no such file %r" % (self._name, full))
 
 		return full
 
 
 	def getAbsoluteFilename(self):
-		return os.path.join(self.basePath, self.getFilename())
+		return os.path.join(self._basePath, self.getFilename())
 
 
 	def getContent(self):
 		return open(self.getAbsoluteFilename(), 'rb').read()
+
+
+	def _getImportStrings(self):
+		imports = []
+		for line in self.getContent().split('\n'):
+			clean = line.rstrip()
+			if clean.startswith('// import '):
+				imports.append(clean.replace('// import ', '', 1))
+			elif clean.startswith('//import '):
+				imports.append(clean.replace('//import ', '', 1))
+			else:
+				continue
+
+		return imports
+
+
+	def getDependencies(self):
+		deps = []
+		for mod in self._getImportStrings():
+			deps.append(Script(mod, self._basePath, self._mountedAt))
+		return deps
+
+
+#	def getAllDependencies(self, deps=None):
+#		if deps is None:
+#			deps = set()
 
 
 	def _underscoreName(self):
@@ -78,7 +159,7 @@ class Script(object):
 		TODO: but only CW things require this. Should it just be in the module?
 		"""
 		
-		return "%s={'__name__':'%s'}" % (self.name, self.name)
+		return "%s={'__name__':'%s'}" % (self._name, self._name)
 
 
 	def scriptContent(self):
@@ -96,8 +177,8 @@ class Script(object):
 		Generate an HTML4/5 <script src="...">
 		"""
 
-		if not isinstance(self.mountedAt, str):
-			raise ValueError("Need a str for self.mountedAt; had %r" % (self.mountedAt,))
+		if not isinstance(self._mountedAt, str):
+			raise ValueError("Need a str for self._mountedAt; had %r" % (self._mountedAt,))
 
 		template = """<script>%s</script><script src="%s?%s"></script>"""
 
@@ -105,5 +186,5 @@ class Script(object):
 
 		return template % (
 			self._underscoreName(),
-			uriparse.urljoin(self.mountedAt, self.getFilename()),
+			uriparse.urljoin(self._mountedAt, self.getFilename()),
 			cacheBreaker)
