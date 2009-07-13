@@ -96,10 +96,14 @@ class Script(object):
 		Generate an HTML4/5 <script src="...">
 		"""
 
-		template = """\
-	<script>%s</script><script src="%s?%s"></script>"""
+		if not isinstance(self.mountedAt, str):
+			raise ValueError("Need a str for self.mountedAt; had %r" % (self.mountedAt,))
 
-		full = pathForModule(self.name, self.basePath)
-		cacheBreaker = cacheBreakerForPath(fileForPath(full, self.basePath))
+		template = """<script>%s</script><script src="%s?%s"></script>"""
 
-		return template % (self._underscoreName(), uriparse.urljoin(mountedAt, full), cacheBreaker)
+		cacheBreaker = cacheBreakerForPath(self.getAbsoluteFilename())
+
+		return template % (
+			self._underscoreName(),
+			uriparse.urljoin(self.mountedAt, self.getFilename()),
+			cacheBreaker)
