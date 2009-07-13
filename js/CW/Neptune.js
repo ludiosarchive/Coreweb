@@ -49,7 +49,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 		self.xhr.onprogress = function(ev1) {
 			// doesn't appear to log anything in FF3
 			console.log('ev1', ev1);
-		}
+		};
 		self.xhr.onreadystatechange = function(ev) {
 			/* We'll be getting onreadystatechange'ed even if we can't read
 			 * the entire unicode character yet. (only one octet came down the wire)

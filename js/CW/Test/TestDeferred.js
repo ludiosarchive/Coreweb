@@ -294,8 +294,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		var result = null;
 		var dl = new CW.Defer.DeferredList(
 			[new CW.Defer.Deferred(),
-			 CW.Defer.fail(new Error("failure"))],
-			false, true, false);
+			 CW.Defer.fail(new Error("failure"))], false, true, false);
 		dl.addErrback(function(err) {
 			result = err;
 		});
@@ -306,8 +305,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 	function test_gatherResults(self) {
 		var result = null;
-		var dl = CW.Defer.gatherResults([CW.Defer.succeed("1"),
-											 CW.Defer.succeed("2")]);
+		var dl = CW.Defer.gatherResults(
+			[CW.Defer.succeed("1"), CW.Defer.succeed("2")]);
 		dl.addCallback(function(res) {
 			result = res;
 		});
