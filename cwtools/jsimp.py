@@ -3,9 +3,10 @@ import struct
 
 from twisted.python import log
 
-basePath = os.environ.get('JSPATH', None)
-if not basePath:
-	log.msg("No JSPATH in env variables, program might fail very soon.")
+#globalBasePath = os.environ.get('JSPATH', None)
+#if not globalBasePath:
+#	log.msg("No JSPATH in env variables, program might fail very soon.")
+
 
 class NoSuchJSError(Exception):
 	"""
@@ -13,7 +14,7 @@ class NoSuchJSError(Exception):
 	"""
 
 
-def fileForPath(path):
+def fileForPath(path, basePath):
 	return os.path.join(basePath, path)
 
 
@@ -34,27 +35,43 @@ def cacheBreakerForPath(path, os=os):
 	return cacheBreaker
 
 
-def pathForModule(name):
+def pathForModule(name, basePath):
+	"""
+	An __init__.js file is not required in a package directory.
+	"""
 	parts = name.split('.')
 
 	if os.path.isdir(os.path.join(basePath, '/'.join(parts))):
 		full = '/'.join(parts + ['__init__.js'])
-		if not os.path.exists(fileForPath(full)):
-			raise NoSuchJSError("Directory for package %r exists but missing __init__.js" % (name,))
+		if not os.path.exists(fileForPath(full, basePath)):
+			raise NoSuchJSError(
+				"Directory for package "
+				"%r exists but missing the __init__.js required for this import." % (name,))
 	else:
 		full = '/'.join(parts) + '.js'
-		if not os.path.exists(fileForPath(full)):
+		if not os.path.exists(fileForPath(full, basePath)):
 			raise NoSuchJSError("Tried to find %r but no such file %r" % (name, full))
 
 	return full
 
 
-def makeTags(name):
+#def makeTags(name):
+#	template = """\
+#<script>%s = {'__name__': '%s'}</script>
+#<script src="/js/%s?%s"></script>"""
+#
+#	full = pathForModule(name, basePath)
+#
+#	cacheBreaker = cacheBreakerForPath(fileForPath(full, basePath))
+#	return template % (name, name, full, cacheBreaker)
+
+
+
+def makeTags(name, basePath):
 	template = """\
-<script>%s = {'__name__': '%s'}</script>
-<script src="/js/%s?%s"></script>"""
+<script>%s={'__name__':'%s'};%s</script>"""
 
-	full = pathForModule(name)
+	full = fileForPath(pathForModule(name, basePath), basePath)
+	contents = open(full, 'rb').read()
 
-	cacheBreaker = cacheBreakerForPath(fileForPath(full))
-	return template % (name, name, full, cacheBreaker)
+	return template % (name, name, contents)

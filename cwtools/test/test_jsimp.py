@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from twisted.python.filepath import FilePath
 from twisted.trial import unittest
 
+import os
 import string
 
 from cwtools import jsimp
 
 
-class TestJSImp(unittest.TestCase):
+class CacheBreakerTests(unittest.TestCase):
 
 	def test_cacheBreakerForPath(self):
 
@@ -37,3 +39,81 @@ class TestJSImp(unittest.TestCase):
 
 			# TODO: Test: Writing to the file (incl. associated
 			# mtime modification) changes the breaker
+
+
+
+class PathForModuleTests(unittest.TestCase):
+
+	def test_fileDepth1(self):
+		d = FilePath(self.mktemp())
+		c = d.child('something')
+		c.makedirs()
+		c.child('mod1.js').setContent("// I am mod1")
+
+		self.assertEqual(
+			'something/mod1.js',
+			jsimp.pathForModule("something.mod1", basePath=d.path))
+
+
+	def test_fileDepth2(self):
+		d = FilePath(self.mktemp())
+		c = d.child('something').child('more')
+		c.makedirs()
+		c.child('mod2.js').setContent("// I am mod2")
+
+		self.assertEqual(
+			'something/more/mod2.js',
+			jsimp.pathForModule("something.more.mod2", basePath=d.path))
+
+
+	def test_fileDepth2WithInitJS(self):
+		d = FilePath(self.mktemp())
+		c = d.child('something').child('more')
+		c.makedirs()
+		c.child('__init__.js').setContent("// I am __init__")
+		c.child('mod2.js').setContent("// I am mod2")
+
+		self.assertEqual(
+			'something/more/__init__.js',
+			jsimp.pathForModule("something.more", basePath=d.path))
+
+		self.assertEqual(
+			'something/more/mod2.js',
+			jsimp.pathForModule("something.more.mod2", basePath=d.path))
+
+
+
+	def test_noSuchJS(self):
+		d = FilePath(self.mktemp())
+
+		self.assertRaises(
+			jsimp.NoSuchJSError,
+			lambda: jsimp.pathForModule("doesnt.exist", basePath=d.path))
+
+
+	def test_noSuchJSInitJS(self):
+		d = FilePath(self.mktemp())
+
+		d.child('doesnt').child('exist').makedirs()
+
+		self.assertRaises(
+			jsimp.NoSuchJSError,
+			lambda: jsimp.pathForModule("doesnt.exist", basePath=d.path))
+
+
+
+class MakeTagsTests(unittest.TestCase):
+
+	def test_tags(self):
+		d = FilePath(self.mktemp())
+
+		c = d.child('p')
+		c.makedirs()
+		contents = 'function a() { return "A func"; }'
+		c.child('mod1.js').setContent(contents)
+
+		html = jsimp.makeTags('p.mod1', basePath=d.path)
+		self.assertEqual(
+			"""<script>p.mod1={'__name__':'p.mod1'};%s</script>""" % (contents,),
+			html
+		)
