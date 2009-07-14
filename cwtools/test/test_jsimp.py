@@ -42,6 +42,63 @@ class CacheBreakerTests(unittest.TestCase):
 
 
 
+class ComparisonTests(unittest.TestCase):
+
+	def test_compare(self):
+		self.assertEqual(
+			jsimp.Script('p.mod1', '/tmp'),
+			jsimp.Script('p.mod1', '/tmp')
+		)
+
+
+	def test_compareAndMountedAt(self):
+		self.assertEqual(
+			jsimp.Script('p.mod1', '/tmp', '/'),
+			jsimp.Script('p.mod1', '/tmp', '/')
+		)
+
+
+	def test_notEqualAndMountedAt(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', '/tmp'),
+			jsimp.Script('p.mod1', '/tmp', '')
+		)
+
+
+	def test_sameHash(self):
+		self.assertEqual(
+			hash(jsimp.Script('p.mod1', '/tmp')),
+			hash(jsimp.Script('p.mod1', '/tmp'))
+		)
+
+
+# crap tests
+#	def test_immutableDueToSlots(self):
+#		x = jsimp.Script('p.mod1', '/tmp')
+#		def setAttribute1():
+#			x.asdfasdf = 4
+#		# it would be raised even without the mean __setattr__ because of __slots__
+#		self.assertRaises(TypeError, setAttribute1)
+#
+#
+#	def test_immutableDueToSetattr(self):
+#		x = jsimp.Script('p.mod1', '/tmp')
+#		def setAttribute2():
+#			x.name = 'newname'
+#		# because it has a mean __setattr__
+#		self.assertRaises(TypeError, setAttribute2)
+
+
+	def test_putInSet(self):
+		s = set()
+		x1 = jsimp.Script('p.mod1', '/tmp')
+		x2 = jsimp.Script('p.mod1', '/tmp')
+		s.add(x1)
+		s.add(x2)
+		self.assertEqual(1, len(s))
+
+
+
 class PathForModuleTests(unittest.TestCase):
 
 	def test_fileDepth1(self):
@@ -283,60 +340,3 @@ class DependencyTests(unittest.TestCase):
 			jsimp.CircularDependencyError,
 			lambda: jsimp.getDeps(a)
 		)
-
-
-
-class ComparisonTests(unittest.TestCase):
-
-	def test_compare(self):
-		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp')
-		)
-
-
-	def test_compareAndMountedAt(self):
-		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp', '/'),
-			jsimp.Script('p.mod1', '/tmp', '/')
-		)
-
-
-	def test_notEqualAndMountedAt(self):
-		self.assertNotEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp', '')
-		)
-
-
-	def test_sameHash(self):
-		self.assertEqual(
-			hash(jsimp.Script('p.mod1', '/tmp')),
-			hash(jsimp.Script('p.mod1', '/tmp'))
-		)
-
-
-# crap tests
-#	def test_immutableDueToSlots(self):
-#		x = jsimp.Script('p.mod1', '/tmp')
-#		def setAttribute1():
-#			x.asdfasdf = 4
-#		# it would be raised even without the mean __setattr__ because of __slots__
-#		self.assertRaises(TypeError, setAttribute1)
-#
-#
-#	def test_immutableDueToSetattr(self):
-#		x = jsimp.Script('p.mod1', '/tmp')
-#		def setAttribute2():
-#			x.name = 'newname'
-#		# because it has a mean __setattr__
-#		self.assertRaises(TypeError, setAttribute2)
-
-
-	def test_putInSet(self):
-		s = set()
-		x1 = jsimp.Script('p.mod1', '/tmp')
-		x2 = jsimp.Script('p.mod1', '/tmp')
-		s.add(x1)
-		s.add(x2)
-		self.assertEqual(1, len(s))
