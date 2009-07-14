@@ -154,7 +154,7 @@ class ScriptForTests(unittest.TestCase):
 
 
 
-class DependencyTests(unittest.TestCase):
+class ImportParsingTests(unittest.TestCase):
 
 	def test_getImports(self):
 		d = FilePath(self.mktemp())
@@ -175,6 +175,9 @@ function a() { return "A func"; }
 			jsimp.Script('p.mod1', d.path)._getImportStrings())
 
 
+
+class OldDependencyTests(unittest.TestCase):
+
 	def test_getAllDeps(self):
 		d = FilePath(self.mktemp())
 		d.makedirs()
@@ -190,7 +193,7 @@ function a() { return "A func"; }
 
 		self.assertEqual(
 			{mod1: [mod2, modx], mod2: [mod3], mod3: [], modx: []},
-			jsimp._getAllDeps([mod1])
+			jsimp._getAllDepsDict([mod1])
 		)
 
 
@@ -209,7 +212,91 @@ function a() { return "A func"; }
 
 		self.assertEqual(
 			{mod1: [mod2, modx], mod2: [mod3], mod3: [], modx: [mod1]},
-			jsimp._getAllDeps([mod1])
+			jsimp._getAllDepsDict([mod1])
+		)
+
+
+
+class DependencyTests(unittest.TestCase):
+
+	def test_getDeps(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('mod1.js').setContent("// import mod2\n//import modx")
+		d.child('mod2.js').setContent("// import mod3")
+		d.child('mod3.js').setContent("/* no import here */")
+		d.child('modx.js').setContent("/* no import here */")
+
+		mod1 = jsimp.Script('mod1', d.path)
+		mod2 = jsimp.Script('mod2', d.path)
+		mod3 = jsimp.Script('mod3', d.path)
+		modx = jsimp.Script('modx', d.path)
+
+		# There are many valid import orders for this, so this is implementation-specific.
+
+		self.assertEqual(
+			[modx, mod3, mod2, mod1],
+			jsimp.getDeps(mod1)
+		)
+
+
+	def test_getDepsComplicated(self):
+		p = FilePath(self.mktemp())
+		p.makedirs()
+		p.child('x.js').setContent("// import f")
+		p.child('f.js').setContent("// import e\n//import c\n//import q")
+		p.child('e.js').setContent("// import d\n//import b\n//import c")
+		p.child('c.js').setContent("// import a")
+		p.child('d.js').setContent("// import b\n//import z")
+		p.child('b.js').setContent("// import a")
+		p.child('a.js').setContent("// import z")
+		p.child('z.js').setContent("/* no imports */")
+		p.child('q.js').setContent("/* no imports */")
+
+		for letter in 'x,f,e,c,d,b,a,z,q'.split(','):
+			exec ('%s = jsimp.Script("%s", p.path)' % (letter, letter))
+
+		# There are many valid import orders for this, so this is implementation-specific.
+		# another valid order would be: z a b c d q e f x
+
+		self.assertEqual(
+			[q, z, a, c, b, d, e, f, x],
+			jsimp.getDeps(x)
+		)
+
+
+	def test_getDepsCircularTwo(self):
+		p = FilePath(self.mktemp())
+		p.makedirs()
+		p.child('a.js').setContent("// import b")
+		p.child('b.js').setContent("// import a")
+
+		a = jsimp.Script("a", p.path)
+		b = jsimp.Script("b", p.path)
+
+		self.assertRaises(
+			jsimp.CircularDependencyError,
+			lambda: jsimp.getDeps(a)
+		)
+
+		self.assertRaises(
+			jsimp.CircularDependencyError,
+			lambda: jsimp.getDeps(b)
+		)
+
+
+	def test_getDepsCircularThree(self):
+		p = FilePath(self.mktemp())
+		p.makedirs()
+		p.child('a.js').setContent("// import b")
+		p.child('b.js').setContent("// import c")
+		p.child('c.js').setContent("// import a")
+
+		a = jsimp.Script("a", p.path)
+
+		self.assertRaises(
+			jsimp.CircularDependencyError,
+			lambda: jsimp.getDeps(a)
 		)
 
 

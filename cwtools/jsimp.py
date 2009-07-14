@@ -16,6 +16,11 @@ class FindScriptError(Exception):
 	"""
 
 
+class CircularDependencyError(Exception):
+	pass
+	
+
+
 def cacheBreakerForPath(path, os=os):
 	"""
 	Create a ?cachebreaker useful for appending to a URL.
@@ -34,7 +39,8 @@ def cacheBreakerForPath(path, os=os):
 
 
 
-def _getAllDeps(theScripts, depsFor=None, inverse=None):
+# TODO: remove
+def _getAllDepsDict(theScripts, depsFor=None):
 	if depsFor is None:
 		depsFor = {}
 
@@ -46,9 +52,47 @@ def _getAllDeps(theScripts, depsFor=None, inverse=None):
 		depsFor[s] = deps
 		if deps:
 			##print 'recursing', deps, depsFor
-			_getAllDeps(deps, depsFor) # ignore return
+			_getAllDepsDict(deps, depsFor) # ignore return
 
 	return depsFor
+
+
+
+def _depTraverse(script, flat=None, depth=0):
+	"""
+	DFS
+	"""
+	if depth > 100:
+		raise CircularDependencyError(
+			"There likely exists a circular dependency in %r's imports." % (script,))
+
+	if flat is None:
+		flat = []
+
+	flat.append(script)
+	deps = script.getDependencies()
+	for dep in deps: # remember, there could be 0 deps
+		flat.append(dep)
+		_depTraverse(dep, flat, depth=depth+1) # ignore the return value
+
+	return flat
+
+
+
+def getDeps(script):
+	"""
+	Return the list of scripts that must be included
+	for L{script} to work properly.
+	"""
+	final = []
+	bigList = _depTraverse(script)
+	bigList.reverse()
+	alreadySeen = set()
+	for item in bigList:
+		if item not in alreadySeen:
+			alreadySeen.add(item)
+			final.append(item)
+	return final
 
 
 
