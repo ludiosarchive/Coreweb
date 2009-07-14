@@ -224,6 +224,32 @@ class DependencyTests(unittest.TestCase):
 		)
 
 
+	def test_getDepsComplicatedMore(self):
+		x = FilePath(self.mktemp())
+		x.makedirs()
+		# 12 links total
+		x.child('a.js').setContent("// import b")
+		x.child('b.js').setContent("/* no imports */")
+		x.child('c.js').setContent("// import q")
+		x.child('d.js').setContent("// import q\n//import c")
+		x.child('e.js').setContent("// import p\n// import d\n// import r\n// import s\n")
+		x.child('p.js').setContent("// import s")
+		x.child('q.js').setContent("// import a")
+		x.child('r.js').setContent("// import b")
+		x.child('s.js').setContent("// import c")
+
+		for letter in 'a,b,c,d,e,p,q,r,s'.split(','):
+			exec ('%s = jsimp.Script("%s", x.path)' % (letter, letter))
+
+		# There are many valid import orders for this, so this is implementation-specific.
+		# another valid order would be: z a b c d q e f x
+
+		self.assertEqual(
+			[b, a, q, c, s, r, d, p, e],
+			jsimp.getDeps(e)
+		)
+
+
 	def test_getDepsCircularTwo(self):
 		p = FilePath(self.mktemp())
 		p.makedirs()
