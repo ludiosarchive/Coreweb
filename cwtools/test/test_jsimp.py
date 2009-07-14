@@ -176,47 +176,6 @@ function a() { return "A func"; }
 
 
 
-class OldDependencyTests(unittest.TestCase):
-
-	def test_getAllDeps(self):
-		d = FilePath(self.mktemp())
-		d.makedirs()
-		d.child('mod1.js').setContent("// import mod2\n//import modx")
-		d.child('mod2.js').setContent("// import mod3")
-		d.child('mod3.js').setContent("/* no import here */")
-		d.child('modx.js').setContent("/* no import here */")
-
-		mod1 = jsimp.Script('mod1', d.path)
-		mod2 = jsimp.Script('mod2', d.path)
-		mod3 = jsimp.Script('mod3', d.path)
-		modx = jsimp.Script('modx', d.path)
-
-		self.assertEqual(
-			{mod1: [mod2, modx], mod2: [mod3], mod3: [], modx: []},
-			jsimp._getAllDepsDict([mod1])
-		)
-
-
-	def test_getAllDepsCircular(self):
-		d = FilePath(self.mktemp())
-		d.makedirs()
-		d.child('mod1.js').setContent("// import mod2\n//import modx")
-		d.child('mod2.js').setContent("// import mod3")
-		d.child('mod3.js').setContent("/* no import here */")
-		d.child('modx.js').setContent("// import mod1")
-
-		mod1 = jsimp.Script('mod1', d.path)
-		mod2 = jsimp.Script('mod2', d.path)
-		mod3 = jsimp.Script('mod3', d.path)
-		modx = jsimp.Script('modx', d.path)
-
-		self.assertEqual(
-			{mod1: [mod2, modx], mod2: [mod3], mod3: [], modx: [mod1]},
-			jsimp._getAllDepsDict([mod1])
-		)
-
-
-
 class DependencyTests(unittest.TestCase):
 
 	def test_getDeps(self):

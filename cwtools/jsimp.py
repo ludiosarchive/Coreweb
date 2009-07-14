@@ -39,25 +39,6 @@ def cacheBreakerForPath(path, os=os):
 
 
 
-# TODO: remove
-def _getAllDepsDict(theScripts, depsFor=None):
-	if depsFor is None:
-		depsFor = {}
-
-	for s in theScripts:
-		if s in depsFor:
-			continue
-
-		deps = s.getDependencies()
-		depsFor[s] = deps
-		if deps:
-			##print 'recursing', deps, depsFor
-			_getAllDepsDict(deps, depsFor) # ignore return
-
-	return depsFor
-
-
-
 def _depTraverse(script, flat=None, depth=0):
 	"""
 	DFS
