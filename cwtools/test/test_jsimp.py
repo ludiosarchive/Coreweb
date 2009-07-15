@@ -144,7 +144,10 @@ class PathForModuleTests(unittest.TestCase):
 
 
 
-class ScriptForTests(unittest.TestCase):
+class ScriptTagTests(unittest.TestCase):
+	"""
+	Tests for L{Script}'s L{scriptContent} and L{scriptSrc}
+	"""
 
 	def test_scriptContents(self):
 		d = FilePath(self.mktemp())
@@ -215,6 +218,7 @@ function a() { return "A func"; }
 			['p', 'p.blah', 'p.other', 'p.last'],
 			jsimp.Script('p.mod1', d.path)._getImportStrings())
 
+
 	def test_getDependencies(self):
 		d = FilePath(self.mktemp())
 		d.makedirs()
@@ -234,7 +238,10 @@ function a() { return "A func"; }
 
 
 class _DummyScript(object):
-	"""A dummy for Script."""
+	"""
+	A dummy for L{Script}, to avoid writing files to disk and to avoid
+	other L{Script} implementation details.
+	"""
 
 	def __init__(self, name, deps, otherDummies):
 		self.name = name
