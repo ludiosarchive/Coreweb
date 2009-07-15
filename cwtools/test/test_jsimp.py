@@ -72,22 +72,6 @@ class ComparisonTests(unittest.TestCase):
 		)
 
 
-# crap tests
-#	def test_immutableDueToSlots(self):
-#		x = jsimp.Script('p.mod1', '/tmp')
-#		def setAttribute1():
-#			x.asdfasdf = 4
-#		# it would be raised even without the mean __setattr__ because of __slots__
-#		self.assertRaises(TypeError, setAttribute1)
-#
-#
-#	def test_immutableDueToSetattr(self):
-#		x = jsimp.Script('p.mod1', '/tmp')
-#		def setAttribute2():
-#			x.name = 'newname'
-#		# because it has a mean __setattr__
-#		self.assertRaises(TypeError, setAttribute2)
-
 
 	def test_putInSet(self):
 		s = set()
@@ -213,7 +197,7 @@ class ScriptForTests(unittest.TestCase):
 
 class ImportParsingTests(unittest.TestCase):
 
-	def test_getImports(self):
+	def test_getImportStrings(self):
 		d = FilePath(self.mktemp())
 		c = d.child('p')
 		c.makedirs()
@@ -230,6 +214,22 @@ function a() { return "A func"; }
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
 			jsimp.Script('p.mod1', d.path)._getImportStrings())
+
+	def test_getDependencies(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		
+		d.child('p.js').setContent('// import q\n// import r')
+		d.child('q.js').setContent('// ')
+		d.child('r.js').setContent('// ')
+
+		p = jsimp.Script('p', d.path)
+		q = jsimp.Script('q', d.path)
+		r = jsimp.Script('r', d.path)
+
+		self.assertEqual(
+			[q, r],
+			p.getDependencies())
 
 
 
