@@ -79,17 +79,6 @@ def getDeps(script):
 
 
 
-def getScriptOrderFor(theScripts, depsFor=None):
-	"""
-	Return an optimal <script> tag order for L{theScripts}, a sequence
-	of L{Script} objects.
-
-	Internally, this creates a dependency tree and then reads it breadth-first.
-	"""
-
-
-
-
 class Script(object):
 	"""
 	Represents a JavaScript file.
