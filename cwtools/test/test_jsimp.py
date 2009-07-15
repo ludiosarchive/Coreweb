@@ -233,7 +233,145 @@ function a() { return "A func"; }
 
 
 
+class _DummyScript(object):
+	"""A dummy for Script."""
+
+	def __init__(self, name, deps, otherDummies):
+		self.name = name
+		self.deps = deps
+		self.otherDummies = otherDummies
+
+
+	def __repr__(self):
+		return '<_DummyScript %r with %d deps>' % (self.name, len(self.deps))
+
+
+	def __eq__(self, other):
+		return (self.name == other.name)
+
+
+	def __hash__(self):
+		return hash(self.name)
+
+
+	def getDependencies(self):
+		# O(N^2)
+		final = []
+		for dep in self.deps:
+			for dummy in self.otherDummies:
+				if dummy.name == dep:
+					final.append(dummy)
+		return final
+
+
+
 class DependencyTests(unittest.TestCase):
+
+	def test_getDeps(self):
+		# The annoying string + allDummies code is to list dependencies without
+		# actually ordering everything correctly in the unit test code.
+
+		allDummies = set()
+		modx = _DummyScript('modx', [], allDummies)
+		mod3 = _DummyScript('mod3', [], allDummies)
+		mod2 = _DummyScript('mod2', ['mod3'], allDummies)
+		mod1 = _DummyScript('mod1', ['mod2', 'modx'], allDummies)
+
+		allDummies.update([modx, mod3, mod2, mod1])
+
+		# There are many valid import orders for this, so this is implementation-specific.
+
+		self.assertEqual(
+			[modx, mod3, mod2, mod1],
+			jsimp.getDeps(mod1)
+		)
+
+
+	def test_getDepsComplicated(self):
+		allDummies = set()
+
+		x = _DummyScript('x', 'f'.split(','), allDummies)
+		f = _DummyScript('f', 'e,c,q'.split(','), allDummies)
+		e = _DummyScript('e', 'd,b,c'.split(','), allDummies)
+		c = _DummyScript('c', 'a'.split(','), allDummies)
+		d = _DummyScript('d', 'b,z'.split(','), allDummies)
+		b = _DummyScript('b', 'a'.split(','), allDummies)
+		a = _DummyScript('a', 'z'.split(','), allDummies)
+		z = _DummyScript('z', [], allDummies)
+		q = _DummyScript('q', [], allDummies)
+
+		for letter in 'x,f,e,c,d,b,a,z,q'.split(','):
+			exec ('allDummies.add(%s)' % (letter,))
+
+		# There are many valid import orders for this, so this is implementation-specific.
+		# another valid order would be: z a b c d q e f x
+
+		self.assertEqual(
+			[q, z, a, c, b, d, e, f, x],
+			jsimp.getDeps(x)
+		)
+
+
+	def test_getDepsComplicatedMore(self):
+		allDummies = set()
+
+		# 12 links total
+
+		a = _DummyScript('a', 'b'.split(','), allDummies)
+		b = _DummyScript('b', [], allDummies)
+		c = _DummyScript('c', 'q'.split(','), allDummies)
+		d = _DummyScript('d', 'q,c'.split(','), allDummies)
+		e = _DummyScript('e', 'p,d,r,s'.split(','), allDummies)
+		p = _DummyScript('p', 's'.split(','), allDummies)
+		q = _DummyScript('q', 'a'.split(','), allDummies)
+		r = _DummyScript('r', 'b'.split(','), allDummies)
+		s = _DummyScript('s', 'c'.split(','), allDummies)
+
+		for letter in 'a,b,c,d,e,p,q,r,s'.split(','):
+			exec ('allDummies.add(%s)' % (letter,))
+
+		# There are many valid import orders for this, so this is implementation-specific.
+
+		self.assertEqual(
+			[b, a, q, c, s, r, d, p, e],
+			jsimp.getDeps(e)
+		)
+
+
+	def test_getDepsCircularTwo(self):
+		allDummies = set()
+
+		a = _DummyScript('a', 'b'.split(','), allDummies)
+		b = _DummyScript('b', 'a'.split(','), allDummies)
+
+		allDummies.update([a, b])
+
+		for script in [a, b]:
+			self.assertRaises(
+				jsimp.CircularDependencyError,
+				lambda: jsimp.getDeps(script)
+			)
+
+
+	def test_getDepsCircularThree(self):
+		allDummies = set()
+
+		a = _DummyScript('a', 'b'.split(','), allDummies)
+		b = _DummyScript('b', 'c'.split(','), allDummies)
+		c = _DummyScript('c', 'a'.split(','), allDummies)
+
+		allDummies.update([a, b, c])
+
+		for script in [a, b, c]:
+			self.assertRaises(
+				jsimp.CircularDependencyError,
+				lambda: jsimp.getDeps(script)
+			)
+
+
+
+# TODO: do we even need these integration tests? The integration is very simple.
+class DependencyIntegrationTests(unittest.TestCase):
 
 	def test_getDeps(self):
 		d = FilePath(self.mktemp())

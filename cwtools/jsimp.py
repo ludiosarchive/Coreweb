@@ -86,6 +86,8 @@ class Script(object):
 	Modifying private attributes will screw up everything.
 	"""
 
+	# TODO: use flyweight pattern on Script, and cache the dependency list.
+
 	__slots__ = ['_name', '_basePath', '_mountedAt', '__weakref__']
 
 	def __init__(self, name, basePath, mountedAt=None):
