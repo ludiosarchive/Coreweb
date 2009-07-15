@@ -39,22 +39,24 @@ def cacheBreakerForPath(path, os=os):
 
 
 
-def _depTraverse(script, flat=None, depth=0):
+def _depTraverse(script, flat=None, depChain=None):
 	"""
 	DFS
 	"""
-	if depth > 100:
-		raise CircularDependencyError(
-			"There likely exists a circular dependency in %r's imports." % (script,))
-
 	if flat is None:
 		flat = []
+	if depChain is None:
+		depChain = [script]
 
 	flat.append(script)
 	deps = script.getDependencies()
 	for dep in deps: # remember, there could be 0 deps
+		if dep in depChain:
+			raise CircularDependencyError(
+				"There exists a circular dependency in %r's imports." % (script,))
+
 		flat.append(dep)
-		_depTraverse(dep, flat, depth=depth+1) # ignore the return value
+		_depTraverse(dep, flat, depChain + [dep]) # ignore the return value
 
 	return flat
 

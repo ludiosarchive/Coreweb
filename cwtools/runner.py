@@ -9,7 +9,7 @@ and have this launch both an HTTP and HTTPS server
 """
 
 from jinja2 import Template
-from twisted.python import FilePath
+from twisted.python.filepath import FilePath
 from twisted.web import resource
 
 
