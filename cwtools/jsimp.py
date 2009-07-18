@@ -207,6 +207,13 @@ class Script(object):
 
 
 	def globChildren(self, pattern):
+		"""
+		L{pattern} is a glob pattern that matches filenames
+		(including the .js extension) and package directories.
+		It should almost always end with C{'*'}.
+
+		This will return both child modules and child packages.
+		"""
 		parts = self._name.split('.')
 
 		children = []
@@ -215,15 +222,14 @@ class Script(object):
 			return children
 
 		for c in self._basePath.preauthChild('/'.join(parts)).globChildren(pattern):
-			if not c.splitext()[-1].endswith('.js'):
+			if not c.isdir() and not c.splitext()[-1].endswith('.js'):
 				continue
 			if c.basename() == self.packageFilename:
 				continue
 			if c.basename().count('.') > 1:
 				# Must skip these, otherwise there will be problems.
 				continue
-			if c.isdir():
-				# If it's a directory, skip it.
+			if c.isdir() and not c.child(self.packageFilename).exists():
 				continue
 
 			moduleName = c.basename().split('.', 1)[0]

@@ -310,6 +310,55 @@ class GetChildrenTests(unittest.TestCase):
 			set(p1.globChildren('Test*')))
 
 
+	def test_globChildrenPackageAndInitJS(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+		d.child('p1').child('Testchild4').makedirs()
+		d.child('p1').child('Testchild4').child('__init__.js').setContent('//')
+		d.child('p1').child('child2.js').setContent('//')
+		d.child('p1').child('Testchild3.js').setContent('//')
+
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.Testchild1', d)
+		child2 = jsimp.Script('p1.child2', d)
+		child3 = jsimp.Script('p1.Testchild3', d)
+		child4 = jsimp.Script('p1.Testchild4', d)
+
+		# Directory listing order is arbitrary
+
+		self.assertEqual(
+			set([child1, child3, child4]),
+			set(p1.globChildren('Test*')))
+
+
+	def test_globChildrenPackageButNoInitJS(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+		d.child('p1').child('Testchild4').makedirs()
+		d.child('p1').child('child2.js').setContent('//')
+		d.child('p1').child('Testchild3.js').setContent('//')
+
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.Testchild1', d)
+		child2 = jsimp.Script('p1.child2', d)
+		child3 = jsimp.Script('p1.Testchild3', d)
+
+		# Directory listing order is arbitrary
+
+		self.assertEqual(
+			set([child1, child3]),
+			set(p1.globChildren('Test*')))
+
+
+
+
+
 
 class _DummyScript(object):
 	"""
