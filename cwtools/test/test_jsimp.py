@@ -237,7 +237,7 @@ function a() { return "A func"; }
 
 class GetChildrenTests(unittest.TestCase):
 
-	def test_getChildren(self):
+	def test_children(self):
 		# It shouldn't get confused by strange directory names.
 		d = FilePath(self.mktemp()).child('directory.with.dots').child('directory.with.js')
 		d.makedirs()
@@ -261,7 +261,7 @@ class GetChildrenTests(unittest.TestCase):
 
 		self.assertEqual(
 			set([child1, child2]),
-			set(p1.getChildren()))
+			set(p1.children()))
 
 
 

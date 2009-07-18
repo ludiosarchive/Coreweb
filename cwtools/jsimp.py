@@ -187,7 +187,7 @@ class Script(object):
 		return deps
 
 
-	def getChildren(self):
+	def children(self):
 		parts = self._name.split('.')
 
 		children = []
