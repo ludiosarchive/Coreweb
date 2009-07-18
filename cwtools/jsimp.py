@@ -121,6 +121,10 @@ class Script(object):
 			self._name, self._basePath.basename(), self._mountedAt)
 
 
+	def getName(self):
+		return self._name
+
+
 	def _isPackage(self):
 		"""
 		Return True is this Script is a package (A package may have children.

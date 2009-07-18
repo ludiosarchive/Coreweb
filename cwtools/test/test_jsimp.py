@@ -235,6 +235,31 @@ function a() { return "A func"; }
 
 
 
+class GetNameTests(unittest.TestCase):
+
+	def test_getNameRoot(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		c = d.child('amodule.js')
+		c.setContent('//')
+
+		self.assertEqual(
+			'amodule',
+			jsimp.Script('amodule', d).getName())
+
+
+	def test_getNameInPackage(self):
+		d = FilePath(self.mktemp())
+		d.child('apackage').makedirs()
+		c = d.child('amodule.js')
+		c.setContent('//')
+
+		self.assertEqual(
+			'apackage.amodule',
+			jsimp.Script('apackage.amodule', d).getName())
+
+
+
 class GetChildrenTests(unittest.TestCase):
 
 	def test_children(self):
@@ -290,7 +315,7 @@ class _DummyScript(object):
 
 
 	def getDependencies(self):
-		# O(N^2)
+		# O(N^2) but it doesn't matter since this is a dummy
 		final = []
 		for dep in self.deps:
 			for dummy in self.otherDummies:
