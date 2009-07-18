@@ -11,7 +11,7 @@ and have this launch both an HTTP and HTTPS server
 import os
 from jinja2 import Template
 from twisted.python.filepath import FilePath
-from twisted.web import resource
+from twisted.web import resource, static
 
 from cwtools import jsimp
 
@@ -49,7 +49,8 @@ class TestPage(resource.Resource):
 
 	def _getTests(self):
 		JSPATH = FilePath(os.environ['JSPATH'])
-		tests = jsimp.Script('CW.Test', JSPATH).children()
+		tests = [jsimp.Script('CW.Test', JSPATH, '/@js/')]
+		tests.extend(jsimp.Script('CW.Test', JSPATH, '/@js/').globChildren('Test*'))
 		return tests
 
 
@@ -60,8 +61,12 @@ class TestPage(resource.Resource):
 
 		modlist = []
 
+		# We need the script data for all the dependencies and the test modules
+		for t in jsimp.getDepsMany(self._getTests()):
+			scripts += t.scriptSrc()
+
+		# ...but don't run the tests on the dependency modules
 		for t in self._getTests():
-			scripts += t.scriptContent()
 			modlist.append(t.getName())
 
 		modules = '[' + ','.join(modlist) + ']'
@@ -77,3 +82,4 @@ class Index(resource.Resource):
 
 		self.putChild('@tests', TestPage())
 		self.putChild('@static', CommonStatic())
+		self.putChild('@js', static.File(os.environ['JSPATH']))

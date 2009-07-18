@@ -206,7 +206,7 @@ class Script(object):
 		return deps
 
 
-	def children(self):
+	def globChildren(self, pattern):
 		parts = self._name.split('.')
 
 		children = []
@@ -214,7 +214,7 @@ class Script(object):
 		if not self._isPackage():
 			return children
 
-		for c in self._basePath.preauthChild('/'.join(parts)).children():
+		for c in self._basePath.preauthChild('/'.join(parts)).globChildren(pattern):
 			if not c.splitext()[-1].endswith('.js'):
 				continue
 			if c.basename() == self.packageFilename:
@@ -263,7 +263,7 @@ class Script(object):
 		if not isinstance(self._mountedAt, str):
 			raise ValueError("Need a str for self._mountedAt; had %r" % (self._mountedAt,))
 
-		template = """<script>%s</script><script src="%s?%s"></script>"""
+		template = """<script>%s</script><script src="%s?%s"></script>\n"""
 
 		cacheBreaker = cacheBreakerForPath(self.getAbsoluteFilename())
 

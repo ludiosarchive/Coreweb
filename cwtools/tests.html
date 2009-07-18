@@ -7,30 +7,7 @@
 </head>
 <body>
 
-<div id="debug-log">
-
-<!-- TODO: have UnitTest write out this iframe, and only on IE. Unless we need it for other things? -->
-
-<!-- TODO: factor out the /@static/ -->
-
-<!--
-This special frame keeps unmodified versions of setTimeout / setInterval / etc.
-The id and name are not used by the JS; this frame is accessed with window.frames[0].
-Do not make this src=about:blank because about:blank is a non-https page,
-	and will trigger IE6/7/8 mixed content warnings.
--->
-<script>
-// Safari 4 fires `document loaded` before iframes are ready (BAD!), so keep track of iframe load.
-var blankIframeReady = CW.Defer.Deferred();
-</script>
-<iframe
-	onload="blankIframeReady.callback(null)"
-	src="/@static/blank/"
-	id="blank_iframe"
-	name="blank_iframe"
-	style="height:16px"></iframe>
-
-<br>
+<div id="debug-log"></div>
 
 {{ scripts }}
 
@@ -73,15 +50,27 @@ function cleanDate() {
 	return day + ' ' + clock + ' -' + tz;
 }
 
+//function print(msg) {
+//	var textnode = document.createTextNode('[' + cleanDate() + '] ' + msg);
+//	var br = document.createElement("br");
+//	var logd = document.getElementById('debug-log');
+//	logd.appendChild(textnode);
+//	logd.appendChild(br);
+//}
+
+
 function print(msg) {
-	var textnode = document.createTextNode('[' + cleanDate() + '] ' + msg);
-	var br = document.createElement("br");
 	var logd = document.getElementById('debug-log');
-	logd.appendChild(textnode);
-	logd.appendChild(br);
+	logd.innerHTML += msg + '<br>'
 }
 
+
 print("Print works.");
+
+
+// Safari 4 fires `document loaded` before iframes are ready (BAD!), so keep track of iframe load.
+var blankIframeReady = CW.Defer.Deferred();
+
 
 var setTimeoutFired = CW.Defer.Deferred();
 
@@ -95,16 +84,6 @@ dl.addCallback(function(){
 
 	print('Running tests.<br>');
 
-//	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule([
-//	 CW.Test.TestBase
-//	,CW.Test.TestDeferred
-//	,CW.Test.TestUnitTest
-//	,CW.Test.TestObject
-//	,CW.Test.TestInspect
-//	,CW.Test.TestAssumptions
-//	,CW.Test.TestNeptune
-//	]), true /*moduleOfModules*/);
-
 	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule({{ modules }}), true /*moduleOfModules*/);
 
 
@@ -115,4 +94,25 @@ dl.addCallback(function(){
 
 
 </script>
+
+<!-- TODO: have UnitTest write out this iframe, and only on IE. Unless we need it for other things? -->
+
+<!-- TODO: factor out the /@static/ -->
+
+<!--
+This special frame keeps unmodified versions of setTimeout / setInterval / etc.
+The id and name are not used by the JS; this frame is accessed with window.frames[0].
+Do not make this src=about:blank because about:blank is a non-https page,
+	and will trigger IE6/7/8 mixed content warnings.
+-->
+
+
+<iframe
+	onload="blankIframeReady.callback(null)"
+	src="/@static/blank/"
+	id="blank_iframe"
+	name="blank_iframe"
+	style="height:16px"></iframe>
+
+<br>
 

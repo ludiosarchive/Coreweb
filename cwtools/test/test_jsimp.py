@@ -180,7 +180,7 @@ class ScriptTagTests(unittest.TestCase):
 			)
 
 			self.assert_(
-				html.endswith("""</script>""")
+				html.endswith("""</script>\n""")
 			)
 
 
@@ -262,7 +262,7 @@ class GetNameTests(unittest.TestCase):
 
 class GetChildrenTests(unittest.TestCase):
 
-	def test_children(self):
+	def test_globChildrenWildcard(self):
 		# It shouldn't get confused by strange directory names.
 		d = FilePath(self.mktemp()).child('directory.with.dots').child('directory.with.js')
 		d.makedirs()
@@ -286,7 +286,28 @@ class GetChildrenTests(unittest.TestCase):
 
 		self.assertEqual(
 			set([child1, child2]),
-			set(p1.children()))
+			set(p1.globChildren('*')))
+
+
+	def test_globChildrenPattern(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+		d.child('p1').child('child2.js').setContent('//')
+		d.child('p1').child('Testchild3.js').setContent('//')
+
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.Testchild1', d)
+		child2 = jsimp.Script('p1.child2', d)
+		child3 = jsimp.Script('p1.Testchild3', d)
+
+		# Directory listing order is arbitrary
+
+		self.assertEqual(
+			set([child1, child3]),
+			set(p1.globChildren('Test*')))
 
 
 
@@ -447,6 +468,9 @@ class DependencyTests(unittest.TestCase):
 
 
 	def test_getDepsManyRedundant(self):
+		"""
+		Both `a' and `d' depend on `z'. Make sure `z' is only in deps once.
+		"""
 		allDummies = set()
 
 		a = _DummyScript('a', 'b'.split(','), allDummies)
