@@ -14,10 +14,8 @@ class CacheBreakerTests(unittest.TestCase):
 	def test_cacheBreakerForPath(self):
 
 		for i in xrange(10):
-			tempFile = self.mktemp()
-			x = open(tempFile, 'wb')
-			x.write("nothing to see here")
-			x.close()
+			tempFile = FilePath(self.mktemp())
+			tempFile.setContent("nothing to see here")
 
 			breaker = jsimp.cacheBreakerForPath(tempFile)
 
@@ -93,7 +91,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/mod1.js',
-			jsimp.Script("something.mod1", d.path).getFilename()
+			jsimp.Script("something.mod1", d).getFilename()
 		)
 
 
@@ -105,7 +103,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/more/mod2.js',
-			jsimp.Script("something.more.mod2", d.path).getFilename()
+			jsimp.Script("something.more.mod2", d).getFilename()
 		)
 
 
@@ -118,11 +116,11 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/more/__init__.js',
-			jsimp.Script("something.more", d.path).getFilename())
+			jsimp.Script("something.more", d).getFilename())
 
 		self.assertEqual(
 			'something/more/mod2.js',
-			jsimp.Script("something.more.mod2", d.path).getFilename())
+			jsimp.Script("something.more.mod2", d).getFilename())
 
 
 	def test_noSuchJS(self):
@@ -130,7 +128,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertRaises(
 			jsimp.FindScriptError,
-			lambda: jsimp.Script("doesnt.exist", d.path).getFilename())
+			lambda: jsimp.Script("doesnt.exist", d).getFilename())
 
 
 	def test_noSuchJSInitJS(self):
@@ -140,7 +138,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertRaises(
 			jsimp.FindScriptError,
-			lambda: jsimp.Script("doesnt.exist", d.path).getFilename())
+			lambda: jsimp.Script("doesnt.exist", d).getFilename())
 
 
 
@@ -157,7 +155,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		html = jsimp.Script('p.mod1', d.path).scriptContent()
+		html = jsimp.Script('p.mod1', d).scriptContent()
 		self.assertEqual(
 			"""<script>p.mod1={'__name__':'p.mod1'};%s</script>""" % (contents,),
 			html
@@ -174,7 +172,7 @@ class ScriptTagTests(unittest.TestCase):
 
 		for mountedAt in ['/hello/', 'http://another.domain/']:
 
-			script = jsimp.Script('p.mod1', d.path, mountedAt=mountedAt)
+			script = jsimp.Script('p.mod1', d, mountedAt=mountedAt)
 			html = script.scriptSrc()
 
 			self.assert_(
@@ -194,7 +192,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		self.assertRaises(ValueError, lambda: jsimp.Script('p.mod1', d.path).scriptSrc())
+		self.assertRaises(ValueError, lambda: jsimp.Script('p.mod1', d).scriptSrc())
 
 
 
@@ -216,7 +214,7 @@ function a() { return "A func"; }
 
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
-			jsimp.Script('p.mod1', d.path)._getImportStrings())
+			jsimp.Script('p.mod1', d)._getImportStrings())
 
 
 	def test_getDependencies(self):
@@ -227,9 +225,9 @@ function a() { return "A func"; }
 		d.child('q.js').setContent('// ')
 		d.child('r.js').setContent('// ')
 
-		p = jsimp.Script('p', d.path)
-		q = jsimp.Script('q', d.path)
-		r = jsimp.Script('r', d.path)
+		p = jsimp.Script('p', d)
+		q = jsimp.Script('q', d)
+		r = jsimp.Script('r', d)
 
 		self.assertEqual(
 			[q, r],
@@ -240,7 +238,8 @@ function a() { return "A func"; }
 class GetChildrenTests(unittest.TestCase):
 
 	def test_getChildren(self):
-		d = FilePath(self.mktemp())
+		# It shouldn't get confused by strange directory names.
+		d = FilePath(self.mktemp()).child('directory.with.dots').child('directory.with.js')
 		d.makedirs()
 
 		d.child('p1').makedirs()
@@ -254,9 +253,9 @@ class GetChildrenTests(unittest.TestCase):
 		d.child('p1').child('blah.js').makedirs() # A deceptive directory. Must be ignored.
 
 
-		p1 = jsimp.Script('p1', d.path)
-		child1 = jsimp.Script('p1.child1', d.path)
-		child2 = jsimp.Script('p1.child2', d.path)		
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.child1', d)
+		child2 = jsimp.Script('p1.child2', d)		
 
 		# Directory listing order is arbitrary
 
