@@ -237,6 +237,35 @@ function a() { return "A func"; }
 
 
 
+class GetChildrenTests(unittest.TestCase):
+
+	def test_getChildren(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('child1.js').setContent('//')
+		d.child('p1').child('child2.js').setContent('//')
+		d.child('p1').child('child2.bak.js').setContent(
+			'// I am a backup file, to be ignored because I have too many dots in my filename.')
+		d.child('p1').child('child2.notjs').setContent('not a .js file')
+		d.child('p1').child('emptydir').makedirs()
+		d.child('p1').child('blah.js').makedirs() # A deceptive directory. Must be ignored.
+
+
+		p1 = jsimp.Script('p1', d.path)
+		child1 = jsimp.Script('p1.child1', d.path)
+		child2 = jsimp.Script('p1.child2', d.path)		
+
+		# Directory listing order is arbitrary
+
+		self.assertEqual(
+			set([child1, child2]),
+			set(p1.getChildren()))
+
+
+
 class _DummyScript(object):
 	"""
 	A dummy for L{Script}, to avoid writing files to disk and to avoid

@@ -88,6 +88,7 @@ class Script(object):
 
 	# TODO: use flyweight pattern on Script, and cache the dependency list.
 
+	packageFilename = '__init__.js'
 	__slots__ = ['_name', '_basePath', '_mountedAt', '__weakref__']
 
 	def __init__(self, name, basePath, mountedAt=None):
@@ -114,6 +115,15 @@ class Script(object):
 			self._name, os.path.split(self._basePath)[-1], self._mountedAt)
 
 
+	def _isPackage(self):
+		"""
+		Return True is this Script is a package (A package may have children.
+		The source for a package is loaded from an __init__.js)
+		"""
+		parts = self._name.split('.')
+		return os.path.isdir(os.path.join(self._basePath, '/'.join(parts)))
+
+
 	def getFilename(self):
 		"""
 		Useful for both disk access and referencing the script for a URL.
@@ -122,12 +132,13 @@ class Script(object):
 		"""
 		parts = self._name.split('.')
 
-		if os.path.isdir(os.path.join(self._basePath, '/'.join(parts))):
-			full = '/'.join(parts + ['__init__.js'])
+		if self._isPackage():
+			full = '/'.join(parts + [self.packageFilename])
 			if not os.path.exists(os.path.join(self._basePath, full)):
 				raise FindScriptError(
 					"Directory for package "
-					"%r exists but missing the __init__.js required for this import." % (self._name,))
+					"%r exists but missing the %r required for this import." % (
+						self._name, self.packageFilename))
 		else:
 			full = '/'.join(parts) + '.js'
 			if not os.path.exists(os.path.join(self._basePath, full)):
@@ -165,9 +176,32 @@ class Script(object):
 		return deps
 
 
-#	def getAllDependencies(self, deps=None):
-#		if deps is None:
-#			deps = set()
+	def getChildren(self):
+		parts = self._name.split('.')
+
+		children = []
+
+		if not self._isPackage():
+			return children
+
+		for c in os.listdir(os.path.join(self._basePath, '/'.join(parts))):
+			if not c.endswith('.js'):
+				continue
+			if c == self.packageFilename:
+				continue
+			if c.count('.') > 1:
+				# Must skip these, otherwise there will be problems.
+				continue
+			if os.path.isdir(os.path.join(self._basePath, '/'.join(parts + [c]))):
+				continue
+
+			moduleName = c.split('.', 1)[0]
+
+			name = '.'.join(parts + [moduleName])
+
+			children.append(Script(name, self._basePath, self._mountedAt))
+
+		return children
 
 
 	def _underscoreName(self):
