@@ -8,9 +8,12 @@ twistd cwtest CW.Test,CW.Next.Test
 and have this launch both an HTTP and HTTPS server
 """
 
+import os
 from jinja2 import Template
 from twisted.python.filepath import FilePath
 from twisted.web import resource
+
+from cwtools import jsimp
 
 
 def neverEverCache(request):
@@ -33,15 +36,38 @@ def neverEverCache(request):
 	request.setHeader('pragma', 'no-cache')
 
 
-class TestPage(resource.Resource):
+class CommonStatic(resource.Resource):
 	isLeaf = True
 
 	def render_GET(self, request):
+		if request.uri.endswith('/blank/'):
+			return ' '
+
+
+class TestPage(resource.Resource):
+	isLeaf = True
+
+	def _getTests(self):
+		JSPATH = FilePath(os.environ['JSPATH'])
+		tests = jsimp.Script('CW.Test', JSPATH).children()
+		return tests
+
+
+	def render_GET(self, request):
 		#request.setHeader('content-type', 'text/plain')
-		testsTemplate = FilePath(__file__).parent().child('tests.html')
-		return Template(
-			open(testsTemplate, 'rb').read()
-		).render(tagsFor=tagsFor).encode('utf-8')
+
+		scripts = ''
+
+		modlist = []
+
+		for t in self._getTests():
+			scripts += t.scriptContent()
+			modlist.append(t.getName())
+
+		modules = '[' + ','.join(modlist) + ']'
+
+		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()
+		return Template(testsTemplate).render(dict(scripts=scripts, modules=modules)).encode('utf-8')
 
 
 class Index(resource.Resource):
@@ -50,3 +76,4 @@ class Index(resource.Resource):
 		resource.Resource.__init__(self)
 
 		self.putChild('@tests', TestPage())
+		self.putChild('@static', CommonStatic())

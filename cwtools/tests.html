@@ -6,4 +6,113 @@
 <title>@tests</title>
 </head>
 <body>
-Hi.
+
+<div id="debug-log">
+
+<!-- TODO: have UnitTest write out this iframe, and only on IE. Unless we need it for other things? -->
+
+<!-- TODO: factor out the /@static/ -->
+
+<!--
+This special frame keeps unmodified versions of setTimeout / setInterval / etc.
+The id and name are not used by the JS; this frame is accessed with window.frames[0].
+Do not make this src=about:blank because about:blank is a non-https page,
+	and will trigger IE6/7/8 mixed content warnings.
+-->
+<script>
+// Safari 4 fires `document loaded` before iframes are ready (BAD!), so keep track of iframe load.
+var blankIframeReady = CW.Defer.Deferred();
+</script>
+<iframe
+	onload="blankIframeReady.callback(null)"
+	src="/@static/blank/"
+	id="blank_iframe"
+	name="blank_iframe"
+	style="height:16px"></iframe>
+
+<br>
+
+{{ scripts }}
+
+<script>
+// TODO: move to UnitTest.js
+
+function arrayToFakeModule(arr) {
+	var fakeModule = {};
+	var count = arr.length;
+	while(count--) {
+		console.log("Adding to fakeModule:", arr[count].__name__);
+		fakeModule[arr[count].__name__] = arr[count];
+	}
+	return fakeModule;
+}
+
+
+// TODO: use CW log observer code
+
+function leftPad(string, num) {
+	return new Array(num - string.length + 1).join('0') + string;
+}
+
+function padTo2(s) {
+	return leftPad(''+s, 2);
+}
+
+function cleanDate() {
+	var time = new Date;
+	var day = time.getFullYear() + '-' + padTo2(time.getMonth() + 1) + '-' + padTo2(time.getDate());
+
+	var clock =
+		padTo2(time.getHours()) + ':' +
+		padTo2(time.getMinutes()) + ':' +
+		padTo2(time.getSeconds()) + '.' +
+		leftPad(''+time.getMilliseconds(), 3);
+
+	var tz = time.getTimezoneOffset()/60;
+
+	return day + ' ' + clock + ' -' + tz;
+}
+
+function print(msg) {
+	var textnode = document.createTextNode('[' + cleanDate() + '] ' + msg);
+	var br = document.createElement("br");
+	var logd = document.getElementById('debug-log');
+	logd.appendChild(textnode);
+	logd.appendChild(br);
+}
+
+print("Print works.");
+
+var setTimeoutFired = CW.Defer.Deferred();
+
+blankIframeReady.addCallback(function() {
+	window.frames[0].setTimeout(function(){setTimeoutFired.callback(null);}, 11);
+});
+
+var dl = CW.Defer.DeferredList([blankIframeReady, setTimeoutFired]);
+
+dl.addCallback(function(){
+
+	print('Running tests.<br>');
+
+//	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule([
+//	 CW.Test.TestBase
+//	,CW.Test.TestDeferred
+//	,CW.Test.TestUnitTest
+//	,CW.Test.TestObject
+//	,CW.Test.TestInspect
+//	,CW.Test.TestAssumptions
+//	,CW.Test.TestNeptune
+//	]), true /*moduleOfModules*/);
+
+	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule({{ modules }}), true /*moduleOfModules*/);
+
+
+	var d = CW.UnitTest.run(suite);
+//	d.addCallbacks(function(){document.body.style.backgroundColor = 'green';}, function(){});
+
+});
+
+
+</script>
+

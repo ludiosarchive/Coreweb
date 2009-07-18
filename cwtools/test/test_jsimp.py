@@ -157,7 +157,7 @@ class ScriptTagTests(unittest.TestCase):
 
 		html = jsimp.Script('p.mod1', d).scriptContent()
 		self.assertEqual(
-			"""<script>p.mod1={'__name__':'p.mod1'};%s</script>""" % (contents,),
+			u"""<script>p.mod1={'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
 			html
 		)
 
@@ -427,3 +427,37 @@ class DependencyTests(unittest.TestCase):
 				jsimp.CircularDependencyError,
 				lambda: jsimp.getDeps(script)
 			)
+
+
+	def test_getDepsMany(self):
+		allDummies = set()
+
+		a = _DummyScript('a', 'b'.split(','), allDummies)
+		b = _DummyScript('b', [], allDummies)
+
+		d = _DummyScript('d', 'z'.split(','), allDummies)
+		z = _DummyScript('z', [], allDummies)
+
+		allDummies.update([a, b, d, z])
+
+		self.assertEqual(
+			[b, a, z, d],
+			jsimp.getDepsMany([a, d])
+		)
+
+
+	def test_getDepsManyRedundant(self):
+		allDummies = set()
+
+		a = _DummyScript('a', 'b'.split(','), allDummies)
+		b = _DummyScript('b', 'z'.split(','), allDummies)
+
+		d = _DummyScript('d', 'z'.split(','), allDummies)
+		z = _DummyScript('z', [], allDummies)
+
+		allDummies.update([a, b, d, z])
+
+		self.assertEqual(
+			[z, b, a, d],
+			jsimp.getDepsMany([a, d])
+		)

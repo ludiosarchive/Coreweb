@@ -50,3 +50,9 @@ def makeService(config):
 		serverb.setServiceParent(s)
 
 	return s
+
+
+if os.environ.get('PYRELOADING'):
+	print 'Enabling reloader.'
+	from pypycpyo import detector
+	makeService = detector.reloadingService(1.5)(makeService)

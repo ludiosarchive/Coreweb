@@ -78,6 +78,21 @@ def getDeps(script):
 	return final
 
 
+def getDepsMany(scripts):
+	"""
+	Return the list of scripts that must be included
+	for L{scripts} to work properly.
+	"""
+	alreadySeen = set()
+	returnList = []
+	for script in scripts:
+		deps = getDeps(script)
+		for dep in deps:
+			if dep not in alreadySeen:
+				returnList.append(dep)
+				alreadySeen.add(dep)
+	return returnList
+
 
 class Script(object):
 	"""
@@ -167,7 +182,7 @@ class Script(object):
 
 
 	def getContent(self):
-		return self.getAbsoluteFilename().getContent()
+		return self.getAbsoluteFilename().getContent().decode('utf-8')
 
 
 	def _getImportStrings(self):
@@ -227,7 +242,7 @@ class Script(object):
 		TODO: but only CW things require this. Should it just be in the module?
 		"""
 		
-		return "%s={'__name__':'%s'}" % (self._name, self._name)
+		return "%s={'__name__': '%s'}" % (self._name, self._name)
 
 
 	def scriptContent(self):
@@ -235,7 +250,7 @@ class Script(object):
 		Generate an HTML4/5 <script> tag with the script contents.
 		"""
 
-		template = "<script>%s;%s</script>"
+		template = "<script>%s;\n%s</script>"
 
 		return template % (self._underscoreName(), self.getContent())
 
