@@ -21,7 +21,7 @@ class CircularDependencyError(Exception):
 	
 
 
-def cacheBreakerForPath(path, os=os):
+def cacheBreakerForPath(path):
 	"""
 	Create a ?cachebreaker useful for appending to a URL.
 
@@ -30,7 +30,7 @@ def cacheBreakerForPath(path, os=os):
 	"""
 
 	# Timestamp from the filesystem may come in nanosecond precision (6 decimal places)
-	timestamp = os.stat(path).st_mtime
+	timestamp = path.getModificationTime()
 
 	# Pack the timestamp (float) for slight obfuscation.
 	cacheBreaker = struct.pack('<d', timestamp).encode('hex')
@@ -92,6 +92,12 @@ class Script(object):
 	__slots__ = ['_name', '_basePath', '_mountedAt', '__weakref__']
 
 	def __init__(self, name, basePath, mountedAt=None):
+		"""
+		L{name} is the module name (examples: 'module', 'package', 'package.module')
+		L{basePath} is a twisted.python.filepath.FilePath instance.
+		L{mountedAt} (optional) is a relative or absolute URI,
+			indicating where the root package is on the web server.
+		"""
 		# The __setattr__ blocks a simple `self.value = value'
 		self._name = name
 		self._basePath = basePath
@@ -112,7 +118,7 @@ class Script(object):
 
 	def __repr__(self):
 		return '<Script %r in %r @ %r>' % (
-			self._name, os.path.split(self._basePath)[-1], self._mountedAt)
+			self._name, self._basePath.basename(), self._mountedAt)
 
 
 	def _isPackage(self):
@@ -121,11 +127,13 @@ class Script(object):
 		The source for a package is loaded from an __init__.js)
 		"""
 		parts = self._name.split('.')
-		return os.path.isdir(os.path.join(self._basePath, '/'.join(parts)))
+		return self._basePath.preauthChild('/'.join(parts)).isdir()
 
 
 	def getFilename(self):
 		"""
+		Returns a string of the non-absolute filepath for this script.
+
 		Useful for both disk access and referencing the script for a URL.
 
 		An __init__.js file is not required in a package directory.
@@ -133,26 +141,29 @@ class Script(object):
 		parts = self._name.split('.')
 
 		if self._isPackage():
-			full = '/'.join(parts + [self.packageFilename])
-			if not os.path.exists(os.path.join(self._basePath, full)):
+			location = '/'.join(parts + [self.packageFilename])
+			if not self._basePath.preauthChild(location).exists():
 				raise FindScriptError(
 					"Directory for package "
 					"%r exists but missing the %r required for this import." % (
 						self._name, self.packageFilename))
 		else:
-			full = '/'.join(parts) + '.js'
-			if not os.path.exists(os.path.join(self._basePath, full)):
-				raise FindScriptError("Tried to find %r but no such file %r" % (self._name, full))
+			location = '/'.join(parts) + '.js'
+			if not self._basePath.preauthChild(location).exists():
+				raise FindScriptError("Tried to find %r but no such file %r" % (self._name, location))
 
-		return full
+		return location
 
 
 	def getAbsoluteFilename(self):
-		return os.path.join(self._basePath, self.getFilename())
+		"""
+		Returns a L{t.p.f.FilePath} object representing the absolute filename of the script.
+		"""
+		return self._basePath.preauthChild(self.getFilename())
 
 
 	def getContent(self):
-		return open(self.getAbsoluteFilename(), 'rb').read()
+		return self.getAbsoluteFilename().getContent()
 
 
 	def _getImportStrings(self):
@@ -184,18 +195,19 @@ class Script(object):
 		if not self._isPackage():
 			return children
 
-		for c in os.listdir(os.path.join(self._basePath, '/'.join(parts))):
-			if not c.endswith('.js'):
+		for c in self._basePath.preauthChild('/'.join(parts)).children():
+			if not c.splitext()[-1].endswith('.js'):
 				continue
-			if c == self.packageFilename:
+			if c.basename() == self.packageFilename:
 				continue
-			if c.count('.') > 1:
+			if c.basename().count('.') > 1:
 				# Must skip these, otherwise there will be problems.
 				continue
-			if os.path.isdir(os.path.join(self._basePath, '/'.join(parts + [c]))):
+			if c.isdir():
+				# If it's a directory, skip it.
 				continue
 
-			moduleName = c.split('.', 1)[0]
+			moduleName = c.basename().split('.', 1)[0]
 
 			name = '.'.join(parts + [moduleName])
 
