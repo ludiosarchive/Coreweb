@@ -43,3 +43,5 @@ def func(s):
 	return s*2
 
 print env.from_string(js).render({'func': func, 'browser': 'ie8'})
+
+
