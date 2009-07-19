@@ -18,7 +18,9 @@ function arrayToFakeModule(arr) {
 	var fakeModule = {};
 	var count = arr.length;
 	while(count--) {
-		console.log("Adding to fakeModule:", arr[count].__name__);
+		if(window.console && window.console.log) {
+			console.log("Adding to fakeModule:", arr[count].__name__);
+		}
 		fakeModule[arr[count].__name__] = arr[count];
 	}
 	return fakeModule;
@@ -79,6 +81,7 @@ blankIframeReady.addCallback(function() {
 });
 
 var dl = CW.Defer.DeferredList([blankIframeReady, setTimeoutFired]);
+
 
 dl.addCallback(function(){
 

@@ -1,5 +1,8 @@
 import jinja2
 
+# These are chosen very carefully so that JS syntax-highlights reasonably
+# even with these ugly macros.
+
 env = jinja2.Environment(
 	line_statement_prefix = '//]',
 	variable_start_string = '/**/',
