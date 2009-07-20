@@ -71,8 +71,9 @@ class TestPage(resource.Resource):
 
 		modules = '[' + ','.join(modlist) + ']'
 
+		jsw = jsimp.JavaScriptWriter()
 		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()
-		return Template(testsTemplate).render(dict(scripts=scripts, modules=modules)).encode('utf-8')
+		return jsw.render(testsTemplate, dict(scripts=scripts, modules=modules)).encode('utf-8')
 
 
 class Index(resource.Resource):

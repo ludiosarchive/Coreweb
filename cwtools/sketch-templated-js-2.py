@@ -16,20 +16,11 @@ env = jinja2.Environment(
 js = """\
 
 // A comment.
-A line, // a comment.
+var x = "something" // a comment.
 
 /**
- * Test that the message of L{compare}'s AssertionError describes the
- * failed the comparison based on its parameters.
+ * comments are fine.
  */
-function test_compareDefaultMessage(self) {
-	try {
-		self.compare(function () {return false;}, "<->", "a", "b");
-	} catch (e) {
-		self.assert(CW.startswith(e.message, '[0] "a" <-> "b"'));
-		/**/addEvent('document.body', 'click', 'somefunc')//
-	}
-}
 
 //] if browser.supports('JSON'):
 // Nothing to do, you've got JSON

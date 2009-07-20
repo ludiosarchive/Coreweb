@@ -293,20 +293,24 @@ CW.UnitTest.TestSuite.methods(
 	 * Run all of the tests in the suite.
 	 */
 	function run(self, result) {
-		CW.UnitTest.installMonkeys();
+		var installD = CW.UnitTest.installMonkeys();
 
-		var d = self.visit(function (test) { return test.run(result); });
+		installD.addCallback(function(){
+			var d = self.visit(function (test) { return test.run(result); });
 
-		/**
-		 * Possibly make it easier to figure out when IE is leaking memory.
-		 * Not really needed, especially because sIEve does this for us on the blank page.
-		 */
-		d.addBoth(function(){
-			if (typeof CollectGarbage != 'undefined') {
-				CollectGarbage();
-			}
+			/**
+			 * Possibly make it easier to figure out when IE is leaking memory.
+			 * Not really needed, especially because sIEve does this for us on the blank page.
+			 */
+			d.addBoth(function(){
+				if (typeof CollectGarbage != 'undefined') {
+					CollectGarbage();
+				}
+			});
+			return d;
 		});
-		return d;
+		installD.addErrback(CW.err);
+		return installD;
 	});
 
 
@@ -890,8 +894,8 @@ CW.UnitTest.run = function run(test) {
 		var timeTaken = new Date().getTime() - start;
 		print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
 		print(CW.UnitTest.formatErrors(result));
-		print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
-		print('<div id="successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
+		//print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
+		print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
 	});
 	return d;
 };
@@ -1003,7 +1007,7 @@ CW.UnitTest.SerialVisitor.methods(
 	}
 );
 
-// alt implementation
+// alt implementation (without the setTimeout)
 //
 //
 ///**
@@ -1042,7 +1046,7 @@ CW.UnitTest.SerialVisitor.methods(
 /**
  * Ignore Deferreds. Access something one by one. Useful for getting test counts.
  *
- * This was the old behavior.
+ * This is how Divmod UnitTest worked.
  */
 CW.UnitTest.SynchronousVisitor = CW.Class.subclass('CW.UnitTest.SynchronousVisitor');
 CW.UnitTest.SynchronousVisitor.methods(
@@ -1167,11 +1171,17 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
  * This needs to be called before tests are started.
  */
 CW.UnitTest.installMonkeys = function() {
+	//print('installMonkeys');
+
+	var installD = CW.Defer.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
-		CW.debug('Monkeys already installed.');
-		return;
+		CW.debug('Monkeys already installed or being installed.');
+		installD.callback(null);
+		return installD;
 	}
+
+	CW.UnitTest.monkeysAreInstalled = true;
 
 	// This _bak reference-swapping works for every browser except IE.
 	// We could just do IE global replacement + iframe original function for *all* browsers,
@@ -1191,22 +1201,49 @@ CW.UnitTest.installMonkeys = function() {
 		CW.window.setInterval = CW.UnitTest.setIntervalMonkey;
 		CW.window.clearInterval_bak = CW.window.clearInterval;
 		CW.window.clearInterval = CW.UnitTest.clearIntervalMonkey;
+		installD.callback(null);
 	} else {
-		execScript('\
-			function setTimeout(callable, when) {\
-				return CW.UnitTest.setTimeoutMonkey(callable, when);\
-			}\
-			function clearTimeout(ticket) {\
-				return CW.UnitTest.clearTimeoutMonkey(ticket);\
-			}\
-			function setInterval(callable, when) {\
-				return CW.UnitTest.setIntervalMonkey(callable, when);\
-			}\
-			function clearInterval(ticket) {\
-				return CW.UnitTest.clearIntervalMonkey(ticket);\
-			}'
-		);
+		CW.UnitTest._iframeReady = CW.Defer.Deferred();
+
+		var body = document.body;
+		var iframe = document.createElement("iframe");
+		// TODO: factor out the /@static/
+		iframe.setAttribute("src", "/@static/blank/");
+		iframe.setAttribute("id", "_unittest_blank_iframe");
+		iframe.setAttribute("name", "_unittest_blank_iframe");
+		iframe.setAttribute("style", "height:16px;border:3px");
+
+		// Setting onload attribute or .onload property doesn't work in IE, so attachEvent instead.
+		//WRONG: iframe.setAttribute("onload", "CW.UnitTest._iframeReady.callback(null)");
+		iframe.attachEvent("onload", function(){CW.UnitTest._iframeReady.callback(null);});
+
+		body.appendChild(iframe);
+
+		var numFrames = window.frames.length;
+		if(numFrames != 1) {
+			throw new Error("window.frames.length was " + numFrames);
+		}
+
+		CW.UnitTest._iframeReady.addCallback(function(){
+			print('_iframeReady triggered.');
+			execScript('\
+				function setTimeout(callable, when) {\
+					return CW.UnitTest.setTimeoutMonkey(callable, when);\
+				}\
+				function clearTimeout(ticket) {\
+					return CW.UnitTest.clearTimeoutMonkey(ticket);\
+				}\
+				function setInterval(callable, when) {\
+					return CW.UnitTest.setIntervalMonkey(callable, when);\
+				}\
+				function clearInterval(ticket) {\
+					return CW.UnitTest.clearIntervalMonkey(ticket);\
+				}'
+			);
+			installD.callback(null);
+		})
+
 	}
 
-	CW.UnitTest.monkeysAreInstalled = true;
+	return installD;
 }

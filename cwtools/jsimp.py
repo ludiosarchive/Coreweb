@@ -1,5 +1,6 @@
 import os
 import struct
+import jinja2
 
 from twisted.python import log
 
@@ -113,7 +114,7 @@ class Script(object):
 		L{mountedAt} (optional) is a relative or absolute URI,
 			indicating where the root package is on the web server.
 		"""
-		# The __setattr__ blocks a simple `self.value = value'
+		# TODO: verify that `name' is a valid JavaScript identifier (or identifier.identifier, and so on.)
 		self._name = name
 		self._basePath = basePath
 		self._mountedAt = mountedAt
@@ -277,3 +278,31 @@ class Script(object):
 			self._underscoreName(),
 			uriparse.urljoin(self._mountedAt, self.getFilename()),
 			cacheBreaker)
+
+
+
+class JavaScriptWriter(object):
+
+	def __init__(self):
+
+		# These are chosen very carefully so that JS syntax-highlights reasonably
+		# even with these ugly macros.
+
+		self.env = jinja2.Environment(
+			line_statement_prefix = '//]',
+			variable_start_string = '/**/',
+			variable_end_string = '//',
+			# also, block_(end|start)_string
+			comment_start_string = '/*###',
+			comment_end_string = '*/',
+		)
+
+
+	def render(self, template, dictionary):
+		"""
+		L{template} is the unicode (or str) template.
+		L{dictionary} is a dict of values to help fill the template.
+
+		Return value is the rendered template, in unicode.
+		"""
+		return self.env.from_string(template).render(dictionary)
