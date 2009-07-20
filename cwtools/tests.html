@@ -52,6 +52,8 @@ function cleanDate() {
 	return day + ' ' + clock + ' -' + tz;
 }
 
+// doesn't work well because UnitTest.js is print()ing HTML right now :(
+
 //function print(msg) {
 //	var textnode = document.createTextNode('[' + cleanDate() + '] ' + msg);
 //	var br = document.createElement("br");
@@ -60,7 +62,6 @@ function cleanDate() {
 //	logd.appendChild(br);
 //}
 
-
 function print(msg) {
 	var logd = document.getElementById('debug-log');
 	logd.innerHTML += msg + '<br>'
@@ -68,34 +69,6 @@ function print(msg) {
 
 
 print("Print works.");
-
-//
-//// Safari 4 fires `document loaded` before iframes are ready (BAD!), so keep track of iframe load.
-//var blankIframeReady = CW.Defer.Deferred();
-//
-//
-//var setTimeoutFired = CW.Defer.Deferred();
-//
-//blankIframeReady.addCallback(function() {
-//	window.frames[0].setTimeout(function(){setTimeoutFired.callback(null);}, 11);
-//});
-//
-//var dl = CW.Defer.DeferredList([blankIframeReady, setTimeoutFired]);
-//
-//
-//dl.addCallback(function(){
-//
-//	print('Running tests.<br>');
-//
-//	var modules = /**/modules//
-//	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule(modules), true /*moduleOfModules*/);
-//
-//
-//	var d = CW.UnitTest.run(suite);
-////	d.addCallbacks(function(){document.body.style.backgroundColor = 'green';}, function(){});
-//
-//});
-
 
 function _startTests() {
 	print('Running tests.<br>');
@@ -111,16 +84,7 @@ function _startTests() {
 
 </script>
 
-<!-- TODO: have UnitTest write out this iframe, and only on IE. Unless we need it for other things? -->
-
 <!-- TODO: factor out the /@static/ -->
-
-<!--
-This special frame keeps unmodified versions of setTimeout / setInterval / etc.
-The id and name are not used by the JS; this frame is accessed with window.frames[0].
-Do not make this src=about:blank because about:blank is a non-https page,
-	and will trigger IE6/7/8 mixed content warnings.
--->
 
 
 <br>

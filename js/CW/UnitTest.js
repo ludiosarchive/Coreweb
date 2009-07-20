@@ -1205,6 +1205,17 @@ CW.UnitTest.installMonkeys = function() {
 	} else {
 		CW.UnitTest._iframeReady = CW.Defer.Deferred();
 
+
+		/*
+		This special frame keeps unmodified versions of setTimeout,
+		setInterval, clearTimeout, and clearInterval.
+
+		The id and name are not used by the JS; this frame
+		is accessed with window.frames[0].  Do not make this src=about:blank
+		because about:blank is a non-https page,  and will trigger IE6/7/8
+		mixed content warnings.
+		*/
+
 		var body = document.body;
 		var iframe = document.createElement("iframe");
 		// TODO: factor out the /@static/
@@ -1213,8 +1224,8 @@ CW.UnitTest.installMonkeys = function() {
 		iframe.setAttribute("name", "_unittest_blank_iframe");
 		iframe.setAttribute("style", "height:16px;border:3px");
 
-		// Setting onload attribute or .onload property doesn't work in IE, so attachEvent instead.
-		//WRONG: iframe.setAttribute("onload", "CW.UnitTest._iframeReady.callback(null)");
+		// Setting onload attribute or .onload property doesn't work in IE (6, 7 confirmed),
+		// so attachEvent instead.
 		iframe.attachEvent("onload", function(){CW.UnitTest._iframeReady.callback(null);});
 
 		body.appendChild(iframe);
