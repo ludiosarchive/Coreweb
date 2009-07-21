@@ -982,7 +982,7 @@ CW.UnitTest.SerialVisitor.methods(
 	},
 
 	function _traverse(self, visitor, tests, completionDeferred, nowOn) {
-		var result;
+		var result, testCase;
 		if (nowOn < tests.length) {
 			testCase = tests[nowOn]; // at some point this lacked a +1; this bug took an hour to catch.
 			result = testCase.visit(visitor);
