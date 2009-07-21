@@ -9,9 +9,15 @@
 
 <div id="debug-log"></div>
 
+<script>
+__CW_timers = {};
+__CW_timers.sb = +new Date; /* scripts begin */
+</script>
 /**/scripts//
 
 <script>
+__CW_timers.se = +new Date; /* scripts end */
+
 // TODO: move to UnitTest.js
 
 function arrayToFakeModule(arr) {
@@ -47,7 +53,7 @@ function print(msg) {
 //}
 
 
-print("Print works.");
+print("Took " + (__CW_timers.se-__CW_timers.sb) + "ms to load scripts.");
 
 function _startTests() {
 	print('Running tests.<br>');
