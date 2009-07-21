@@ -38,6 +38,23 @@ CW._CONSTRUCTOR = {};
 CW.Class = function() {};
 
 /**
+ * This avoids having the "pass in self" function from being
+ * a deeply nested closure in CW.Class.subclass
+ */
+CW._makeSelfFunction = function(methodFunction) {
+	return function() {
+		var args = [this], arglen = arguments.length;
+		// C{arguments} is not a real array, so C{args.concat} won't work on it,
+		// even if you try to convert it to an array with C{new Array(arguments)} or
+		// C{Array.slice(arguments)}.
+		for (var i = 0; i < arglen; ++i) {
+			args.push(arguments[i]);
+		}
+		return methodFunction.apply(this, args);
+	}
+};
+
+/**
  * Create a new subclass.
  *
  * Passing a module object for C{classNameOrModule} and C{subclassName} will
@@ -202,17 +219,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 		methodFunction.displayName = className + '.' + methodName;
 
-		subClass.prototype[methodName] = function() {
-			var args = [this], arglen = arguments.length;
-			// C{arguments} is not a real array, so C{args.concat} won't work on it,
-			// even if you try to convert it to an array with C{new Array(arguments)} or
-			// C{Array.slice(arguments)}.
-			for (var i = 0; i < arglen; ++i) {
-				args.push(arguments[i]);
-			}
-			return methodFunction.apply(this, args);
-		};
-
+		subClass.prototype[methodName] = CW._makeSelfFunction(methodFunction);
 		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
 	};
 
