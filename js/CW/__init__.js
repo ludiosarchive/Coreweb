@@ -203,11 +203,11 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		methodFunction.displayName = className + '.' + methodName;
 
 		subClass.prototype[methodName] = function() {
-			var args = [this];
+			var args = [this], arglen = arguments.length;
 			// C{arguments} is not a real array, so C{args.concat} won't work on it,
 			// even if you try to convert it to an array with C{new Array(arguments)} or
 			// C{Array.slice(arguments)}.
-			for (var i = 0; i < arguments.length; ++i) {
+			for (var i = 0; i < arglen; ++i) {
 				args.push(arguments[i]);
 			}
 			return methodFunction.apply(this, args);
@@ -220,8 +220,10 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	 * Add many methods. See comment for subClass.method.
 	 */
 	subClass.methods = function() {
-		for (var i = 0; i < arguments.length; ++i) {
-			subClass.method(arguments[i]);
+		var n = arguments.length;
+		// in reverse
+		while(n--) {
+			subClass.method(arguments[n]);
 		}
 	};
 
