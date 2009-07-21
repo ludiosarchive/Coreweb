@@ -1,9 +1,19 @@
+/* obfu-vars:
+_pauseLevel, _unpause, _pause, _isFailure, _isDeferred,
+_continue, _startRunCallbacks, _runCallbacks, _callbacks, _called, _result */
+
 // import CW
 
-CW.Defer.AlreadyCalledError = CW.Class.subclass("CW.Defer.AlreadyCalledError");
+/**
+ * General limitations:
+ *
+ * JavaScript has no __del__, so we can't print out
+ * unhandled errors like twisted.internet.defer does.
+ */
 
-CW.Defer.Failure = CW.Class.subclass("CW.Defer.Failure");
-CW.Defer.Failure.methods(
+CW.Class.subclass(CW.Defer, 'AlreadyCalledError');
+
+CW.Class.subclass(CW.Defer, 'Failure').methods(
 	function __init__(self, error) {
 		self.error = error;
 	},
@@ -24,19 +34,14 @@ CW.Defer.Failure.methods(
 	},
 
 	function parseStack(self) {
-		var stackString = self.error.stack;
-		var frames = [];
+		var
+			stackString = this.error.stack,
+			frames = [],
+			i, line, parts, func, rest, divide, fname, lineNumber;
 
-		var line;
-		var parts;
-		var func;
-		var rest;
-		var divide;
-		var fname;
-		var lineNumber;
 		if(stackString !== undefined) {
 			var lines = stackString.split('\n');
-			for (var i = 0, line = lines[i]; i < lines.length; ++i, line = lines[i]) {
+			for (i = 0, line = lines[i]; i < lines.length; ++i, line = lines[i]) {
 				if (line.indexOf('@') == -1) {
 					continue;
 				}
@@ -70,10 +75,12 @@ CW.Defer.Failure.methods(
 	 *			func: <function that the frame is inside as string>}]
 	 */
 	function filteredParseStack(self) {
-		var frames = self.parseStack();
-		var ret = [];
-		for (var i = 0; i < frames.length; ++i) {
-			var f = frames[i];
+		var
+			frames = self.parseStack(),
+			ret = [],
+			i, f;
+		for (i = 0; i < frames.length; ++i) {
+			f = frames[i];
 			if (f.fname == "" && f.lineNumber == 0) {
 				ret.pop();
 				continue;
@@ -103,8 +110,10 @@ CW.Defer.Failure.methods(
 		if (frames == undefined) {
 			frames = self.parseStack();
 		}
-		var ret = 'Traceback (most recent call last):\n';
-		for (var i = 0; i < frames.length; ++i) {
+		var
+			ret = 'Traceback (most recent call last):\n',
+			i;
+		for (i = 0; i < frames.length; ++i) {
 			ret += self.frameToPrettyText(frames[i]) + '\n';
 		}
 		return ret + self.error;
@@ -135,11 +144,10 @@ CW.Defer.Failure.methods(
 			resultNode.appendChild(frameNode);
 		}
 		return resultNode;
-	});
+	}
+);
 
-CW.Defer.Deferred = CW.Class.subclass("CW.Defer.Deferred");
-
-CW.Defer.Deferred.methods(
+CW.Class.subclass(CW.Defer, 'Deferred').methods(
 	function __init__(self) {
 		self._callbacks = [];
 		self._called = false;
@@ -262,7 +270,8 @@ CW.Defer.Deferred.methods(
 			err = new CW.Defer.Failure(err);
 		}
 		self._startRunCallbacks(err);
-	});
+	}
+);
 
 CW.Defer.succeed = function succeed(result) {
 	var d = new CW.Defer.Deferred();
@@ -285,8 +294,7 @@ CW.Defer.fail = function fail(err) {
  * @ivar index: the index of the Deferred in the DeferredList where it
  * happened.
  */
-CW.Defer.FirstError = CW.Error.subclass('CW.Defer.FirstError');
-CW.Defer.FirstError.methods(
+CW.Error.subclass(CW.Defer, 'FirstError').methods(
 	function __init__(self, err, index) {
 		CW.Defer.FirstError.upcall(self, '__init__');
 		self.err = err;
@@ -295,7 +303,8 @@ CW.Defer.FirstError.methods(
 
 	function toString(self) {
 		return '<FirstError @ ' + self.index + ': ' + self.err.toString() + '>';
-	});
+	}
+);
 
 /*
  * I combine a group of deferreds into one callback.
@@ -310,8 +319,7 @@ CW.Defer.FirstError.methods(
  * DeferredList, as a DeferredList won't swallow the errors.  (Although a more
  * convenient way to do this is simply to set the consumeErrors flag)
  */
-CW.Defer.DeferredList = CW.Defer.Deferred.subclass('CW.Defer.DeferredList');
-CW.Defer.DeferredList.methods(
+CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 	/* Initialize a DeferredList.
 	 *
 	 * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
@@ -391,7 +399,8 @@ CW.Defer.DeferredList.methods(
 		} else {
 			return result;
 		}
-	});
+	}
+);
 
 
 /* Returns list with result of given Deferreds.
