@@ -183,13 +183,24 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	 * those with prototypes created by directly setting C{.prototype}
 	 */
 	subClass.method = function(methodFunction) {
+		/* .name is a Mozilla extension to JavaScript */
 		var methodName = methodFunction.name;
 
 		if (methodName == undefined) {
-			/* No C{methodFunction.name} in IE or Opera, so try this workaround. */
+			/* No C{methodFunction.name} in IE or Opera or earlier Safari, so try this workaround. */
 			var methodSource = methodFunction.toString();
 			methodName = methodSource.slice(methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
 		}
+
+		/*
+		 * Safari 4 supports displayName to name any function for the debugger/profiler.
+		 * It might work with Firebug in the future.
+		 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
+		 */
+
+		// TODO: test that displayName is set
+
+		methodFunction.displayName = className + '.' + methodName;
 
 		subClass.prototype[methodName] = function() {
 			var args = [this];
@@ -201,6 +212,8 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 			}
 			return methodFunction.apply(this, args);
 		};
+
+		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
 	};
 
 	/*

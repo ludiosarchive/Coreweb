@@ -29,43 +29,22 @@ function arrayToFakeModule(arr) {
 
 // TODO: use CW log observer code
 
-function leftPad(string, num) {
-	return new Array(num - string.length + 1).join('0') + string;
-}
-
-function padTo2(s) {
-	return leftPad(''+s, 2);
-}
-
-function cleanDate() {
-	var time = new Date;
-	var day = time.getFullYear() + '-' + padTo2(time.getMonth() + 1) + '-' + padTo2(time.getDate());
-
-	var clock =
-		padTo2(time.getHours()) + ':' +
-		padTo2(time.getMinutes()) + ':' +
-		padTo2(time.getSeconds()) + '.' +
-		leftPad(''+time.getMilliseconds(), 3);
-
-	var tz = time.getTimezoneOffset()/60;
-
-	return day + ' ' + clock + ' -' + tz;
-}
-
 // doesn't work well because UnitTest.js is print()ing HTML right now :(
 
-//function print(msg) {
-//	var textnode = document.createTextNode('[' + cleanDate() + '] ' + msg);
-//	var br = document.createElement("br");
-//	var logd = document.getElementById('debug-log');
-//	logd.appendChild(textnode);
-//	logd.appendChild(br);
-//}
+// CW.ISODate.localTime()
 
 function print(msg) {
+	var textnode = document.createTextNode('[' + (+new Date) + '] ' + msg);
+	var br = document.createElement("br");
 	var logd = document.getElementById('debug-log');
-	logd.innerHTML += msg + '<br>'
+	logd.appendChild(textnode);
+	logd.appendChild(br);
 }
+
+//function print(msg) {
+//	var logd = document.getElementById('debug-log');
+//	logd.innerHTML += msg + '<br>'
+//}
 
 
 print("Print works.");
@@ -75,7 +54,6 @@ function _startTests() {
 
 	var modules = /**/modules//
 	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule(modules), true /*moduleOfModules*/);
-
 
 	var d = CW.UnitTest.run(suite);
 //	d.addCallbacks(function(){document.body.style.backgroundColor = 'green';}, function(){});

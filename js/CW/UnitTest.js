@@ -8,8 +8,9 @@
 
 // import CW
 // import CW.Inspect
-//// import CW.Runtime
 
+// necessary to avoid window namespace pollution in IE
+(function(){
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -721,7 +722,7 @@ CW.UnitTest.TestCase.methods(
 		);
 
 		return setUpD;
-		
+
 	}
 
 
@@ -872,7 +873,7 @@ CW.UnitTest.formatError = function formatError(kind, test, error) {
 	// this is just really annoying
 	//var f = CW.Defer.Failure(error);
 	//ret += f.toPrettyText(f.filteredParseStack()) + '\n';
-	
+
 	return ret;
 };
 
@@ -1072,7 +1073,14 @@ CW.UnitTest.stopTrackingDelayedCalls = function() {
 };
 
 
+// Initialize the objects
 CW.UnitTest.stopTrackingDelayedCalls();
+
+
+CW.UnitTest.TestResultReceiver = CW.Class.subclass('CW.UnitTest.TestResultReceiver');
+CW.UnitTest.TestResultReceiver.methods(
+	function a() {}
+);
 
 
 
@@ -1153,7 +1161,7 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	var output = null;
-	
+
 	if(CW.window.clearInterval_bak) {
 		output = clearInterval_bak(ticket);
 	} else if(CW.window.frames[0] && CW.window.frames[0].clearInterval) {
@@ -1205,16 +1213,15 @@ CW.UnitTest.installMonkeys = function() {
 	} else {
 		CW.UnitTest._iframeReady = CW.Defer.Deferred();
 
-
 		/*
-		This special frame keeps unmodified versions of setTimeout,
-		setInterval, clearTimeout, and clearInterval.
-
-		The id and name are not used by the JS; this frame
-		is accessed with window.frames[0].  Do not make this src=about:blank
-		because about:blank is a non-https page,  and will trigger IE6/7/8
-		mixed content warnings.
-		*/
+		 * This special frame keeps unmodified versions of setTimeout,
+		 * setInterval, clearTimeout, and clearInterval.
+		 *
+		 * The id and name are not used by the JS; this frame
+		 * is accessed with window.frames[0].  Do not make this src=about:blank
+		 * because about:blank is a non-https page,  and will trigger IE6/7/8
+		 * mixed content warnings.
+		 */
 
 		var body = document.body;
 		var iframe = document.createElement("iframe");
@@ -1252,9 +1259,10 @@ CW.UnitTest.installMonkeys = function() {
 				}'
 			);
 			installD.callback(null);
-		})
-
+		});
 	}
 
 	return installD;
 }
+
+})();

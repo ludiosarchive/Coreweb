@@ -283,6 +283,17 @@ class Script(object):
 
 class JavaScriptWriter(object):
 
+	"""
+	The macro language defined here should be easily portable to another
+	template system / language (maybe TeX?).
+
+	When writing things for this template system, make it sound like English:
+
+	browser.supports('JSON')
+
+	browser.hasBug('')
+	"""
+
 	def __init__(self):
 
 		# These are chosen very carefully so that JS syntax-highlights reasonably
@@ -292,7 +303,7 @@ class JavaScriptWriter(object):
 			line_statement_prefix = '//]',
 			variable_start_string = '/**/',
 			variable_end_string = '//',
-			# also, block_(end|start)_string
+			# TODO: ? also define block_(end|start)_string
 			comment_start_string = '/*###',
 			comment_end_string = '*/',
 		)
