@@ -7,16 +7,21 @@
 </head>
 <body onload="_startTests()">
 
-<div id="debug-log"></div>
+<div id="CW-debug-log"></div>
 
 <script>
-__CW_timers = {};
-__CW_timers.sb = +new Date; /* scripts begin */
+/*
+	function to count number of window properties,
+	to help make sure nothing (besides __CW_x and CW) are added
+*/
+__CW_x = {c: function(){var c=0, k;for(k in window) {c++};return c}};
+__CW_x.sb = +new Date; /* scripts begin */
+__CW_x.c1 = __CW_x.c();
 </script>
 /**/scripts//
 
 <script>
-__CW_timers.se = +new Date; /* scripts end */
+__CW_x.se = +new Date; /* scripts end */
 
 // TODO: move to UnitTest.js
 
@@ -24,9 +29,7 @@ function arrayToFakeModule(arr) {
 	var fakeModule = {};
 	var count = arr.length;
 	while(count--) {
-		if(window.console && window.console.log) {
-			console.log("Adding to fakeModule:", arr[count].__name__);
-		}
+		CW.log("Adding to fakeModule:", arr[count].__name__);
 		fakeModule[arr[count].__name__] = arr[count];
 	}
 	return fakeModule;
@@ -42,18 +45,18 @@ function arrayToFakeModule(arr) {
 function print(msg) {
 	var textnode = document.createTextNode('[' + (+new Date) + '] ' + msg);
 	var br = document.createElement("br");
-	var logd = document.getElementById('debug-log');
+	var logd = document.getElementById('CW-debug-log');
 	logd.appendChild(textnode);
 	logd.appendChild(br);
 }
 
 //function print(msg) {
-//	var logd = document.getElementById('debug-log');
+//	var logd = document.getElementById('CW-debug-log');
 //	logd.innerHTML += msg + '<br>'
 //}
 
 
-print("Took " + (__CW_timers.se-__CW_timers.sb) + "ms to load scripts.");
+print("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
 
 function _startTests() {
 	print('Running tests.<br>');

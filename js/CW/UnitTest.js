@@ -777,7 +777,7 @@ CW.UnitTest.TestCase.methods(
 //	function _noOpera10Trailer(self, error) {
 //		// Wow. Opera 10 only lets us replace the message text once per test method or something,
 //		// so we return the cleaned message.
-//		if(CW.window.opera) {
+//		if(window.opera) {
 //			var copy = '' + error.message;
 //			var replacement = copy.replace(/\r\nstacktrace: n.*/, '');
 //			//alert('replacement is ' + replacement);
@@ -1104,12 +1104,12 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 	var ticket = null;
 
-	if(CW.window.setTimeout_bak) {
+	if(window.setTimeout_bak) {
 		ticket = setTimeout_bak(function(){replacementCallable.call(ticket, [])}, when);
-	} else if(CW.window.frames[0] && CW.window.frames[0].setTimeout) {
-		ticket = CW.window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
+	} else if(window.frames[0] && window.frames[0].setTimeout) {
+		ticket = window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
 	} else {
-		throw new Error("neither setTimeout_bak nor CW.window.frames[0].setTimeout was available.");
+		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
@@ -1125,12 +1125,12 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 
 	var ticket = null;
 
-	if(CW.window.setInterval_bak) {
+	if(window.setInterval_bak) {
 		ticket = setInterval_bak(callable, when);
-	} else if(CW.window.frames[0] && CW.window.frames[0].setInterval) {
-		ticket = CW.window.frames[0].setInterval(callable, when);
+	} else if(window.frames[0] && window.frames[0].setInterval) {
+		ticket = window.frames[0].setInterval(callable, when);
 	} else {
-		throw new Error("neither setInterval_bak nor CW.window.frames[0].setInterval was available.");
+		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
@@ -1144,12 +1144,12 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	var output = null;
 
-	if(CW.window.clearTimeout_bak) {
+	if(window.clearTimeout_bak) {
 		output = clearTimeout_bak(ticket);
-	} else if(CW.window.frames[0] && CW.window.frames[0].clearTimeout) {
-		output = CW.window.frames[0].clearTimeout(ticket);
+	} else if(window.frames[0] && window.frames[0].clearTimeout) {
+		output = window.frames[0].clearTimeout(ticket);
 	} else {
-		throw new Error("neither clearTimeout_bak nor CW.window.frames[0].clearTimeout was available.");
+		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
@@ -1162,12 +1162,12 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	var output = null;
 
-	if(CW.window.clearInterval_bak) {
+	if(window.clearInterval_bak) {
 		output = clearInterval_bak(ticket);
-	} else if(CW.window.frames[0] && CW.window.frames[0].clearInterval) {
-		output = CW.window.frames[0].clearInterval(ticket);
+	} else if(window.frames[0] && window.frames[0].clearInterval) {
+		output = window.frames[0].clearInterval(ticket);
 	} else {
-		throw new Error("neither clearInterval_bak nor CW.window.frames[0].clearInterval was available.");
+		throw new Error("neither clearInterval_bak nor window.frames[0].clearInterval was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
@@ -1200,15 +1200,15 @@ CW.UnitTest.installMonkeys = function() {
 		// TODO: build a CW.Support module that has
 		// "supportsSetTimeoutReferenceSwap" instead of making all these IE assumptions
 
-		CW.window.setTimeout_bak = CW.window.setTimeout;
-		CW.window.setTimeout = CW.UnitTest.setTimeoutMonkey;
-		CW.window.clearTimeout_bak = CW.window.clearTimeout;
-		CW.window.clearTimeout = CW.UnitTest.clearTimeoutMonkey;
+		window.setTimeout_bak = window.setTimeout;
+		window.setTimeout = CW.UnitTest.setTimeoutMonkey;
+		window.clearTimeout_bak = window.clearTimeout;
+		window.clearTimeout = CW.UnitTest.clearTimeoutMonkey;
 
-		CW.window.setInterval_bak = CW.window.setInterval;
-		CW.window.setInterval = CW.UnitTest.setIntervalMonkey;
-		CW.window.clearInterval_bak = CW.window.clearInterval;
-		CW.window.clearInterval = CW.UnitTest.clearIntervalMonkey;
+		window.setInterval_bak = window.setInterval;
+		window.setInterval = CW.UnitTest.setIntervalMonkey;
+		window.clearInterval_bak = window.clearInterval;
+		window.clearInterval = CW.UnitTest.clearIntervalMonkey;
 		installD.callback(null);
 	} else {
 		CW.UnitTest._iframeReady = CW.Defer.Deferred();
@@ -1227,13 +1227,16 @@ CW.UnitTest.installMonkeys = function() {
 		var iframe = document.createElement("iframe");
 		// TODO: factor out the /@static/
 		iframe.setAttribute("src", "/@static/blank/");
-		iframe.setAttribute("id", "_unittest_blank_iframe");
-		iframe.setAttribute("name", "_unittest_blank_iframe");
-		iframe.setAttribute("style", "height:16px;border:3px");
+		iframe.setAttribute("id", "__CW_unittest_blank_iframe");
+		iframe.setAttribute("name", "__CW_unittest_blank_iframe");
 
 		// Setting onload attribute or .onload property doesn't work in IE (6, 7 confirmed),
 		// so attachEvent instead.
 		iframe.attachEvent("onload", function(){CW.UnitTest._iframeReady.callback(null);});
+
+		// setAttribute("style", ...  is not working in IE6 or IE7, so use .style instead.
+		iframe.style.height = '16px';
+		iframe.style.border = '3px';
 
 		body.appendChild(iframe);
 

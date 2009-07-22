@@ -35,7 +35,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 * that formats frames using L{Failure.frameToPrettyText}.
 	 */
 	function test_toPrettyText(self) {
-		if(CW.window.opera && CW.window.opera.version() >= 10) {
+		if(window.opera && window.opera.version() >= 10) {
 			print("{SKIPPING} test_toPrettyText because of Opera 10.<br>");
 			return;
 		}

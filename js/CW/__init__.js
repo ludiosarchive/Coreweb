@@ -1,6 +1,4 @@
 /* {LICENSE:primary,Nevow} */
-CW._global = CW.window = this;
-
 
 CW.vars = function(obj) {
 	var L = [];
@@ -400,7 +398,7 @@ CW.warn = function warn(message, category) {
 /*
  * Set up the Firebug console as a CW log observer.
  */
-if(CW.window.firebug) { // non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
+if(window.firebug) { // non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
 	CW.logger.addObserver(function (evt) {
 		if (evt.isError) {
 			console.log("CW error: " + evt.message);
@@ -471,7 +469,7 @@ CW.random = function() {
  *    than those that are not '()'-wrapped.
  */
 CW.JSON = function() {
-	if(CW.window.JSON && JSON.stringify && JSON.parse) {
+	if(window.JSON && JSON.stringify && JSON.parse) {
 		CW.debug("Using browser's native JSON stringifier and parser instead of json2/eval.");
 		return {
 			stringify: JSON.stringify,

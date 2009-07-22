@@ -103,7 +103,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 		 * until the next 2*(16384) checkpoint, then 2*2*16384, and so on.
 		 */
 
-		if(CW.window.opera) {
+		if(window.opera) {
 			self.forceReadInterval = setInterval(function(){self._dataReceived.apply(self, []);},50);
 		}
 		self.connStatus = "maybealive";

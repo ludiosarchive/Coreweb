@@ -9,7 +9,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
 	 * Browser detection from jQuery 1.3.2.
 	 */
 	function setUp(self) {
-		var userAgent = CW.window.navigator.userAgent.toLowerCase();
+		var userAgent = window.navigator.userAgent.toLowerCase();
 		self.probablyMSIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
 	},
 
@@ -222,7 +222,7 @@ there';
 //		// this might need to be much better in actual Neptune code.
 //
 //		// picks up FF1/2/3, Safari 3/4, Chrome
-//		self.browserProperlySupportsXHRStream = (ua.indexOf("Gecko") != -1) && (!CW.window.opera);
+//		self.browserProperlySupportsXHRStream = (ua.indexOf("Gecko") != -1) && (!window.opera);
 //
 //
 //		/**
@@ -369,7 +369,7 @@ there';
 //
 //		if('\v' == 'v') {
 //			expectedLoss = ((self.msgLen)*self.howManyMsgs) - ((self.msgLen-1)*1);
-//		} else if (CW.window.opera) {
+//		} else if (window.opera) {
 //			expectedLoss = (self.howManyMsgs); // just the NULLs inside the messages.
 //		} else {
 //			expectedLoss = 0;
