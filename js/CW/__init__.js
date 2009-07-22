@@ -194,14 +194,18 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		methodFunction.displayName = className + '.' + methodName;
 
 		subClass.prototype[methodName] = function() {
-			var args = [this], arglen = arguments.length;
-			// C{arguments} is not a real array, so C{args.concat} won't work on it,
-			// even if you try to convert it to an array with C{new Array(arguments)} or
-			// C{Array.slice(arguments)}.
-			for (var i = 0; i < arglen; ++i) {
-				args.push(arguments[i]);
+			var n = arguments.length;
+			if(n) {
+				var args = [];
+				while(n--) {
+					args.push(arguments[n]);
+				}
+				args.push(this);
+				args.reverse();
+				return methodFunction.apply(this, args);
+			} else {
+				return methodFunction.apply(this, [this]);
 			}
-			return methodFunction.apply(this, args);
 		};
 
 		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
