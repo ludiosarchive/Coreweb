@@ -217,6 +217,9 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._result = result;
 		self._unpause();
 	},
+	function _continueFunc(self, result, otherSelf) {
+		otherSelf._continue(result);
+	},
 	function _runCallbacks(self) {
 		var args, callback;
 		if (!self._pauseLevel) {
@@ -236,15 +239,15 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 					continue;
 				}
 
+				// prepend the result to the callback arguments
 				args.unshift(self._result);
 				try {
 					self._result = callback.apply(null, args);
 					if (self._isDeferred(self._result)) {
 						self._callbacks = cb;
 						self._pause();
-						self._result.addBoth(function (r) {
-							self._continue(r);
-						});
+						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
+						self._result.addBoth(self._continueFunc, self);
 						break;
 					}
 				} catch (e) {
