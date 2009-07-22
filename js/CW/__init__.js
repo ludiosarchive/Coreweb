@@ -142,26 +142,6 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		classIdentifier = className;
 	}
 
-
-	// disabling attribute-copying for now, in attempt to simplify and increase speed.
-	// TestObject.test_class tests were changed as well.
-	// If this is enabled again, probably exclude 'method' and 'methods' too.
-
-//	/*
-//	 * Copy class methods and attributes, so that you can do
-//	 * polymorphism on class methods (useful for things like
-//	 * Nevow.Athena.Widget.get in widgets.js).
-//	 */
-//	for (var varname in superClass) {
-//		if ((varname != 'prototype') &&
-//			(varname != 'constructor') &&
-//			(varname != '__name__') &&
-//			(superClass[varname] != undefined)) {
-//			//console.log('copying', varname, 'from', superClass.__name__, 'to', className);
-//			subClass[varname] = superClass[varname];
-//		}
-//	}
-
 	subClass.upcall = function(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
