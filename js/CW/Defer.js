@@ -157,6 +157,7 @@ CW.Defer.Deferred.prototype = {
 		this._called = false;
 		this._pauseLevel = 0;
 	},
+	
 	'addCallbacks': function(/* callback, errback, callbackArgs, errbackArgs */) {
 		// use `arguments' so that JScript doesn't have to create 4 local variables.
 		// TODO: need to verify that this really doesn't have adverse effects
@@ -167,6 +168,7 @@ CW.Defer.Deferred.prototype = {
 		}
 		return this;
 	},
+
 	'addCallback': function(callback) {
 		var callbackArgs = Array.prototype.slice.call(arguments);
 		callbackArgs.shift();
@@ -177,6 +179,7 @@ CW.Defer.Deferred.prototype = {
 		}
 		return this;
 	},
+
 	'addErrback': function(errback) {
 		var errbackArgs = Array.prototype.slice.call(arguments);
 		errbackArgs.shift();
@@ -197,6 +200,7 @@ CW.Defer.Deferred.prototype = {
 		}
 		return this;
 	},
+
 	/* There is no _pause(). Just raise the this._pauseLevel: this._pauseLevel++ */
 	/* There is no _unpause(). It's inlined into _continueFunc */
 	'_continueFunc': function(result, parentDeferred) {
@@ -211,6 +215,7 @@ CW.Defer.Deferred.prototype = {
 		}
 		parentDeferred._runCallbacks();
 	},
+
 	'_runCallbacks': function() {
 		var args, callback;
 		if (!this._pauseLevel) {
@@ -253,6 +258,7 @@ CW.Defer.Deferred.prototype = {
 			CW.err(this._result.error);
 		}
 	},
+
 	'callback': function(result) {
 		if (this._called) {
 			throw new CW.Defer.AlreadyCalledError();
@@ -261,6 +267,7 @@ CW.Defer.Deferred.prototype = {
 		this._result = result;
 		this._runCallbacks();
 	},
+
 	'errback': function(err) {
 		if (!(err instanceof CW.Defer.Failure)) {
 			err = new CW.Defer.Failure(err);
@@ -269,11 +276,13 @@ CW.Defer.Deferred.prototype = {
 	}
 }
 
+
 CW.Defer.succeed = function succeed(result) {
 	var d = new CW.Defer.Deferred();
 	d.callback(result);
 	return d;
 };
+
 
 CW.Defer.fail = function fail(err) {
 	var d = new CW.Defer.Deferred();
