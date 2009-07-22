@@ -342,11 +342,13 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 					  fireOnOneCallback /* = false */,
 					  fireOnOneErrback /* = false */,
 					  consumeErrors /* = false */) {
-		self.resultList = new Array(deferredList.length);
+		var dListLen = deferredList.length;
+
+		self.resultList = new Array(dListLen);
 		CW.Defer.DeferredList.upcall(self, '__init__');
 		// don't callback in the fireOnOneCallback case because the result
 		// type is different.
-		if (deferredList.length == 0 && !fireOnOneCallback) {
+		if (dListLen == 0 && !fireOnOneCallback) {
 			self.callback(self.resultList);
 		}
 
@@ -371,7 +373,7 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 		self.consumeErrors = consumeErrors;
 		self.finishedCount = 0;
 
-		for (var index = 0; index < deferredList.length; ++index) {
+		for (var index = 0; index < dListLen; ++index) {
 			deferredList[index].addCallbacks(function(result, index) {
 				self._cbDeferred(result, true, index);
 			}, function(err, index) {
