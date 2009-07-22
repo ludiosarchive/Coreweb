@@ -36,7 +36,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 */
 	function test_toPrettyText(self) {
 		if(window.opera && window.opera.version() >= 10) {
-			print("{SKIPPING} test_toPrettyText because of Opera 10.<br>");
+			CW.msg("{SKIPPING} test_toPrettyText because of Opera 10.<br>");
 			return;
 		}
 		var frames = self.failure.parseStack();
@@ -312,5 +312,109 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		});
 		self.assert(result instanceof Array);
 		self.assertArraysEqual(result, ['1', '2']);
+	},
+
+	/* There was a bit of copy/paste going on here. */
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addCallback.
+	 */
+	function test_addCallbackArguments1(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(result, arg1) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+		}
+		d.addCallback(callback, 20);
+		d.callback(10);
+
+		self.assertArraysEqual(callbackArgs, [10, 20]);
+	},
+
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addCallback.
+	 */
+	function test_addCallbackArguments3(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(result, arg1, arg2, arg3) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+		}
+		d.addCallback(callback, 20, 30, 40);
+		d.callback(10);
+		self.assertArraysEqual(callbackArgs, [10, 20, 30, 40]);
+	},
+
+	/* -- */
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addErrback.
+	 */
+	function test_addErrbackArguments1(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(ignored, arg1) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+			callbackArgs.shift();
+		}
+		d.addErrback(callback, 20);
+		d.errback(new Error("boom"));
+		self.assertArraysEqual(callbackArgs, [20]);
+	},
+
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addErrback.
+	 */
+	function test_addErrbackArguments3(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(ignored, arg1, arg2, arg3) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+			callbackArgs.shift();
+		}
+		d.addErrback(callback, 20, 30, 40);
+		d.errback(new Error("boom"));
+		self.assertArraysEqual(callbackArgs, [20, 30, 40]);
+	},
+
+	/* -- */
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addBoth.
+	 */
+	function test_addBothArguments1(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(result, arg1) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+		}
+		d.addBoth(callback, 20);
+		d.callback(10);
+
+		self.assertArraysEqual(callbackArgs, [10, 20]);
+	},
+
+
+	/**
+	 * The result and argument list should get passed in properly
+	 * when using addBoth.
+	 */
+	function test_addBothArguments3(self) {
+		var d = CW.Defer.Deferred();
+		var callbackArgs = [];
+		var callback = function(result, arg1, arg2, arg3) {
+			callbackArgs.push.apply(callbackArgs, arguments);
+		}
+		d.addBoth(callback, 20, 30, 40);
+		d.callback(10);
+		self.assertArraysEqual(callbackArgs, [10, 20, 30, 40]);
 	}
+
 );

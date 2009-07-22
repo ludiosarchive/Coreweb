@@ -195,17 +195,13 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		methodFunction.displayName = className + '.' + methodName;
 
 		subClass.prototype[methodName] = function() {
-			var n = arguments.length;
-			if(n) {
-				var args = [];
-				while(n--) {
-					args.push(arguments[n]);
-				}
-				args.push(this);
-				return methodFunction.apply(this, args.reverse());
-			} else {
-				return methodFunction.apply(this, [this]);
-			}
+			var args = [this];
+			args.push.apply(args, arguments); // A sparkling jewel.
+
+			// TODO: microbench against:
+			// var args = Array.prototype.slice.call(arguments);
+			// args.unshift(this);
+			return methodFunction.apply(this, args);
 		};
 
 		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
