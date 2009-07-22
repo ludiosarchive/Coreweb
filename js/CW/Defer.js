@@ -253,7 +253,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 			CW.err(self._result.error);
 		}
 	},
-	function _startRunCallbacks(self, result) {
+	function callback(self, result) {
 		if (self._called) {
 			throw new CW.Defer.AlreadyCalledError();
 		}
@@ -261,14 +261,11 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._result = result;
 		self._runCallbacks();
 	},
-	function callback(self, result) {
-		self._startRunCallbacks(result);
-	},
 	function errback(self, err) {
 		if (!(err instanceof CW.Defer.Failure)) {
 			err = new CW.Defer.Failure(err);
 		}
-		self._startRunCallbacks(err);
+		self.callback(err); /* Divmod.Defer called _startRunCallbacks */
 	}
 );
 
