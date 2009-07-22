@@ -164,6 +164,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addCallback(self, callback) {
+		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
 		var callbackArgs = [], n = arguments.length-2;
 		while(n--) {
 			callbackArgs.push(arguments[n+2]);
@@ -172,6 +173,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addErrback(self, errback) {
+		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
 		var errbackArgs = [], n = arguments.length-2;
 		while(n--) {
 			errbackArgs.push(arguments[n+2]);
@@ -180,6 +182,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addBoth(self, callback) {
+		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
 		var callbackArgs = [], n = arguments.length;
 		for (var i = 2; i < n; ++i) {
 			callbackArgs.push(arguments[i]);
@@ -228,7 +231,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 						self._callbacks = cb;
 						self._pauseLevel++;
 						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
-						self._result.addBoth(self._continueFunc, self);
+						self._result.addCallbacks(self._continueFunc, self._continueFunc, [self], [self]);
 						break;
 					}
 				} catch (e) {
@@ -403,12 +406,12 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 CW.Defer.gatherResults = function gatherResults(deferredList) {
 	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
 	// TODO: maybe use while(n--) loop, then reverse the array?
-	d.addCallback(function(results) {
+	d.addCallbacks(function(results) {
 		var undecorated = [];
 		for (var i = 0; i < results.length; ++i) {
 			undecorated.push(results[i][1]);
 		}
 		return undecorated;
-	});
+	}, null, [], []);
 	return d;
 };
