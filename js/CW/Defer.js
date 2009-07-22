@@ -204,7 +204,7 @@ CW.Defer.Deferred.prototype = {
 	/* There is no _pause(). Just raise the this._pauseLevel: this._pauseLevel++ */
 	/* There is no _unpause(). It's inlined into _continueFunc */
 	'_continueFunc': function(result, parentDeferred) {
-		/* inlined _continue */
+		/* inlined (what used to be) _continue() */
 		parentDeferred._result = result;
 		parentDeferred._pauseLevel--;
 		if (parentDeferred._pauseLevel) {
@@ -217,13 +217,13 @@ CW.Defer.Deferred.prototype = {
 	},
 
 	'_runCallbacks': function() {
-		var args, callback;
+		var args, callback, CWD = CW.Defer; /* last one is a JScript speedup */
 		if (!this._pauseLevel) {
 			var cb = this._callbacks;
 			this._callbacks = [];
 			while (cb.length) {
 				var item = cb.shift();
-				if (this._result instanceof CW.Defer.Failure) {
+				if (this._result instanceof CWD.Failure) {
 					callback = item[1];
 					args = item[3];
 				} else {
@@ -240,20 +240,20 @@ CW.Defer.Deferred.prototype = {
 				args.unshift(this._result);
 				try {
 					this._result = callback.apply(null, args);
-					if (this._result instanceof CW.Defer.Deferred) {
+					if (this._result instanceof CWD.Deferred) {
 						this._callbacks = cb;
 						this._pauseLevel++;
-						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
+						// Don't create a closure as Divmod.Defer did; they're somewhat expensive.
 						this._result.addCallbacks(this._continueFunc, this._continueFunc, [this], [this]);
 						break;
 					}
 				} catch (e) {
-					this._result = CW.Defer.Failure(e);
+					this._result = CWD.Failure(e);
 				}
 			}
 		}
 
-		if (this._result instanceof CW.Defer.Failure) {
+		if (this._result instanceof CWD.Failure) {
 			// This might be spurious
 			CW.err(this._result.error);
 		}
@@ -269,8 +269,9 @@ CW.Defer.Deferred.prototype = {
 	},
 
 	'errback': function(err) {
-		if (!(err instanceof CW.Defer.Failure)) {
-			err = new CW.Defer.Failure(err);
+		var Failure = CW.Defer.Failure; /* JScript speedup */
+		if (!(err instanceof Failure)) {
+			err = new Failure(err);
 		}
 		this.callback(err); /* Divmod.Defer called _startRunCallbacks */
 	}
@@ -347,45 +348,35 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 					  fireOnOneCallback /* = false */,
 					  fireOnOneErrback /* = false */,
 					  consumeErrors /* = false */) {
-		var dListLen = deferredList.length;
+		var num = deferredList.length;
 
-		self.resultList = new Array(dListLen);
+		self.resultList = new Array(num);
 		CW.Defer.DeferredList.upcall(self, '__init__', []);
 		// don't callback in the fireOnOneCallback case because the result
 		// type is different.
-		if (dListLen == 0 && !fireOnOneCallback) {
+		// TODO: need tests! It still passes with ` && !fireOnOneCallback` removed.
+		if (num == 0 && !fireOnOneCallback) {
 			self.callback(self.resultList);
-		}
-
-		if (fireOnOneCallback == undefined) {
-			fireOnOneCallback = false;
-		}
-
-		if (fireOnOneErrback == undefined) {
-			fireOnOneErrback = false;
-		}
-
-		if (consumeErrors == undefined) {
-			consumeErrors = false;
 		}
 
 		/* These flags need to be set *before* attaching callbacks to the
 		 * deferreds, because the callbacks use these flags, and will run
 		 * synchronously if any of the deferreds are already fired.
 		 */
-		self.fireOnOneCallback = fireOnOneCallback;
-		self.fireOnOneErrback = fireOnOneErrback;
-		self.consumeErrors = consumeErrors;
+		self.fireOnOneCallback = false ? !fireOnOneCallback : fireOnOneCallback;
+		self.fireOnOneErrback = false ? !fireOnOneErrback : fireOnOneErrback;
+		self.consumeErrors = false ? !consumeErrors : consumeErrors;
 		self.finishedCount = 0;
 
-		for (var index = 0; index < dListLen; ++index) {
-			deferredList[index].addCallbacks(
-				function(result, index) {
-					self._cbDeferred(result, true, index);
+		// It is safe to decrement `num' at this point.
+		while(num--) {
+			deferredList[num].addCallbacks(
+				function(result, num) {
+					self._cbDeferred(result, true, num);
 				},
-				function(err, index) {
-					self._cbDeferred(err, false, index);
-				}, [index], [index]
+				function(err, num) {
+					self._cbDeferred(err, false, num);
+				}, [num], [num]
 			);
 		}
 	},
