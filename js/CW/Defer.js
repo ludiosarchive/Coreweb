@@ -156,15 +156,8 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._called = false;
 		self._pauseLevel = 0;
 	},
-	function addCallbacks(self, callback, errback,
-						  callbackArgs, errbackArgs) {
-		if (!callbackArgs) {
-			callbackArgs = [];
-		}
-		if (!errbackArgs) {
-			errbackArgs = [];
-		}
-		self._callbacks.push([callback, errback, callbackArgs, errbackArgs]);
+	function addCallbacks(self, callback, errback, callbackArgs, errbackArgs) {
+		self._callbacks.push([callback, errback, callbackArgs?callbackArgs:[], errbackArgs?errbackArgs:[]]);
 		if (self._called) {
 			self._runCallbacks();
 		}
@@ -187,8 +180,8 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addBoth(self, callback) {
-		var callbackArgs = [];
-		for (var i = 2; i < arguments.length; ++i) {
+		var callbackArgs = [], n = arguments.length;
+		for (var i = 2; i < n; ++i) {
 			callbackArgs.push(arguments[i]);
 		}
 		self.addCallbacks(callback, callback, callbackArgs, callbackArgs);
