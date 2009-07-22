@@ -127,7 +127,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 * Test that L{assertThrows} raises an exception if its callable does
 	 * I{not} raise an exception, even when optional message assertion is passed in.
 	 */
-	function test_assertThrowsNoException(self) {
+	function test_assertThrowsNoExceptionOptionalMessage(self) {
 		var raised = true;
 		try {
 			self.assertThrows(CW.UnitTest.AssertionError,

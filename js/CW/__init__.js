@@ -1,5 +1,8 @@
 /* {LICENSE:primary,Nevow} */
 
+// TODO: remove this; use JS macros only.
+CW._debugMode = true;
+
 CW.vars = function(obj) {
 	var L = [];
 	for (var i in obj) {
@@ -127,13 +130,17 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	var className;
 	if (subclassName !== undefined) {
 		className = classNameOrModule.__name__ + '.' + subclassName;
+
+		if(CW._debugMode) {
+			if(classNameOrModule[subclassName] !== undefined) {
+				throw new Error("CW.Class.subclass: Won't overwrite " + className);
+			}
+		}
+		// Now define it so that it can actually be accessed later.
 		classNameOrModule[subclassName] = subClass;
 	} else {
 		className = classNameOrModule;
 	}
-
-	// TODO: check if subclass already exists (using namedAny? or directly?)
-	// and don't override it if it already exists.
 
 	var classIdentifier;
 	if(className === undefined) {
@@ -145,6 +152,15 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	subClass.upcall = function(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
+
+	if(CW._debugMode) {
+		subClass._alreadyDefinedMethods = {};
+		// Pretty much any object has a toString method. _alreadyDefinedMethods is used
+		// as a set to keep track of already-defined methods (to detect a programming error at
+		// runtime: where the same method name is accidentally used twice).
+		// For .method(function toString() {}) to work, toString must be made undefined here.
+		subClass._alreadyDefinedMethods.toString = undefined;
+	}
 
 	/*
 	 * Helper function for adding a method to the prototype.
@@ -161,18 +177,28 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		if (methodName == undefined) {
 			/* No C{methodFunction.name} in IE or Opera or earlier Safari, so try this workaround. */
 			var methodSource = methodFunction.toString();
-			methodName = methodSource.slice(methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
+			methodName = methodSource.slice(
+				methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
 		}
 
-		/*
-		 * Safari 4 supports displayName to name any function for the debugger/profiler.
-		 * It might work with Firebug in the future.
-		 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
-		 */
+		if(CW._debugMode) {
+			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
+				throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
+					subClass.__name__ + '.' + methodName);
+			}
 
-		// TODO: test that displayName is set. Only set displayName in debugging mode.
+			subClass._alreadyDefinedMethods[methodName] = true;
 
-		methodFunction.displayName = className + '.' + methodName;
+			/*
+			 * Safari 4 supports displayName to name any function for the debugger/profiler.
+			 * It might work with Firebug in the future.
+			 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
+			 */
+
+			// TODO: test that displayName is set. Only set displayName in debugging mode.
+
+			methodFunction.displayName = className + '.' + methodName;
+		}
 
 		subClass.prototype[methodName] = function() {
 			var args = [this];
