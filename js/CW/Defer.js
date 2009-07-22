@@ -7,8 +7,11 @@ _continue, _startRunCallbacks, _runCallbacks, _callbacks, _called, _result */
 /**
  * General limitations:
  *
- * JavaScript has no __del__, so we can't print out
+ * JavaScript has no __del__, so we can't (easily) print out
  * unhandled errors like twisted.internet.defer does.
+ *
+ * But it might still be possible, but having a buffer that logs
+ * error and removes them when errback fires
  */
 
 CW.Class.subclass(CW.Defer, 'AlreadyCalledError');
