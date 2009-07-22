@@ -240,8 +240,8 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 						self._callbacks = cb;
 						self._pause();
 						self._result.addBoth(function (r) {
-								self._continue(r);
-							});
+							self._continue(r);
+						});
 						break;
 					}
 				} catch (e) {
@@ -375,11 +375,14 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 		self.finishedCount = 0;
 
 		for (var index = 0; index < dListLen; ++index) {
-			deferredList[index].addCallbacks(function(result, index) {
-				self._cbDeferred(result, true, index);
-			}, function(err, index) {
-				self._cbDeferred(err, false, index);
-			}, [index], [index]);
+			deferredList[index].addCallbacks(
+				function(result, index) {
+					self._cbDeferred(result, true, index);
+				},
+				function(err, index) {
+					self._cbDeferred(err, false, index);
+				}, [index], [index]
+			);
 		}
 	},
 
@@ -415,6 +418,7 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
  */
 CW.Defer.gatherResults = function gatherResults(deferredList) {
 	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
+	// TODO: maybe use while(n--) loop, then reverse the array?
 	d.addCallback(function(results) {
 		var undecorated = [];
 		for (var i = 0; i < results.length; ++i) {
