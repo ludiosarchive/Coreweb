@@ -62,6 +62,9 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	 */
 	var superClass = this;
 
+	/* speed up access for JScript */
+	var constr = CW._CONSTRUCTOR;
+
 	/*
 	 * Create a function which basically serves the purpose of type.__call__ in Python:
 	 */
@@ -84,14 +87,14 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 			 * invoke C{new subClass(CW._CONSTRUCTOR)} to create an object
 			 * with the right prototype without invoking C{__init__}.
 			 */
-			self = new subClass(CW._CONSTRUCTOR);
+			self = new subClass(constr);
 		}
 		/*
 		 * Once we have an instance, if C{asConstructor} is not the magic internal
 		 * object C{CW._CONSTRUCTOR}, pass all our arguments on to the
 		 * instance's C{__init__}.
 		 */
-		if (asConstructor !== CW._CONSTRUCTOR) {
+		if (asConstructor !== constr) {
 			CW.__instanceCounter__++;
 
 			/* set an ID unique to this instance */
@@ -113,7 +116,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	/*
 	 * This is how you spell inheritance in JavaScript.
 	 */
-	subClass.prototype = new superClass(CW._CONSTRUCTOR);
+	subClass.prototype = new superClass(constr);
 
 	/*
 	 * Make the subclass subclassable in the same way.

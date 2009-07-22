@@ -171,16 +171,16 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addCallback(self, callback) {
-		var callbackArgs = [];
-		for (var i = 2; i < arguments.length; ++i) {
+		var callbackArgs = [], n = arguments.length;
+		for (var i = 2; i < n; ++i) {
 			callbackArgs.push(arguments[i]);
 		}
 		self.addCallbacks(callback, null, callbackArgs, null);
 		return self;
 	},
 	function addErrback(self, errback) {
-		var errbackArgs = [];
-		for (var i = 2; i < arguments.length; ++i) {
+		var errbackArgs = [], n = arguments.length;
+		for (var i = 2; i < n; ++i) {
 			errbackArgs.push(arguments[i]);
 		}
 		self.addCallbacks(null, errback, null, errbackArgs);
