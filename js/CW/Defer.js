@@ -1,6 +1,5 @@
 /* obfu-vars:
-_pauseLevel, _unpause, _pause, _isFailure, _isDeferred,
-_continue, _startRunCallbacks, _runCallbacks, _callbacks, _called, _result */
+_pauseLevel, _continue, _runCallbacks, _callbacks, _called, _result */
 
 // import CW
 
