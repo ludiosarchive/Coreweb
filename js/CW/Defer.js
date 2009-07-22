@@ -405,12 +405,12 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').pmethods({
 CW.Defer.gatherResults = function gatherResults(deferredList) {
 	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
 	// TODO: maybe use while(n--) loop, then reverse the array?
-	d.addCallbacks(function(results) {
+	d.addCallback(function(results) {
 		var undecorated = [];
 		for (var i = 0; i < results.length; ++i) {
 			undecorated.push(results[i][1]);
 		}
 		return undecorated;
-	}, null, [], []);
+	});
 	return d;
 };
