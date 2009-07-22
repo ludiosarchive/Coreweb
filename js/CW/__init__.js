@@ -3,14 +3,6 @@
 // TODO: remove this; use JS macros only.
 CW._debugMode = true;
 
-CW.vars = function(obj) {
-	var L = [];
-	for (var i in obj) {
-		L.push([i, obj[i]]);
-	}
-	return L;
-};
-
 
 CW.dir = function(obj) {
 	var L = [];
@@ -25,6 +17,7 @@ CW.__classDebugCounter__ = 0;
 
 /**
  * This tracks the number of instances of L{CW.Class} subclasses.
+ * This is incremented for each instantiation; never decremented.
  */
 CW.__instanceCounter__ = 0;
 
