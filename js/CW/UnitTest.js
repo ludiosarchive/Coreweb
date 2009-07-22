@@ -636,11 +636,6 @@ CW.UnitTest.TestCase.methods(
 
 		result.startTest(self);
 
-		//// XXX: This probably isn't the best place to put this, but it's the
-		//// only place for the time being; see #2806 for the proper way to deal
-		//// with this.
-		//////CW.Runtime.initRuntime(); // no runtime, thanks.
-
 		setUpD = self._maybeWrapWithDeferred(function(){return self.setUp();});
 
 		setUpD.addCallbacks(
