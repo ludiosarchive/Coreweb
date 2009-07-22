@@ -371,31 +371,28 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 		// It is safe to decrement `num' at this point.
 		while(num--) {
 			deferredList[num].addCallbacks(
-				function(result, num) {
-					self._cbDeferred(result, true, num);
-				},
-				function(err, num) {
-					self._cbDeferred(err, false, num);
-				}, [num], [num]
+				self._cbDeferred,
+				self._cbDeferred,
+				[self, true, num], [self, false, num]
 			);
 		}
 	},
 
-	function _cbDeferred(self, result, success, index) {
-		self.resultList[index] = [success, result];
+	function _cbDeferred(self, result, parentDeferred, success, index) {
+		parentDeferred.resultList[index] = [success, result];
 
-		self.finishedCount += 1;
-		if (!self._called) {
-			if (success && self.fireOnOneCallback) {
-				self.callback([result, index]);
-			} else if (!success && self.fireOnOneErrback) {
-				self.errback(new CW.Defer.FirstError(result, index));
-			} else if (self.finishedCount == self.resultList.length) {
-				self.callback(self.resultList);
+		parentDeferred.finishedCount += 1;
+		if (!parentDeferred._called) {
+			if (success && parentDeferred.fireOnOneCallback) {
+				parentDeferred.callback([result, index]);
+			} else if (!success && parentDeferred.fireOnOneErrback) {
+				parentDeferred.errback(new CW.Defer.FirstError(result, index));
+			} else if (parentDeferred.finishedCount == parentDeferred.resultList.length) {
+				parentDeferred.callback(parentDeferred.resultList);
 			}
 		}
 
-		if (!success && self.consumeErrors) {
+		if (!success && parentDeferred.consumeErrors) {
 			return null;
 		} else {
 			return result;
