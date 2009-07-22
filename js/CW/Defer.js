@@ -207,12 +207,10 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		}
 		self._runCallbacks();
 	},
-	function _continue(self, result) {
-		self._result = result;
-		self._unpause();
-	},
-	function _continueFunc(self, result, otherSelf) {
-		otherSelf._continue(result);
+	function _continueFunc(self, result, parentDeferred) {
+		/* inlined _continue */
+		parentDeferred._result = result;
+		parentDeferred._unpause();
 	},
 	function _runCallbacks(self) {
 		var args, callback;
@@ -267,7 +265,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._startRunCallbacks(result);
 	},
 	function errback(self, err) {
-		if (!err instanceof CW.Defer.Failure) {
+		if (!(err instanceof CW.Defer.Failure)) {
 			err = new CW.Defer.Failure(err);
 		}
 		self._startRunCallbacks(err);
