@@ -790,7 +790,20 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 		self.assertArraysEqual(self.getTestIDs(suite), ['MockThis.SomeTestCase.test_method']);
 
 		// TODO: need to implement "unclean reactor" style errors that barf if you left deferreds
+	},
+
+	/**
+	 * Test that C{loadFromModules} returns an empty suite when given multiple
+	 * empty modules.
+	 */
+	function test_loadFromModulesEmpty(self) {
+		var module1 = {}, module2 = {};
+		var suite = CW.UnitTest.loadFromModules([module1, module2]);
+
+		self.assertIdentical(suite.countTestCases(), 0);
 	}
+
+	// TODO: more loadFromModules tests.
 );
 
 

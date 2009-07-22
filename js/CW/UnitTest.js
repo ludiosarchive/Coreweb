@@ -58,7 +58,7 @@ CW.UnitTest.loadFromModule = function loadFromModule(testModule) {
 
 
 /**
- * Return a suite which contains every test defined in array C{testModules}.
+ * Return a suite which contains every test in every module in array C{testModules}.
  */
 CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 	var suite = CW.UnitTest.TestSuite();
