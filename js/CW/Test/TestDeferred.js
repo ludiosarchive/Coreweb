@@ -136,7 +136,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 		var d = new CW.Defer.Deferred();
 
-		d.addCallbacks(thisCaller, thatCaller);
+		d.addCallbacks(thisCaller, thatCaller, [], []);
 		d.callback(true);
 
 		self.assert(thisCalled);
@@ -145,7 +145,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		thisCalled = thatCalled = false;
 
 		d = new CW.Defer.Deferred();
-		d.addCallbacks(thisCaller, thatCaller);
+		d.addCallbacks(thisCaller, thatCaller, [], []);
 		d.errback(new CW.Defer.Failure(Error("Test error for errback testing")));
 
 		self.assert(!thisCalled);
@@ -179,7 +179,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(
 			function(result) {
 				callbackResult = result;
-			}
+			}, null, [], []
 		);
 		self.assertIdentical(callbackResult, "callback");
 	},

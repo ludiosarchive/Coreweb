@@ -581,7 +581,8 @@ CW.UnitTest.TestCase.methods(
 					}
 				}
 				self.fail("Expected " + errorTypes + ", got " + err);
-			}
+			},
+			[], []
 		);
 	},
 
@@ -723,7 +724,9 @@ CW.UnitTest.TestCase.methods(
 			/* errback */
 			function(aFailure){
 				result.addError(self, aFailure.error);
-			}
+			},
+
+			[], []
 
 		);
 

@@ -157,8 +157,11 @@ CW.Defer.Deferred.prototype = {
 		this._called = false;
 		this._pauseLevel = 0;
 	},
-	'addCallbacks': function(callback, errback, callbackArgs, errbackArgs) {
-		this._callbacks.push([callback, errback, callbackArgs?callbackArgs:[], errbackArgs?errbackArgs:[]]);
+	'addCallbacks': function(/* callback, errback, callbackArgs, errbackArgs */) {
+		// use `arguments' so that JScript doesn't have to create 4 local variables.
+		// TODO: need to verify that this really doesn't have adverse effects
+		// (keeping an activation object alive)
+		this._callbacks.push(arguments);
 		if (this._called) {
 			this._runCallbacks();
 		}
@@ -171,13 +174,13 @@ CW.Defer.Deferred.prototype = {
 	'addCallback': function(callback) {
 		var callbackArgs = Array.prototype.slice.call(arguments);
 		callbackArgs.shift();
-		this.addCallbacks(callback, null, callbackArgs, null);
+		this.addCallbacks(callback, null, callbackArgs, []);
 		return this;
 	},
 	'addErrback': function(errback) {
 		var errbackArgs = Array.prototype.slice.call(arguments);
 		errbackArgs.shift();
-		this.addCallbacks(null, errback, null, errbackArgs);
+		this.addCallbacks(null, errback, [], errbackArgs);
 		return this;
 	},
 	'addBoth': function(callback) {
@@ -215,6 +218,7 @@ CW.Defer.Deferred.prototype = {
 					args = item[2];
 				}
 
+				// Skip over undefined or null callbacks (often there is only a callback, or only an errback).
 				if (callback == null) {
 					continue;
 				}
