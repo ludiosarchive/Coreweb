@@ -9,8 +9,6 @@
 // import CW
 // import CW.Inspect
 
-// necessary to avoid window namespace pollution in IE
-(function(){
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -1280,5 +1278,3 @@ CW.UnitTest.installMonkeys = function() {
 
 	return installD;
 }
-
-})();
