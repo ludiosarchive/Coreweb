@@ -359,9 +359,10 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').pmethods({
 		 * deferreds, because the callbacks use these flags, and will run
 		 * synchronously if any of the deferreds are already fired.
 		 */
-		this.fireOnOneCallback = false ? !fireOnOneCallback : fireOnOneCallback;
-		this.fireOnOneErrback = false ? !fireOnOneErrback : fireOnOneErrback;
-		this.consumeErrors = false ? !consumeErrors : consumeErrors;
+		// undefined (for optional arguments) -> false.
+		this.fireOnOneCallback = !!fireOnOneCallback;
+		this.fireOnOneErrback = !!fireOnOneErrback;
+		this.consumeErrors = !!consumeErrors;
 		this.finishedCount = 0;
 
 		// It is safe to decrement `num' at this point.
