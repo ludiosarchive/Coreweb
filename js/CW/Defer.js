@@ -215,17 +215,18 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._unpause();
 	},
 	function _runCallbacks(self) {
+		var args, callback;
 		if (!self._pauseLevel) {
 			var cb = self._callbacks;
 			self._callbacks = [];
 			while (cb.length) {
 				var item = cb.shift();
 				if (self._isFailure(self._result)) {
-					var callback = item[1];
-					var args = item[3];
+					callback = item[1];
+					args = item[3];
 				} else {
-					var callback = item[0];
-					var args = item[2];
+					callback = item[0];
+					args = item[2];
 				}
 
 				if (callback == null) {
