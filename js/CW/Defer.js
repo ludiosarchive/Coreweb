@@ -164,33 +164,25 @@ CW.Defer.Deferred.prototype = {
 		}
 		return this;
 	},
+	/**
+	 * addCallback, addErrback, and addBoth are convenience methods;
+	 * avoid them for production code, unless speed with JScript doesn't matter.
+	 */
 	'addCallback': function(callback) {
-		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var callbackArgs = [], n = arguments.length-1;
-		while(n--) {
-			callbackArgs.push(arguments[n+1]);
-		}
-		this.addCallbacks(callback, null, callbackArgs.reverse(), null);
+		var callbackArgs = Array.prototype.slice.call(arguments);
+		callbackArgs.shift();
+		this.addCallbacks(callback, null, callbackArgs, null);
 		return this;
 	},
 	'addErrback': function(errback) {
-		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var errbackArgs = [], n = arguments.length-1;
-		while(n--) {
-			errbackArgs.push(arguments[n+1]);
-		}
-		this.addCallbacks(null, errback, null, errbackArgs.reverse());
+		var errbackArgs = Array.prototype.slice.call(arguments);
+		errbackArgs.shift();
+		this.addCallbacks(null, errback, null, errbackArgs);
 		return this;
 	},
 	'addBoth': function(callback) {
-		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var callbackArgs = [], n = arguments.length-1;
-		while(n--) {
-			callbackArgs.push(arguments[n+1]);
-		}
-		// REVERSE ONCE!
-		callbackArgs.reverse();
-		// TODO: add a unit test to make sure that addBoth(func, arg1) actually works.
+		var callbackArgs = Array.prototype.slice.call(arguments);
+		callbackArgs.shift();
 		this.addCallbacks(callback, callback, callbackArgs, callbackArgs);
 		return this;
 	},
