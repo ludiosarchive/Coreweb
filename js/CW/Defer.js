@@ -194,23 +194,19 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self.addCallbacks(callback, callback, callbackArgs, callbackArgs);
 		return self;
 	},
-	function _pause(self) {
-		self._pauseLevel++;
-	},
-	function _unpause(self) {
-		self._pauseLevel--;
-		if (self._pauseLevel) {
-			return;
-		}
-		if (!self._called) {
-			return;
-		}
-		self._runCallbacks();
-	},
+	/* There is no _pause(). Just raise the self._pauseLevel: self._pauseLevel++ */
+	/* There is no _unpause(). It's inlined into _continueFunc */
 	function _continueFunc(self, result, parentDeferred) {
 		/* inlined _continue */
 		parentDeferred._result = result;
-		parentDeferred._unpause();
+		parentDeferred._pauseLevel--;
+		if (parentDeferred._pauseLevel) {
+			return;
+		}
+		if (!parentDeferred._called) {
+			return;
+		}
+		parentDeferred._runCallbacks();
 	},
 	function _runCallbacks(self) {
 		var args, callback;
@@ -237,7 +233,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 					self._result = callback.apply(null, args);
 					if (self._result instanceof CW.Defer.Deferred) {
 						self._callbacks = cb;
-						self._pause();
+						self._pauseLevel++;
 						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
 						self._result.addBoth(self._continueFunc, self);
 						break;
