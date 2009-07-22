@@ -237,7 +237,7 @@ there';
 //
 //		var allResponseTexts = [];
 //
-//		var d = CW.Defer.Deferred();
+//		var d = new CW.Defer.Deferred();
 //
 //		var stateCounters = {};
 //

@@ -21,26 +21,26 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	},
 
 	function setUp(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
 		return d;
 	},
 
 	function test_good(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'test '; d.callback(null);}, 0);
 		//print('installed the setTimeout.<br>');
 		return d;
 	},
 
 	function test_bad(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.errback(self.getFailError("fail this test deliberately")); }, 0);
 		return d;
 	},
 
 	function test_error(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.errback(CW.Error("error")); }, 0);
 		return d;
 	},
@@ -48,7 +48,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	/* TODO: test Failure in addition to error? */
 
 	function tearDown(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
 		return d;
 	}
@@ -63,19 +63,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 	},
 
 	function setUp(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.errback(new Error("failed setup"));}, 0);
 		return d;
 	},
 
 	function test_method(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
 		return d;
 	},
 
 	function tearDown(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
 		return d;
 	}
@@ -90,19 +90,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 	},
 
 	function setUp(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
 		return d;
 	},
 
 	function test_method(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
 		return d;
 	},
 
 	function tearDown(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.errback(self.getFailError('deliberate fail in tearDown')); }, 0);
 		return d;
 	}
@@ -113,7 +113,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
 	function test_method(self) {
 		setTimeout(function(){}, 30); // was 300
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.callback(null);}, 0);
 		return d;
 	}
@@ -124,7 +124,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setIntervalLoose').methods(
 	function test_method(self) {
 		setInterval(function(){}, 0);
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.callback(null);}, 25);
 		return d;
 	}

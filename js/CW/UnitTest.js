@@ -976,7 +976,7 @@ CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
 CW.UnitTest.SerialVisitor.methods(
 	function traverse(self, visitor, tests) {
 //		print('Using SerialVisitor on ' + tests);
-		var completionDeferred = CW.Defer.Deferred();
+		var completionDeferred = new CW.Defer.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
 	},
@@ -1020,7 +1020,7 @@ CW.UnitTest.SerialVisitor.methods(
 //CW.UnitTest.SerialVisitor.methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
-//		var completionDeferred = CW.Defer.Deferred();
+//		var completionDeferred = new CW.Defer.Deferred();
 //		self._traverse(visitor, tests, completionDeferred);
 //		return completionDeferred;
 //	},
@@ -1181,7 +1181,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 CW.UnitTest.installMonkeys = function() {
 	//print('installMonkeys');
 
-	var installD = CW.Defer.Deferred();
+	var installD = new CW.Defer.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
 		CW.debug('Monkeys already installed or being installed.');
@@ -1213,7 +1213,7 @@ CW.UnitTest.installMonkeys = function() {
 		window.clearInterval = CW.UnitTest.clearIntervalMonkey;
 		installD.callback(null);
 	} else {
-		CW.UnitTest._iframeReady = CW.Defer.Deferred();
+		CW.UnitTest._iframeReady = new CW.Defer.Deferred();
 
 		/*
 		 * This special frame keeps unmodified versions of setTimeout,

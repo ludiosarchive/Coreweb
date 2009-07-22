@@ -66,7 +66,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 
 	function test_assertFailureImmediate(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		d.errback(Error("Throwing an Error.")); // right now
 		self.assertFailure(d, [Error]);
 		return d;
@@ -78,7 +78,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 
 	function test_assertFailureDelayed(self) {
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.errback(Error("Throwing an Error."));}, 10);
 		self.assertFailure(d, [Error]);
 		return d;
@@ -1039,7 +1039,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
 
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 
 		setTimeout(function() {
 			// Do this try/catch/errback to avoid breaking the test runner
@@ -1092,7 +1092,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
 
-		var d = CW.Defer.Deferred();
+		var d = new CW.Defer.Deferred();
 
 		setTimeout(function() {
 			// Do this try/catch/errback to avoid breaking the test runner
