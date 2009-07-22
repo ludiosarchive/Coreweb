@@ -45,16 +45,29 @@ CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 /**
  * Return a suite which contains every test defined in C{testModule}.
  */
-CW.UnitTest.loadFromModule = function loadFromModule(testModule, moduleOfModules /*=false*/) {
+CW.UnitTest.loadFromModule = function loadFromModule(testModule) {
 	var suite = CW.UnitTest.TestSuite();
 	for (var name in testModule) {
-		if(!moduleOfModules) {
+		if (CW.UnitTest.isTestCaseClass(testModule[name])) {
+			suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
+		}
+	}
+	return suite;
+};
+
+
+
+/**
+ * Return a suite which contains every test defined in array C{testModules}.
+ */
+CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
+	var suite = CW.UnitTest.TestSuite();
+	for (var i in testModules) {
+		var testModule = testModules[i];
+		for (var name in testModule) {
 			if (CW.UnitTest.isTestCaseClass(testModule[name])) {
 				suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
 			}
-		} else {
-			// There's no "is a module" flag so this is kind of an ugly hack
-			suite.addTest(CW.UnitTest.loadFromModule(testModule[name]));
 		}
 	}
 	return suite;

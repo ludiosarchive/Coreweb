@@ -23,19 +23,6 @@ __CW_x.c1 = __CW_x.c();
 <script>
 __CW_x.se = +new Date; /* scripts end */
 
-// TODO: move to UnitTest.js
-
-function arrayToFakeModule(arr) {
-	var fakeModule = {};
-	var count = arr.length;
-	while(count--) {
-		CW.log("Adding to fakeModule:", arr[count].__name__);
-		fakeModule[arr[count].__name__] = arr[count];
-	}
-	return fakeModule;
-}
-
-
 // TODO: use CW log observer code
 
 // doesn't work well because UnitTest.js is print()ing HTML right now :(
@@ -62,7 +49,7 @@ function _startTests() {
 	print('Running tests.<br>');
 
 	var modules = /**/modules//
-	var suite = CW.UnitTest.loadFromModule(arrayToFakeModule(modules), true /*moduleOfModules*/);
+	var suite = CW.UnitTest.loadFromModules(modules);
 
 	var d = CW.UnitTest.run(suite);
 //	d.addCallbacks(function(){document.body.style.backgroundColor = 'green';}, function(){});
