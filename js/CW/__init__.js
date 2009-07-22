@@ -126,9 +126,15 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 	/*
 	 * Support both new and old-style subclassing.
+	 *
+	 * New-style takes fewer bytes.
+	 *
+	 * Old-style is still useful (especially for unit testing UnitTest) because it doesn't
+	 * bind the class to a property, it only returns it.
 	 */
 	var className;
 	if (subclassName !== undefined) {
+		/* new style subclassing */
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
 		if(CW._debugMode) {
@@ -139,6 +145,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		// Now define it so that it can actually be accessed later.
 		classNameOrModule[subclassName] = subClass;
 	} else {
+		/* old style subclassing */
 		className = classNameOrModule;
 	}
 

@@ -377,7 +377,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 
 
-
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 	/*
@@ -406,5 +405,61 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 		self.assertArraysEqual([9, 6, 3], b.food);
 
+	}
+);
+
+
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
+
+	/**
+	 * Trying to create methods with the same name raises an error.
+	 */
+	function test_noOverwrite(self) {
+		if(CW._debugMode) {
+
+			var TempClass = CW.Class.subclass('TempClass');
+
+			var makeSameMethodName = function() {
+				TempClass.methods(
+					function aMethod(self, differentArity) {
+
+					},
+
+					function aMethod(self) {
+
+					}
+				);
+			}
+
+			self.assertThrows(Error, makeSameMethodName);
+
+		}
+	},
+
+	/**
+	 * Make sure that nobody took any shortcuts in the implementation:
+	 * overlap should be detected even for toString
+	 */
+	function test_noOverwriteToString(self) {
+		if(CW._debugMode) {
+
+			var TempClass = CW.Class.subclass('TempClass');
+
+			var makeSameMethodName = function() {
+				TempClass.methods(
+					function toString(self) {
+						return 1;
+					},
+
+					function toString(self) {
+						return 2;
+					}
+				);
+			}
+
+			self.assertThrows(Error, makeSameMethodName);
+
+		}
 	}
 );
