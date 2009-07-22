@@ -198,7 +198,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
 		 */
 
-		// TODO: test that displayName is set
+		// TODO: test that displayName is set. Only set displayName in debugging mode.
 
 		methodFunction.displayName = className + '.' + methodName;
 
