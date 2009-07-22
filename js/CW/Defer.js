@@ -150,49 +150,54 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 	}
 );
 
-CW.Class.subclass(CW.Defer, 'Deferred').methods(
-	function __init__(self) {
-		self._callbacks = [];
-		self._called = false;
-		self._pauseLevel = 0;
+CW.Class.subclass(CW.Defer, 'Deferred')
+
+CW.Defer.Deferred.prototype = {
+	'__init__': function() {
+		this._callbacks = [];
+		this._called = false;
+		this._pauseLevel = 0;
 	},
-	function addCallbacks(self, callback, errback, callbackArgs, errbackArgs) {
-		self._callbacks.push([callback, errback, callbackArgs?callbackArgs:[], errbackArgs?errbackArgs:[]]);
-		if (self._called) {
-			self._runCallbacks();
+	'addCallbacks': function(callback, errback, callbackArgs, errbackArgs) {
+		this._callbacks.push([callback, errback, callbackArgs?callbackArgs:[], errbackArgs?errbackArgs:[]]);
+		if (this._called) {
+			this._runCallbacks();
 		}
-		return self;
+		return this;
 	},
-	function addCallback(self, callback) {
+	'addCallback': function(callback) {
 		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var callbackArgs = [], n = arguments.length-2;
+		var callbackArgs = [], n = arguments.length-1;
 		while(n--) {
-			callbackArgs.push(arguments[n+2]);
+			callbackArgs.push(arguments[n+1]);
 		}
-		self.addCallbacks(callback, null, callbackArgs.reverse(), null);
-		return self;
+		this.addCallbacks(callback, null, callbackArgs.reverse(), null);
+		return this;
 	},
-	function addErrback(self, errback) {
+	'addErrback': function(errback) {
 		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var errbackArgs = [], n = arguments.length-2;
+		var errbackArgs = [], n = arguments.length-1;
 		while(n--) {
-			errbackArgs.push(arguments[n+2]);
+			errbackArgs.push(arguments[n+1]);
 		}
-		self.addCallbacks(null, errback, null, errbackArgs.reverse());
-		return self;
+		this.addCallbacks(null, errback, null, errbackArgs.reverse());
+		return this;
 	},
-	function addBoth(self, callback) {
+	'addBoth': function(callback) {
 		/* convenience method; avoid it for production code, unless JScript speed doesn't matter. */
-		var callbackArgs = [], n = arguments.length;
-		for (var i = 2; i < n; ++i) {
-			callbackArgs.push(arguments[i]);
+		var callbackArgs = [], n = arguments.length-1;
+		while(n--) {
+			callbackArgs.push(arguments[n+1]);
 		}
-		self.addCallbacks(callback, callback, callbackArgs, callbackArgs);
-		return self;
+		// REVERSE ONCE!
+		callbackArgs.reverse();
+		// TODO: add a unit test to make sure that addBoth(func, arg1) actually works.
+		this.addCallbacks(callback, callback, callbackArgs, callbackArgs);
+		return this;
 	},
-	/* There is no _pause(). Just raise the self._pauseLevel: self._pauseLevel++ */
+	/* There is no _pause(). Just raise the this._pauseLevel: this._pauseLevel++ */
 	/* There is no _unpause(). It's inlined into _continueFunc */
-	function _continueFunc(self, result, parentDeferred) {
+	'_continueFunc': function(result, parentDeferred) {
 		/* inlined _continue */
 		parentDeferred._result = result;
 		parentDeferred._pauseLevel--;
@@ -204,14 +209,14 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		}
 		parentDeferred._runCallbacks();
 	},
-	function _runCallbacks(self) {
+	'_runCallbacks': function() {
 		var args, callback;
-		if (!self._pauseLevel) {
-			var cb = self._callbacks;
-			self._callbacks = [];
+		if (!this._pauseLevel) {
+			var cb = this._callbacks;
+			this._callbacks = [];
 			while (cb.length) {
 				var item = cb.shift();
-				if (self._result instanceof CW.Defer.Failure) {
+				if (this._result instanceof CW.Defer.Failure) {
 					callback = item[1];
 					args = item[3];
 				} else {
@@ -224,42 +229,42 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 				}
 
 				// prepend the result to the callback arguments
-				args.unshift(self._result);
+				args.unshift(this._result);
 				try {
-					self._result = callback.apply(null, args);
-					if (self._result instanceof CW.Defer.Deferred) {
-						self._callbacks = cb;
-						self._pauseLevel++;
+					this._result = callback.apply(null, args);
+					if (this._result instanceof CW.Defer.Deferred) {
+						this._callbacks = cb;
+						this._pauseLevel++;
 						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
-						self._result.addCallbacks(self._continueFunc, self._continueFunc, [self], [self]);
+						this._result.addCallbacks(this._continueFunc, this._continueFunc, [this], [this]);
 						break;
 					}
 				} catch (e) {
-					self._result = CW.Defer.Failure(e);
+					this._result = CW.Defer.Failure(e);
 				}
 			}
 		}
 
-		if (self._result instanceof CW.Defer.Failure) {
+		if (this._result instanceof CW.Defer.Failure) {
 			// This might be spurious
-			CW.err(self._result.error);
+			CW.err(this._result.error);
 		}
 	},
-	function callback(self, result) {
-		if (self._called) {
+	'callback': function(result) {
+		if (this._called) {
 			throw new CW.Defer.AlreadyCalledError();
 		}
-		self._called = true;
-		self._result = result;
-		self._runCallbacks();
+		this._called = true;
+		this._result = result;
+		this._runCallbacks();
 	},
-	function errback(self, err) {
+	'errback': function(err) {
 		if (!(err instanceof CW.Defer.Failure)) {
 			err = new CW.Defer.Failure(err);
 		}
-		self.callback(err); /* Divmod.Defer called _startRunCallbacks */
+		this.callback(err); /* Divmod.Defer called _startRunCallbacks */
 	}
-);
+}
 
 CW.Defer.succeed = function succeed(result) {
 	var d = new CW.Defer.Deferred();
