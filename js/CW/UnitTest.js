@@ -1104,8 +1104,8 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 	var ticket = null;
 
-	if(window.setTimeout_bak) {
-		ticket = setTimeout_bak(function(){replacementCallable.call(ticket, [])}, when);
+	if(window.__CW_setTimeout_bak) {
+		ticket = __CW_setTimeout_bak(function(){replacementCallable.call(ticket, [])}, when);
 	} else if(window.frames[0] && window.frames[0].setTimeout) {
 		ticket = window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
 	} else {
@@ -1125,8 +1125,8 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 
 	var ticket = null;
 
-	if(window.setInterval_bak) {
-		ticket = setInterval_bak(callable, when);
+	if(window.__CW_setInterval_bak) {
+		ticket = __CW_setInterval_bak(callable, when);
 	} else if(window.frames[0] && window.frames[0].setInterval) {
 		ticket = window.frames[0].setInterval(callable, when);
 	} else {
@@ -1144,8 +1144,8 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	var output = null;
 
-	if(window.clearTimeout_bak) {
-		output = clearTimeout_bak(ticket);
+	if(window.__CW_clearTimeout_bak) {
+		output = __CW_clearTimeout_bak(ticket);
 	} else if(window.frames[0] && window.frames[0].clearTimeout) {
 		output = window.frames[0].clearTimeout(ticket);
 	} else {
@@ -1162,12 +1162,12 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	var output = null;
 
-	if(window.clearInterval_bak) {
-		output = clearInterval_bak(ticket);
+	if(window.__CW_clearInterval_bak) {
+		output = __CW_clearInterval_bak(ticket);
 	} else if(window.frames[0] && window.frames[0].clearInterval) {
 		output = window.frames[0].clearInterval(ticket);
 	} else {
-		throw new Error("neither clearInterval_bak nor window.frames[0].clearInterval was available.");
+		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
@@ -1199,15 +1199,17 @@ CW.UnitTest.installMonkeys = function() {
 	if('\v' !== 'v') { // if not IE
 		// TODO: build a CW.Support module that has
 		// "supportsSetTimeoutReferenceSwap" instead of making all these IE assumptions
-
-		window.setTimeout_bak = window.setTimeout;
+		
+		// These "backup" references to the real functions must be properties of window,
+		// at least for Firefox 3.5.
+		window.__CW_setTimeout_bak = window.setTimeout;
 		window.setTimeout = CW.UnitTest.setTimeoutMonkey;
-		window.clearTimeout_bak = window.clearTimeout;
+		window.__CW_clearTimeout_bak = window.clearTimeout;
 		window.clearTimeout = CW.UnitTest.clearTimeoutMonkey;
 
-		window.setInterval_bak = window.setInterval;
+		window.__CW_setInterval_bak = window.setInterval;
 		window.setInterval = CW.UnitTest.setIntervalMonkey;
-		window.clearInterval_bak = window.clearInterval;
+		window.__CW_clearInterval_bak = window.clearInterval;
 		window.clearInterval = CW.UnitTest.clearIntervalMonkey;
 		installD.callback(null);
 	} else {
@@ -1245,8 +1247,8 @@ CW.UnitTest.installMonkeys = function() {
 			throw new Error("window.frames.length was " + numFrames);
 		}
 
-		CW.UnitTest._iframeReady.addCallback(function(){
-			print('_iframeReady triggered.');
+		function _IE_finishInstallMonkeys() {
+			CW.debug('_iframeReady triggered.');
 			execScript('\
 				function setTimeout(callable, when) {\
 					return CW.UnitTest.setTimeoutMonkey(callable, when);\
@@ -1261,8 +1263,11 @@ CW.UnitTest.installMonkeys = function() {
 					return CW.UnitTest.clearIntervalMonkey(ticket);\
 				}'
 			);
+
 			installD.callback(null);
-		});
+		}
+
+		CW.UnitTest._iframeReady.addCallback(_IE_finishInstallMonkeys);
 	}
 
 	return installD;
