@@ -167,26 +167,34 @@ CW.Defer.Deferred.prototype = {
 		}
 		return this;
 	},
-	/**
-	 * addCallback, addErrback, and addBoth are convenience methods;
-	 * avoid them for production code, unless speed with JScript doesn't matter.
-	 */
 	'addCallback': function(callback) {
 		var callbackArgs = Array.prototype.slice.call(arguments);
 		callbackArgs.shift();
-		this.addCallbacks(callback, null, callbackArgs, []);
+		/* inlined a part of addCallbacks */
+		this._callbacks.push([callback, null, callbackArgs, []]);
+		if (this._called) {
+			this._runCallbacks();
+		}
 		return this;
 	},
 	'addErrback': function(errback) {
 		var errbackArgs = Array.prototype.slice.call(arguments);
 		errbackArgs.shift();
-		this.addCallbacks(null, errback, [], errbackArgs);
+		/* inlined a part of addCallbacks */
+		this._callbacks.push([null, errback, [], errbackArgs]);
+		if (this._called) {
+			this._runCallbacks();
+		}
 		return this;
 	},
 	'addBoth': function(callback) {
 		var callbackArgs = Array.prototype.slice.call(arguments);
 		callbackArgs.shift();
-		this.addCallbacks(callback, callback, callbackArgs, callbackArgs);
+		/* inlined a part of addCallbacks */
+		this._callbacks.push([callback, callback, callbackArgs, callbackArgs]);
+		if (this._called) {
+			this._runCallbacks();
+		}
 		return this;
 	},
 	/* There is no _pause(). Just raise the this._pauseLevel: this._pauseLevel++ */
