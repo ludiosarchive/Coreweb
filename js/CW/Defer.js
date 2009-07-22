@@ -164,19 +164,19 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		return self;
 	},
 	function addCallback(self, callback) {
-		var callbackArgs = [], n = arguments.length;
-		for (var i = 2; i < n; ++i) {
-			callbackArgs.push(arguments[i]);
+		var callbackArgs = [], n = arguments.length-2;
+		while(n--) {
+			callbackArgs.push(arguments[n+2]);
 		}
-		self.addCallbacks(callback, null, callbackArgs, null);
+		self.addCallbacks(callback, null, callbackArgs.reverse(), null);
 		return self;
 	},
 	function addErrback(self, errback) {
-		var errbackArgs = [], n = arguments.length;
-		for (var i = 2; i < n; ++i) {
-			errbackArgs.push(arguments[i]);
+		var errbackArgs = [], n = arguments.length-2;
+		while(n--) {
+			errbackArgs.push(arguments[n+2]);
 		}
-		self.addCallbacks(null, errback, null, errbackArgs);
+		self.addCallbacks(null, errback, null, errbackArgs.reverse());
 		return self;
 	},
 	function addBoth(self, callback) {

@@ -204,8 +204,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 					args.push(arguments[n]);
 				}
 				args.push(this);
-				args.reverse();
-				return methodFunction.apply(this, args);
+				return methodFunction.apply(this, args.reverse());
 			} else {
 				return methodFunction.apply(this, [this]);
 			}
