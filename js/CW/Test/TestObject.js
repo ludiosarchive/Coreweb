@@ -31,7 +31,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 		BetterEater.methods(
 			function __init__(self, foodFactory) {
-				BetterEater.upcall(self, "__init__", foodFactory);
+				BetterEater.upcall(self, "__init__", [foodFactory]);
 				self.food += 10;
 			});
 

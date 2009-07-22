@@ -163,15 +163,8 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 //		}
 //	}
 
-	subClass.upcall = function(otherThis, methodName) {
-		/* TODO: maybe build an upcall that doesn't create a new list with a for loop.
-		* (just pass in argument list)  */
-		var funcArgs = [];
-		for (var i = 2; i < arguments.length; ++i) {
-			funcArgs.push(arguments[i]);
-		}
-		var superResult = superClass.prototype[methodName].apply(otherThis, funcArgs);
-		return superResult;
+	subClass.upcall = function(otherThis, methodName, funcArgs) {
+		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
 
 	/*

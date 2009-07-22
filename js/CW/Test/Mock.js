@@ -14,7 +14,7 @@
 CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._WasRun.upcall(self, '__init__', methodName);
+		CW.Test.Mock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -43,7 +43,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._BadSetUp.upcall(self, '__init__', methodName);
+		CW.Test.Mock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -64,7 +64,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._BadTearDown.upcall(self, '__init__', methodName);
+		CW.Test.Mock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {

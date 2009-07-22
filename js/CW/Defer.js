@@ -300,7 +300,7 @@ CW.Defer.fail = function fail(err) {
  */
 CW.Error.subclass(CW.Defer, 'FirstError').methods(
 	function __init__(self, err, index) {
-		CW.Defer.FirstError.upcall(self, '__init__');
+		CW.Defer.FirstError.upcall(self, '__init__', []);
 		self.err = err;
 		self.index = index;
 	},
@@ -349,7 +349,7 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 		var dListLen = deferredList.length;
 
 		self.resultList = new Array(dListLen);
-		CW.Defer.DeferredList.upcall(self, '__init__');
+		CW.Defer.DeferredList.upcall(self, '__init__', []);
 		// don't callback in the fireOnOneCallback case because the result
 		// type is different.
 		if (dListLen == 0 && !fireOnOneCallback) {

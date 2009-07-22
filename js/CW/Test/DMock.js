@@ -17,7 +17,7 @@
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._WasRun.upcall(self, '__init__', methodName);
+		CW.Test.DMock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -59,7 +59,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._BadSetUp.upcall(self, '__init__', methodName);
+		CW.Test.DMock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -86,7 +86,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._BadTearDown.upcall(self, '__init__', methodName);
+		CW.Test.DMock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
