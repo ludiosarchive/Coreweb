@@ -289,8 +289,9 @@ CW.Error.methods(
 /**
  * Sequence container index out of bounds.
  */
+/* // commented out until we need it, if ever
 CW.IndexError = CW.Error.subclass("CW.IndexError");
-
+*/
 
 /**
  * Base class for all warning classes.

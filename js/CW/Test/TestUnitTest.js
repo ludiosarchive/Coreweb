@@ -149,10 +149,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 * the wrong kind of exception.
 	 */
 	function test_assertThrowsWrongException(self) {
+		var IndexError = CW.Error.subclass("IndexError");
 		var raised = true;
 		try {
 			self.assertThrows(CW.UnitTest.AssertionError,
-							  function () { throw CW.IndexError(); });
+							  function () { throw IndexError(); });
 			raised = false;
 		} catch (e) {
 			if (!(e instanceof CW.UnitTest.AssertionError)) {
@@ -171,9 +172,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assertThrowsWrongMessage(self) {
 		var raised = true;
+		var IndexError = CW.Error.subclass("IndexError");
 		try {
-			self.assertThrows(CW.IndexError,
-							  function () { throw CW.IndexError("correct message"); }, "wrong message");
+			self.assertThrows(IndexError,
+							  function () { throw IndexError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
 			if (!(e instanceof CW.UnitTest.AssertionError)) {
