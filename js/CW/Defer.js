@@ -207,12 +207,6 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		}
 		self._runCallbacks();
 	},
-	function _isFailure(self, obj) {
-		return (obj instanceof CW.Defer.Failure);
-	},
-	function _isDeferred(self, obj) {
-		return (obj instanceof CW.Defer.Deferred);
-	},
 	function _continue(self, result) {
 		self._result = result;
 		self._unpause();
@@ -227,7 +221,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 			self._callbacks = [];
 			while (cb.length) {
 				var item = cb.shift();
-				if (self._isFailure(self._result)) {
+				if (self._result instanceof CW.Defer.Failure) {
 					callback = item[1];
 					args = item[3];
 				} else {
@@ -243,7 +237,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 				args.unshift(self._result);
 				try {
 					self._result = callback.apply(null, args);
-					if (self._isDeferred(self._result)) {
+					if (self._result instanceof CW.Defer.Deferred) {
 						self._callbacks = cb;
 						self._pause();
 						// Don't create a closure as Divmod.Defer does; they're somewhat expensive.
@@ -256,7 +250,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 			}
 		}
 
-		if (self._isFailure(self._result)) {
+		if (self._result instanceof CW.Defer.Failure) {
 			// This might be spurious
 			CW.err(self._result.error);
 		}
@@ -273,7 +267,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').methods(
 		self._startRunCallbacks(result);
 	},
 	function errback(self, err) {
-		if (!self._isFailure(err)) {
+		if (!err instanceof CW.Defer.Failure) {
 			err = new CW.Defer.Failure(err);
 		}
 		self._startRunCallbacks(err);
