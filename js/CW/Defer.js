@@ -402,6 +402,8 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').pmethods({
  *
  * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
  */
+// TODO: for speed, maybe just implement a gatherResults mode for DeferredList:
+// parentDeferred.resultList[index] = result ? this.gatherResults : [success, result];
 CW.Defer.gatherResults = function gatherResults(deferredList) {
 	var d = new CW.Defer.DeferredList(deferredList, false, true, false);
 	// TODO: maybe use while(n--) loop, then reverse the array?
