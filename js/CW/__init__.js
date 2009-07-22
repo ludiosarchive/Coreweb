@@ -446,14 +446,14 @@ CW.arraysEqual = function arraysEqual(a, b) {
 };
 
 
+/**
+ * Return C{true} if L{haystack} starts with L{starter}, else C{false}.
+ */
 CW.startswith = function(haystack, starter) {
-	return !!(haystack.substr(0, starter.length) === starter); // '==' yields same test results
+	 // '==' seems to work the same; unit tests still pass
+	return !!(haystack.substr(0, starter.length) === starter);
 };
 
-
-CW.now = function() {
-	return +new Date;
-};
 
 
 CW.random = function() {

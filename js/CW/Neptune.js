@@ -214,7 +214,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 	function messageReceived(self, message) {
 		//print("got a message.<br>");
 		print(message + '<br>');
-		//print(CW.now() + " " + CW.JSON.stringify(eval('(' + message + ')')) + '<br>');
+		//print(+new Date + " " + CW.JSON.stringify(eval('(' + message + ')')) + '<br>');
 	}
 );
 
