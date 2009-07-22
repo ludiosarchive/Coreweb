@@ -205,10 +205,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 		/* inlined (what used to be) _continue() */
 		parentDeferred._result = result;
 		parentDeferred._pauseLevel--;
-		if (parentDeferred._pauseLevel) {
-			return;
-		}
-		if (!parentDeferred._called) {
+		if (parentDeferred._pauseLevel || !parentDeferred._called) {
 			return;
 		}
 		parentDeferred._runCallbacks();

@@ -149,6 +149,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		classIdentifier = className;
 	}
 
+	/* Sort of like the Python super() */
 	subClass.upcall = function(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
