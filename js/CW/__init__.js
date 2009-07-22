@@ -95,10 +95,8 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		 * instance's C{__init__}.
 		 */
 		if (asConstructor !== CONSTRUCTOR) {
-			CW.__instanceCounter__++;
-
-			/* set an ID unique to this instance */
-			self.__id__ = CW.__instanceCounter__;
+			/* increment __instanceCounter__ and set an ID unique to this instance */
+			self.__id__ = ++CW.__instanceCounter__;
 
 			self.__class__ = subClass;
 			self.__init__.apply(self, arguments);
