@@ -509,3 +509,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').method
 		}
 	}
 );
+
+
+/**
+ * Test that displayName is set in debugMode.
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
+// TODO
+);

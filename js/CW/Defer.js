@@ -149,9 +149,7 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 	}
 );
 
-CW.Class.subclass(CW.Defer, 'Deferred')
-
-CW.Defer.Deferred.prototype = {
+CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 	'__init__': function() {
 		this._callbacks = [];
 		this._called = false;
@@ -275,7 +273,7 @@ CW.Defer.Deferred.prototype = {
 		}
 		this.callback(err); /* Divmod.Defer called _startRunCallbacks */
 	}
-}
+});
 
 
 CW.Defer.succeed = function succeed(result) {
@@ -325,7 +323,7 @@ CW.Error.subclass(CW.Defer, 'FirstError').methods(
  * DeferredList, as a DeferredList won't swallow the errors.  (Although a more
  * convenient way to do this is simply to set the consumeErrors flag)
  */
-CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
+CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').pmethods({
 	/* Initialize a DeferredList.
 	 *
 	 * @type deferredList: C{Array} of L{CW.Defer.Deferred}s
@@ -342,43 +340,41 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 	 * original deferreds should be consumed by this DeferredList.  This is
 	 * useful to prevent spurious warnings being logged.
 	 */
-	function __init__(self,
-					  deferredList,
-					  /* optional */
+	'__init__': function(deferredList, /* three optional: */
 					  fireOnOneCallback /* = false */,
 					  fireOnOneErrback /* = false */,
 					  consumeErrors /* = false */) {
 		var num = deferredList.length;
 
-		self.resultList = new Array(num);
-		CW.Defer.DeferredList.upcall(self, '__init__', []);
+		this.resultList = new Array(num);
+		CW.Defer.DeferredList.upcall(this, '__init__', []);
 		// don't callback in the fireOnOneCallback case because the result
 		// type is different.
 		// TODO: need tests! It still passes with ` && !fireOnOneCallback` removed.
 		if (num == 0 && !fireOnOneCallback) {
-			self.callback(self.resultList);
+			this.callback(this.resultList);
 		}
 
 		/* These flags need to be set *before* attaching callbacks to the
 		 * deferreds, because the callbacks use these flags, and will run
 		 * synchronously if any of the deferreds are already fired.
 		 */
-		self.fireOnOneCallback = false ? !fireOnOneCallback : fireOnOneCallback;
-		self.fireOnOneErrback = false ? !fireOnOneErrback : fireOnOneErrback;
-		self.consumeErrors = false ? !consumeErrors : consumeErrors;
-		self.finishedCount = 0;
+		this.fireOnOneCallback = false ? !fireOnOneCallback : fireOnOneCallback;
+		this.fireOnOneErrback = false ? !fireOnOneErrback : fireOnOneErrback;
+		this.consumeErrors = false ? !consumeErrors : consumeErrors;
+		this.finishedCount = 0;
 
 		// It is safe to decrement `num' at this point.
 		while(num--) {
 			deferredList[num].addCallbacks(
-				self._cbDeferred,
-				self._cbDeferred,
-				[self, true, num], [self, false, num]
+				this._cbDeferred,
+				this._cbDeferred,
+				[this, true, num], [this, false, num]
 			);
 		}
 	},
 
-	function _cbDeferred(self, result, parentDeferred, success, index) {
+	'_cbDeferred': function(result, parentDeferred, success, index) {
 		parentDeferred.resultList[index] = [success, result];
 
 		parentDeferred.finishedCount += 1;
@@ -398,7 +394,7 @@ CW.Defer.Deferred.subclass(CW.Defer, 'DeferredList').methods(
 			return result;
 		}
 	}
-);
+});
 
 
 /* Returns list with result of given Deferreds.

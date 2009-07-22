@@ -195,8 +195,6 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 			 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
 			 */
 
-			// TODO: test that displayName is set. Only set displayName in debugging mode.
-
 			methodFunction.displayName = className + '.' + methodName;
 		}
 
@@ -214,13 +212,37 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	};
 
 	/*
-	 * Add many methods. See comment for subClass.method.
+	 * Add many methods from an array of named functions.
+	 * This wraps each function with a function that passes in `this' as the first argument.
+	 * See comment for subClass.method.
 	 */
 	subClass.methods = function() {
 		var n = arguments.length;
 		// in reverse
 		while(n--) {
 			subClass.method(arguments[n]);
+		}
+	};
+
+
+	/*
+	 * Add many methods from an object. Functions can be anonymous.
+	 * This doesn't wrap the functions (.methods/.method does) to lower runtime penalty.
+	 * Use this instead of methods() for performance-critical classes.
+	 */
+	subClass.pmethods = function(obj) {
+		for(var methodName in obj) {
+			var methodFunction = obj[methodName];
+			/**
+			 * Don't bother checking _alreadyDefinedMethods because
+			 * objects can't have two of the same property; it's not our problem
+			 * if the user of pmethods screwed up and used the same property twice.
+			 */
+			subClass.prototype[methodName] = methodFunction;
+			if(CW._debugMode) {
+				// See comment about Safari 4 above.
+				methodFunction.displayName = className + '.' + methodName;
+			}
 		}
 	};
 
