@@ -439,7 +439,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 	/**
 	 * Make sure that nobody took any shortcuts in the implementation:
-	 * overlap should be detected even for toString
+	 * overlap should be detected even for `toString'.
 	 */
 	function test_noOverwriteToString(self) {
 		if(CW._debugMode) {
@@ -460,6 +460,52 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			self.assertThrows(Error, makeSameMethodName);
 
+		}
+	}
+);
+
+
+
+/**
+ * Test that new-style subclassing doesn't overwrite anything (except undefined).
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
+	function test_noOverwriteClass(self) {
+		if(CW._debugMode) {
+			CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+
+			var makeSameClassName = function() {
+				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			}
+
+			self.assertThrows(Error, makeSameClassName);
+			delete CW.__TestClassNoOverwrite_Temporary;
+		}
+	},
+
+	function test_noOverwriteNumber(self) {
+		if(CW._debugMode) {
+			CW.__TestClassNoOverwrite_Temporary = 4;
+
+			var makeSameClassName = function() {
+				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			}
+
+			self.assertThrows(Error, makeSameClassName);
+			delete CW.__TestClassNoOverwrite_Temporary;
+		}
+	},
+
+	function test_noOverwriteNull(self) {
+		if(CW._debugMode) {
+			CW.__TestClassNoOverwrite_Temporary = null;
+
+			var makeSameClassName = function() {
+				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			}
+
+			self.assertThrows(Error, makeSameClassName);
+			delete CW.__TestClassNoOverwrite_Temporary;
 		}
 	}
 );
