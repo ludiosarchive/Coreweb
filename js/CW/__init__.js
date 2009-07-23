@@ -238,8 +238,14 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	 * This doesn't wrap the functions (.methods/.method does) for slightly better speed.
 	 * Use this instead of .methods for performance-critical classes.
 	 *
-	 * If you want to define a custom `toString' method for instances,
-	 * do not use .pmethods because the `toString' property will be ignored by JScript.
+	 * JScript will not enumerate the native function `toString' in a derived object.
+	 * If you want to define a custom `toString' method for instances, do not use .pmethods.
+	 * 
+	 * Side note: YUI yui-core.js works around this with:
+	 * var fn = s.toString;
+       * if (L.isFunction(fn) && fn != Object.prototype.toString) {
+       *    r.toString = fn;
+	 * }
 	 */
 	subClass.pmethods = function(obj) {
 		for(var methodName in obj) {
