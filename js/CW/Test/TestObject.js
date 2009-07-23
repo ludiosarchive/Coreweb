@@ -469,21 +469,27 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			var TempClass = CW.Class.subclass('TempClass');
 
+			/**
+			 * JScript is strange: this test won't pass if the method name is `toString'
+			 * The reason is that all object literals have a `toString' and JScript will not
+			 * iterate over `toString' even if it was explicitly specified as a property.
+			 */
+
 			TempClass.methods(
-				function toString(self) {
+				function aMethod(self) {
 					return 1;
 				}
 			);
 
 			var makeSameMethodName = function() {
-				TempClass.pmethods({toString: function(){ return 2 }})
+				TempClass.pmethods({aMethod: function(){ return 2 }})
 			}
 
 			self.assertThrows(Error, makeSameMethodName);
 
 			// Make sure it wasn't added
 			var t = new TempClass();
-			self.assertIdentical(1, t.toString());
+			self.assertIdentical(1, t.aMethod());
 		}
 	},
 
@@ -495,11 +501,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			var TempClass = CW.Class.subclass('TempClass');
 
-			TempClass.pmethods({toString: function(){ return 1 }})
+			/**
+			 * JScript is strange; this test won't pass if the method name is `toString';
+			 * see comment above
+			 */
+
+			TempClass.pmethods({aMethod: function(){ return 1 }});
 
 			var makeSameMethodName = function() {
 				TempClass.methods(
-					function toString(self) {
+					function aMethod(self) {
 						return 2;
 					}
 				);
@@ -509,7 +520,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			// Make sure it wasn't added
 			var t = new TempClass();
-			self.assertIdentical(1, t.toString());
+			self.assertIdentical(1, t.aMethod());
 		}
 	}
 );
