@@ -203,7 +203,6 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 			 * It might work with Firebug in the future.
 			 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
 			 */
-
 			methodFunction.displayName = className + '.' + methodName;
 		}
 
@@ -227,7 +226,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	 */
 	subClass.methods = function() {
 		var n = arguments.length;
-		// in reverse
+		// order does not matter
 		while(n--) {
 			subClass.method(arguments[n]);
 		}

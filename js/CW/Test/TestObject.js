@@ -423,17 +423,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 			var makeSameMethodName = function() {
 				TempClass.methods(
 					function aMethod(self, differentArity) {
-
+						return 1;
 					},
 
 					function aMethod(self) {
-
+						return 2;
 					}
 				);
 			}
 
 			self.assertThrows(Error, makeSameMethodName);
-
 		}
 	},
 
@@ -459,7 +458,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 			}
 
 			self.assertThrows(Error, makeSameMethodName);
-
 		}
 	},
 
@@ -478,11 +476,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 			);
 
 			var makeSameMethodName = function() {
-				TempClass.pmethods({toString: function(){}})
+				TempClass.pmethods({toString: function(){ return 2 }})
 			}
 
 			self.assertThrows(Error, makeSameMethodName);
 
+			// Make sure it wasn't added
+			var t = new TempClass();
+			self.assertIdentical(1, t.toString());
 		}
 	},
 
@@ -494,7 +495,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			var TempClass = CW.Class.subclass('TempClass');
 
-			TempClass.pmethods({toString: function(){}})
+			TempClass.pmethods({toString: function(){ return 1 }})
 
 			var makeSameMethodName = function() {
 				TempClass.methods(
@@ -506,6 +507,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 			self.assertThrows(Error, makeSameMethodName);
 
+			// Make sure it wasn't added
+			var t = new TempClass();
+			self.assertIdentical(1, t.toString());
 		}
 	}
 );
