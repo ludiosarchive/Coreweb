@@ -176,7 +176,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		}
 	}
 
-	/*
+	/**
 	 * Helper function for adding a method to the prototype.
 	 *
 	 * C{methodFunction} will be called with its class instance as the first argument,
@@ -219,7 +219,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
 	};
 
-	/*
+	/**
 	 * Add many methods from an array of named functions.
 	 * This wraps each function with a function that passes in `this' as the first argument.
 	 * See comment for subClass.method.
@@ -233,10 +233,13 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	};
 
 
-	/*
+	/**
 	 * Add many methods from an object. Functions can be anonymous.
-	 * This doesn't wrap the functions (.methods/.method does) to lower runtime penalty.
-	 * Use this instead of methods() for performance-critical classes.
+	 * This doesn't wrap the functions (.methods/.method does) for slightly better speed.
+	 * Use this instead of .methods for performance-critical classes.
+	 *
+	 * If you want to define a custom `toString' method for instances,
+	 * do not use .pmethods because the `toString' property will be ignored by JScript.
 	 */
 	subClass.pmethods = function(obj) {
 		for(var methodName in obj) {
