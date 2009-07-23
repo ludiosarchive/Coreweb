@@ -38,7 +38,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		var expected = '"\\r\\n\\f\\b\\t\\u0000"';
 
 		// Firefox 3.1 does this, but OK if other browsers do the same thing. (Two answers are valid here.)
-		var expectedFF31Plus = "\"\\u000d\\u000a\\u000c\\u0008\\u0009\\u0000\"";
+		var expectedFF31Plus = '"\\u000d\\u000a\\u000c\\u0008\\u0009\\u0000"';
 		if(repr.length > expected.length) {
 			self.assertIdentical(repr, expectedFF31Plus);
 		} else {

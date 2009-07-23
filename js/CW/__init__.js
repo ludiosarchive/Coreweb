@@ -163,6 +163,19 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		subClass._alreadyDefinedMethods.toString = undefined;
 	}
 
+	if(CW._debugMode) {
+		/**
+		 * Throw an Error if this method has already been defined.
+		 */
+		subClass._prepareToAdd = function(methodName) {
+			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
+				throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
+					subClass.__name__ + '.' + methodName);
+			}
+			subClass._alreadyDefinedMethods[methodName] = true;
+		}
+	}
+
 	/*
 	 * Helper function for adding a method to the prototype.
 	 *
@@ -183,12 +196,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		}
 
 		if(CW._debugMode) {
-			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
-				throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
-					subClass.__name__ + '.' + methodName);
-			}
-
-			subClass._alreadyDefinedMethods[methodName] = true;
+			subClass._prepareToAdd(methodName);
 
 			/*
 			 * Safari 4 supports displayName to name any function for the debugger/profiler.
@@ -234,16 +242,18 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	subClass.pmethods = function(obj) {
 		for(var methodName in obj) {
 			var methodFunction = obj[methodName];
-			/**
-			 * Don't bother checking _alreadyDefinedMethods because
-			 * objects can't have two of the same property; it's not our problem
-			 * if the user of pmethods screwed up and used the same property twice.
-			 */
-			subClass.prototype[methodName] = methodFunction;
 			if(CW._debugMode) {
+				/**
+				 * Check _alreadyDefinedMethods even though objects can't have two of
+				 * the same property; because the user could be using pmethods() to
+				 * accidentally overwrite a method set with methods()
+				 */
+				subClass._prepareToAdd(methodName);
+
 				// See comment about Safari 4 above.
 				methodFunction.displayName = className + '.' + methodName;
 			}
+			subClass.prototype[methodName] = methodFunction;
 		}
 	};
 

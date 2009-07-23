@@ -150,6 +150,7 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 );
 
 CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
+
 	'__init__': function() {
 		this._callbacks = [];
 		this._called = false;
@@ -188,6 +189,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 		}
 		return this;
 	},
+	
 	'addBoth': function(callback) {
 		var callbackArgs = Array.prototype.slice.call(arguments);
 		callbackArgs.shift();

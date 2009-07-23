@@ -461,6 +461,52 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 			self.assertThrows(Error, makeSameMethodName);
 
 		}
+	},
+
+	/**
+	 * Adding a method with methods, then adding it with pmethod, should fail.
+	 */
+	function test_methodsThenPmethods(self) {
+		if(CW._debugMode) {
+
+			var TempClass = CW.Class.subclass('TempClass');
+
+			TempClass.methods(
+				function toString(self) {
+					return 1;
+				}
+			);
+
+			var makeSameMethodName = function() {
+				TempClass.pmethods({toString: function(){}})
+			}
+
+			self.assertThrows(Error, makeSameMethodName);
+
+		}
+	},
+
+	/**
+	 * Adding a method with pmethods, then adding it with method, should fail.
+	 */
+	function test_pmethodsThenMethods(self) {
+		if(CW._debugMode) {
+
+			var TempClass = CW.Class.subclass('TempClass');
+
+			TempClass.pmethods({toString: function(){}})
+
+			var makeSameMethodName = function() {
+				TempClass.methods(
+					function toString(self) {
+						return 2;
+					}
+				);
+			}
+
+			self.assertThrows(Error, makeSameMethodName);
+
+		}
 	}
 );
 
