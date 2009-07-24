@@ -415,6 +415,72 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addBoth(callback, 20, 30, 40);
 		d.callback(10);
 		self.assertArraysEqual(callbackArgs, [10, 20, 30, 40]);
-	}
+	},
 
+
+	/**
+	 * Confirm a limitation of the Deferred implementation, where there are problems
+	 * passing in the same argument array for multiple callbacks/errbacks.
+	 */
+	function test_addCallbacksCannotReuseArray(self) {
+		var d = CW.Defer.Deferred();
+		var errbackArgs1 = [];
+		var errbackArgs2 = [];
+
+		var errback1 = function(theError, arg1, arg2, arg3) {
+			errbackArgs1.push.apply(errbackArgs1, arguments);
+			errbackArgs1.shift();
+			return theError;
+		}
+
+		var errback2 = function(theError, arg1, arg2, arg3) {
+			errbackArgs2.push.apply(errbackArgs2, arguments);
+			errbackArgs2.shift();
+			return theError;
+		}
+
+		// Use the same object for everything
+		var args = [20, 30, 40];
+		d.addCallbacks(function(){}, errback1, args, args);
+		d.addCallbacks(null, errback2, [], args); // errback and args
+
+		d.errback(new Error("boom"));
+
+		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
+		// problems begin!
+		self.assertArraysNotEqual(errbackArgs2, [20, 30, 40]);
+	},
+
+
+	/**
+	 * Confirm that it works fine when the array is not reused.
+	 * (see comment for test L{test_addCallbacksCannotReuseArray}) 
+	 */
+	function test_addCallbacksCanReuseWithDifferentArray(self) {
+		var d = CW.Defer.Deferred();
+		var errbackArgs1 = [];
+		var errbackArgs2 = [];
+
+		var errback1 = function(theError, arg1, arg2, arg3) {
+			errbackArgs1.push.apply(errbackArgs1, arguments);
+			errbackArgs1.shift();
+			return theError;
+		}
+
+		var errback2 = function(theError, arg1, arg2, arg3) {
+			errbackArgs2.push.apply(errbackArgs2, arguments);
+			errbackArgs2.shift();
+			return theError;
+		}
+
+		// Use the same object for everything
+		var args = [20, 30, 40];
+		d.addCallbacks(function(){}, errback1, args, args);
+		d.addCallbacks(null, errback2, [], [20, 30, 40]); // errback and args
+
+		d.errback(new Error("boom"));
+
+		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
+		self.assertArraysEqual(errbackArgs2, [20, 30, 40]);
+	}
 );

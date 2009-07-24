@@ -14,9 +14,27 @@
 	function to count number of window properties,
 	to help make sure nothing (besides __CW_x and CW) are added
 */
-__CW_x = {c: function(){var c={}, k;for(k in window) {c[k]=true};return c}};
+__CW_x = {
+	enum: function(){
+		var c = {}, k;
+		for(k in window) {
+			c[k] = true;
+		};
+		return c;
+	},
+	check: function(old){
+		var k;
+		var newProps = [];
+		for(k in window) {
+			if(!old[k]) {
+				newProps.push(k);
+			}
+		}
+		return newProps;
+	}
+};
 __CW_x.sb = +new Date; /* scripts begin */
-__CW_x.c1 = __CW_x.c();
+__CW_x.propsBefore = __CW_x.enum();
 </script>
 /**/scripts//
 
@@ -58,8 +76,13 @@ function _startTests() {
 
 	var d = CW.UnitTest.run(suite);
 	//d.addCallback(function(){document.body.style.backgroundColor = 'green';});
-	d.addCallback();
 
+	function _checkProps() {
+		var newProps = __CW_x.check(__CW_x.propsBefore);
+		__CW_print('New window properties: ' + newProps.join(','));
+	}
+
+	d.addCallback(_checkProps);
 }
 
 // TODO: use event listeners?

@@ -477,10 +477,27 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} and C{b} are equal. Recurses into arrays and dicts.
+	 * Assert that Arrays C{a} and C{b} are equal.
+	 * Uses a shallow comparison of items, strict equality.
 	 */
 	function assertArraysEqual(self, a, b, /* optional */ message) {
 		self.compare(CW.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
+		self._assertCounter += 1;
+	},
+
+
+	/**
+	 * Assert that Arrays C{a} and C{b} are not equal.
+	 * Uses a shallow comparison of items, strict equality.
+	 */
+	function assertArraysNotEqual(self, a, b, /* optional */ message) {
+		var invert = function(func) {
+			return function(){
+				return !func.apply(this, arguments);
+			};
+		};
+		var arraysNotEqual = invert(CW.arraysEqual);
+		self.compare(arraysNotEqual, '<font color="red">array-equal to</font>', a, b, message, true);
 		self._assertCounter += 1;
 	},
 

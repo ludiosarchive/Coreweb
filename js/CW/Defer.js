@@ -162,6 +162,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 		// TODO: need to verify that this really doesn't have adverse effects
 		// (keeping an activation object alive)
 		this._callbacks.push(arguments);
+
 		if (this._called) {
 			this._runCallbacks();
 		}

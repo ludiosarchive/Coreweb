@@ -159,8 +159,20 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 	if(CW._debugMode) {
 		// TODO: maybe add all commonly used window properties (bug #410)
+		// see: http://code.google.com/p/doctype/wiki/WindowObject
 		// This only helps prevent problems caused by JScript's mishandling of named functions.
-		subClass._alreadyDefinedMethods = {'window': true, 'document': true, 'CW': true};
+		var windowProps =
+			('window,document,history,location,navigator,screen,opener,closed,parent,constructor'+
+			'clipboardData,crypto,external,status,defaultStatus,top,self,name,length,'+
+			'localStorage,sessionStorage,innerWidth,innerHeight,outerWidth,'+
+			'outerHeight,screenX,screenY,fullScreen,maxConnectionsPerServer'+
+			'onerror,onload,onunload,onbeforeunload,'+
+			'console,postMessage,showModalDialog,showModelessDialog').split(',');
+		subClass._alreadyDefinedMethods = {'CW': true};
+		var windowProps_n = windowProps.length;
+		while(windowProps_n--) {
+			subClass._alreadyDefinedMethods[windowProps[windowProps_n]] = true;
+		}
 		// Pretty much any object has a toString method. _alreadyDefinedMethods is used
 		// as a set to keep track of already-defined methods (to detect a programming error at
 		// runtime: where the same method name is accidentally used twice).

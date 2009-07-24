@@ -303,6 +303,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 
 
 	/**
+	 * Test that L{assertArraysNotEqual} doesn't raise an exception if it is
+	 * passed that two 'unequal' arrays.
+	 */
+	function test_assertArraysNotEqualPositive(self) {
+		self.assertArraysNotEqual([1], []);
+		self.assertArraysNotEqual([1, 2, 3], [1, 2]);
+	},
+
+
+	/**
 	 * Test that L{assertArraysEqual} raises exceptions if it is passed two unequal
 	 * arrays.
 	 */
@@ -328,6 +338,26 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 						  function () {
 							  self.assertArraysEqual(function () { },
 													 function () { });
+						  });
+	},
+
+
+	/**
+	 * Test that L{assertArraysNotEqual} raises exceptions if it is passed two equal
+	 * arrays.
+	 */
+	function test_assertArraysNotEqualNegative(self) {
+		self.assertThrows(CW.UnitTest.AssertionError,
+						  function () {
+							  self.assertArraysNotEqual([1, 2, 3], [1, 2, 3]);
+						  });
+		self.assertThrows(CW.UnitTest.AssertionError,
+						  function () {
+							  self.assertArraysNotEqual([2], [2]);
+						  });
+		self.assertThrows(CW.UnitTest.AssertionError,
+						  function () {
+							  self.assertArraysNotEqual([], []);
 						  });
 	},
 
