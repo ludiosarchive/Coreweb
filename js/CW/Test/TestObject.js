@@ -573,8 +573,32 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').method
 
 
 /**
- * Test that displayName is set in debugMode.
+ * Test that displayName property is set for methods (in debugMode).
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 // TODO
+);
+
+
+/**
+ * Test that calling a method window or document is illegal (in debugMode).
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
+	function test_cannotNameMethodWindow(self) {
+		if(CW._debugMode) {
+			var attachBadMethod1 = function() {
+				CW.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
+			}
+
+			var attachBadMethod2 = function() {
+				CW.__TestBadMethodNames_Temporary.pmethods({CW: function(){}});
+			}
+
+			CW.Class.subclass(CW, '__TestBadMethodNames_Temporary');
+
+			self.assertThrows(Error, attachBadMethod1);
+			self.assertThrows(Error, attachBadMethod2);
+			delete CW.__TestBadMethodNames_Temporary;
+		}
+	}
 );

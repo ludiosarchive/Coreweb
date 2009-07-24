@@ -29,7 +29,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	function test_good(self) {
 		var d = new CW.Defer.Deferred();
 		setTimeout(function(){self.log += 'test '; d.callback(null);}, 0);
-		//print('installed the setTimeout.<br>');
+		//__CW_print('installed the setTimeout.<br>');
 		return d;
 	},
 

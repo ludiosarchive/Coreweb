@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=8" />
 <title>@tests</title>
 </head>
-<body onload="_startTests()">
+<body>
 
 <div id="CW-debug-log"></div>
 
@@ -23,13 +23,16 @@ __CW_x.c1 = __CW_x.c();
 <script>
 __CW_x.se = +new Date; /* scripts end */
 
+
+
 // TODO: use CW log observer code
 
 // doesn't work well because UnitTest.js is print()ing HTML right now :(
 
 // CW.ISODate.localTime()
 
-function print(msg) {
+// TODO: Don't use the name print; conflicts with window.print
+function __CW_print(msg) {
 	var textnode = document.createTextNode('[' + (+new Date) + '] ' + msg);
 	var br = document.createElement("br");
 	var logd = document.getElementById('CW-debug-log');
@@ -37,24 +40,32 @@ function print(msg) {
 	logd.appendChild(br);
 }
 
-//function print(msg) {
+//function __CW_print(msg) {
 //	var logd = document.getElementById('CW-debug-log');
 //	logd.innerHTML += msg + '<br>'
 //}
 
 
-print("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
+(function(){
+
+__CW_print("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
 
 function _startTests() {
-	print('Running tests.<br>');
+	__CW_print('Running tests.<br>');
 
 	var modules = /**/modules//
 	var suite = CW.UnitTest.loadFromModules(modules);
 
 	var d = CW.UnitTest.run(suite);
-//	d.addCallbacks(function(){document.body.style.backgroundColor = 'green';}, function(){});
+	//d.addCallback(function(){document.body.style.backgroundColor = 'green';});
+	d.addCallback();
 
 }
+
+// TODO: use event listeners?
+window.onload = _startTests;
+
+})();
 
 </script>
 

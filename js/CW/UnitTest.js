@@ -195,7 +195,7 @@ CW.UnitTest.TestResult.methods(
 CW.UnitTest.SubunitTestClient = CW.UnitTest.TestResult.subclass('CW.UnitTest.SubunitTestClient');
 CW.UnitTest.SubunitTestClient.methods(
 	function _write(self, string) {
-		print(string);
+		__CW_print(string);
 	},
 
 	function _sendException(self, error) {
@@ -644,7 +644,7 @@ CW.UnitTest.TestCase.methods(
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
-		//print('Starting ' + self + ' ' + self._methodName + '<br>');
+		//__CW_print('Starting ' + self + ' ' + self._methodName + '<br>');
 
 		result.startTest(self);
 
@@ -902,10 +902,10 @@ CW.UnitTest.run = function run(test) {
 	var d = test.run(result);
 	d.addCallback(function(){
 		var timeTaken = new Date().getTime() - start;
-		print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
-		print(CW.UnitTest.formatErrors(result));
-		//print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
-		print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
+		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
+		__CW_print(CW.UnitTest.formatErrors(result));
+		//__CW_print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
+		__CW_print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
 	});
 	return d;
 };
@@ -984,7 +984,7 @@ CW.UnitTest.ConcurrentVisitor.methods(
 CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
 CW.UnitTest.SerialVisitor.methods(
 	function traverse(self, visitor, tests) {
-//		print('Using SerialVisitor on ' + tests);
+//		__CW_print('Using SerialVisitor on ' + tests);
 		var completionDeferred = new CW.Defer.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
@@ -1104,7 +1104,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
-//			print('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.<br>');
+//			__CW_print('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.<br>');
 //		}
 
 		// actually run the callable
@@ -1188,7 +1188,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
  * This needs to be called before tests are started.
  */
 CW.UnitTest.installMonkeys = function() {
-	//print('installMonkeys');
+	//__CW_print('installMonkeys');
 
 	var installD = new CW.Defer.Deferred();
 

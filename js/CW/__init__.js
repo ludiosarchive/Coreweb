@@ -158,15 +158,15 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	};
 
 	if(CW._debugMode) {
-		subClass._alreadyDefinedMethods = {};
+		// TODO: maybe add all commonly used window properties (bug #410)
+		// This only helps prevent problems caused by JScript's mishandling of named functions.
+		subClass._alreadyDefinedMethods = {'window': true, 'document': true, 'CW': true};
 		// Pretty much any object has a toString method. _alreadyDefinedMethods is used
 		// as a set to keep track of already-defined methods (to detect a programming error at
 		// runtime: where the same method name is accidentally used twice).
 		// For .method(function toString() {}) to work, toString must be made undefined here.
 		subClass._alreadyDefinedMethods.toString = undefined;
-	}
 
-	if(CW._debugMode) {
 		/**
 		 * Throw an Error if this method has already been defined.
 		 */
