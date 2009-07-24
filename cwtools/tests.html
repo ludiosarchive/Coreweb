@@ -15,7 +15,7 @@
 	to help make sure nothing (besides __CW_x and CW) are added
 */
 __CW_x = {
-	enum: function(){
+	enumerate: function(){
 		var c = {}, k;
 		for(k in window) {
 			c[k] = true;
@@ -34,7 +34,7 @@ __CW_x = {
 	}
 };
 __CW_x.sb = +new Date; /* scripts begin */
-__CW_x.propsBefore = __CW_x.enum();
+__CW_x.propsBefore = __CW_x.enumerate();
 </script>
 <script>
 /**/scriptContent//
