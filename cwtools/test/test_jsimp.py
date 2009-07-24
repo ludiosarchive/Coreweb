@@ -534,3 +534,39 @@ class DependencyTests(unittest.TestCase):
 			[z, b, a, d],
 			jsimp.getDepsMany([a, d])
 		)
+
+
+
+class _DummyScriptForMega(object):
+	"""
+	A dummy for testing L{megaScript}.
+	"""
+
+	def __init__(self, content):
+		self.content = content
+
+
+	def getContent(self):
+		return self.content
+
+
+
+class MegaScriptTests(unittest.TestCase):
+
+	def test_megaScriptNoWrapper(self):
+		s1 = _DummyScriptForMega('var x={};')
+		s2 = _DummyScriptForMega('var y={};')
+		result = jsimp.megaScript([s1, s2], False)
+		self.assertEqual('var x={};var y={};', result)
+
+
+	def test_megaScriptWrapper(self):
+		s1 = _DummyScriptForMega('var x={};')
+		s2 = _DummyScriptForMega('var y={};')
+		result = jsimp.megaScript([s1, s2], True)
+		self.assertEqual('''\
+(function(window, undefined) {
+var document = window.document;
+var x={};var y={};
+})(window);
+''', result)

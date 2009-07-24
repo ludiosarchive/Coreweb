@@ -79,6 +79,7 @@ def getDeps(script):
 	return final
 
 
+
 def getDepsMany(scripts):
 	"""
 	Return the list of scripts that must be included
@@ -93,6 +94,29 @@ def getDepsMany(scripts):
 				returnList.append(dep)
 				alreadySeen.add(dep)
 	return returnList
+
+
+
+def megaScript(scripts, wrapper):
+	"""
+	Return the contents of many scripts, optionally wrapping
+	it with the anonymous function wrapper (useful for JScript,
+	which thinks named function expressions are declarations.)
+	"""
+	data = ''
+	if wrapper:
+		data += u'''\
+(function(window, undefined) {
+var document = window.document;
+'''
+	for script in scripts:
+		data += script.getContent()
+
+	if wrapper:
+		data += u'\n})(window);\n'
+
+	return data
+
 
 
 class Script(object):

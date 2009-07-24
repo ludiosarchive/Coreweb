@@ -14,7 +14,7 @@
 	function to count number of window properties,
 	to help make sure nothing (besides __CW_x and CW) are added
 */
-__CW_x = {c: function(){var c=0, k;for(k in window) {c++};return c}};
+__CW_x = {c: function(){var c={}, k;for(k in window) {c[k]=true};return c}};
 __CW_x.sb = +new Date; /* scripts begin */
 __CW_x.c1 = __CW_x.c();
 </script>

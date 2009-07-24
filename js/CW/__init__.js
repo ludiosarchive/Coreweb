@@ -1,5 +1,8 @@
 /* {LICENSE:primary,Nevow} */
 
+// TODO: do this only if wrapped in the JScript wrapper
+window.CW = CW;
+
 // TODO: remove this; use JS macros only.
 CW._debugMode = true;
 
