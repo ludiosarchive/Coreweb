@@ -57,13 +57,12 @@ class TestPage(resource.Resource):
 	def render_GET(self, request):
 		#request.setHeader('content-type', 'text/plain')
 
-		scripts = ''
-
 		modlist = []
 
 		# We need the script data for all the dependencies and the test modules
-		for t in jsimp.getDepsMany(self._getTests()):
-			scripts += t.scriptSrc()
+		#for t in jsimp.getDepsMany(self._getTests()):
+		#	scripts += t.scriptSrc()
+		scriptContent = jsimp.megaScript(jsimp.getDepsMany(self._getTests()), wrapper=True)
 
 		# ...but don't run the tests on the dependency modules
 		for t in self._getTests():
@@ -73,7 +72,8 @@ class TestPage(resource.Resource):
 
 		jsw = jsimp.JavaScriptWriter()
 		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()
-		return jsw.render(testsTemplate, dict(scripts=scripts, modules=modules)).encode('utf-8')
+		return jsw.render(testsTemplate,
+			dict(scriptContent=scriptContent, modules=modules)).encode('utf-8')
 
 
 class Index(resource.Resource):

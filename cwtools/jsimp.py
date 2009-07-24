@@ -19,7 +19,12 @@ class FindScriptError(Exception):
 
 class CircularDependencyError(Exception):
 	pass
-	
+
+
+
+class CorruptScriptError(Exception):
+	pass
+
 
 
 def cacheBreakerForPath(path):
@@ -208,7 +213,15 @@ class Script(object):
 
 
 	def getContent(self):
-		return self.getAbsoluteFilename().getContent().decode('utf-8')
+		bytes = self.getAbsoluteFilename().getContent()
+		if len(bytes) == 0:
+			return u''
+		elif bytes[-1] != '\n':
+			raise CorruptScriptError((
+				r"Script %r need to end with a \n. "
+				r"\n is a line terminator. Fix your text editor.") % (self,))
+		else:
+			return bytes.decode('utf-8')
 
 
 	def _getImportStrings(self):

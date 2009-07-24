@@ -152,7 +152,7 @@ class ScriptTagTests(unittest.TestCase):
 
 		c = d.child('p')
 		c.makedirs()
-		contents = 'function a() { return "A func"; }'
+		contents = 'function a() { return "A func"; }\n'
 		c.child('mod1.js').setContent(contents)
 
 		html = jsimp.Script('p.mod1', d).scriptContent()
@@ -209,7 +209,8 @@ class ImportParsingTests(unittest.TestCase):
 
 function a() { return "A func"; }
 
-// import p.last'''
+// import p.last
+'''
 		c.child('mod1.js').setContent(contents)
 
 		self.assertEqual(
@@ -221,9 +222,9 @@ function a() { return "A func"; }
 		d = FilePath(self.mktemp())
 		d.makedirs()
 		
-		d.child('p.js').setContent('// import q\n// import r')
-		d.child('q.js').setContent('// ')
-		d.child('r.js').setContent('// ')
+		d.child('p.js').setContent('// import q\n// import r\n')
+		d.child('q.js').setContent('// \n')
+		d.child('r.js').setContent('// \n')
 
 		p = jsimp.Script('p', d)
 		q = jsimp.Script('q', d)
@@ -534,6 +535,27 @@ class DependencyTests(unittest.TestCase):
 			[z, b, a, d],
 			jsimp.getDepsMany([a, d])
 		)
+
+
+
+class TestCorruptScripts(unittest.TestCase):
+
+	def test_emptyIsOkay(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		c = d.child('amodule.js')
+		c.setContent('')
+
+		self.assertEqual('', jsimp.Script('amodule', d).getContent())
+
+
+	def test_newlineRequired(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		c = d.child('amodule.js')
+		c.setContent('//')
+
+		self.assertRaises(jsimp.CorruptScriptError, lambda: jsimp.Script('amodule', d).getContent())
 
 
 
