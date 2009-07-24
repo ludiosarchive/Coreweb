@@ -157,7 +157,7 @@ class ScriptTagTests(unittest.TestCase):
 
 		html = jsimp.Script('p.mod1', d).scriptContent()
 		self.assertEqual(
-			u"""<script>p.mod1={'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
+			u"""<script>p.mod1 = {'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
 			html
 		)
 
@@ -542,31 +542,48 @@ class _DummyScriptForMega(object):
 	A dummy for testing L{megaScript}.
 	"""
 
-	def __init__(self, content):
-		self.content = content
+	def __init__(self, name, content):
+		self._content = content
+		self._name = name
 
 
 	def getContent(self):
-		return self.content
+		return self._content
+
+
+	def _underscoreName(self):
+		"""
+		Return the (dummy) header required for the JS module to run.
+		"""
+
+		return "%s = {'__name__': '%s'}" % (self._name, self._name)
 
 
 
 class MegaScriptTests(unittest.TestCase):
 
 	def test_megaScriptNoWrapper(self):
-		s1 = _DummyScriptForMega('var x={};')
-		s2 = _DummyScriptForMega('var y={};')
+		s1 = _DummyScriptForMega('s1', 'var x={};\n')
+		s2 = _DummyScriptForMega('s2', 'var y={};\n')
 		result = jsimp.megaScript([s1, s2], False)
-		self.assertEqual('var x={};var y={};', result)
+		self.assertEqual(u'''\
+s1 = {'__name__': 's1'};
+var x={};
+s2 = {'__name__': 's2'};
+var y={};
+''', result)
 
 
 	def test_megaScriptWrapper(self):
-		s1 = _DummyScriptForMega('var x={};')
-		s2 = _DummyScriptForMega('var y={};')
+		s1 = _DummyScriptForMega('s1', 'var x={};\n')
+		s2 = _DummyScriptForMega('s2', 'var y={};\n')
 		result = jsimp.megaScript([s1, s2], True)
-		self.assertEqual('''\
+		self.assertEqual(u'''\
 (function(window, undefined) {
 var document = window.document;
-var x={};var y={};
+s1 = {'__name__': 's1'};
+var x={};
+s2 = {'__name__': 's2'};
+var y={};
 })(window);
 ''', result)

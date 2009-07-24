@@ -110,10 +110,11 @@ def megaScript(scripts, wrapper):
 var document = window.document;
 '''
 	for script in scripts:
+		data += script._underscoreName() + u';\n'
 		data += script.getContent()
 
 	if wrapper:
-		data += u'\n})(window);\n'
+		data += u'})(window);\n'
 
 	return data
 
@@ -273,7 +274,7 @@ class Script(object):
 		TODO: but only CW things require this. Should it just be in the module?
 		"""
 		
-		return "%s={'__name__': '%s'}" % (self._name, self._name)
+		return "%s = {'__name__': '%s'}" % (self._name, self._name)
 
 
 	def scriptContent(self):
