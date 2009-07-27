@@ -195,7 +195,7 @@ CW.UnitTest.TestResult.methods(
 CW.UnitTest.SubunitTestClient = CW.UnitTest.TestResult.subclass('CW.UnitTest.SubunitTestClient');
 CW.UnitTest.SubunitTestClient.methods(
 	function _write(self, string) {
-		__CW_print(string);
+		print(string);
 	},
 
 	function _sendException(self, error) {
@@ -661,7 +661,7 @@ CW.UnitTest.TestCase.methods(
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
-		//__CW_print('Starting ' + self + ' ' + self._methodName + '<br>');
+		CW.msg('Starting ' + self + ' ' + self._methodName);
 
 		result.startTest(self);
 
@@ -1210,7 +1210,7 @@ CW.UnitTest.installMonkeys = function() {
 	var installD = new CW.Defer.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
-		CW.debug('Monkeys already installed or being installed.');
+		CW.msg('Monkeys already installed or being installed.');
 		installD.callback(null);
 		return installD;
 	}
@@ -1274,7 +1274,7 @@ CW.UnitTest.installMonkeys = function() {
 		}
 
 		function _IE_finishInstallMonkeys() {
-			CW.debug('_iframeReady triggered.');
+			CW.msg('_iframeReady triggered.');
 			execScript('\
 				function setTimeout(callable, when) {\
 					return CW.UnitTest.setTimeoutMonkey(callable, when);\

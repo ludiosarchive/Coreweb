@@ -7,6 +7,7 @@ window.CW = CW;
 CW._debugMode = true;
 
 
+/* Like Python's dir() */
 CW.dir = function(obj) {
 	var L = [];
 	for (var i in obj) {
@@ -14,6 +15,43 @@ CW.dir = function(obj) {
 	}
 	return L;
 };
+
+
+/**
+ * Date tools.
+ *
+ * This is useful because each browser has a different idea of what a
+ * coerced-to-string date should look like.
+ *
+ * TODO: maybe support for UTC as well as local time?
+ */
+
+CW.leftPad = function(string, num) {
+	return new Array(num - string.length + 1).join('0') + string;
+};
+
+/**
+ * Return a date that looks sort of like an ISO formatted one.
+ */
+CW.localTime = function() {
+	function p2(s) {
+		return CW.leftPad('' + s, 2);
+	}
+
+	var time = new Date;
+	var day = time.getFullYear() + '-' + p2(time.getMonth() + 1) + '-' + p2(time.getDate());
+
+	var clock =
+		p2(time.getHours()) + ':' +
+		p2(time.getMinutes()) + ':' +
+		p2(time.getSeconds()) + '.' +
+		CW.leftPad('' + time.getMilliseconds(), 3);
+
+	var tz = time.getTimezoneOffset() / 60;
+
+	return day + ' ' + clock + ' -' + tz;
+};
+
 
 
 CW.__classDebugCounter__ = 0;
@@ -307,7 +345,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 
 CW.Class.prototype.__init__ = function() {
-	CW.debug("In CW.Class.prototype.__init__");
+	CW.msg("In CW.Class.prototype.__init__");
 	/* throw new Error("If you ever hit this code path something has gone horribly wrong");
 	 */
 };
@@ -434,6 +472,9 @@ CW.err = function() {
 };
 
 CW.debug = function(kind, msg) {
+	if(msg === undefined) {
+		throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
+	}
 	CW.logger.emit({'isError': false,
 			'message': msg, 'debug': true,
 			'channel': kind});
@@ -462,13 +503,45 @@ CW.warn = function warn(message, category) {
 /*
  * Set up the Firebug console as a CW log observer.
  */
-if(window.firebug) { // non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
+if(window.console && window.console.firebug) {
+	// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
 	CW.logger.addObserver(function (evt) {
 		if (evt.isError) {
 			console.log("CW error: " + evt.message);
+			// Dump the object itself so that you can click and inspect it with Firebug.
 			console.log(evt.error);
 		} else {
 			console.log("CW log: " + evt.message);
+		}
+	});
+}
+
+
+/*
+ * Set up the <div id="CW-debug-log"></div> as a CW log observer.
+ */
+if(document.getElementById('CW-debug-log')) {
+	CW.logger.addObserver(function (evt) {
+		var prepend;
+		if (evt.isError) {
+			prepend = "CW error: ";
+		} else {
+			prepend = "CW log: ";
+		}
+
+		function appendLine(prefix, message) {
+			var textnode = document.createTextNode('[' + CW.localTime() + '] ' + prefix + message);
+			var br = document.createElement("br");
+			// TODO: cache br and logd
+			var logd = document.getElementById('CW-debug-log');
+			logd.appendChild(textnode);
+			logd.appendChild(br);
+		}
+
+		appendLine(prepend, evt.message);
+
+		if (evt.isError) {
+			appendLine('', evt.error);
 		}
 	});
 }
@@ -534,12 +607,12 @@ CW.random = function() {
  */
 CW.JSON = function() {
 	if(window.JSON && JSON.stringify && JSON.parse) {
-		CW.debug("Using browser's native JSON stringifier and parser instead of json2/eval.");
+		CW.msg("Using browser's native JSON stringifier and parser instead of json2/eval.");
 		return {
 			stringify: JSON.stringify,
 			parse: JSON.parse,
 			parseWrapped: function(s) {
-				CW.debug("Why give CW.JSON '()'-wrapped JSON strings"+
+				CW.msg("Why give CW.JSON '()'-wrapped JSON strings"+
 				" when this browser is faster with unwrapped ones?");
 				JSON.parse(s.substr(1, s.length-2));
 			},

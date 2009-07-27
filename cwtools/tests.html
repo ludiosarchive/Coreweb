@@ -7,7 +7,12 @@
 </head>
 <body>
 
-<div id="CW-debug-log"></div>
+<style>
+div, p, body { font-size: 13px; font-family: Tahoma }
+</style>
+
+<div id="CW-debug-log" style="background-color:#ddd"></div>
+<div id="CW-print-log" style="background-color:#eee"></div>
 
 <script>
 /*
@@ -53,9 +58,9 @@ __CW_x.se = +new Date; /* scripts end */
 
 // TODO: Don't use the name print; conflicts with window.print
 function __CW_print(msg) {
-	var textnode = document.createTextNode('[' + (+new Date) + '] ' + msg);
+	var textnode = document.createTextNode('[' + CW.localTime() + '] ' + msg);
 	var br = document.createElement("br");
-	var logd = document.getElementById('CW-debug-log');
+	var logd = document.getElementById('CW-print-log');
 	logd.appendChild(textnode);
 	logd.appendChild(br);
 }

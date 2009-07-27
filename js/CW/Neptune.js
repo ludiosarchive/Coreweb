@@ -192,7 +192,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 			try {
 				self.messageReceived(completeMessage);
 			} catch(e) {
-				CW.log("Failed to process message, but the show must go on.");
+				CW.msg("Failed to process message, but the show must go on.");
 			}
 
 			self.uniPosition += (1 + messageLength); // 1 + because the code takes up space too
