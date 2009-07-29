@@ -139,7 +139,7 @@ CW.UnitTest.TestResult.methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param error: The error that occurred.
-	 * @type error: Generally a L{CW.Error} instance.
+	 * @type error: Generally a L{CW.Defer.Failure} wrapping a L{CW.Error} instance.
 	 */
 	function addError(self, test, error) {
 		self.errors.push([test, error]);
@@ -149,13 +149,13 @@ CW.UnitTest.TestResult.methods(
 	/**
 	 * Report a failed assertion that occurred while running the given test.
 	 *
-	 * This has NOTHING to do with Failure objects.
+	 * This is unrelated to Failure objects.
 	 *
 	 * @param test: The test with the failed assertion.
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.UnitTest.AssertionError} instance.
+	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.UnitTest.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -187,7 +187,76 @@ CW.UnitTest.TestResult.methods(
 	 */
 	function wasSuccessful(self) {
 		return self.failures.length == 0 && self.errors.length == 0;
-	});
+	}
+);
+
+
+/**
+ * Adds test results to a div, as they are run.
+ */
+CW.UnitTest.DIVTestResult = CW.UnitTest.TestResult.subclass('CW.UnitTest.DIVTestResult');
+CW.UnitTest.DIVTestResult.methods(
+	function __init__(self, div) {
+		self.testsRun = 0;
+		self.failures = [];
+		self.successes = [];
+		self.errors = [];
+		self._div = div;
+	},
+
+
+	function startTest(self, test) {
+		self.testsRun++;
+		var textnode = document.createTextNode(test.id());
+		self._div.appendChild(textnode);
+	},
+
+
+	function addError(self, test, error) {
+		self.errors.push([test, error]);
+		var br = document.createElement("br");
+		var textnode = document.createTextNode('... ERROR');
+		var pre = document.createElement("pre");
+		pre.innerHTML = error.toString();
+		self._div.appendChild(textnode);
+		self._div.appendChild(br);
+		self._div.appendChild(pre);
+	},
+
+
+	function addFailure(self, test, failure) {
+		self.failures.push([test, failure]);
+		var br = document.createElement("br");
+		var textnode = document.createTextNode('... FAILURE');
+		var pre = document.createElement("pre");
+		pre.innerHTML = failure.toString();
+		self._div.appendChild(textnode);
+		self._div.appendChild(br);
+		self._div.appendChild(pre);
+		//console.log(failure);
+		//console.log('xxxxxxxxxxxxxxx');
+		//self._div.appendChild(failure.toPrettyNode());
+	},
+
+
+	function addSuccess(self, test) {
+		self.successes.push(test);
+		var br = document.createElement("br");
+		var textnode = document.createTextNode('... OK');
+		self._div.appendChild(textnode);
+		self._div.appendChild(br);
+	},
+
+
+	function getSummary(self) {
+		return [self.testsRun, self.failures.length, self.errors.length];
+	},
+
+
+	function wasSuccessful(self) {
+		return self.failures.length == 0 && self.errors.length == 0;
+	}
+);
 
 
 // no more subunit/spidermonkey
@@ -205,13 +274,13 @@ CW.UnitTest.SubunitTestClient.methods(
 
 	function addError(self, test, error) {
 		self._write("error: " + test.id() + " [");
-		self._sendException(error);
+		self._sendException(error.error);
 		self._write(']');
 	},
 
 	function addFailure(self, test, error) {
 		self._write("failure: " + test.id() + " [");
-		self._sendException(error);
+		self._sendException(error.error);
 		self._write(']');
 	},
 
@@ -676,10 +745,11 @@ CW.UnitTest.TestCase.methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function(aFailure) {
+					// Note that we're not adding the Error as Divmod did; we are adding the Failure
 					if (aFailure.error instanceof CW.UnitTest.AssertionError) {
-						result.addFailure(self, aFailure.error);
+						result.addFailure(self, aFailure);
 					} else {
-						result.addError(self, aFailure.error);
+						result.addError(self, aFailure);
 					}
 					success = false;
 				});
@@ -776,9 +846,9 @@ CW.UnitTest.TestCase.methods(
 //			self[self._methodName]();
 //		} catch (e) {
 //			if (e instanceof CW.UnitTest.AssertionError) {
-//				result.addFailure(self, e);
+//				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if needed)
 //			} else {
-//				result.addError(self, e);
+//				result.addError(self, e); // NEW NOTE: (passing in Error, Failure() this if needed)
 //			}
 //			success = false;
 //		}
@@ -906,23 +976,23 @@ CW.UnitTest.formatError = function formatError(kind, test, error) {
 
 
 /**
- * Run the given test, printing the summary of results and any errors. If run
- * inside a web browser, it will try to print these things to the printer, so
- * don't use this in a web browser.
+ * Run the given test, printing the summary of results and any errors.
  *
  * @param test: The test to run.
  * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
 CW.UnitTest.run = function run(test) {
-	var result = CW.UnitTest.TestResult();
+	var div = document.getElementById('CW-test-log');
+	var result = CW.UnitTest.DIVTestResult(div);
 	var start = new Date().getTime();
 	var d = test.run(result);
 	d.addCallback(function(){
 		var timeTaken = new Date().getTime() - start;
-		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms');
-		__CW_print(CW.UnitTest.formatErrors(result));
-		//__CW_print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
-		__CW_print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
+		__CW_print(result.getSummary());
+//		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms');
+//		__CW_print(CW.UnitTest.formatErrors(result));
+//		//__CW_print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
+//		__CW_print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
 	});
 	return d;
 };

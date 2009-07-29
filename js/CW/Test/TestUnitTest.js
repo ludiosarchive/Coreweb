@@ -473,15 +473,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			// check the failure
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
-			self.assert(self.result.failures[0][1]
+			self.assert(self.result.failures[0][1].error
 						instanceof CW.UnitTest.AssertionError);
-			self.assert(CW.startswith(self.result.failures[0][1].message, "[0] fail this test deliberately"));
+			self.assert(CW.startswith(self.result.failures[0][1].error.message, "[0] fail this test deliberately"));
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Error);
+			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
+			self.assert(self.result.errors[0][1].error instanceof CW.Error);
 
-			self.assert(CW.startswith(self.result.errors[0][1].message, "error"));
+			self.assert(CW.startswith(self.result.errors[0][1].error.message, "error"));
 			self.assertArraysEqual(self.result.successes, [good]);
 		});
 		return d;
