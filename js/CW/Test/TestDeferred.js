@@ -229,7 +229,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		// if you pass a number to new Error(stringedNumber),
 		// IE will set e.message = "" and e.number = number
 		var anError = new Error("Must be uncastable to num for IE.");
-		self.assertIdentical("Musx be uncastable to num for IE.", anError.message);
+		self.assertIdentical("Must be uncastable to num for IE.", anError.message);
 		defr2.errback(anError);
 		defr3.callback("3");
 

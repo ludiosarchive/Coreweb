@@ -909,70 +909,6 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 
 
 /**
- * Return a formatted string containing all the errors and failures in a result
- *
- * @param result: A test result.
- * @type result: L{CW.UnitTest.TestResult}
- */
-CW.UnitTest.formatErrors = function formatErrors(result) {
-	var format = '';
-	var i;
-	for (i = 0; i < result.errors.length; ++i) {
-		format += CW.UnitTest.formatError('ERROR',
-											  result.errors[i][0],
-											  result.errors[i][1]);
-		format += '<br>\n';
-	}
-	for (i = 0; i < result.failures.length; ++i) {
-		format += CW.UnitTest.formatError('FAILURE',
-											  result.failures[i][0],
-											  result.failures[i][1]);
-		format += '<br>\n';
-	}
-	return format;
-};
-
-
-
-/**
- * Return a formatted string containing all the successes in a result
- *
- * @param result: A test result.
- * @type result: L{CW.UnitTest.TestResult}
- */
-CW.UnitTest.formatSuccesses = function formatErrors(result) {
-	var format = '';
-	var i;
-	for (i = 0; i < result.successes.length; ++i) {
-		format += '[SUCCESS] ' + result.successes[i].id() + '<br>\n';
-	}
-	return format;
-};
-
-
-
-/**
- * Return a formatting string showing the failure/error that occurred in a test.
- *
- * @param test: A test which had a failure or error.
- * @type test: L{CW.UnitTest.TestCase}
- *
- * @param error: An error or failure which occurred in the test.
- * @type error: L{CW.Error}
- */
-CW.UnitTest.formatError = function formatError(kind, test, error) {
-	var ret = '[' + kind + '] ' + test.id() + ':\n\n' + error.message + '\n';
-
-	// this is just really annoying
-	//var f = CW.Defer.Failure(error);
-	//ret += f.toPrettyText(f.filteredParseStack()) + '\n';
-
-	return ret;
-};
-
-
-
-/**
  * Run the given test, printing the summary of results and any errors.
  *
  * @param test: The test to run.
@@ -985,11 +921,9 @@ CW.UnitTest.run = function run(test) {
 	var d = test.run(result);
 	d.addCallback(function(){
 		var timeTaken = new Date().getTime() - start;
-		__CW_print(result.getSummary());
-//		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms');
-//		__CW_print(CW.UnitTest.formatErrors(result));
-//		//__CW_print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
-//		__CW_print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');
+		var textnode = document.createTextNode(
+			CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms');
+		div.appendChild(textnode);
 	});
 	return d;
 };

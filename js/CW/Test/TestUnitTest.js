@@ -886,9 +886,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	},
 
 
-
-
-
 	/**
 	 * Test that the summary of a result object from a test run with failures
 	 * indicates an overall failure as well as the number of test failures.
@@ -930,87 +927,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
 							 "FAILED (tests=3, errors=1, failures=1)");
 		});
-		return d;
-	},
-
-
-	/**
-	 * Check that L{formatErrors} returns an empty string for an empty result.
-	 */
-	function test_formatErrorsEmpty(self) {
-		self.assertIdentical(CW.UnitTest.formatErrors(self.result), '');
-	},
-
-
-	/**
-	 * Check that L{formatErrors} returns an empty string for a successful result.
-	 */
-	function test_formatErrorsOK(self) {
-		var test = self.mockModule._WasRun('test_good');
-
-		var d = test.run(self.result);
-		d.addCallback(function(){
-			self.assertIdentical(CW.UnitTest.formatErrors(self.result), '');
-		});
-		return d;
-	},
-
-
-	/**
-	 * Check that the L{formatError} returns a nicely formatted representation
-	 * of a failed/errored test.
-	 *
-	 * Modified: Traceback no longer checked-for, because it was very ugly.
-	 */
-	function test_formatError(self) {
-		var test = self.mockModule._WasRun('test_bad');
-		var error, failure;
-		try {
-			throw CW.Error("error-message");
-		} catch (e) {
-			error = e;
-			//self._noOpera10Trailer(error);
-			failure = CW.Defer.Failure(error);
-		}
-		self.assert(CW.startswith(
-			CW.UnitTest.formatError('FAILURE', test, error),
-			'[FAILURE] '+self.mockModule.__name__+'._WasRun.test_bad:\n\nerror-message' // do not suffix \n here! Opera 10 will not pass! */
-			)); //removed + failure.toPrettyText(failure.filteredParseStack()) + '\n'
-	},
-
-
-	/**
-	 * Check that L{formatErrors} returns a string that contains all of the
-	 * errors and failures from the result, formatted using L{formatError}.
-	 */
-
-	 // TODO: make this test less of a copy/paste from UnitTest. Just check that the errors/failures are there.
-
-	function test_formatErrors(self) {
-		var test = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
-		var d = test.run(self.result);
-
-		d.addCallback(function(){
-
-			var expected = '';
-			var i;
-			for (i = 0; i < self.result.errors.length; ++i) {
-				expected += CW.UnitTest.formatError('ERROR',
-													self.result.errors[i][0],
-													self.result.errors[i][1]);
-				expected += '<br>\n';
-			}
-			for (i = 0; i < self.result.failures.length; ++i) {
-				expected += CW.UnitTest.formatError('FAILURE',
-													self.result.failures[i][0],
-													self.result.failures[i][1]);
-				expected += '<br>\n';
-			}
-			var observed = CW.UnitTest.formatErrors(self.result);
-			self.assertIdentical(observed, expected);
-
-		});
-
 		return d;
 	}
 );
