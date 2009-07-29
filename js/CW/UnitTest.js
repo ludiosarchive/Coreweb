@@ -1042,7 +1042,7 @@ CW.UnitTest.ConcurrentVisitor.methods(
 CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
 CW.UnitTest.SerialVisitor.methods(
 	function traverse(self, visitor, tests) {
-//		__CW_print('Using SerialVisitor on ' + tests);
+//		CW.msg('Using SerialVisitor on ' + tests);
 		var completionDeferred = new CW.Defer.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
@@ -1162,7 +1162,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
-//			__CW_print('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.<br>');
+//			CW.msg('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
 //		}
 
 		// actually run the callable
@@ -1246,7 +1246,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
  * This needs to be called before tests are started.
  */
 CW.UnitTest.installMonkeys = function() {
-	//__CW_print('installMonkeys');
+	//CW.msg('installMonkeys');
 
 	var installD = new CW.Defer.Deferred();
 

@@ -333,7 +333,7 @@ there';
 //						}
 //					}
 //
-//					//__CW_print(CW.JSON.stringify(stateCounters) + '<br>');
+//					//CW.msg(CW.JSON.stringify(stateCounters));
 //				}
 //
 //			} catch (error) {
@@ -381,7 +381,7 @@ there';
 //	function finalXHRObservations(self, xhr, allResponseTexts) {
 //		var finalResponseText = xhr.responseText;
 //
-//		__CW_print(CW.JSON.stringify(finalResponseText) + '<br>');
+//		CW.msg(CW.JSON.stringify(finalResponseText));
 //
 //		var expectedLoss = self._getExpectedLoss();
 //

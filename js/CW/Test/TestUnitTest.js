@@ -705,7 +705,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			//__CW_print('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message + '<br>');
+			//CW.msg('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message);
 			self.assert(self.result.errors[0][1] instanceof CW.Error); // seen some cases where IE6 disagree with this, and the thing below.
 			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setInterval_pending"));
 		});

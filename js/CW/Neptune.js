@@ -84,7 +84,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 				self._dataReceived();
 			}
 //			if(state == 3 || state == 4) {
-//				__CW_print(self.xhr.responseText.length+'<br>');
+//				CW.msg(self.xhr.responseText.length);
 //			}
 //			if(state == 4) {
 //				self._dataReceived();
@@ -132,22 +132,22 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 	function _dataReceived(self) {
 		var responseLengthNow = 0.0 + self.xhr.responseText.length;
 
-		__CW_print(responseLengthNow+'<br>');
+		CW.msg(responseLengthNow);
 
 		//console.log('responseText.length increased by', responseLengthNow-self.lastLengthSeen);
 		var lengthIncrease = responseLengthNow-self.lastLengthSeen;
-		__CW_print("Increase: " + lengthIncrease + "<br>");
+		CW.msg("Increase: " + lengthIncrease);
 		self.lastLengthSeen = responseLengthNow;
-		//__CW_print(Array(lengthIncrease+1).join('.'));
+		//CW.msg(Array(lengthIncrease+1).join('.'));
 
 		if(self.connStatus !== "maybealive") {
-			__CW_print("self.connStatus was " + self.connStatus + ", so return;");
+			CW.msg("self.connStatus was " + self.connStatus + ", so return;");
 			return;
 		}
 
 		if(self.lastHeaders == null) {
 			self.lastHeaders = self.xhr.getAllResponseHeaders();
-			__CW_print(CW.JSON.stringify(self.lastHeaders));
+			CW.msg(CW.JSON.stringify(self.lastHeaders));
 		}
 
 		if(responseLengthNow < self.minimumLengthToCare) {
@@ -172,7 +172,7 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 			//var code = (''+self.xhr.responseText).substr(self.uniPosition, 1).charCodeAt(0);
 			var code = self.xhr.responseText.charCodeAt(self.uniPosition);
 
-			//__CW_print('char is' + CW.JSON.stringify(self.xhr.responseText.substr(self.uniPosition, 1)) + 'code is ' + code + '<br>');
+			//CW.msg('char is' + CW.JSON.stringify(self.xhr.responseText.substr(self.uniPosition, 1)) + 'code is ' + code);
 			if(isNaN(code)) {
 				throw new Error("No code yet? We should never see this message.");
 			}
@@ -206,15 +206,15 @@ CW.Class.subclass(CW.Neptune, "XHRStream").methods(
 			}
 		}
 
-		//__CW_print(CW.JSON.stringify(self.xhr.responseText) + '<br>');
+		//CW.msg(CW.JSON.stringify(self.xhr.responseText));
 		//self.uniPosition = self.xhr.responseText.length; // can't do this. it could have already changed.
 	},
 
 
 	function messageReceived(self, message) {
-		//__CW_print("got a message.<br>");
-		__CW_print(message + '<br>');
-		//__CW_print(+new Date + " " + CW.JSON.stringify(eval('(' + message + ')')) + '<br>');
+		//CW.msg("got a message.");
+		CW.msg(message);
+		//CW.msg(+new Date + " " + CW.JSON.stringify(eval('(' + message + ')')));
 	}
 );
 
