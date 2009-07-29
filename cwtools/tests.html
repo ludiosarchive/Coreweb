@@ -8,7 +8,10 @@
 <body>
 
 <style>
-div, p, body { font-size: 13px; font-family: Tahoma }
+div, p, body {
+	font-size: 13px;
+	font-family: Tahoma, sans-serif;
+}
 </style>
 
 <a href="#" onclick="__CW_toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
@@ -92,7 +95,7 @@ function __CW_toggleVisibility(id) {
 __CW_print("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
 
 function _startTests() {
-	__CW_print('Running tests.<br>');
+	__CW_print('Running tests.');
 
 	var modules = /**/modules//
 	var suite = CW.UnitTest.loadFromModules(modules);

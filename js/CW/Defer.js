@@ -266,6 +266,8 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 			}
 		}
 
+		// In the twisted.internet version of Deferred, the Failure gets saved in _debugInfo.
+		
 		if (this._result instanceof CWD.Failure) {
 			// This might be spurious
 			CW.err(this._result.error);

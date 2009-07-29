@@ -82,5 +82,5 @@ class Index(resource.Resource):
 		resource.Resource.__init__(self)
 
 		self.putChild('@tests', TestPage())
-		self.putChild('@static', CommonStatic())
+		#self.putChild('@static', CommonStatic())
 		self.putChild('@js', static.File(os.environ['JSPATH']))

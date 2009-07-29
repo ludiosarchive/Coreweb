@@ -108,6 +108,7 @@ CW.UnitTest.TestResult.methods(
 		self.failures = [];
 		self.successes = [];
 		self.errors = [];
+		self.timeStarted = null;
 	},
 
 
@@ -118,6 +119,9 @@ CW.UnitTest.TestResult.methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 */
 	function startTest(self, test) {
+		if(self.timeStarted === null) {
+			self.timeStarted = new Date().getTime();
+		}
 		self.testsRun++;
 	},
 
@@ -197,16 +201,13 @@ CW.UnitTest.TestResult.methods(
 CW.UnitTest.DIVTestResult = CW.UnitTest.TestResult.subclass('CW.UnitTest.DIVTestResult');
 CW.UnitTest.DIVTestResult.methods(
 	function __init__(self, div) {
-		self.testsRun = 0;
-		self.failures = [];
-		self.successes = [];
-		self.errors = [];
+		CW.UnitTest.DIVTestResult.upcall(self, '__init__', []);
 		self._div = div;
 	},
 
 
 	function startTest(self, test) {
-		self.testsRun++;
+		CW.UnitTest.DIVTestResult.upcall(self, 'startTest', [test]);
 		var textnode = document.createTextNode(test.id());
 		self._div.appendChild(textnode);
 	},
@@ -243,16 +244,6 @@ CW.UnitTest.DIVTestResult.methods(
 		var textnode = document.createTextNode('... OK');
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
-	},
-
-
-	function getSummary(self) {
-		return [self.testsRun, self.failures.length, self.errors.length];
-	},
-
-
-	function wasSuccessful(self) {
-		return self.failures.length == 0 && self.errors.length == 0;
 	}
 );
 
@@ -907,6 +898,44 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 };
 
 
+/**
+ * Take a L{CW.UnitTest.TestResult} and return a DIV that contains an
+ * easily-recognizable image (for automated test systems), along with
+ * a number of tests run.
+ */
+CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
+	var summaryDiv = document.createElement('div');
+
+	var doneImg = document.createElement('img');
+	doneImg.src = '/@js/CW/done.png?2';
+	summaryDiv.appendChild(doneImg);
+
+	var numberTestsDiv = document.createElement('div');
+	var bgColor = 'green';
+	if (result.errors.length > 0 || result.failures.length > 0) {
+		bgColor = 'red';
+	}
+	summaryDiv.style.backgroundColor = bgColor;
+
+	var additionalText = '';
+	if (result.errors.length > 0) {
+		additionalText += ' E=' + result.errors.length;
+	}
+	if (result.failures.length > 0) {
+		additionalText += ' F=' + result.failures.length;
+	}
+	numberTestsDiv.innerHTML =
+		'<center style="color:white;font-weight:bold">'+result.testsRun+additionalText+'</center>';
+	summaryDiv.appendChild(numberTestsDiv);
+
+	summaryDiv.style.position = 'absolute';
+	summaryDiv.style.top = '6px';
+	summaryDiv.style.right = '6px';
+	summaryDiv.style.padding = '2px';
+
+	return summaryDiv;
+}
+
 
 /**
  * Run the given test, printing the summary of results and any errors.
@@ -917,13 +946,20 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 CW.UnitTest.run = function run(test) {
 	var div = document.getElementById('CW-test-log');
 	var result = CW.UnitTest.DIVTestResult(div);
-	var start = new Date().getTime();
 	var d = test.run(result);
-	d.addCallback(function(){
-		var timeTaken = new Date().getTime() - start;
+	d.addCallback(function(){	
+		var timeTaken = new Date().getTime() - result.timeStarted;
 		var textnode = document.createTextNode(
 			CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms');
 		div.appendChild(textnode);
+
+		div.appendChild(document.createElement('br'));
+
+		var machineNode = document.createTextNode('|*TEST-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-TEST-SUMMARY*|');
+		div.appendChild(machineNode);
+
+		var summaryDiv = CW.UnitTest.makeSummaryDiv(result);
+		document.body.appendChild(summaryDiv);
 	});
 	return d;
 };
@@ -1254,8 +1290,7 @@ CW.UnitTest.installMonkeys = function() {
 
 		var body = document.body;
 		var iframe = document.createElement("iframe");
-		// TODO: factor out the /@static/
-		iframe.setAttribute("src", "/@static/blank/");
+		iframe.setAttribute("src", "/@js/CW/blank.html");
 		iframe.setAttribute("id", "__CW_unittest_blank_iframe");
 		iframe.setAttribute("name", "__CW_unittest_blank_iframe");
 
