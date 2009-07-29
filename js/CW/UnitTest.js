@@ -214,7 +214,7 @@ CW.UnitTest.DIVTestResult.methods(
 
 
 	function addError(self, test, error) {
-		self.errors.push([test, error]);
+		CW.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
@@ -226,7 +226,7 @@ CW.UnitTest.DIVTestResult.methods(
 
 
 	function addFailure(self, test, failure) {
-		self.failures.push([test, failure]);
+		CW.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, failure]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
@@ -239,7 +239,7 @@ CW.UnitTest.DIVTestResult.methods(
 
 
 	function addSuccess(self, test) {
-		self.successes.push(test);
+		CW.UnitTest.DIVTestResult.upcall(self, 'addSuccess', [test]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... OK');
 		self._div.appendChild(textnode);

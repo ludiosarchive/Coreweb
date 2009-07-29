@@ -345,9 +345,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 
 CW.Class.prototype.__init__ = function() {
-	CW.msg("In CW.Class.prototype.__init__");
-	/* throw new Error("If you ever hit this code path something has gone horribly wrong");
-	 */
+	//CW.msg("In CW.Class.prototype.__init__");
 };
 
 /**
