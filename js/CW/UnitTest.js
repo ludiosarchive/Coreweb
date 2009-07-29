@@ -907,7 +907,7 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	var summaryDiv = document.createElement('div');
 
 	var doneImg = document.createElement('img');
-	doneImg.src = '/@js/CW/done.png?2';
+	doneImg.src = '/@js/CW/done.gif';
 	summaryDiv.appendChild(doneImg);
 
 	var numberTestsDiv = document.createElement('div');
@@ -949,13 +949,17 @@ CW.UnitTest.run = function run(test) {
 	var d = test.run(result);
 	d.addCallback(function(){	
 		var timeTaken = new Date().getTime() - result.timeStarted;
+
+		var span = document.createElement('span');
+		span.style.fontWeight = 'bold';
 		var textnode = document.createTextNode(
 			CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms');
-		div.appendChild(textnode);
+		span.appendChild(textnode);
+		div.appendChild(span);
 
 		div.appendChild(document.createElement('br'));
 
-		var machineNode = document.createTextNode('|*TEST-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-TEST-SUMMARY*|');
+		var machineNode = document.createTextNode('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|');
 		div.appendChild(machineNode);
 
 		var summaryDiv = CW.UnitTest.makeSummaryDiv(result);
