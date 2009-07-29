@@ -11,7 +11,9 @@
 div, p, body { font-size: 13px; font-family: Tahoma }
 </style>
 
-<div id="CW-debug-log" style="background-color:#ddd"></div>
+<a href="#" onclick="__CW_toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
+
+<div id="CW-debug-log" style="background-color:#ddd;display:none"></div>
 <div id="CW-print-log" style="background-color:#eee"></div>
 
 <script>
@@ -64,6 +66,18 @@ function __CW_print(msg) {
 	logd.appendChild(textnode);
 	logd.appendChild(br);
 }
+
+
+function __CW_toggleVisibility(id) {
+	var e = document.getElementById(id);
+	if(e.style.display == 'block') {
+		e.style.display = 'none';
+	} else {
+		e.style.display = 'block';
+	}
+}
+
+
 
 //function __CW_print(msg) {
 //	var logd = document.getElementById('CW-debug-log');

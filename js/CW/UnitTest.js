@@ -919,7 +919,7 @@ CW.UnitTest.run = function run(test) {
 	var d = test.run(result);
 	d.addCallback(function(){
 		var timeTaken = new Date().getTime() - start;
-		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms<br>');
+		__CW_print('<b>' + CW.UnitTest.formatSummary(result) + '</b> in '+timeTaken+' ms');
 		__CW_print(CW.UnitTest.formatErrors(result));
 		//__CW_print('<a href="#" onclick="jQuery(\'#successes\').show();return false">Show successes</a>');
 		__CW_print('<div id="unittest-successes">' + CW.UnitTest.formatSuccesses(result) + '</div>');

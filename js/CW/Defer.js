@@ -149,6 +149,21 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 	}
 );
 
+
+/**
+ * Deferred.
+ *
+ * A lot of things are manually inlined here for two reasons:
+ * 
+ *    - JScript (and some older browsers) have poor JavaScript performance.
+ *
+ *    - The fewer function calls per recursive _runCallbacks cycle, the more chained
+ *      callbacks/Defereds can be called without overflowing the stack.
+ *      See http://twistedmatrix.com/pipermail/twisted-python/2008-November/018693.html
+ * 
+ *      (in the future, this implementation should not use recursion, and the second
+ *       reason will be obsolete)
+ */
 CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 
 	'__init__': function() {
