@@ -233,8 +233,6 @@ CW.UnitTest.DIVTestResult.methods(
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
-		//console.log(failure);
-		//console.log('xxxxxxxxxxxxxxx');
 		//self._div.appendChild(failure.toPrettyNode());
 	},
 
@@ -267,20 +265,19 @@ CW.UnitTest.SubunitTestClient.methods(
 		print(string);
 	},
 
-	function _sendException(self, error) {
-		var f = CW.Defer.Failure(error);
+	function _sendException(self, f) {
 		self._write(f.toPrettyText(f.filteredParseStack()));
 	},
 
 	function addError(self, test, error) {
 		self._write("error: " + test.id() + " [");
-		self._sendException(error.error);
+		self._sendException(error);
 		self._write(']');
 	},
 
-	function addFailure(self, test, error) {
+	function addFailure(self, test, failure) {
 		self._write("failure: " + test.id() + " [");
-		self._sendException(error.error);
+		self._sendException(failure);
 		self._write(']');
 	},
 
