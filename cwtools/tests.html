@@ -56,23 +56,6 @@ __CW_x.propsBefore = __CW_x.enumerate();
 __CW_x.se = +new Date; /* scripts end */
 
 
-
-// TODO: use CW log observer code
-
-// doesn't work well because UnitTest.js is print()ing HTML right now :(
-
-// CW.ISODate.localTime()
-
-// TODO: Don't use the name print; conflicts with window.print
-function __CW_print(msg) {
-	var textnode = document.createTextNode('[' + CW.localTime() + '] ' + msg);
-	var br = document.createElement("br");
-	var logd = document.getElementById('CW-print-log');
-	logd.appendChild(textnode);
-	logd.appendChild(br);
-}
-
-
 function __CW_toggleVisibility(id) {
 	var e = document.getElementById(id);
 	if(e.style.display == 'block') {
@@ -83,19 +66,12 @@ function __CW_toggleVisibility(id) {
 }
 
 
-
-//function __CW_print(msg) {
-//	var logd = document.getElementById('CW-debug-log');
-//	logd.innerHTML += msg + '<br>'
-//}
-
-
 (function(){
 
-__CW_print("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
+CW.msg("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
 
 function _startTests() {
-	__CW_print('Running tests.');
+	CW.msg('Running tests.');
 
 	var modules = /**/modules//
 	var suite = CW.UnitTest.loadFromModules(modules);
@@ -105,7 +81,7 @@ function _startTests() {
 
 	function _checkProps() {
 		var newProps = __CW_x.check(__CW_x.propsBefore);
-		__CW_print('New window properties: ' + newProps.join(','));
+		CW.msg('New window properties: ' + newProps.join(','));
 	}
 
 	d.addCallback(_checkProps);
