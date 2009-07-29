@@ -475,7 +475,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(self.result.failures[0][1].error
 						instanceof CW.UnitTest.AssertionError);
-			self.assert(CW.startswith(self.result.failures[0][1].error.message, "[0] fail this test deliberately"));
+			self.assert(CW.startswith(self.result.failures[0][1].error.message,
+				"[0] fail this test deliberately"));
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
