@@ -17,7 +17,6 @@ div, p, body {
 <a href="#" onclick="__CW_toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
 
 <div id="CW-debug-log" style="background-color:#ddd;display:none"></div>
-<div id="CW-print-log" style="background-color:#eee"></div>
 <div id="CW-test-log" style="background-color:#ccc"></div>
 
 
@@ -27,14 +26,14 @@ div, p, body {
 	to help make sure nothing (besides __CW_x and CW) are added
 */
 __CW_x = {
-	enumerate: function(){
+	enumerate: function() {
 		var c = {}, k;
 		for(k in window) {
 			c[k] = true;
 		};
 		return c;
 	},
-	check: function(old){
+	check: function(old) {
 		var k;
 		var newProps = [];
 		for(k in window) {
@@ -58,22 +57,21 @@ __CW_x.se = +new Date; /* scripts end */
 
 function __CW_toggleVisibility(id) {
 	var e = document.getElementById(id);
-	if(e.style.display == 'block') {
+	if(e.style.display == 'block' || !e.style.display) {
 		e.style.display = 'none';
 	} else {
 		e.style.display = 'block';
 	}
 }
 
+CW.msg("Took " + (__CW_x.se-__CW_x.sb) + " ms to load scripts.");
 
-(function(){
-
-CW.msg("Took " + (__CW_x.se-__CW_x.sb) + "ms to load scripts.");
+(function() {
 
 function _startTests() {
 	CW.msg('Running tests.');
 
-	var modules = /**/modules//
+	var modules = /**/moduleString//
 	var suite = CW.UnitTest.loadFromModules(modules);
 
 	var d = CW.UnitTest.run(suite);

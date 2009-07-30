@@ -445,7 +445,7 @@ CW.Logger.methods(
 
 	function err(self, error, /* optional */ message) {
 		var event = {'isError': true, 'error': error};
-		if (message != undefined) {
+		if (message !== undefined) {
 			event['message'] = message;
 		} else {
 			event['message'] = error.message;
