@@ -26,16 +26,12 @@ CW.dir = function(obj) {
  * TODO: maybe support for UTC as well as local time?
  */
 
-CW.leftPad = function(string, num) {
-	return new Array(num - string.length + 1).join('0') + string;
-};
-
 /**
  * Return a date that looks sort of like an ISO formatted one.
  */
 CW.localTime = function() {
 	function p2(s) {
-		return CW.leftPad('' + s, 2);
+		return ('00' + s).slice(-2)
 	}
 
 	var time = new Date;
@@ -45,7 +41,7 @@ CW.localTime = function() {
 		p2(time.getHours()) + ':' +
 		p2(time.getMinutes()) + ':' +
 		p2(time.getSeconds()) + '.' +
-		CW.leftPad('' + time.getMilliseconds(), 3);
+		('000' + time.getMilliseconds()).slice(-3);
 
 	var tz = time.getTimezoneOffset() / 60;
 
