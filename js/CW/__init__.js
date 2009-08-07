@@ -350,8 +350,7 @@ CW.Class.prototype.__init__ = function() {
  * @ivar stack: On Firefox, a string describing the call stack at the time the
  * error was instantiated (/not/ thrown).
  */
-CW.Error = CW.Class.subclass("CW.Error");
-CW.Error.methods(
+CW.Class.subclass(CW, "Error").methods(
 	function __init__(self, /* optional */ message) {
 		self.message = message;
 		self.stack = Error().stack;
@@ -381,16 +380,14 @@ CW.IndexError = CW.Error.subclass("CW.IndexError");
 CW.Warning = CW.Class.subclass("CW.Warning");
 CW.DeprecationWarning = CW.Warning.subclass("CW.DeprecationWarning");
 
-CW.Module = CW.Class.subclass('CW.Module');
-CW.Module.method(
+CW.Class.subclass(CW, 'Module').method(
 	function __init__(self, name) {
 		self.name = name;
 	}
 );
 
 
-CW.Logger = CW.Class.subclass('CW.Logger');
-CW.Logger.methods(
+CW.Class.subclass(CW, 'Logger').methods(
 	function __init__(self) {
 		self.observers = [];
 	},
