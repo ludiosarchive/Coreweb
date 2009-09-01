@@ -9,12 +9,12 @@ class TestPage(resource.Resource):
 	"""
 	This is a Resource that generates pages that run CW.UnitTest-based tests.
 
-	To use it, subclass it and set testPackage to the JS package with the tests.
+	To use it, subclass it and set testPackages to a list of JS packages with tests.
 
 	For example:
 		
 		class CWTestPage(testing.TestPage):
-			testPackage = 'CW.Test'
+			testPackages = 'CW.Test'
 
 		[...]
 
@@ -23,13 +23,15 @@ class TestPage(resource.Resource):
 
 	"""
 	isLeaf = True
-	testPackage = None # your subclass should define this
+	testPackages = None # your subclass should define this
 
 	def _getTests(self):
 		JSPATH = FilePath(os.environ['JSPATH'])
-		tests = [jsimp.Script(self.testPackage, JSPATH, '/@js/')]
-		# TODO: make this descend Test packages, too (imitate Twisted Trial)
-		tests.extend(jsimp.Script(self.testPackage, JSPATH, '/@js/').globChildren('Test*'))
+		tests = []
+		for package in self.testPackages:
+			tests.append(jsimp.Script(package, JSPATH, '/@js/'))
+			# TODO: make this descend Test packages, too (imitate Twisted Trial)
+			tests.extend(jsimp.Script(package, JSPATH, '/@js/').globChildren('Test*'))
 		return tests
 
 

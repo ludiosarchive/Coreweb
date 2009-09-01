@@ -20,6 +20,8 @@ class Options(usage.Options):
 			"See twisted.application.strports for more examples."],
 		["serverb", "b", None,
 			"strports description for an optional second server."],
+		["packages", "p", None,
+			"colon (:)-separated list of test packages to test"],
 	]
 
 	optFlags = [
@@ -34,7 +36,9 @@ This starts a Coreweb Testrun."""
 def makeService(config):
 	s = service.MultiService()
 
-	root = runner.Index()
+	testPackages = config['packages'].split(':')
+
+	root = runner.Index(testPackages)
 
 	site = server.Site(root)
 	site.displayTracebacks = not config["notracebacks"]

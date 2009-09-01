@@ -26,14 +26,16 @@ def neverEverCache(request):
 
 
 class CWTestPage(testing.TestPage):
-	testPackage = 'CW.Test'
+
+	def __init__(self, testPackages):
+		self.testPackages = testPackages
 
 
 
 class Index(resource.Resource):
 
-	def __init__(self):
+	def __init__(self, testPackages):
 		resource.Resource.__init__(self)
 
-		self.putChild('@tests', CWTestPage())
+		self.putChild('@tests', CWTestPage(testPackages))
 		self.putChild('@js', static.File(os.environ['JSPATH']))
