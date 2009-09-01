@@ -21,7 +21,7 @@ class Options(usage.Options):
 		["serverb", "b", None,
 			"strports description for an optional second server."],
 		["packages", "p", None,
-			"colon (:)-separated list of test packages to test"],
+			"comma-separated list of test packages to test"],
 	]
 
 	optFlags = [
@@ -36,7 +36,7 @@ This starts a Coreweb Testrun."""
 def makeService(config):
 	s = service.MultiService()
 
-	testPackages = config['packages'].split(':')
+	testPackages = config['packages'].split(',')
 
 	root = runner.Index(testPackages)
 
