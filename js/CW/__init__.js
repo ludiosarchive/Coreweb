@@ -5,6 +5,8 @@ window.CW = CW;
 
 // TODO: remove this; use JS macros only.
 CW._debugMode = true;
+// Should we automatically run the tests with CW._debugMode = false; too? Probably,
+// that's the only way to make sure they're still passing.
 
 
 /* Like Python's dir() */
@@ -50,8 +52,6 @@ CW.localTime = function() {
 };
 
 
-
-CW.__classDebugCounter__ = 0;
 
 /**
  * This tracks the number of instances of L{CW.Class} subclasses.
@@ -100,7 +100,8 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	var CONSTRUCTOR = CW._CONSTRUCTOR;
 
 	/*
-	 * Create a function which basically serves the purpose of type.__call__ in Python:
+	 * Create a constructor function that wraps the user-defined __init__.
+	 * This basically serves the purpose of type.__call__ in Python.
 	 */
 	var subClass = function(asConstructor) {
 		var self;
@@ -184,13 +185,6 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		className = classNameOrModule;
 	}
 
-	var classIdentifier;
-	if(className === undefined) {
-		classIdentifier = '#' + CW.__classDebugCounter__;
-	} else {
-		classIdentifier = className;
-	}
-
 	/**
 	 * upcall is similar to Python super()
 	 * Use upcall like this:
@@ -204,6 +198,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		// TODO: maybe add all commonly used window properties (bug #410)
 		// see: http://code.google.com/p/doctype/wiki/WindowObject
 		// This only helps prevent problems caused by JScript's mishandling of named functions.
+		// TODO: maybe use the values found in Qooxdoo
 		var windowProps =
 			('window,document,history,location,navigator,screen,opener,closed,parent,constructor'+
 			'clipboardData,crypto,external,status,defaultStatus,top,self,name,length,'+
@@ -341,10 +336,10 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 	subClass.__name__ = className;
 
 	subClass.toString = function() {
-		return '<Class ' + classIdentifier + '>';
+		return '<Class ' + className + '>';
 	};
 	subClass.prototype.toString = function() {
-		return '<"Instance" of ' + classIdentifier + '>';
+		return '<"Instance" of ' + className + '>';
 	};
 	return subClass;
 };
@@ -508,17 +503,20 @@ CW.warn = function warn(message, category) {
 /*
  * Set up the Firebug console as a CW log observer.
  */
-if(window.console && window.console.firebug) {
-	// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
-	CW.logger.addObserver(function (evt) {
-		if (evt.isError) {
-			console.log("CW error: " + evt.message);
-			// Dump the object itself so that you can click and inspect it with Firebug.
-			console.log(evt.error);
-		} else {
-			console.log("CW log: " + evt.message);
-		}
-	});
+if(CW._debugMode) {
+	if(window.console && window.console.firebug) {
+		// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
+		CW.logger.addObserver(function (evt) {
+			if (evt.isError) {
+				console.log("CW error: " + evt.message);
+				// Dump the object itself so that you can click and inspect it with Firebug.
+				console.log(evt.error);
+			} else {
+				console.log("CW log: " + evt.message);
+			}
+		});
+		CW.msg('Made the Firebug console a log observer.');
+	}
 }
 
 

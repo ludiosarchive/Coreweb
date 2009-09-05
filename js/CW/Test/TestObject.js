@@ -150,30 +150,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 
 	/**
-	 * Like L{test_classToString}, but for unnamed L{CW.Class} subclasses.
-	 */
-	function test_unnamedClassToString(self) {
-		var cls = CW.Class.subclass();
-		var classDebugCounter = CW.__classDebugCounter__;
-		self.assertIdentical(
-			cls.toString(), '<Class #' + classDebugCounter + '>');
-	},
-
-
-	/**
-	 * Like L{test_instanceToString} but for instances of unnamed
-	 * L{CW.Class} subclasses.
-	 */
-	function test_unnamedInstanceToString(self) {
-		var cls = CW.Class.subclass();
-		var classDebugCounter = CW.__classDebugCounter__;
-		self.assertIdentical(
-			cls().toString(),
-			'<"Instance" of #' + classDebugCounter + '>');
-	},
-
-
-	/**
 	 * Test that L{CW.__instanceCounter__} is not incremented when a new
 	 * *class* is created.
 	 */
