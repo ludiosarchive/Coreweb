@@ -363,6 +363,8 @@ CW.Class.prototype.__init__ = function() {
 CW.Class.subclass(CW, "Error").methods(
 	function __init__(self, /* optional */ message) {
 		self.message = message;
+		// This stack will contain a few superfluous frames at the bottom,
+		// because it's being created here, not at the 'throw new SomeError' throw site.
 		self.stack = Error().stack;
 	},
 
