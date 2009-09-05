@@ -1,5 +1,6 @@
 import os
 from twisted.web import resource, static
+from twisted.python.filepath import FilePath
 
 from cwtools import testing
 
@@ -38,4 +39,6 @@ class Index(resource.Resource):
 		resource.Resource.__init__(self)
 
 		self.putChild('@tests', CWTestPage(testPackages))
-		self.putChild('@js', static.File(os.environ['JSPATH']))
+
+		testres_CW = FilePath(__file__).parent().child('testres').path
+		self.putChild('@testres_CW', static.File(testres_CW))

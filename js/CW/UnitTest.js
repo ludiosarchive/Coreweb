@@ -902,13 +902,16 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 /**
  * Take a L{CW.UnitTest.TestResult} and return a DIV that contains an
  * easily-recognizable image (for automated test systems), along with
- * a number of tests run.
+ * a number of tests run, errored, and failed.
+ * 
+ * @param result: a finished L{CW.UnitTest.TestResult}
+ * @type result: L{CW.UnitTest.TestResult}
  */
 CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	var summaryDiv = document.createElement('div');
 
 	var doneImg = document.createElement('img');
-	doneImg.src = '/@js/CW/done.gif';
+	doneImg.src = '/@testres_CW/done.gif';
 	summaryDiv.appendChild(doneImg);
 
 	var numberTestsDiv = document.createElement('div');
@@ -1295,7 +1298,7 @@ CW.UnitTest.installMonkeys = function() {
 
 		var body = document.body;
 		var iframe = document.createElement("iframe");
-		iframe.setAttribute("src", "/@js/CW/blank.html");
+		iframe.setAttribute("src", "/@testres_CW/blank.html");
 		iframe.setAttribute("id", "__CW_unittest_blank_iframe");
 		iframe.setAttribute("name", "__CW_unittest_blank_iframe");
 

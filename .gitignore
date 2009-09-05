@@ -1,4 +1,5 @@
 *.pyc
 *.pyo
-_trial_temp
-build
+/_trial_temp
+/build
+dropin.cache
