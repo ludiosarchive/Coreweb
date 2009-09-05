@@ -27,7 +27,8 @@ CW.dir = function(obj) {
  */
 
 /**
- * Return a date that looks sort of like an ISO formatted one.
+ * Return a date that looks like an ISO formatted one, except format
+ * the tz in decimal hours, not HHMM offset.
  */
 CW.localTime = function() {
 	function p2(s) {
@@ -169,6 +170,10 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 
 		if(CW._debugMode) {
 			if(classNameOrModule[subclassName] !== undefined) {
+				// throw an Error instead of something like CW.NameCollisionError
+				// because we don't have subclassing yet, and if we define it later, it might
+				// have a typo that triggers this condition; at this point you'll see a strange
+				// ReferenceError here.
 				throw new Error("CW.Class.subclass: Won't overwrite " + className);
 			}
 		}
@@ -186,7 +191,11 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		classIdentifier = className;
 	}
 
-	/* Sort of like the Python super() */
+	/**
+	 * upcall is similar to Python super()
+	 * Use upcall like this:
+	 * CW.Defer.FirstError.upcall(self, '__init__', []);
+	 */
 	subClass.upcall = function(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
@@ -218,6 +227,7 @@ CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
 		 */
 		subClass._prepareToAdd = function(methodName) {
 			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
+				// See explanation above for why Error instead of a CW.NameCollisionError
 				throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
 					subClass.__name__ + '.' + methodName);
 			}
@@ -371,7 +381,7 @@ CW.Class.subclass(CW, "Error").methods(
  * Sequence container index out of bounds.
  */
 /* // commented out until we need it, if ever
-CW.IndexError = CW.Error.subclass("CW.IndexError");
+CW.Error.subclass(CW, "IndexError");
 */
 
 /**
@@ -463,8 +473,10 @@ CW.err = function() {
 };
 
 CW.debug = function(kind, msg) {
-	if(msg === undefined) {
-		throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
+	if(CW._debugMode) {
+		if(msg === undefined) {
+			throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
+		}
 	}
 	CW.logger.emit({'isError': false,
 			'message': msg, 'debug': true,

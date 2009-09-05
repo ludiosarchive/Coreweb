@@ -1063,8 +1063,8 @@ CW.UnitTest.SerialVisitor.methods(
 				self._traverse(visitor, tests, completionDeferred, nowOn+1);
 			});
 		} else {
-			// This setTimeout is absolute necessary (instead of just `completionDeferred.callback(null);`)
-			// because we must reduce the amount of recursion.
+			// This setTimeout is absolutely necessary (instead of just `completionDeferred.callback(null);`)
+			// because we must reduce our stack depth.
 			// The test suite will halt (no error) in Safari 3/4 without this setTimeout replacement.
 			// Safari 3 reports its recursion limit as ~500; Safari 4 as ~30000
 			// (though the '30000' is a lie, because it breaks much earlier during real use).
