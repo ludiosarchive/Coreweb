@@ -4,7 +4,7 @@ from twisted.web import server
 from twisted.python import usage
 from twisted.application import service, strports
 
-from cwtools import runner
+from cwtools import corewebsite
 
 
 class Options(usage.Options):
@@ -38,7 +38,7 @@ def makeService(config):
 
 	testPackages = config['packages'].split(',')
 
-	root = runner.Index(testPackages)
+	root = corewebsite.Index(testPackages)
 
 	site = server.Site(root)
 	site.displayTracebacks = not config["notracebacks"]

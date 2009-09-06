@@ -13,12 +13,12 @@ class TestPage(resource.Resource):
 
 	For example:
 		
-		class CWTestPage(testing.TestPage):
+		class TestPage(testing.TestPage):
 			testPackages = 'CW.Test'
 
 		[...]
 
-		self.putChild('@tests', CWTestPage())
+		self.putChild('@tests', TestPage())
 		self.putChild('@js', static.File(os.environ['JSPATH']))
 
 	"""
@@ -48,5 +48,9 @@ class TestPage(resource.Resource):
 
 		jsw = jsimp.JavaScriptWriter()
 		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()
-		return jsw.render(testsTemplate,
-			dict(scriptContent=scriptContent, moduleString=moduleString)).encode('utf-8')
+		return jsw.render(
+			testsTemplate,
+			dict(scriptContent=scriptContent,
+				moduleString=moduleString,
+				pageTitle=','.join(self.testPackages))
+			).encode('utf-8')

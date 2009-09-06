@@ -911,7 +911,7 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	var summaryDiv = document.createElement('div');
 
 	var doneImg = document.createElement('img');
-	doneImg.src = '/@testres_CW/done.gif';
+	doneImg.src = '/@testres_Coreweb/done.gif';
 	summaryDiv.appendChild(doneImg);
 
 	var numberTestsDiv = document.createElement('div');
@@ -1298,7 +1298,7 @@ CW.UnitTest.installMonkeys = function() {
 
 		var body = document.body;
 		var iframe = document.createElement("iframe");
-		iframe.setAttribute("src", "/@testres_CW/blank.html");
+		iframe.setAttribute("src", "/@testres_Coreweb/blank.html");
 		iframe.setAttribute("id", "__CW_unittest_blank_iframe");
 		iframe.setAttribute("name", "__CW_unittest_blank_iframe");
 

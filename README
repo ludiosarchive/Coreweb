@@ -8,3 +8,6 @@ Another example: client-side code to synchronize the client's clock with a serve
 should not be here, because that requires a custom-built server.
 
 The code in Coreweb should not rely on Python at all.
+
+Nothing here relies on special server code, so cwtools/testres/ contains only static
+files, which are expected to be served at /@testres_CW/
