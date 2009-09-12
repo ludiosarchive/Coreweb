@@ -986,7 +986,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').me
 
 
 /**
- * Tests for L{CW.Runtime.Platform.repr}.
+ * Tests for L{CW.UnitTest.repr}.
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	/**
