@@ -91,13 +91,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assertThrowsPositive(self) {
 		try {
-			self.assertThrows(CW.UnitTest.AssertionError,
-							  function () {
-								  throw CW.UnitTest.AssertionError();
-							  });
+			self.assertThrows(
+				CW.UnitTest.AssertionError,
+				function () { throw CW.UnitTest.AssertionError(); }
+			);
 		} catch (e) {
-			//self._cleanupOpera10Error(e);
-			self.fail("assertThrows should have passed: " + e.message);
+			self.fail("assertThrows should have passed: " + e.getMessage());
 		}
 	},
 
@@ -216,9 +215,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_compareDefaultMessage(self) {
 		try {
-			self.compare(function () {return false;}, "<->", "a", "b");
+			self.compare(function () { return false; }, "<->", "a", "b");
 		} catch (e) {
-			self.assert(CW.startswith(e.message, '[0] "a" <-> "b"'));
+			self.assertIdentical(e.getMessage(), '[0] "a" <-> "b"');
 		}
 	},
 
@@ -229,10 +228,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_compareWithMessage(self) {
 		try {
-			self.compare(function () {return false;}, "<->", "a", "b",
+			self.compare(function () { return false; }, "<->", "a", "b",
 						 "Hello");
 		} catch (e) {
-			self.assert(CW.startswith(e.message, '[0] "a" <-> "b": Hello'));
+			self.assertIdentical(e.getMessage(), '[0] "a" <-> "b": Hello');
 		}
 	},
 
@@ -247,9 +246,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 								  function () {
 									  self.assertIdentical('apple', 'orange');
 								  });
-		self.assert(CW.startswith(
-			e.message,
-			'[0] "apple" <font color=\"red\">not ===</font> "orange"'));
+		self.assertIdentical(e.getMessage(),
+			'[0] "apple" <font color=\"red\">not ===</font> "orange"');
 	},
 
 
@@ -261,9 +259,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		try {
 			self.assertIdentical('apple', 'orange', 'some message');
 		} catch (e) {
-			self.assert(CW.startswith(
-				e.message,
-				'[0] "apple" <font color=\"red\">not ===</font> "orange": some message'));
+			self.assertIdentical(e.getMessage(),
+				'[0] "apple" <font color=\"red\">not ===</font> "orange": some message');
 		}
 	},
 
@@ -286,9 +283,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 								  function () {
 									  self.assertIdentical(1, '1');
 								  });
-		self.assert(CW.startswith(
-			e.message,
-			"[0] 1 <font color=\"red\">not ===</font> \"1\""));
+		self.assertIdentical(
+			e.getMessage(),
+			"[0] 1 <font color=\"red\">not ===</font> \"1\"");
 	},
 
 
@@ -475,8 +472,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(self.result.failures[0][1].error
 						instanceof CW.UnitTest.AssertionError);
-			self.assert(CW.startswith(self.result.failures[0][1].error.message,
-				"[0] fail this test deliberately"));
+			self.assertIdentical(self.result.failures[0][1].error.getMessage(), "[0] fail this test deliberately");
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
@@ -487,7 +483,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 				self.result.errors[0][1].error instanceof CW.Error,
 				"self.result.errors[0][1].error should have been a CW.Error, not a: " + self.result.errors[0][1].error);
 
-			self.assert(CW.startswith(self.result.errors[0][1].error.message, "error"));
+			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "error");
 			self.assertArraysEqual(self.result.successes, [good]);
 		});
 		return d;
@@ -695,8 +691,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Error);
-			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setTimeout_pending"));
+			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
+			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 1 pending call(s): setTimeout_pending");
 		});
 		return d;
 	},
@@ -716,8 +712,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			//CW.msg('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message);
-			self.assert(self.result.errors[0][1] instanceof CW.Error); // seen some cases where IE6 disagree with this, and the thing below.
-			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 1 pending call(s): setInterval_pending"));
+			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure); // seen some cases where IE6 disagree with this, and the thing below.
+			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 1 pending call(s): setInterval_pending");
 		});
 		return d;
 	},
@@ -744,9 +740,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Error);
-			self.assert(CW.startswith(self.result.errors[0][1].message, "Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending"));
-
+			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
+			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
+			
 			// the inner test stopped tracking all the pending calls.
 			for (var k in CW.UnitTest.delayedCalls) {
 				self.assertArraysEqual([], CW.dir(CW.UnitTest.delayedCalls[k]));

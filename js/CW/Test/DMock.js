@@ -64,7 +64,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 
 	function setUp(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(new Error("failed setup"));}, 0);
+		setTimeout(function(){d.errback(new CW.Error("failed setup"));}, 0);
 		return d;
 	},
 

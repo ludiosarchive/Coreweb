@@ -45,7 +45,15 @@ there';
 			self.assertIdentical(1, eval('"\u0000"').length);
 			self.assertNotIdentical('', eval('"\u0000"'));
 		} else {
-			self.assertThrows(Error, function(){eval('"\u0000"')}, "Unterminated string constant");
+			// "upgrade" Error with CW.Error so that assertThrows' expectedMessage check works.
+			function doTest() {
+				try {
+					eval('"\u0000"');
+				} catch(e) {
+					throw new CW.Error(e.message);
+				}
+			}
+			self.assertThrows(CW.Error, doTest, "Unterminated string constant");
 		}
 
 		// this seems to work everywhere

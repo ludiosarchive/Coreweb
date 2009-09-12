@@ -79,7 +79,7 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
  */
 CW.Error.subclass(CW.UnitTest, 'AssertionError').methods(
 	function toString(self) {
-		return 'AssertionError: ' + self.message;
+		return 'AssertionError: ' + self.getMessage();
 	}
 );
 
@@ -90,7 +90,7 @@ CW.Error.subclass(CW.UnitTest, 'AssertionError').methods(
  */
 CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
 	function toString(self) {
-		return 'SkipTest: ' + self.message;
+		return 'SkipTest: ' + self.getMessage();
 	}
 );
 
@@ -631,6 +631,10 @@ CW.UnitTest.TestCase.methods(
 	 * @param callable: A no-argument callable which is expected to throw
 	 * C{expectedError}.
 	 *
+	 * @param expectedMessage: The message which the error is expected
+	 * to have. If you pass this argument, the C{expectedError}
+	 * must be of type L{CW.Error} or a subclass of it.
+	 *
 	 * @throw AssertionError: Thrown if the callable doesn't throw
 	 * C{expectedError}. This could be because it threw a different error or
 	 * because it didn't throw any errors.
@@ -646,9 +650,9 @@ CW.UnitTest.TestCase.methods(
 			self.assert(e instanceof expectedError,
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
-				self.assert(
-					CW.startswith(e.message, expectedMessage),
-					"Error started with wrong message: " + e.message, true);
+				self.assertIdentical(
+					e.getMessage(), expectedMessage,
+					"Error started with wrong message: " + e.getMessage(), true);
 			}
 		}
 		self.assert(threw != null, "Callable threw no error", true);
@@ -816,9 +820,11 @@ CW.UnitTest.TestCase.methods(
 							if(whichProblems.length > 0) {
 								success = false;
 
-								result.addError(self, new CW.Error(
-								"Test ended with "+ whichProblems.length +
-								" pending call(s): " + whichProblems));
+								result.addError(self,
+									new CW.Defer.Failure(
+										new CW.Error(
+											"Test ended with " + whichProblems.length +
+											" pending call(s): " + whichProblems)));
 
 								// Cleanup everything. If we don't do this, test output is impossible
 								// to decipher, because delayed calls "spill over" to future tests.
@@ -901,27 +907,6 @@ CW.UnitTest.TestCase.methods(
 //		}
 //		result.stopTest(self);
 //	};
-
-//	/**
-//	 * Helpful Opera 10 adds garbage to end of your e.message strings.
-//	 *
-//	 * TODO: maybe consider handling the full stacktraces
-//	 * if user has "Exceptions Have Stacktrace" enabled.
-//	 */
-//	function _noOpera10Trailer(self, error) {
-//		// Wow. Opera 10 only lets us replace the message text once per test method or something,
-//		// so we return the cleaned message.
-//		if(window.opera) {
-//			var copy = '' + error.message;
-//			var replacement = copy.replace(/\r\nstacktrace: n.*/, '');
-//			//alert('replacement is ' + replacement);
-//			try {
-//			error.message = replacement; // this only works sometimes as mentioned above
-//			} catch(ignored) {}
-//			return replacement;
-//		}
-//		return error.message;
-//	}
 
 );
 
@@ -1232,7 +1217,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 	} else if(window.frames[0] && window.frames[0].setTimeout) {
 		ticket = window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
 	} else {
-		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
+		throw new CW.Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
@@ -1253,7 +1238,7 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 	} else if(window.frames[0] && window.frames[0].setInterval) {
 		ticket = window.frames[0].setInterval(callable, when);
 	} else {
-		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
+		throw new CW.Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
@@ -1272,7 +1257,7 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 	} else if(window.frames[0] && window.frames[0].clearTimeout) {
 		output = window.frames[0].clearTimeout(ticket);
 	} else {
-		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
+		throw new CW.Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
@@ -1290,7 +1275,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 	} else if(window.frames[0] && window.frames[0].clearInterval) {
 		output = window.frames[0].clearInterval(ticket);
 	} else {
-		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
+		throw new CW.Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
@@ -1366,7 +1351,7 @@ CW.UnitTest.installMonkeys = function() {
 
 		var numFrames = window.frames.length;
 		if(numFrames != 1) {
-			throw new Error("window.frames.length was " + numFrames);
+			throw new CW.Error("window.frames.length was " + numFrames);
 		}
 
 		function _IE_finishInstallMonkeys() {

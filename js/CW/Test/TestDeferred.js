@@ -35,9 +35,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 * that formats frames using L{Failure.frameToPrettyText}.
 	 */
 	function test_toPrettyText(self) {
-		if(window.opera && window.opera.version() >= 10) {
-			throw new CW.UnitTest.SkipTest("Opera 10 inserts junk at the end of Error messages")
-		}
 		var frames = self.failure.parseStack();
 		var text = self.failure.toPrettyText();
 		var lines = text.split('\n');
@@ -115,7 +112,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_failDeferred(self) {
 		var result = null;
 		var error = null;
-		var d = CW.Defer.fail(Error("failure"));
+		var d = CW.Defer.fail(CW.Error("failure"));
 		d.addCallback(function(res) {
 			result = res;
 		});
@@ -123,7 +120,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			error = err;
 		});
 		self.assertIdentical(result, null);
-		self.assertIdentical(error.error.message, 'failure');
+		self.assertIdentical(error.error.getMessage(), 'failure');
 	},
 
 
@@ -227,8 +224,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 		// if you pass a number to new Error(stringedNumber),
 		// IE will set e.message = "" and e.number = number
-		var anError = new Error("Must be uncastable to num for IE.");
-		self.assertIdentical("Must be uncastable to num for IE.", anError.message);
+		var anError = new CW.Error("some error");
+		self.assertIdentical("some error", anError.getMessage());
 		defr2.errback(anError);
 		defr3.callback("3");
 
@@ -239,7 +236,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		self.assertIdentical(2, result[1].length);
 		self.assertIdentical(false, result[1][0]);
 		self.assertIdentical(true, result[1][1] instanceof CW.Defer.Failure);
-		self.assertIdentical("Must be uncastable to num for IE.", result[1][1].error.message);
+		self.assertIdentical("some error", result[1][1].error.getMessage());
 		self.assertIdentical(2, result[2].length);
 		self.assertIdentical(true, result[2][0]);
 		self.assertIdentical("3", result[2][1]);
@@ -293,7 +290,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		var result = null;
 		var dl = new CW.Defer.DeferredList(
 			[new CW.Defer.Deferred(),
-			 CW.Defer.fail(new Error("failure"))], false, true, false);
+			 CW.Defer.fail(new CW.Error("failure"))], false, true, false);
 		dl.addErrback(function(err) {
 			result = err;
 		});
@@ -361,7 +358,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			callbackArgs.shift();
 		}
 		d.addErrback(callback, 20);
-		d.errback(new Error("boom"));
+		d.errback(new CW.Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20]);
 	},
 
@@ -378,7 +375,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			callbackArgs.shift();
 		}
 		d.addErrback(callback, 20, 30, 40);
-		d.errback(new Error("boom"));
+		d.errback(new CW.Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20, 30, 40]);
 	},
 
@@ -443,7 +440,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(function(){}, errback1, args, args);
 		d.addCallbacks(null, errback2, [], args); // errback and args
 
-		d.errback(new Error("boom"));
+		d.errback(new CW.Error("boom"));
 
 		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
 		// problems begin!
@@ -477,7 +474,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(function(){}, errback1, args, args);
 		d.addCallbacks(null, errback2, [], [20, 30, 40]); // errback and args
 
-		d.errback(new Error("boom"));
+		d.errback(new CW.Error("boom"));
 
 		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
 		self.assertArraysEqual(errbackArgs2, [20, 30, 40]);

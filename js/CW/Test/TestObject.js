@@ -267,10 +267,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 //		var error;
 //
 //		error = self.assertThrows(Error, function() { CW.objectify([], ["foo"]); });
-//		self.assert(CW.startswith(error.message, msg));
+//		self.assertIdentical(error.getMessage(), msg);
 //
 //		error = self.assertThrows(Error, function() { CW.objectify(["foo"], []); });
-//		self.assert(CW.startswith(error.message, msg));
+//		self.assertIdentical(error.getMessage(), msg);
 //	},
 
 
@@ -321,12 +321,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		logEvents = [];
 
 		var logerr = "(logging system test error) Doom, world.";
-		CW.err(new Error(logerr), logmsg);
+		CW.err(new CW.Error(logerr), logmsg);
 
 		self.assertIdentical(1, logEvents.length);
 		self.assertIdentical(true, logEvents[0].isError);
-		self.assertIdentical(true, logEvents[0].error instanceof Error);
-		self.assert(CW.startswith(logEvents[0].error.message, logerr));
+		self.assertIdentical(true, logEvents[0].error instanceof CW.Error);
+		self.assertIdentical(logerr, logEvents[0].error.getMessage());
 		self.assertIdentical(logmsg, logEvents[0].message);
 
 		removeObserver();
@@ -335,7 +335,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assertIdentical(0, logEvents.length);
 
 		var observererr = "(logging system test error) Observer had a bug.";
-		CW.logger.addObserver(function(event) { throw new Error(observererr); });
+		CW.logger.addObserver(function(event) { throw new CW.Error(observererr); });
 		CW.logger.addObserver(function(event) { logEvents.push(event); });
 
 		CW.msg(logmsg);
@@ -344,7 +344,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assertIdentical(false, logEvents[0].isError, "First event should not have been an error");
 		self.assertIdentical(logmsg, logEvents[0].message, "First event had wrong message");
 		self.assertIdentical(true, logEvents[1].isError, "Second event should have been an error");
-		self.assertIdentical(observererr, logEvents[1].error.message, "Second event had wrong message");
+		self.assertIdentical(observererr, logEvents[1].error.getMessage(), "Second event had wrong message");
 		self.assertIdentical(false, logEvents[2].isError, "Third event should not have been an error");
 		self.assertIdentical(logerr, logEvents[2].message, "Third event had wrong message");
 

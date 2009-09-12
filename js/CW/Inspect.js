@@ -11,7 +11,7 @@
 
 CW.Inspect.methods = function(cls) {
 	if (typeof cls != "function") {
-		throw new Error("Only classes have methods.");
+		throw new CW.Error("Only classes have methods.");
 	}
 	var result = [];
 	return result.concat(CW.dir(cls.prototype)).sort();
