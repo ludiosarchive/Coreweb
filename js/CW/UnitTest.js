@@ -209,8 +209,7 @@ CW.UnitTest.TestResult.methods(
 	 * Return a triple of (tests run, number of failures, number of errors)
 	 */
 	function getSummary(self) {
-		// TODO XXX !!!!!!!! self.skips.length
-		return [self.testsRun, self.failures.length, self.errors.length];
+		return [self.testsRun, self.failures.length, self.errors.length, self.skips.length];
 	},
 
 
