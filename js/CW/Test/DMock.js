@@ -124,25 +124,3 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 		return d;
 	}
 );
-
-
-
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
-	function test_method(self) {
-		setTimeout(function(){}, 30); // was 300
-		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.callback(null);}, 0);
-		return d;
-	}
-);
-
-
-
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setIntervalLoose').methods(
-	function test_method(self) {
-		setInterval(function(){}, 10);
-		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.callback(null);}, 25);
-		return d;
-	}
-);

@@ -747,8 +747,35 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			"Thing should subclass itself");
 		self.assert(self.__class__.subclassOf(CW.UnitTest.TestCase));
 		self.assert(!CW.UnitTest.TestCase.subclassOf(self.__class__));
-	},
+	}
+);
 
+
+
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.DMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.DSMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
+	function setUp(self) {
+		self.result = CW.UnitTest.TestResult();
+		// Only need to test this with L{Mock}, not DMock or DSMock.
+		self.mockModule = CW.Test.Mock;
+	},
 
 	/**
 	 * Tests with leftover setTimeout calls should cause test to error.
@@ -822,31 +849,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(
 				self.result.errors[0][1].error.getMessage(),
 				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
-			
+
 			// the inner test stopped tracking all the pending calls.
 			for (var k in CW.UnitTest.delayedCalls) {
 				self.assertArraysEqual([], CW.dir(CW.UnitTest.delayedCalls[k]));
 			}
 		});
 		return d;
-	}
-);
-
-
-
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
-	}
-);
-
-
-
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
 	}
 );
 

@@ -125,27 +125,3 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadTearDown').methods(
 		return d;
 	}
 );
-
-
-
-// This is copied verbatim from DMock.js - ugh TODO XXX WTF
-// Maybe rearrange tests in TestUnitTest? Have a separate "loose timeouts" test class
-CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_setTimeoutLoose').methods(
-	function test_method(self) {
-		setTimeout(function(){}, 30); // was 300
-		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.callback(null);}, 0);
-		return d;
-	}
-);
-
-
-
-CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_setIntervalLoose').methods(
-	function test_method(self) {
-		setInterval(function(){}, 10);
-		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.callback(null);}, 25);
-		return d;
-	}
-);
