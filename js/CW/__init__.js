@@ -367,20 +367,34 @@ CW.Class.prototype.__init__ = function() {
  */
 CW.Class.subclass(CW, "Error").methods(
 	function __init__(self, /*optional*/ message) {
-		self.message = message;
+		// Because Opera 10's getter for the 'message' property on any thrown
+		// object appends either informational garbage or a stack trace, we save
+		// data to _message instead and provide a getMessage method to get the
+		// clean message.
+		self._message = message;
 		// This stack will contain a few superfluous frames at the bottom,
 		// because it's being created here, not at the 'throw new SomeError' throw site.
 		self.stack = Error().stack;
 	},
 
 	/**
+	 * Get the original error message that the object was instantiated with.
+	 *
+	 * @rtype: string
+	 * @return: The error message, as a string.
+	 */
+	function getMessage(self) {
+		return self._message;
+	},
+
+	/**
 	 * Represent this error as a string.
 	 *
 	 * @rtype: string
-	 * @return: This error, as a string.
+	 * @return: This error object, as a string.
 	 */
 	function toString(self) {
-		return self.__name__ + ': ' + self.message;
+		return self.__name__ + ': ' + self.getMessage();
 	}
 );
 
@@ -456,9 +470,9 @@ CW.Class.subclass(CW, 'Logger').methods(
 	function err(self, error, /*optional*/ message) {
 		var event = {'isError': true, 'error': error};
 		if (message !== undefined) {
-			event['message'] = message;
+			event.message = message;
 		} else {
-			event['message'] = error.message;
+			event.message = error.message;
 		}
 		self.emit(event);
 	},
@@ -482,7 +496,7 @@ CW.err = function() {
 CW.debug = function(kind, msg) {
 	if(CW._debugMode) {
 		if(msg === undefined) {
-			throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
+			throw new CW.Error("Why is `msg' undefined? Are you misusing the logging functions?");
 		}
 	}
 	CW.logger.emit({'isError': false,
