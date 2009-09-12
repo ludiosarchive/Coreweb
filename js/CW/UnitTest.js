@@ -844,7 +844,11 @@ CW.UnitTest.TestCase.methods(
 
 			/* errback */
 			function(aFailure){
-				result.addError(self, aFailure.error);
+				if (aFailure.error instanceof CW.UnitTest.SkipTest) {
+					result.addSkip(self, aFailure);
+				} else {
+					result.addError(self, aFailure);
+				}
 			},
 
 			[], []
