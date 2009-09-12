@@ -897,8 +897,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	 * passed, and that no tests were run.
 	 */
 	function test_formatSummaryEmpty(self) {
-		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
-							 "PASSED (tests=0)");
+		self.assertIdentical(
+			CW.UnitTest.formatSummary(self.result),
+			"PASSED (tests=0)"
+		);
 	},
 
 
@@ -912,8 +914,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertIdentical(CW.UnitTest.formatSummary(self.result),
-								 "PASSED (tests=1)");
+			self.assertIdentical(
+				CW.UnitTest.formatSummary(self.result),
+				"PASSED (tests=1)"
+			);
 		});
 		return d;
 	},
@@ -927,8 +931,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var test = self.mockModule._WasRun('test_bad');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
-							 "FAILED (tests=1, failures=1)");
+			self.assertIdentical(
+				CW.UnitTest.formatSummary(self.result),
+				"FAILED (tests=1, failures=1)"
+			);
 		});
 		return d;
 	},
@@ -941,8 +947,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var test = self.mockModule._WasRun('test_error');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
-							 "FAILED (tests=1, errors=1)");
+			self.assertIdentical(
+				CW.UnitTest.formatSummary(self.result),
+				"FAILED (tests=1, errors=1)"
+			);
 		});
 		return d;
 	},
@@ -957,8 +965,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
-		self.assertIdentical(CW.UnitTest.formatSummary(self.result),
-							 "FAILED (tests=3, errors=1, failures=1)");
+			self.assertIdentical(
+				CW.UnitTest.formatSummary(self.result),
+				"FAILED (tests=3, errors=1, failures=1)"
+			);
 		});
 		return d;
 	}
