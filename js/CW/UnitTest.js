@@ -756,7 +756,7 @@ CW.UnitTest.TestCase.methods(
 					tearDownD.addErrback(function(aFailure) {
 						// this *could* be the second error we add,
 						// because the method itself could have also produced a failure/error.
-						result.addError(self, aFailure.error);
+						result.addError(self, aFailure);
 						success = false;
 					});
 
@@ -799,7 +799,7 @@ CW.UnitTest.TestCase.methods(
 
 			/* errback */
 			function(aFailure){
-				result.addError(self, aFailure.error);
+				result.addError(self, aFailure);
 			},
 
 			[], []
