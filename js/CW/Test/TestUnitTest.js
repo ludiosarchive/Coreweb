@@ -742,8 +742,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * of the second, and false otherwise.
 	 */
 	function test_issubclass(self) {
-		self.assert(self.__class__.subclassOf(self.__class__),
-					"Thing should subclass itself");
+		self.assert(
+			self.__class__.subclassOf(self.__class__),
+			"Thing should subclass itself");
 		self.assert(self.__class__.subclassOf(CW.UnitTest.TestCase));
 		self.assert(!CW.UnitTest.TestCase.subclassOf(self.__class__));
 	},
@@ -808,6 +809,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		setTimeout(function(){}, 300);
 
 		var suite = CW.UnitTest.TestSuite();
+		// "child" test will have a loose call, too.
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
 
