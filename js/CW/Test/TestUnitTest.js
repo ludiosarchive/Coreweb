@@ -480,8 +480,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
-			self.assert(self.result.errors[0][1].error instanceof CW.Error);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
+			self.assert(
+				self.result.errors[0][1].error instanceof CW.Error,
+				"self.result.errors[0][1].error should have been a CW.Error, not a: " + self.result.errors[0][1].error);
 
 			self.assert(CW.startswith(self.result.errors[0][1].error.message, "error"));
 			self.assertArraysEqual(self.result.successes, [good]);
@@ -514,6 +518,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
@@ -528,6 +535,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addBoth(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
