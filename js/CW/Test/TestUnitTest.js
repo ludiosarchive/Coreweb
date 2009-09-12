@@ -794,16 +794,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	},
 
 	/**
-	 * Tests with loose setTimeout calls cause the tests to error, even when
-	 * doing nested UnitTesting.
+	 * Confirm a deficiency in the current design: loose setTimeout calls
+	 * in a "parent" test will cause "child" tests to error, even when that
+	 * "child" test isn't responsible for the loose setTimeout.
 	 *
-	 * We don't have nested delayed calls tracking
-	 * (delayed calls are checked and removed after the teardown of *any* test),
-	 * but at least the inner test should fail with more pending calls.
+	 * The deficiency is caused by UnitTest not having nested delayed-calls tracking
+	 * (delayed calls are checked and removed after the teardown of *any* test).
 	 *
-	 * Some of this behavior could change in the future.
+	 * If the deficiency is fixed, a new test should be written.
 	 */
 	function test_setTimeoutLooseNested(self) {
+		// the loose call in this "parent" test
 		setTimeout(function(){}, 300);
 
 		var suite = CW.UnitTest.TestSuite();
