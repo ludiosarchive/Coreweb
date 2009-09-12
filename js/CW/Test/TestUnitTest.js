@@ -488,16 +488,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var bad = self.mockModule._WasRun('test_bad');
 		var good = self.mockModule._WasRun('test_good');
 		var error = self.mockModule._WasRun('test_error');
-		suite.addTests([bad, good, error]);
+		var skip = self.mockModule._WasRun('test_skip');
+		suite.addTests([bad, good, error, skip]);
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [3, 1, 1, 0]);
+			self.assertArraysEqual(self.result.getSummary(), [4, 1, 1, 1]);
+
 			// check the failure
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(self.result.failures[0][1].error instanceof CW.UnitTest.AssertionError);
 			self.assertIdentical(self.result.failures[0][1].error.getMessage(), "[0] fail this test deliberately");
+
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
@@ -507,6 +510,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assert(
 				self.result.errors[0][1].error instanceof CW.Error,
 				"self.result.errors[0][1].error should have been a CW.Error, not a: " + self.result.errors[0][1].error);
+
+			// check the skip
+			self.assertIdentical(self.result.skips[0].length, 2);
+			self.assertIdentical(self.result.skips[0][0], skip);
+			self.assert(
+				self.result.skips[0][1] instanceof CW.Defer.Failure,
+				"self.result.skips[0][1] should have been a CW.Defer.Failure, not a: " + self.result.skips[0][1]);
+			self.assert(
+				self.result.skips[0][1].error instanceof CW.UnitTest.SkipTest,
+				"self.result.skips[0][1].error should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1].error);
 
 			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "error");
 			self.assertArraysEqual(self.result.successes, [good]);
@@ -829,7 +842,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 			[
 				self.mockModule.__name__ + '._WasRun.test_bad',
 				self.mockModule.__name__ + '._WasRun.test_error',
-				self.mockModule.__name__ + '._WasRun.test_good'
+				self.mockModule.__name__ + '._WasRun.test_good',
+				self.mockModule.__name__ + '._WasRun.test_skip'
 			],
 			self.getTestIDs(suite));
 	},
@@ -941,6 +955,23 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 
 	/**
+	 * Test that the summary of a result object from a test run with skips
+	 * indicates an overall failure as well as the number of test skips.
+	 */
+	function test_formatSummarySkipped(self) {
+		var test = self.mockModule._WasRun('test_skip');
+		var d = test.run(self.result);
+		d.addCallback(function(){
+			self.assertIdentical(
+				CW.UnitTest.formatSummary(self.result),
+				"PASSED (tests=1, skips=1)"
+			);
+		});
+		return d;
+	},
+
+
+	/**
 	 * As L{test_formatSummaryFailed}, but for errors instead of failures.
 	 */
 	function test_formatSummaryError(self) {
@@ -967,7 +998,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		d.addCallback(function(){
 			self.assertIdentical(
 				CW.UnitTest.formatSummary(self.result),
-				"FAILED (tests=3, errors=1, failures=1)"
+				"FAILED (tests=4, skips=1, errors=1, failures=1)"
 			);
 		});
 		return d;

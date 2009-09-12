@@ -922,8 +922,11 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 		summary = "FAILED "
 	}
 	summary += "(tests=" + result.testsRun;
+	if (result.skips.length > 0) {
+		summary += ", skips=" + result.skips.length;
+	}
 	if (result.errors.length > 0) {
-		summary += ", errors=" + result.errors.length
+		summary += ", errors=" + result.errors.length;
 	}
 	if (result.failures.length > 0) {
 		summary += ", failures=" + result.failures.length;

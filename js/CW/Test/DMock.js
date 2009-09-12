@@ -45,6 +45,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 		return d;
 	},
 
+	function test_skip(self) {
+		var d = new CW.Defer.Deferred();
+		setTimeout(function(){d.errback(CW.UnitTest.SkipTest("skip")); }, 0);
+		return d;
+	},
+
 	/* TODO: test Failure in addition to error? */
 
 	function tearDown(self) {

@@ -33,6 +33,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 		throw CW.Error("error");
 	},
 
+	function test_skip(self) {
+		throw CW.UnitTest.SkipTest("skip");
+	},
+
 	function tearDown(self) {
 		self.log += 'tearDown';
 	}
