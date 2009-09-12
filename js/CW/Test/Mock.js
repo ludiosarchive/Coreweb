@@ -1,5 +1,5 @@
 /**
- * L{CW.UnitTest.TestCase}s that are used by L{CW.Test.TestUnitTest}
+ * These are some mock L{TestCase}s that are used by L{TestUnitTest}
  * in order to test the unit testing framework.
  */
 

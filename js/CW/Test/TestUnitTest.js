@@ -6,6 +6,7 @@
 // import CW.UnitTest
 // import CW.Test.Mock
 // import CW.Test.DMock
+// import CW.Test.DSMock
 
 
 /**
@@ -404,8 +405,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	function setUp(self) {
-		self.mockModule = CW.Test.Mock;
 		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.Mock;
 	},
 
 	/**
@@ -826,8 +827,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
-		self.mockModule = CW.Test.DMock;
 		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.DMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
+	function setUp(self) {
+		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.DSMock;
 	}
 );
 
@@ -922,11 +932,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
-
 	function setUp(self) {
 		self.mockModule = CW.Test.DMock;
 	}
+);
 
+
+
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS').methods(
+	function setUp(self) {
+		self.mockModule = CW.Test.DSMock;
+	}
 );
 
 
@@ -1043,6 +1059,15 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').me
 	function setUp(self) {
 		self.result = CW.UnitTest.TestResult();
 		self.mockModule = CW.Test.DMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').methods(
+	function setUp(self) {
+		self.result = CW.UnitTest.TestResult();
+		self.mockModule = CW.Test.DSMock;
 	}
 );
 

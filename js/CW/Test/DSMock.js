@@ -2,8 +2,10 @@
  * These are some mock L{TestCase}s that are used by L{TestUnitTest}
  * in order to test the unit testing framework.
  *
- * This file was copy/pasted from Mock.js, and modified to return Deferreds
- * that fire soon.
+ * This file was copy/pasted from DMock.js, and modified to return already-fired
+ * Deferreds.
+ *
+ * "DS" means "Deferred synchronous"
  */
 
 // import CW.Defer
@@ -15,40 +17,39 @@
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._WasRun.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
+		self.log += 'setUp '; d.callback(null);
 		return d;
 	},
 
 	function test_good(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'test '; d.callback(null);}, 0);
-		//CW.msg('installed the setTimeout.');
+		self.log += 'test '; d.callback(null);
 		return d;
 	},
 
 	function test_bad(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(self.getFailError("fail this test deliberately")); }, 0);
+		d.errback(self.getFailError("fail this test deliberately"));
 		return d;
 	},
 
 	function test_error(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(CW.Error("error")); }, 0);
+		d.errback(CW.Error("error"));
 		return d;
 	},
 
 	function test_skip(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(CW.UnitTest.SkipTest("skip")); }, 0);
+		d.errback(CW.UnitTest.SkipTest("skip"));
 		return d;
 	},
 
@@ -56,78 +57,80 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 
 	function tearDown(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
+		self.log += 'tearDown'; d.callback(null);
 		return d;
 	}
 );
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._BadSetUp.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(new CW.Error("failed setup"));}, 0);
+		d.errback(new CW.Error("failed setup"));
 		return d;
 	},
 
 	function test_method(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
+		self.log += 'test_method '; d.callback(null);
 		return d;
 	},
 
 	function tearDown(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
+		self.log += 'tearDown'; d.callback(null);
 		return d;
 	}
 );
 
 
 
-CW.Test.DMock._BadSetUp.subclass(CW.Test.DMock, '_SkipTestInSetUp').methods(
+CW.Test.DSMock._BadSetUp.subclass(CW.Test.DSMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip in setUp"));}, 0);
+		d.errback(new CW.UnitTest.SkipTest("skip in setUp"));
 		return d;
 	}
 );
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.DMock._BadTearDown.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
+		self.log += 'setUp '; d.callback(null);
 		return d;
 	},
 
 	function test_method(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
+		self.log += 'test_method '; d.callback(null);
 		return d;
 	},
 
 	function tearDown(self) {
 		var d = new CW.Defer.Deferred();
-		setTimeout(function(){d.errback(self.getFailError('deliberate fail in tearDown')); }, 0);
+		d.errback(self.getFailError('deliberate fail in tearDown'));
 		return d;
 	}
 );
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
+// This is copied verbatim from DMock.js - ugh TODO XXX WTF
+// Maybe rearrange tests in TestUnitTest? Have a separate "loose timeouts" test class
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_setTimeoutLoose').methods(
 	function test_method(self) {
 		setTimeout(function(){}, 30); // was 300
 		var d = new CW.Defer.Deferred();
@@ -138,7 +141,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setIntervalLoose').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_setIntervalLoose').methods(
 	function test_method(self) {
 		setInterval(function(){}, 0);
 		var d = new CW.Defer.Deferred();
