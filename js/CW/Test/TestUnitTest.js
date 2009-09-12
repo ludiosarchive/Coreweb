@@ -544,6 +544,21 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 
 	/**
+	 * Test that neither L{tearDown} nor the test method is called when
+	 * L{setUp} throws L{CW.UnitTest.SkipTest}.
+	 */
+	function test_skipTestInSetUp(self) {
+		var test = self.mockModule._SkipTestInSetUp('test_method');
+		self.assertIdentical(test.log, '');
+		var d = test.run(self.result);
+		d.addCallback(function(){
+			self.assertIdentical(test.log, '');
+		});
+		return d;
+	},
+
+
+	/**
 	 * Test that failures in L{setUp} are reported to the L{TestResult}
 	 * object.
 	 */
@@ -555,6 +570,23 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assert(
 				self.result.errors[0][1] instanceof CW.Defer.Failure,
 				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
+		});
+		return d;
+	},
+
+
+	/**
+	 * Test that skips in L{setUp} are reported to the L{TestResult}
+	 * object.
+	 */
+	function test_skipTestInSetUpReported(self) {
+		var test = self.mockModule._SkipTestInSetUp('test_method');
+		var d = test.run(self.result);
+		d.addCallback(function(){
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 1]);
+			self.assert(
+				self.result.skips[0][1] instanceof CW.Defer.Failure,
+				"self.result.skips[0][1] should have been a CW.Defer.Failure, not a: " + self.result.skips[0][1]);
 		});
 		return d;
 	},

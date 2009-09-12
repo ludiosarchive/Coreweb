@@ -89,6 +89,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 
 
 
+CW.Test.DMock._BadSetUp.subclass(CW.Test.DMock, '_SkipTestInSetUp').methods(
+	function setUp(self) {
+		var d = new CW.Defer.Deferred();
+		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip in setUp"));}, 0);
+		return d;
+	}
+);
+
+
+
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
