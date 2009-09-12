@@ -83,8 +83,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		self.assert(!CW.arraysEqual([1], [2]));
 		self.assert(!CW.arraysEqual({'a': undefined}, {'b': 2}));
 		self.assert(!CW.arraysEqual(
-						function () { return 1; },
-						function () { return 2; }));
+						function() { return 1; },
+						function() { return 2; }));
 	},
 
 
