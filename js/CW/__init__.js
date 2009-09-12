@@ -19,6 +19,10 @@ CW.dir = function(obj) {
 };
 
 
+// Useful for blanking event handlers, especially in CW.Net 
+CW.emptyFunc = new Function;
+
+
 /**
  * Date tools.
  *
@@ -52,6 +56,11 @@ CW.localTime = function() {
 };
 
 
+/**
+ * For some background information on why JavaScript fails at classes, see
+ * http://hg.mozdev.org/radialcontextmz/file/4ddd4ba2095a/HACKING#l227
+ */
+
 
 /**
  * This tracks the number of instances of L{CW.Class} subclasses.
@@ -59,7 +68,8 @@ CW.localTime = function() {
  */
 CW.__instanceCounter__ = 0;
 
-/* C{CW._CONSTRUCTOR} chosen to be C{{}} because it has the nice property of
+/**
+ *  C{CW._CONSTRUCTOR} chosen to be C{{}} because it has the nice property of
  *    ({} === {}) === false
  *    (CW._CONSTRUCTOR === CW._CONSTRUCTOR) === true
  *
@@ -86,7 +96,7 @@ CW.Class = function() {};
  *
  * @rtype: C{CW.Class}
  */
-CW.Class.subclass = function(classNameOrModule, /* optional */ subclassName) {
+CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	CW.__classDebugCounter__ += 1;
 
 	/*
@@ -356,7 +366,7 @@ CW.Class.prototype.__init__ = function() {
  * error was instantiated (/not/ thrown).
  */
 CW.Class.subclass(CW, "Error").methods(
-	function __init__(self, /* optional */ message) {
+	function __init__(self, /*optional*/ message) {
 		self.message = message;
 		// This stack will contain a few superfluous frames at the bottom,
 		// because it's being created here, not at the 'throw new SomeError' throw site.
@@ -443,7 +453,7 @@ CW.Class.subclass(CW, 'Logger').methods(
 		}
 	},
 
-	function err(self, error, /* optional */ message) {
+	function err(self, error, /*optional*/ message) {
 		var event = {'isError': true, 'error': error};
 		if (message !== undefined) {
 			event['message'] = message;

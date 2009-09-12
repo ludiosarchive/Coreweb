@@ -77,11 +77,23 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 /**
  * Raised to indicate that a test has failed.
  */
-CW.UnitTest.AssertionError = CW.Error.subclass('CW.UnitTest.AssertionError');
-CW.UnitTest.AssertionError.methods(
+CW.Error.subclass(CW.UnitTest, 'AssertionError').methods(
 	function toString(self) {
 		return 'AssertionError: ' + self.message;
-	});
+	}
+);
+
+
+
+/**
+ * Raised to indicate that a test is being skipped.
+ */
+CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
+	function toString(self) {
+		return 'SkipTest: ' + self.message;
+	}
+);
+
 
 
 /**
@@ -109,6 +121,7 @@ CW.UnitTest.TestResult.methods(
 		self.failures = [];
 		self.successes = [];
 		self.errors = [];
+		self.skips = [];
 		self.timeStarted = null;
 	},
 
@@ -168,6 +181,20 @@ CW.UnitTest.TestResult.methods(
 
 
 	/**
+	 * Report a skipped test.
+	 *
+	 * @param test: The test that was skipped.
+	 * @type test: L{CW.UnitTest.TestCase}
+	 *
+	 * @param failure: The failure that occurred.
+	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.UnitTest.SkipTest} instance.
+	 */
+	function addSkip(self, test, skip) {
+		self.skips.push([test, skip]);
+	},
+
+
+	/**
 	 * Report that the given test succeeded.
 	 *
 	 * @param test: The test that succeeded.
@@ -182,6 +209,7 @@ CW.UnitTest.TestResult.methods(
 	 * Return a triple of (tests run, number of failures, number of errors)
 	 */
 	function getSummary(self) {
+		// TODO XXX !!!!!!!! self.skips.length
 		return [self.testsRun, self.failures.length, self.errors.length];
 	},
 
@@ -239,6 +267,19 @@ CW.UnitTest.DIVTestResult.methods(
 	},
 
 
+	function addSkip(self, test, failure) {
+		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, failure]);
+		var br = document.createElement("br");
+		var textnode = document.createTextNode('... SKIP');
+		var pre = document.createElement("pre");
+		pre.innerHTML = failure.toString();
+		self._div.appendChild(textnode);
+		self._div.appendChild(br);
+		self._div.appendChild(pre);
+		//self._div.appendChild(failure.toPrettyNode());
+	},
+
+
 	function addSuccess(self, test) {
 		CW.UnitTest.DIVTestResult.upcall(self, 'addSuccess', [test]);
 		var br = document.createElement("br");
@@ -272,6 +313,8 @@ CW.UnitTest.SubunitTestClient.methods(
 		self._sendException(failure);
 		self._write(']');
 	},
+
+	// TODO: needs addSkip is re-enabled
 
 	function addSuccess(self, test) {
 		self._write('successful: ' + test.id());
@@ -737,6 +780,8 @@ CW.UnitTest.TestCase.methods(
 					// Note that we're not adding the Error as Divmod did; we are adding the Failure
 					if (aFailure.error instanceof CW.UnitTest.AssertionError) {
 						result.addFailure(self, aFailure);
+					} else if (aFailure.error instanceof CW.UnitTest.SkipTest) {
+						result.addSkip(self, aFailure);
 					} else {
 						result.addError(self, aFailure);
 					}
@@ -835,9 +880,10 @@ CW.UnitTest.TestCase.methods(
 //			self[self._methodName]();
 //		} catch (e) {
 //			if (e instanceof CW.UnitTest.AssertionError) {
-//				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if needed)
+//				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
+//                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
-//				result.addError(self, e); // NEW NOTE: (passing in Error, Failure() this if needed)
+//				result.addError(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //			}
 //			success = false;
 //		}
