@@ -922,14 +922,14 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 		summary = "FAILED "
 	}
 	summary += "(tests=" + result.testsRun;
-	if (result.skips.length > 0) {
-		summary += ", skips=" + result.skips.length;
-	}
 	if (result.errors.length > 0) {
 		summary += ", errors=" + result.errors.length;
 	}
 	if (result.failures.length > 0) {
 		summary += ", failures=" + result.failures.length;
+	}
+	if (result.skips.length > 0) {
+		summary += ", skips=" + result.skips.length;
 	}
 	summary += ')';
 	return summary;
@@ -959,14 +959,14 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	summaryDiv.style.backgroundColor = bgColor;
 
 	var additionalText = '';
-	if (result.skips.length > 0) {
-		additionalText += ' S=' + result.skips.length;
-	}
 	if (result.errors.length > 0) {
 		additionalText += ' E=' + result.errors.length;
 	}
 	if (result.failures.length > 0) {
 		additionalText += ' F=' + result.failures.length;
+	}
+	if (result.skips.length > 0) {
+		additionalText += ' S=' + result.skips.length;
 	}
 	numberTestsDiv.innerHTML =
 		'<center style="color:white;font-weight:bold">'+result.testsRun+additionalText+'</center>';

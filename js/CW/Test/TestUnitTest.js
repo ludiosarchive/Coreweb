@@ -1030,7 +1030,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		d.addCallback(function(){
 			self.assertIdentical(
 				CW.UnitTest.formatSummary(self.result),
-				"FAILED (tests=4, skips=1, errors=1, failures=1)"
+				"FAILED (tests=4, errors=1, failures=1, skips=1)"
 			);
 		});
 		return d;
