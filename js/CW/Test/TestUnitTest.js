@@ -857,8 +857,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 		MockThis.SomeTestCase.methods(function test_method(self) {});
 		var suite = CW.UnitTest.loadFromModule(MockThis);
 		self.assertArraysEqual(self.getTestIDs(suite), ['MockThis.SomeTestCase.test_method']);
-
-		// TODO: need to implement "unclean reactor" style errors that barf if you left deferreds
 	},
 
 	/**
