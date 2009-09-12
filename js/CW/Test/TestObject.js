@@ -387,29 +387,31 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
+	function setUp(self) {
+		if(!CW._debugMode) {
+			throw new CW.UnitTest.SkipTest("Method-overwrite prevention only works in _debugMode");
+		}
+	},
 
 	/**
 	 * Trying to create methods with the same name raises an error.
 	 */
 	function test_noOverwrite(self) {
-		if(CW._debugMode) {
+		var TempClass = CW.Class.subclass('TempClass');
 
-			var TempClass = CW.Class.subclass('TempClass');
+		var makeSameMethodName = function() {
+			TempClass.methods(
+				function aMethod(self, differentArity) {
+					return 1;
+				},
 
-			var makeSameMethodName = function() {
-				TempClass.methods(
-					function aMethod(self, differentArity) {
-						return 1;
-					},
-
-					function aMethod(self) {
-						return 2;
-					}
-				);
-			}
-
-			self.assertThrows(Error, makeSameMethodName);
+				function aMethod(self) {
+					return 2;
+				}
+			);
 		}
+
+		self.assertThrows(Error, makeSameMethodName);
 	},
 
 	/**
@@ -417,87 +419,79 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 	 * overlap should be detected even for `toString'.
 	 */
 	function test_noOverwriteToString(self) {
-		if(CW._debugMode) {
+		var TempClass = CW.Class.subclass('TempClass');
 
-			var TempClass = CW.Class.subclass('TempClass');
+		var makeSameMethodName = function() {
+			TempClass.methods(
+				function toString(self) {
+					return 1;
+				},
 
-			var makeSameMethodName = function() {
-				TempClass.methods(
-					function toString(self) {
-						return 1;
-					},
-
-					function toString(self) {
-						return 2;
-					}
-				);
-			}
-
-			self.assertThrows(Error, makeSameMethodName);
+				function toString(self) {
+					return 2;
+				}
+			);
 		}
+
+		self.assertThrows(Error, makeSameMethodName);
 	},
 
 	/**
 	 * Adding a method with methods, then adding it with pmethod, should fail.
 	 */
 	function test_methodsThenPmethods(self) {
-		if(CW._debugMode) {
+		var TempClass = CW.Class.subclass('TempClass');
 
-			var TempClass = CW.Class.subclass('TempClass');
+		/**
+		 * JScript is strange: this test won't pass if the method name is `toString'
+		 * The reason is that all object literals have a `toString' and JScript will not
+		 * iterate over `toString' even if it was explicitly specified as a property.
+		 */
 
-			/**
-			 * JScript is strange: this test won't pass if the method name is `toString'
-			 * The reason is that all object literals have a `toString' and JScript will not
-			 * iterate over `toString' even if it was explicitly specified as a property.
-			 */
-
-			TempClass.methods(
-				function aMethod(self) {
-					return 1;
-				}
-			);
-
-			var makeSameMethodName = function() {
-				TempClass.pmethods({aMethod: function(){ return 2 }})
+		TempClass.methods(
+			function aMethod(self) {
+				return 1;
 			}
+		);
 
-			self.assertThrows(Error, makeSameMethodName);
-
-			// Make sure it wasn't added
-			var t = new TempClass();
-			self.assertIdentical(1, t.aMethod());
+		var makeSameMethodName = function() {
+			TempClass.pmethods({aMethod: function(){ return 2 }})
 		}
+
+		self.assertThrows(Error, makeSameMethodName);
+
+		// Make sure it wasn't added
+		var t = new TempClass();
+		self.assertIdentical(1, t.aMethod());
+
 	},
 
 	/**
 	 * Adding a method with pmethods, then adding it with method, should fail.
 	 */
 	function test_pmethodsThenMethods(self) {
-		if(CW._debugMode) {
+		var TempClass = CW.Class.subclass('TempClass');
 
-			var TempClass = CW.Class.subclass('TempClass');
+		/**
+		 * JScript is strange; this test won't pass if the method name is `toString';
+		 * see comment above
+		 */
 
-			/**
-			 * JScript is strange; this test won't pass if the method name is `toString';
-			 * see comment above
-			 */
+		TempClass.pmethods({aMethod: function(){ return 1 }});
 
-			TempClass.pmethods({aMethod: function(){ return 1 }});
-
-			var makeSameMethodName = function() {
-				TempClass.methods(
-					function aMethod(self) {
-						return 2;
-					}
-				);
-			}
-
-			self.assertThrows(Error, makeSameMethodName);
-
-			// Make sure it wasn't added
-			var t = new TempClass();
-			self.assertIdentical(1, t.aMethod());
+		var makeSameMethodName = function() {
+			TempClass.methods(
+				function aMethod(self) {
+					return 2;
+				}
+			);
 		}
+
+		self.assertThrows(Error, makeSameMethodName);
+
+		// Make sure it wasn't added
+		var t = new TempClass();
+		self.assertIdentical(1, t.aMethod());
 	}
 );
 
@@ -507,49 +501,49 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
  * Test that new-style subclassing doesn't overwrite anything (except undefined).
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
-	function test_noOverwriteClass(self) {
-		if(CW._debugMode) {
-			CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
-
-			var makeSameClassName = function() {
-				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
-			}
-
-			self.assertThrows(Error, makeSameClassName);
-			delete CW.__TestClassNoOverwrite_Temporary;
+	function setUp(self) {
+		if(!CW._debugMode) {
+			throw new CW.UnitTest.SkipTest("Class-overwrite prevention only works in _debugMode");
 		}
+	},
+
+	function test_noOverwriteClass(self) {
+		CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+
+		var makeSameClassName = function() {
+			CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+		}
+
+		self.assertThrows(Error, makeSameClassName);
+		delete CW.__TestClassNoOverwrite_Temporary;
 	},
 
 	function test_noOverwriteNumber(self) {
-		if(CW._debugMode) {
-			CW.__TestClassNoOverwrite_Temporary = 4;
+		CW.__TestClassNoOverwrite_Temporary = 4;
 
-			var makeSameClassName = function() {
-				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
-			}
-
-			self.assertThrows(Error, makeSameClassName);
-			delete CW.__TestClassNoOverwrite_Temporary;
+		var makeSameClassName = function() {
+			CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
 		}
+
+		self.assertThrows(Error, makeSameClassName);
+		delete CW.__TestClassNoOverwrite_Temporary;
 	},
 
 	function test_noOverwriteNull(self) {
-		if(CW._debugMode) {
-			CW.__TestClassNoOverwrite_Temporary = null;
+		CW.__TestClassNoOverwrite_Temporary = null;
 
-			var makeSameClassName = function() {
-				CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
-			}
-
-			self.assertThrows(Error, makeSameClassName);
-			delete CW.__TestClassNoOverwrite_Temporary;
+		var makeSameClassName = function() {
+			CW.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
 		}
+
+		self.assertThrows(Error, makeSameClassName);
+		delete CW.__TestClassNoOverwrite_Temporary;
 	}
 );
 
 
 /**
- * Test that displayName property is set for methods (in debugMode).
+ * Test that displayName property is set for methods (in _debugMode).
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 // TODO
@@ -557,24 +551,30 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 
 
 /**
- * Test that calling a method window or document is illegal (in debugMode).
+ * Test that calling a method window or document is illegal (in _debugMode).
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
-	function test_cannotNameMethodWindow(self) {
-		if(CW._debugMode) {
-			var attachBadMethod1 = function() {
-				CW.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
-			}
-
-			var attachBadMethod2 = function() {
-				CW.__TestBadMethodNames_Temporary.pmethods({CW: function(){}});
-			}
-
-			CW.Class.subclass(CW, '__TestBadMethodNames_Temporary');
-
-			self.assertThrows(Error, attachBadMethod1);
-			self.assertThrows(Error, attachBadMethod2);
-			delete CW.__TestBadMethodNames_Temporary;
+	function setUp(self) {
+		if(!CW._debugMode) {
+			throw new CW.UnitTest.SkipTest(
+				"Preventing the use of erroneous method names only works in _debugMode"
+			);
 		}
+	},
+
+	function test_cannotNameMethodWindow(self) {
+		var attachBadMethod1 = function() {
+			CW.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
+		}
+
+		var attachBadMethod2 = function() {
+			CW.__TestBadMethodNames_Temporary.pmethods({CW: function(){}});
+		}
+
+		CW.Class.subclass(CW, '__TestBadMethodNames_Temporary');
+
+		self.assertThrows(Error, attachBadMethod1);
+		self.assertThrows(Error, attachBadMethod2);
+		delete CW.__TestBadMethodNames_Temporary;
 	}
 );
