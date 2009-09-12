@@ -763,7 +763,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
-			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 1 pending call(s): setTimeout_pending");
+			self.assertIdentical(
+				self.result.errors[0][1].error.getMessage(),
+				"Test ended with 1 pending call(s): setTimeout_pending");
 		});
 		return d;
 	},
@@ -784,7 +786,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.errors[0][0], error);
 			//CW.msg('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message);
 			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure); // seen some cases where IE6 disagree with this, and the thing below.
-			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 1 pending call(s): setInterval_pending");
+			self.assertIdentical(
+				self.result.errors[0][1].error.getMessage(),
+				"Test ended with 1 pending call(s): setInterval_pending");
 		});
 		return d;
 	},
@@ -812,7 +816,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
-			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
+			self.assertIdentical(
+				self.result.errors[0][1].error.getMessage(),
+				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
 			
 			// the inner test stopped tracking all the pending calls.
 			for (var k in CW.UnitTest.delayedCalls) {
@@ -827,7 +833,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
 	}
 );
@@ -836,7 +842,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD'
 
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;
 	}
 );
@@ -933,6 +939,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
 	function setUp(self) {
+		CW.Test.TestUnitTest.LoaderTestsD.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
 	}
 );
@@ -941,6 +948,7 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').
 
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS').methods(
 	function setUp(self) {
+		CW.Test.TestUnitTest.LoaderTestsDS.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;
 	}
 );
@@ -1057,7 +1065,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		CW.Test.TestUnitTest.RunnerTestD.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
 	}
 );
@@ -1066,7 +1074,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').me
 
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		CW.Test.TestUnitTest.RunnerTestDS.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;
 	}
 );

@@ -140,7 +140,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setTimeoutLoose').methods(
 
 CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_setIntervalLoose').methods(
 	function test_method(self) {
-		setInterval(function(){}, 0);
+		setInterval(function(){}, 10);
 		var d = new CW.Defer.Deferred();
 		setTimeout(function(){d.callback(null);}, 25);
 		return d;
