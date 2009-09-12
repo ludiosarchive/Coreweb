@@ -253,7 +253,7 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		var methodName = methodFunction.name;
 
 		if (methodName == undefined) {
-			/* No C{methodFunction.name} in IE or Opera or earlier Safari, so try this workaround. */
+			/* No C{methodFunction.name} in IE or Opera or older Safari, so try this workaround. */
 			var methodSource = methodFunction.toString();
 			methodName = methodSource.slice(
 				methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
