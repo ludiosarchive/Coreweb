@@ -419,7 +419,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._WasRun('test_good');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 0]);
 			self.assert(self.result.wasSuccessful());
 		});
 		return d;
@@ -434,7 +434,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._WasRun('test_bad');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 1, 0]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 1, 0, 0]);
 			self.assert(!self.result.wasSuccessful());
 		});
 		return d;
@@ -449,7 +449,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._WasRun('test_error');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assert(!self.result.wasSuccessful());
 		});
 		return d;
@@ -469,7 +469,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [3, 1, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [3, 1, 1, 0]);
 			// check the failure
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
@@ -480,8 +480,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
-			self.assert(self.result.errors[0][1].error instanceof CW.Error);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
+			self.assert(
+				self.result.errors[0][1].error instanceof CW.Error,
+				"self.result.errors[0][1].error should have been a CW.Error, not a: " + self.result.errors[0][1].error);
 
 			self.assert(CW.startswith(self.result.errors[0][1].error.message, "error"));
 			self.assertArraysEqual(self.result.successes, [good]);
@@ -513,7 +517,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._BadSetUp('test_method');
 		var d = test.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
@@ -527,7 +534,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._BadTearDown('test_method');
 		var d = test.run(self.result);
 		d.addBoth(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
+			self.assert(
+				self.result.errors[0][1] instanceof CW.Defer.Failure,
+				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
@@ -576,7 +586,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [2, 1, 0]);
+			self.assertArraysEqual(self.result.getSummary(), [2, 1, 0, 0]);
 			self.assert(!self.result.wasSuccessful());
 		});
 		return d;
@@ -682,7 +692,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(self.result.errors[0][1] instanceof CW.Error);
@@ -702,7 +712,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			//CW.msg('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message);
@@ -731,7 +741,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 		var d = suite.run(self.result);
 		d.addCallback(function(){
-			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1]);
+			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(self.result.errors[0][1] instanceof CW.Error);

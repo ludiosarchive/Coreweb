@@ -209,8 +209,7 @@ CW.UnitTest.TestResult.methods(
 	 * Return a triple of (tests run, number of failures, number of errors)
 	 */
 	function getSummary(self) {
-		// TODO XXX !!!!!!!! self.skips.length
-		return [self.testsRun, self.failures.length, self.errors.length];
+		return [self.testsRun, self.failures.length, self.errors.length, self.skips.length];
 	},
 
 
@@ -801,7 +800,7 @@ CW.UnitTest.TestCase.methods(
 					tearDownD.addErrback(function(aFailure) {
 						// this *could* be the second error we add,
 						// because the method itself could have also produced a failure/error.
-						result.addError(self, aFailure.error);
+						result.addError(self, aFailure);
 						success = false;
 					});
 
@@ -972,6 +971,9 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	summaryDiv.style.backgroundColor = bgColor;
 
 	var additionalText = '';
+	if (result.skips.length > 0) {
+		additionalText += ' S=' + result.skips.length;
+	}
 	if (result.errors.length > 0) {
 		additionalText += ' E=' + result.errors.length;
 	}

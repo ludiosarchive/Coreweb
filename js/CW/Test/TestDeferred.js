@@ -36,8 +36,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 */
 	function test_toPrettyText(self) {
 		if(window.opera && window.opera.version() >= 10) {
-			CW.msg("{SKIPPING} test_toPrettyText because of Opera 10.<br>");
-			return;
+			throw new CW.UnitTest.SkipTest("Opera 10 inserts junk at the end of Error messages")
 		}
 		var frames = self.failure.parseStack();
 		var text = self.failure.toPrettyText();
