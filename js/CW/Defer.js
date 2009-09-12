@@ -35,6 +35,7 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 		return 'Failure: ' + self.error;
 	},
 
+	// TODO: use the cross-browser stack parser from Qooxdoo
 	function parseStack(self) {
 		var
 			stackString = this.error.stack,

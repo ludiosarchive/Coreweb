@@ -971,6 +971,9 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	summaryDiv.style.backgroundColor = bgColor;
 
 	var additionalText = '';
+	if (result.skips.length > 0) {
+		additionalText += ' S=' + result.skips.length;
+	}
 	if (result.errors.length > 0) {
 		additionalText += ' E=' + result.errors.length;
 	}
