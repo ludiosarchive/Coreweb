@@ -239,8 +239,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_compareWithMessage(self) {
 		try {
-			self.compare(function() { return false; }, "<->", "a", "b",
-						 "Hello");
+			self.compare(function() { return false; }, "<->", "a", "b", "Hello");
 		} catch (e) {
 			self.assertIdentical(e.getMessage(), '[0] "a" <-> "b": Hello');
 		}
@@ -272,8 +271,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		try {
 			self.assertIdentical('apple', 'orange', 'some message');
 		} catch (e) {
-			self.assertIdentical(e.getMessage(),
-				'[0] "apple" <font color=\"red\">not ===</font> "orange": some message');
+			self.assertIdentical(
+				e.getMessage(),
+				'[0] "apple" <font color=\"red\">not ===</font> "orange": some message'
+			);
 		}
 	},
 
@@ -292,10 +293,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assertIdenticalDifferentTypes(self) {
 		var raised = true;
-		var e = self.assertThrows(CW.UnitTest.AssertionError,
-								  function() {
-									  self.assertIdentical(1, '1');
-								  });
+		var e = self.assertThrows(
+			CW.UnitTest.AssertionError,
+			function() {
+				self.assertIdentical(1, '1');
+			}
+		);
 		self.assertIdentical(
 			e.getMessage(),
 			"[0] 1 <font color=\"red\">not ===</font> \"1\"");
