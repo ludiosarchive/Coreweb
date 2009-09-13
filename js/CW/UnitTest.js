@@ -515,17 +515,17 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that the given expression evalutates to true.
+	 * Assert that the given value is truthy.
 	 *
-	 * @type expression: boolean
-	 * @param expression: The thing we are asserting.
+	 * @type value: boolean
+	 * @param value: The thing we are asserting.
 	 *
 	 * @type message: text
 	 * @param message: An optional parameter, explaining what the assertion
 	 * means.
 	 */
-	function assert(self, expression, /* optional */ message, internalAssert /*=false*/) {
-		if (!expression) {
+	function assert(self, value, /* optional */ message, internalAssert /*=false*/) {
+		if (!value) {
 			self.fail(message);
 		}
 		if(internalAssert !== true) {
