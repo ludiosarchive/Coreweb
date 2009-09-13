@@ -612,10 +612,30 @@ CW.startswith = function(haystack, starter) {
 };
 
 
-
 CW.random = function() {
 	return (''+Math.random()).substr(2);
 };
+
+
+if(CW._debugMode) {
+	CW.Error.subclass(CW, "AssertionError");
+
+	/**
+	 * Assert that the given value is truthy.
+	 *
+	 * @type value: boolean
+	 * @param value: The thing we are asserting.
+	 *
+	 * @type message: text
+	 * @param message: An optional parameter, explaining what the assertion
+	 * means.
+	 */
+	CW.assert = function assert(self, value, /* optional */ message) {
+		if (!value) {
+			throw new CW.AssertionError(message);
+		}
+	}
+}
 
 
 /*
