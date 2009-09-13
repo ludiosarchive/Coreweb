@@ -42,7 +42,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assert(self) {
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() { self.assert(false, "message"); }
 		);
 	},
@@ -95,8 +95,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	function test_assertThrowsPositive(self) {
 		try {
 			self.assertThrows(
-				CW.UnitTest.AssertionError,
-				function() { throw CW.UnitTest.AssertionError(); }
+				CW.AssertionError,
+				function() { throw CW.AssertionError(); }
 			);
 		} catch (e) {
 			self.fail("assertThrows should have passed: " + e.getMessage());
@@ -112,12 +112,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		var raised = true;
 		try {
 			self.assertThrows(
-				CW.UnitTest.AssertionError,
+				CW.AssertionError,
 				function() {}
 			);
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof CW.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -135,11 +135,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		var raised = true;
 		try {
 			self.assertThrows(
-				CW.UnitTest.AssertionError,
+				CW.AssertionError,
 				function() {}, "this message will never be cared about");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof CW.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -158,12 +158,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		var raised = true;
 		try {
 			self.assertThrows(
-				CW.UnitTest.AssertionError,
+				CW.AssertionError,
 				function() { throw IndexError(); }
 			);
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof CW.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -185,7 +185,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 							  function() { throw IndexError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof CW.UnitTest.AssertionError)) {
+			if (!(e instanceof CW.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -209,7 +209,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_compareNegative(self) {
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.compare(
 					function (a, b) { return a === b; },
@@ -253,7 +253,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assertIdenticalNegative(self) {
 		var e = self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertIdentical('apple', 'orange');
 			}
@@ -294,7 +294,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	function test_assertIdenticalDifferentTypes(self) {
 		var raised = true;
 		var e = self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertIdentical(1, '1');
 			}
@@ -331,25 +331,25 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 */
 	function test_assertArraysEqualNegative(self) {
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertArraysEqual([1, 2], [1, 2, 3]);
 			}
 		);
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertArraysEqual({'foo': 2}, [2]);
 			}
 		);
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertArraysEqual(1, [1]);
 			}
 		);
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertArraysEqual(
 					function() { return 1; },
@@ -358,7 +358,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 			}
 		);
 		self.assertThrows(
-			CW.UnitTest.AssertionError,
+			CW.AssertionError,
 			function() {
 				self.assertArraysEqual(
 					function() {},
@@ -374,15 +374,15 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 * arrays.
 	 */
 	function test_assertArraysNotEqualNegative(self) {
-		self.assertThrows(CW.UnitTest.AssertionError,
+		self.assertThrows(CW.AssertionError,
 						  function() {
 							  self.assertArraysNotEqual([1, 2, 3], [1, 2, 3]);
 						  });
-		self.assertThrows(CW.UnitTest.AssertionError,
+		self.assertThrows(CW.AssertionError,
 						  function() {
 							  self.assertArraysNotEqual([2], [2]);
 						  });
-		self.assertThrows(CW.UnitTest.AssertionError,
+		self.assertThrows(CW.AssertionError,
 						  function() {
 							  self.assertArraysNotEqual([], []);
 						  });
@@ -396,7 +396,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	function test_assertIdentical(self) {
 		var foo = [1, 2];
 		self.assertIdentical(foo, foo);
-		self.assertThrows(CW.UnitTest.AssertionError,
+		self.assertThrows(CW.AssertionError,
 						  function() { self.assertIdentical(foo, [1, 2]); });
 	}
 );
@@ -506,8 +506,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 				self.result.failures[0][1] instanceof CW.Defer.Failure,
 				"self.result.failures[0][1] should have been a CW.Defer.Failure, not a: " + self.result.failures[0][1]);
 			self.assert(
-				self.result.failures[0][1].error instanceof CW.UnitTest.AssertionError,
-				"self.result.failures[0][1].error should have been a CW.UnitTest.AssertionError, not a: " + self.result.failures[0][1].error);
+				self.result.failures[0][1].error instanceof CW.AssertionError,
+				"self.result.failures[0][1].error should have been a CW.AssertionError, not a: " + self.result.failures[0][1].error);
 			self.assertIdentical(self.result.failures[0][1].error.getMessage(), "[0] fail this test deliberately");
 
 			// check the error

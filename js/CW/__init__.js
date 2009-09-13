@@ -617,9 +617,19 @@ CW.random = function() {
 };
 
 
-if(CW._debugMode) {
-	CW.Error.subclass(CW, "AssertionError");
+/**
+ * Raised by:
+ *    CW.assert() (in _debugMode) to stop execution
+ *    CW.UnitTest to indicate that a test has failed
+ */
+CW.Error.subclass(CW, "AssertionError").methods(
+	function toString(self) {
+		return 'AssertionError: ' + self.getMessage();
+	}
+);
 
+
+if(CW._debugMode) {
 	/**
 	 * Assert that the given value is truthy.
 	 *

@@ -73,18 +73,6 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 };
 
 
-
-/**
- * Raised to indicate that a test has failed.
- */
-CW.Error.subclass(CW.UnitTest, 'AssertionError').methods(
-	function toString(self) {
-		return 'AssertionError: ' + self.getMessage();
-	}
-);
-
-
-
 /**
  * Raised to indicate that a test is being skipped.
  */
@@ -173,7 +161,7 @@ CW.UnitTest.TestResult.methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.UnitTest.AssertionError} instance.
+	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -495,7 +483,7 @@ CW.UnitTest.TestCase.methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: CW.UnitTest.AssertionError
+	 * @throw: CW.AssertionError
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -507,10 +495,10 @@ CW.UnitTest.TestCase.methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: CW.UnitTest.AssertionError
+	 * @throw: CW.AssertionError
 	 */
 	function getFailError(self, reason) {
-		return CW.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
+		return CW.AssertionError("[" + self._assertCounter + "] " + reason);
 	},
 
 
@@ -557,7 +545,7 @@ CW.UnitTest.TestCase.methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{CW.UnitTest.AssertionError} if C{predicate} returns
+	 * @raises L{CW.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
@@ -781,7 +769,7 @@ CW.UnitTest.TestCase.methods(
 
 				methodD.addErrback(function(aFailure) {
 					// Note that we're not adding the Error as Divmod did; we are adding the Failure
-					if (aFailure.error instanceof CW.UnitTest.AssertionError) {
+					if (aFailure.error instanceof CW.AssertionError) {
 						result.addFailure(self, aFailure);
 					} else if (aFailure.error instanceof CW.UnitTest.SkipTest) {
 						result.addSkip(self, aFailure);
@@ -888,7 +876,7 @@ CW.UnitTest.TestCase.methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof CW.UnitTest.AssertionError) {
+//			if (e instanceof CW.AssertionError) {
 //				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
