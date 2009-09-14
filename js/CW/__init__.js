@@ -3,9 +3,7 @@
 // TODO: do this only if wrapped in the JScript wrapper
 window.CW = CW;
 
-// TODO: remove this; use JS macros only.
-CW._debugMode = true;
-// Should we automatically run the tests with CW._debugMode = false; too? Probably,
+// Should we automatically run the tests with _debugMode = False; too? Probably,
 // that's the only way to make sure they're still passing.
 
 
@@ -179,15 +177,15 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		/* new style subclassing */
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
-		if(CW._debugMode) {
-			if(classNameOrModule[subclassName] !== undefined) {
-				// throw an Error instead of something like CW.NameCollisionError
-				// because we don't have subclassing yet, and if we define it later, it might
-				// have a typo that triggers this condition; at this point you'll see a strange
-				// ReferenceError here.
-				throw new Error("CW.Class.subclass: Won't overwrite " + className);
-			}
+//] if _debugMode:
+		if(classNameOrModule[subclassName] !== undefined) {
+			// throw an Error instead of something like CW.NameCollisionError
+			// because we don't have subclassing yet, and if we define it later, it might
+			// have a typo that triggers this condition; at this point you'll see a strange
+			// ReferenceError here.
+			throw new Error("CW.Class.subclass: Won't overwrite " + className);
 		}
+//] endif
 		// Now define it so that it can actually be accessed later.
 		classNameOrModule[subclassName] = subClass;
 	} else {
@@ -204,41 +202,41 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
 
-	if(CW._debugMode) {
-		// TODO: maybe add all commonly used window properties (bug #410)
-		// see: http://code.google.com/p/doctype/wiki/WindowObject
-		// This only helps prevent problems caused by JScript's mishandling of named functions.
-		// TODO: maybe use the values found in Qooxdoo
-		var windowProps =
-			('window,document,history,location,navigator,screen,opener,closed,parent,constructor'+
-			'clipboardData,crypto,external,status,defaultStatus,top,self,name,length,'+
-			'localStorage,sessionStorage,innerWidth,innerHeight,outerWidth,'+
-			'outerHeight,screenX,screenY,fullScreen,maxConnectionsPerServer'+
-			'onerror,onload,onunload,onbeforeunload,'+
-			'console,postMessage,showModalDialog,showModelessDialog').split(',');
-		subClass._alreadyDefinedMethods = {'CW': true};
-		var windowProps_n = windowProps.length;
-		while(windowProps_n--) {
-			subClass._alreadyDefinedMethods[windowProps[windowProps_n]] = true;
-		}
-		// Pretty much any object has a toString method. _alreadyDefinedMethods is used
-		// as a set to keep track of already-defined methods (to detect a programming error at
-		// runtime: where the same method name is accidentally used twice).
-		// For .method(function toString() {}) to work, toString must be made undefined here.
-		subClass._alreadyDefinedMethods.toString = undefined;
-
-		/**
-		 * Throw an Error if this method has already been defined.
-		 */
-		subClass._prepareToAdd = function(methodName) {
-			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
-				// See explanation above for why Error instead of a CW.NameCollisionError
-				throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
-					subClass.__name__ + '.' + methodName);
-			}
-			subClass._alreadyDefinedMethods[methodName] = true;
-		}
+//] if _debugMode:
+	// TODO: maybe add all commonly used window properties (bug #410)
+	// see: http://code.google.com/p/doctype/wiki/WindowObject
+	// This only helps prevent problems caused by JScript's mishandling of named functions.
+	// TODO: maybe use the values found in Qooxdoo
+	var windowProps =
+		('window,document,history,location,navigator,screen,opener,closed,parent,constructor'+
+		'clipboardData,crypto,external,status,defaultStatus,top,self,name,length,'+
+		'localStorage,sessionStorage,innerWidth,innerHeight,outerWidth,'+
+		'outerHeight,screenX,screenY,fullScreen,maxConnectionsPerServer'+
+		'onerror,onload,onunload,onbeforeunload,'+
+		'console,postMessage,showModalDialog,showModelessDialog').split(',');
+	subClass._alreadyDefinedMethods = {'CW': true};
+	var windowProps_n = windowProps.length;
+	while(windowProps_n--) {
+		subClass._alreadyDefinedMethods[windowProps[windowProps_n]] = true;
 	}
+	// Pretty much any object has a toString method. _alreadyDefinedMethods is used
+	// as a set to keep track of already-defined methods (to detect a programming error at
+	// runtime: where the same method name is accidentally used twice).
+	// For .method(function toString() {}) to work, toString must be made undefined here.
+	subClass._alreadyDefinedMethods.toString = undefined;
+
+	/**
+	 * Throw an Error if this method has already been defined.
+	 */
+	subClass._prepareToAdd = function(methodName) {
+		if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
+			// See explanation above for why Error instead of a CW.NameCollisionError
+			throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
+				subClass.__name__ + '.' + methodName);
+		}
+		subClass._alreadyDefinedMethods[methodName] = true;
+	}
+//] endif
 
 	/**
 	 * Helper function for adding a method to the prototype.
@@ -259,16 +257,16 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 				methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
 		}
 
-		if(CW._debugMode) {
-			subClass._prepareToAdd(methodName);
+//] if _debugMode:
+		subClass._prepareToAdd(methodName);
 
-			/*
-			 * Safari 4 supports displayName to name any function for the debugger/profiler.
-			 * It might work with Firebug in the future.
-			 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
-			 */
-			methodFunction.displayName = className + '.' + methodName;
-		}
+		/*
+		 * Safari 4 supports displayName to name any function for the debugger/profiler.
+		 * It might work with Firebug in the future.
+		 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
+		 */
+		methodFunction.displayName = className + '.' + methodName;
+//] endif
 
 		subClass.prototype[methodName] = function() {
 			var args = [this];
@@ -315,17 +313,19 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	subClass.pmethods = function(obj) {
 		for(var methodName in obj) {
 			var methodFunction = obj[methodName];
-			if(CW._debugMode) {
-				/**
-				 * Check _alreadyDefinedMethods even though objects can't have two of
-				 * the same property; because the user could be using pmethods() to
-				 * accidentally overwrite a method set with methods()
-				 */
-				subClass._prepareToAdd(methodName);
 
-				// See comment about Safari 4 above.
-				methodFunction.displayName = className + '.' + methodName;
-			}
+//] if _debugMode:
+			/**
+			 * Check _alreadyDefinedMethods even though objects can't have two of
+			 * the same property; because the user could be using pmethods() to
+			 * accidentally overwrite a method set with methods()
+			 */
+			subClass._prepareToAdd(methodName);
+
+			// See comment about Safari 4 above.
+			methodFunction.displayName = className + '.' + methodName;
+//] endif
+
 			subClass.prototype[methodName] = methodFunction;
 		}
 	};
@@ -494,11 +494,12 @@ CW.err = function() {
 };
 
 CW.debug = function(kind, msg) {
-	if(CW._debugMode) {
-		if(msg === undefined) {
-			throw new CW.Error("Why is `msg' undefined? Are you misusing the logging functions?");
-		}
+//] if _debugMode:
+	if(msg === undefined) {
+		throw new CW.Error("Why is `msg' undefined? Are you misusing the logging functions?");
 	}
+//] endif
+
 	CW.logger.emit({'isError': false,
 			'message': msg, 'debug': true,
 			'channel': kind});
@@ -527,21 +528,21 @@ CW.warn = function warn(message, category) {
 /*
  * Set up the Firebug console as a CW log observer.
  */
-if(CW._debugMode) {
-	if(window.console && window.console.firebug) {
-		// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
-		CW.logger.addObserver(function (evt) {
-			if (evt.isError) {
-				console.log("CW error: " + evt.message);
-				// Dump the object itself so that you can click and inspect it with Firebug.
-				console.log(evt.error);
-			} else {
-				console.log("CW log: " + evt.message);
-			}
-		});
-		CW.msg('Made the Firebug console a log observer.');
-	}
+//] if _debugMode:
+if(window.console && window.console.firebug) {
+	// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
+	CW.logger.addObserver(function (evt) {
+		if (evt.isError) {
+			console.log("CW error: " + evt.message);
+			// Dump the object itself so that you can click and inspect it with Firebug.
+			console.log(evt.error);
+		} else {
+			console.log("CW log: " + evt.message);
+		}
+	});
+	CW.msg('Made the Firebug console a log observer.');
 }
+//] endif
 
 
 /*
@@ -629,23 +630,23 @@ CW.Error.subclass(CW, "AssertionError").methods(
 );
 
 
-if(CW._debugMode) {
-	/**
-	 * Assert that the given value is truthy.
-	 *
-	 * @type value: boolean
-	 * @param value: The thing we are asserting.
-	 *
-	 * @type message: text
-	 * @param message: An optional parameter, explaining what the assertion
-	 * means.
-	 */
-	CW.assert = function assert(self, value, /* optional */ message) {
-		if (!value) {
-			throw new CW.AssertionError(message);
-		}
+//] if _debugMode:
+/**
+ * Assert that the given value is truthy.
+ *
+ * @type value: boolean
+ * @param value: The thing we are asserting.
+ *
+ * @type message: text
+ * @param message: An optional parameter, explaining what the assertion
+ * means.
+ */
+CW.assert = function assert(self, value, /* optional */ message) {
+	if (!value) {
+		throw new CW.AssertionError(message);
 	}
 }
+//] endif
 
 
 /*

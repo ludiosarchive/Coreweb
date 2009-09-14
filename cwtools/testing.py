@@ -39,7 +39,7 @@ class TestPage(resource.Resource):
 	def render_GET(self, request):
 		theTests = self._getTests()
 
-		scriptContent = jsimp.megaScript(jsimp.getDepsMany(theTests), wrapper=True)
+		scriptContent = jsimp.megaScript(jsimp.getDepsMany(theTests), True, dict(_debugMode=False))
 
 		# ...but don't run the tests on the dependency modules
 		moduleList = []

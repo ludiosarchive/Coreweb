@@ -214,6 +214,11 @@ class Script(object):
 
 
 	def getContent(self, dictionary={}):
+		"""
+		Get the post-template-render textual content of this script. Returns unicode.
+
+		L{dictionary} is a dictionary of key->value for the template renderer.
+		"""
 		bytes = self.getAbsoluteFilename().getContent()
 		if len(bytes) == 0:
 			return u'' # no need to run jinja2 on empty unicode string

@@ -388,9 +388,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
 	function setUp(self) {
-		if(!CW._debugMode) {
-			throw new CW.UnitTest.SkipTest("Method-overwrite prevention only works in _debugMode");
-		}
+//] if not _debugMode:
+		throw new CW.UnitTest.SkipTest("Method-overwrite prevention only works in _debugMode");
+//] endif
 	},
 
 	/**
@@ -502,9 +502,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
 	function setUp(self) {
-		if(!CW._debugMode) {
-			throw new CW.UnitTest.SkipTest("Class-overwrite prevention only works in _debugMode");
-		}
+//] if not _debugMode:
+		throw new CW.UnitTest.SkipTest("Class-overwrite prevention only works in _debugMode");
+//] endif
 	},
 
 	function test_noOverwriteClass(self) {
@@ -555,11 +555,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
 	function setUp(self) {
-		if(!CW._debugMode) {
-			throw new CW.UnitTest.SkipTest(
-				"Preventing the use of erroneous method names only works in _debugMode"
-			);
-		}
+//] if not _debugMode:
+		throw new CW.UnitTest.SkipTest("Preventing the use of erroneous method names only works in _debugMode");
+//] endif
 	},
 
 	function test_cannotNameMethodWindow(self) {
