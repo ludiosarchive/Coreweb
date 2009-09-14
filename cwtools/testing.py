@@ -1,6 +1,6 @@
 import os
 from twisted.python.filepath import FilePath
-from twisted.web import resource, static
+from twisted.web import resource
 
 from cwtools import jsimp
 
@@ -19,7 +19,8 @@ class TestPage(resource.Resource):
 		[...]
 
 		self.putChild('@tests', TestPage())
-		self.putChild('@js', static.File(os.environ['JSPATH']))
+		testres_Coreweb = FilePath(cwtools.__path__[0]).child('testres').path
+		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))
 
 	"""
 	isLeaf = True

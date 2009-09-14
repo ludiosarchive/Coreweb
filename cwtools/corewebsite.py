@@ -1,4 +1,3 @@
-import os
 from twisted.web import resource, static
 from twisted.python.filepath import FilePath
 

@@ -1,14 +1,7 @@
-import os
 import struct
 import jinja2
 
-from twisted.python import log
-
 from webmagic import uriparse
-
-#globalBasePath = os.environ.get('JSPATH', None)
-#if not globalBasePath:
-#	log.msg("No JSPATH in env variables, program might fail very soon.")
 
 
 class FindScriptError(Exception):
@@ -102,8 +95,16 @@ def getDepsMany(scripts):
 
 
 
-def megaScript(scripts, wrapper):
+def megaScript(scripts, wrapper, dictionary={}):
 	"""
+	C{scripts} is an iterable of L{Script} objects.
+
+	C{wrapper} should be true C{True} if you want the wrapper,
+		otherwise C{False}.
+
+	C{dictionary} is a dictionary of key->value to pass into
+		template getContent()
+
 	Return the contents of many scripts, optionally wrapping
 	it with the anonymous function wrapper (useful for JScript,
 	which thinks named function expressions are declarations.)
@@ -116,7 +117,7 @@ var document = window.document;
 '''
 	for script in scripts:
 		data += script._underscoreName() + u';\n'
-		data += script.getContent()
+		data += script.getContent(dictionary)
 
 	if wrapper:
 		data += u'})(window);\n'
@@ -212,16 +213,18 @@ class Script(object):
 		return self._basePath.preauthChild(self.getFilename())
 
 
-	def getContent(self):
+	def getContent(self, dictionary={}):
 		bytes = self.getAbsoluteFilename().getContent()
 		if len(bytes) == 0:
-			return u''
+			return u'' # no need to run jinja2 on empty unicode string
 		elif bytes[-1] != '\n':
 			raise CorruptScriptError((
-				r"Script %r need to end with a \n. "
-				r"\n is a line terminator. Fix your text editor.") % (self,))
+				r"Script %r needs to end with a \n. "
+				r"\n is a line terminator, not a separator. Fix your text editor.") % (self,))
 		else:
-			return bytes.decode('utf-8')
+			uni = bytes.decode('utf-8')
+
+		return _theWriter.render(uni, dictionary)
 
 
 	def _getImportStrings(self):
@@ -354,4 +357,11 @@ class JavaScriptWriter(object):
 
 		Return value is the rendered template, in unicode.
 		"""
-		return self.env.from_string(template).render(dictionary)
+		rendered = self.env.from_string(template).render(dictionary)
+		# jinja2 forgets about how many newlines there should be at the end, or something
+		if not rendered.endswith(u'\n'):
+			rendered += u'\n'
+		return rendered
+
+
+_theWriter = JavaScriptWriter()

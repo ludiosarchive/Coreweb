@@ -1102,6 +1102,11 @@ CW.UnitTest.SerialVisitor.methods(
 			//
 			// This setTimeout *is* tracked by our setTimeoutMonkey but only for a very short time.
 			// (it doesn't interfere with anything)
+
+			// synchronous version (not safe for all browsers)
+			//// completionDeferred.callback(null);
+
+			// asynchronous version
 			setTimeout(function(){completionDeferred.callback(null);}, 0);
 		}
 	}

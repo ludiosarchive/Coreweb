@@ -3,7 +3,6 @@
 from twisted.python.filepath import FilePath
 from twisted.trial import unittest
 
-import os
 import string
 
 from cwtools import jsimp
@@ -559,34 +558,31 @@ class TestCorruptScripts(unittest.TestCase):
 
 
 
-class _DummyScriptForMega(object):
+class _DummyContentScript(jsimp.Script):
 	"""
-	A dummy for testing L{megaScript}.
+	A dummy.
 	"""
 
 	def __init__(self, name, content):
-		self._content = content
-		self._name = name
+		jsimp.Script.__init__(self, name, '_fakeBasePath')
+
+		class _fileObj(object):
+			def getContent(self2):
+				return content
+
+		self._fo = _fileObj()
 
 
-	def getContent(self):
-		return self._content
-
-
-	def _underscoreName(self):
-		"""
-		Return the (dummy) header required for the JS module to run.
-		"""
-
-		return "%s = {'__name__': '%s'}" % (self._name, self._name)
+	def getAbsoluteFilename(self):
+		return self._fo
 
 
 
 class MegaScriptTests(unittest.TestCase):
 
 	def test_megaScriptNoWrapper(self):
-		s1 = _DummyScriptForMega('s1', 'var x={};\n')
-		s2 = _DummyScriptForMega('s2', 'var y={};\n')
+		s1 = _DummyContentScript('s1', 'var x={};\n')
+		s2 = _DummyContentScript('s2', 'var y={};\n')
 		result = jsimp.megaScript([s1, s2], False)
 		self.assertEqual(u'''\
 s1 = {'__name__': 's1'};
@@ -597,8 +593,8 @@ var y={};
 
 
 	def test_megaScriptWrapper(self):
-		s1 = _DummyScriptForMega('s1', 'var x={};\n')
-		s2 = _DummyScriptForMega('s2', 'var y={};\n')
+		s1 = _DummyContentScript('s1', 'var x={};\n')
+		s2 = _DummyContentScript('s2', 'var y={};\n')
 		result = jsimp.megaScript([s1, s2], True)
 		self.assertEqual(u'''\
 (function(window, undefined) {
@@ -609,3 +605,58 @@ s2 = {'__name__': 's2'};
 var y={};
 })(window);
 ''', result)
+
+
+	def test_dictionaryOption(self):
+		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
+		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
+
+		result = jsimp.megaScript([s1, s2], False, dict(something="hi"))
+
+		self.assertEqual(u'''\
+s1 = {'__name__': 's1'};
+var x=hi;
+s2 = {'__name__': 's2'};
+var y=;
+''', result)
+
+
+
+class GetContentTests(unittest.TestCase):
+
+	def test_getNormalContent(self):
+		s1 = _DummyContentScript('name', 'content\n')
+		self.assertEqual('content\n', s1.getContent())
+
+
+	def test_getTemplatedContent(self):
+		s1 = _DummyContentScript('name',
+u'''\
+content
+//] if 1 == 1
+x
+//] endif
+''')
+		self.assertEqual(u'content\nx\n', s1.getContent())
+
+
+	def test_getTemplatedVariableContent1(self):
+		s1 = _DummyContentScript('name',
+u'''\
+content
+//] if _xMode == 1
+x
+//] endif
+''')
+		self.assertEqual(u'content\nx\n', s1.getContent(dict(_xMode=1)))
+
+
+	def test_getTemplatedVariableContent2(self):
+		s1 = _DummyContentScript('name',
+u'''\
+content
+//] if _xMode == 1
+x
+//] endif
+''')
+		self.assertEqual(u'content\n', s1.getContent(dict(_xMode="1")))
