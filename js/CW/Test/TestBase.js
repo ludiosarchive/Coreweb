@@ -126,7 +126,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 
 
 	/**
-	 * Check that startswith is working as expected.
+	 * Check that startswith works as expected.
 	 */
 	function test_startswith(self) {
 		self.assert(CW.startswith("hello", "h"));
@@ -144,5 +144,38 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		self.assertThrows(Error, function(){CW.startswith(3, "3");});
 		self.assertThrows(Error, function(){CW.startswith(33, "33");});
 		self.assertThrows(Error, function(){CW.startswith(33, "3");});
+	},
+
+
+	/**
+	 * Check that split works as expected.
+	 */
+	function test_splitUnlimited(self) {
+		self.assertArraysEqual(["", "ello"], CW.split("hello", "h"));
+		self.assertArraysEqual(["", "ello", "ello"], CW.split("hellohello", "h"));
+		self.assertArraysEqual(["1", "2", "3"], CW.split("1xy2xy3", "xy"));
+	},
+
+
+	function test_splitLimited(self) {
+		self.assertArraysEqual(["one", "two_three"], CW.split("one_two_three", "_", 1));
+		self.assertArraysEqual(["1", "2", "3", "4"], CW.split("1_2_3_4", "_", 3));
+		self.assertArraysEqual(["1", "2", "3", "4_5"], CW.split("1_2_3_4_5", "_", 3));
+		self.assertArraysEqual(["1", "2", "3", "4__5"], CW.split("1__2__3__4__5", "__", 3));
+	},
+
+
+	function test_splitZero(self) {
+		self.assertArraysEqual(["hello"], CW.split("hello", "h", 0));
+		self.assertArraysEqual(["1x2x3"], CW.split("1x2x3", "x", 0));
+	},
+
+
+	function test_pythonCompat(self) {
+		// Numbers less than 0 act like not passing in a C{maxsplit}
+		self.assertArraysEqual(["", "ello"], CW.split("hello", "h", -1));
+		self.assertArraysEqual(["xx", "yy", "zz"], CW.split("xx_yy_zz", "_", -1));
+		self.assertArraysEqual(["xx", "yy", "zz"], CW.split("xx_yy_zz", "_", -2));
+		self.assertArraysEqual(["xx", "yy", "zz"], CW.split("xx_yy_zz", "_", -3));
 	}
 );

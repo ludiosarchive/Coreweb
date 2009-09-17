@@ -8,7 +8,7 @@ window.CW = CW;
 
 
 /* Like Python's dir() */
-CW.dir = function(obj) {
+CW.dir = function dir(obj) {
 	var L = [];
 	for (var i in obj) {
 		L.push(i);
@@ -611,6 +611,29 @@ CW.startswith = function(haystack, starter) {
 	 // '==' seems to work the same; unit tests still pass
 	return !!(haystack.substr(0, starter.length) === starter);
 };
+
+
+
+/**
+ * Like Python's s.split(delim, num) and s.split(delim)
+ * This does *NOT* implement Python's no-argument s.split()
+ */
+CW.split = function split(s, sep, maxsplit) {
+//] if _debugMode:
+	CW.assert(sep !== undefined, "arguments[1] of CW.split must be a separator string");
+//] endif
+	if(maxsplit === undefined || maxsplit < 0) {
+		return s.split(sep);
+	}
+	var pieces = s.split(sep);
+	var head = pieces.splice(0, maxsplit);
+	// after the splice, pieces is shorter and no longer has the C{head} elements.
+	var tail = pieces.join(sep);
+	head.push(tail); // no longer just the head.
+	return head;
+};
+
+
 
 
 CW.random = function() {
