@@ -822,24 +822,6 @@ CW.UnitTest.TestCase.methods(
 	},
 
 
-	function _maybeWrapWithDeferred(self, f) {
-		// Copied line-for-line from twisted.internet.defer.maybeDeferred
-		try {
-			var result = f();
-		} catch(e) {
-			return CW.Defer.fail(CW.Defer.Failure(e));
-		}
-
-		if (result instanceof CW.Defer.Deferred) {
-			return result;
-		} else if(result instanceof CW.Defer.Failure) {
-			return CW.Defer.fail(result);
-		} else {
-			return CW.Defer.succeed(result);
-		}
-	},
-
-
 	/**
 	 * Actually run this test.
 	 */
@@ -851,13 +833,13 @@ CW.UnitTest.TestCase.methods(
 
 		result.startTest(self);
 
-		setUpD = self._maybeWrapWithDeferred(function(){return self.setUp();});
+		setUpD = CW.Defer.maybeDeferred(function(){return self.setUp();});
 
 		setUpD.addCallbacks(
 			/* callback */
 			function(){
 
-				methodD = self._maybeWrapWithDeferred(function(){return self[self._methodName]();});
+				methodD = CW.Defer.maybeDeferred(function(){return self[self._methodName]();});
 
 				//console.log("From " + self._methodName + " got a ", methodD);
 
@@ -879,7 +861,7 @@ CW.UnitTest.TestCase.methods(
 					// for some debugging, prepend the closure with
 					// console.log("in teardown after", self._methodName);
 
-					tearDownD = self._maybeWrapWithDeferred(function(){return self.tearDown();});
+					tearDownD = CW.Defer.maybeDeferred(function(){return self.tearDown();});
 
 					// approaching the end of our journey
 

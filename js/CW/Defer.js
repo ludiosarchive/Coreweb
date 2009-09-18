@@ -308,6 +308,26 @@ CW.Defer.fail = function fail(err) {
 };
 
 
+
+// Copied line-for-line from twisted.internet.defer.maybeDeferred
+CW.Defer.maybeDeferred = function maybeDeferred(f) {
+	try {
+		var result = f();
+	} catch(e) {
+		return CW.Defer.fail(CW.Defer.Failure(e));
+	}
+
+	if (result instanceof CW.Defer.Deferred) {
+		return result;
+	} else if(result instanceof CW.Defer.Failure) {
+		return CW.Defer.fail(result);
+	} else {
+		return CW.Defer.succeed(result);
+	}
+},
+
+
+
 /**
  * First error to occur in a DeferredList if fireOnOneErrback is set.
  *
