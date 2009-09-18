@@ -306,6 +306,39 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 
 
 	/**
+	 * If L{assertNotIdentical} is given a message as an optional third argument,
+	 * that message should appear in the raised exception's message. Test this.
+	 */
+	function test_assertNotIdenticalNegativeWithMessage(self) {
+		try {
+			self.assertNotIdentical('apple', 'apple', 'some message');
+		} catch (e) {
+			self.assertIdentical(
+				e.getMessage(),
+				'[0] "apple" `===´ "apple": some message'
+			);
+		}
+	},
+
+
+	/**
+	 * Test that L{assertNotIdentical} doesn't raise an exception if its
+	 * arguments are unequal.
+	 */
+	function test_assertNotIdenticalPositive(self) {
+		self.assertNotIdentical('apple', 'orange');
+	},
+
+
+	/**
+	 * Test that L{assertNotIdentical} thinks that 1 and '1' are unequal.
+	 */
+	function test_assertNotIdenticalDifferentTypes(self) {
+		self.assertNotIdentical(1, '1');
+	},
+
+
+	/**
 	 * Test that L{assertArraysEqual} doesn't raise an exception if it is
 	 * passed that two 'equal' arrays.
 	 */
