@@ -318,7 +318,7 @@ CW.UnitTest.SubunitTestClient.methods(
  */
 CW.UnitTest.TestSuite = CW.Class.subclass('CW.UnitTest.TestSuite');
 CW.UnitTest.TestSuite.methods(
-	function __init__(self, /* optional */ tests) {
+	function __init__(self, /*optional*/ tests) {
 		self.tests = [];
 		if (tests != undefined) {
 			self.addTests(tests);
@@ -512,11 +512,11 @@ CW.UnitTest.TestCase.methods(
 	 * @param message: An optional parameter, explaining what the assertion
 	 * means.
 	 */
-	function assert(self, value, /* optional */ message, internalAssert /*=false*/) {
+	function assert(self, value, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		if (!value) {
 			self.fail(message);
 		}
-		if(internalAssert !== true) {
+		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -549,7 +549,7 @@ CW.UnitTest.TestCase.methods(
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
-					 /* optional */ message, internalCompare /*=false*/) {
+					 /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		var repr = CW.UnitTest.repr;
 		if (!predicate(a, b)) {
 			var msg = repr(a) + " " + description + " " + repr(b);
@@ -558,7 +558,7 @@ CW.UnitTest.TestCase.methods(
 			}
 			self.fail(msg);
 		}
-		if(internalCompare !== true) {
+		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -568,9 +568,11 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that Arrays C{a} and C{b} are equal.
 	 * Uses a shallow comparison of items, strict equality.
 	 */
-	function assertArraysEqual(self, a, b, /* optional */ message) {
+	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(CW.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
-		self._assertCounter += 1;
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
 	},
 
 
@@ -578,7 +580,7 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that Arrays C{a} and C{b} are not equal.
 	 * Uses a shallow comparison of items, strict equality.
 	 */
-	function assertArraysNotEqual(self, a, b, /* optional */ message) {
+	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		var invert = function(func) {
 			return function(){
 				return !func.apply(this, arguments);
@@ -586,27 +588,33 @@ CW.UnitTest.TestCase.methods(
 		};
 		var arraysNotEqual = invert(CW.arraysEqual);
 		self.compare(arraysNotEqual, '<font color="red">array-equal to</font>', a, b, message, true);
-		self._assertCounter += 1;
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
 	},
 
 
 	/**
 	 * Assert that C{a} and C{b} are identical.
 	 */
-	function assertIdentical(self, a, b, /* optional */ message) {
+	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return x === y; },
 					 '<font color="red">not ===</font>', a, b, message, true);
-		self._assertCounter += 1;
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
 	},
 
 
 	/**
 	 * Assert that C{a} and C{b} are NOT identical.
 	 */
-	function assertNotIdentical(self, a, b, /* optional */ message) {
+	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return !(x === y); },
 					 '<font color="red">===</font>', a, b, message, true);
-		self._assertCounter += 1;
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
 	},
 
 
