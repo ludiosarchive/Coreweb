@@ -669,7 +669,7 @@ CW.UnitTest.TestCase.methods(
 
 		} else if(a === null || b === null) {
 			// Because C{null} has typeof C{object} and may successfully iterate (though with 0 properties),
-			// we need to catch it early and do a direct === comparison if either C{a} or C{b} is C{null}
+			// we need to catch it early and do a direct === comparison if either C{a} or C{b} are C{null}
 			self.assertIdentical(a, b, message, true);
 
 		} else if(isArray(a) && isArray(b)) {

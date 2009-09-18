@@ -456,6 +456,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 
 
 	function test_assertEqual(self) {
+		function a() {}
+
 		self.assertEqual("2", "2");
 		var big = "big";
 		self.assertEqual(big, big);
@@ -467,8 +469,15 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		self.assertEqual([[1], [3, [{}]]], [[1], [3, [{}]]]);
 		self.assertEqual([[1], [3, [{}]]], [[1], [3, [new Object()]]]);
 
+		self.assertEqual(null, null);
+		self.assertEqual(undefined, undefined);
+		self.assertEqual(true, true);
+		self.assertEqual(false, false);
+
 		self.assertEqual({}, {});
 		self.assertEqual({1: 3}, {"1": 3});
+
+		self.assertEqual(a, a);
 	},
 
 
@@ -476,6 +485,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		function aT(f) {
 			self.assertThrows(CW.AssertionError, f);
 		}
+
+		function a() {}
+		function b() {}
 
 		aT(function() { self.assertEqual("2", 2); });
 		var big = "big";
@@ -492,8 +504,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 
 		aT(function() { self.assertEqual({}, null); });
 		aT(function() { self.assertEqual(null, {}); });
+		aT(function() { self.assertEqual(undefined, null); });
+		aT(function() { self.assertEqual(null, undefined); });
+		aT(function() { self.assertEqual(true, false); });
+		aT(function() { self.assertEqual(false, true); });
 
 		aT(function() { self.assertEqual({1: 3}, {"1": 3.00001}); });
+
+		aT(function() { self.assertEqual(a, b); });
 	}
 
 	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE
