@@ -17,47 +17,13 @@ CW.URI.URI_SPLIT_RE = /^(([^:\/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*
 CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
 
 
-/*
-L{urisplit} is a basic URI Parser according to STD66 aka RFC3986
-
-// Examples:
-
-	>>> urisplit("scheme://authority/path?query#fragment")
-	['scheme', 'authority', '/path', 'query', 'fragment']
-
-	>>> urisplit("scheme://authority/path?query#")
-	['scheme', 'authority', '/path', 'query', '']
-
-	>>> urisplit("scheme://authority/path?query")
-	['scheme', 'authority', '/path', 'query', null]
-
-	>>> urisplit("scheme://authority/path?")
-	['scheme', 'authority', '/path', '', null]
-
-	>>> urisplit("scheme://authority/path")
-	['scheme', 'authority', '/path', null, null]
-
-	>>> urisplit("scheme://authority/")
-	['scheme', 'authority', '/', null, null]
-
-	>>> urisplit("scheme://authority")
-	['scheme', 'authority', '', null, null]
-
-// L{urisplit} automatically lowercases the scheme:
-
-	>>> urisplit("SCHEME://authority")
-	['scheme', 'authority', '', null, null]
-
-	>>> urisplit("ScHeMe://authority")
-	['scheme', 'authority', '', null, null]
-
-// It is reversable:
-
-	>>> uriunsplit.apply(this, urisplit("scheme://authority"))
-	'scheme://authority'
-
-	>>> uriunsplit.apply(this, urisplit("scheme://authority/"))
-	'scheme://authority/'
+/**
+ * L{urisplit} is a basic URI Parser according to STD66 aka RFC3986.
+ *
+ * >>> CW.URI.urisplit("scheme://authority/path?query#fragment")
+ * ['scheme', 'authority', '/path', 'query', 'fragment']
+ *
+ * See TestURI.js for the informal spec.
  */
 CW.URI.urisplit = function urisplit(uri) {
 	var p = CW.URI.URI_SPLIT_RE.exec(uri);
@@ -82,28 +48,14 @@ CW.URI.urisplit = function urisplit(uri) {
 }
 
 
-/*
-	Reverse of urisplit()
-
-	This function signature does not match the one in webmagic;
-	this one takes 5 arguments.
-
-	>>> uriunsplit('scheme', 'authority', '/path', 'query', 'fragment')
-	'scheme://authority/path?query#fragment'
-
-	>>> uriunsplit('scheme', 'authority', '/path', null, 'fragment')
-	'scheme://authority/path#fragment'
-
-	>>> uriunsplit('scheme', 'authority', '/path', '', 'fragment')
-	'scheme://authority/path?#fragment'
-
-	>>> uriunsplit('scheme', 'authority', '/path', '', null)
-	'scheme://authority/path?'
-
-	>>> uriunsplit('scheme', 'authority', '/path', '', '')
-	'scheme://authority/path?#'
+/**
+ * Inverse of L{urisplit}.
+ *
+ * >>> CW.URI.uriunsplit('scheme', 'authority', '/path', 'query', 'fragment')
+ * 'scheme://authority/path?query#fragment'
+ *
+ * See TestURI.js for the informal spec.
  */
-
 CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment) {
 	// Keep in mind: a path might not start with /, for example, the path of 'about:blank' is 'blank'
 	var result = '';
@@ -127,12 +79,14 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
 
 
 
-/*
-   Basic authority parser that splits authority into component parts
-   
-   >>> split_authority("user:password@host:port")
-   ['user', 'password', 'host', port]
-*/
+/**
+ *  Basic authority parser that splits authority into component parts.
+ * 
+ * >>> CW.URI.split_authority("user:password@host:port")
+ * ['user', 'password', 'host', port]
+ *
+ * See TestURI.js for the informal spec.
+ */
 CW.URI.split_authority = function split_authority(authority) {
 	var split, userinfo, hostport, user, passwd, host, port;
 	if(authority.indexOf('@') != -1) {
@@ -170,11 +124,13 @@ CW.URI.split_authority = function split_authority(authority) {
 }
 
 
-/*
-   Reverse of split_authority()
-
-   >>> join_authority('user', 'password', 'host', port)
-   'user:password@host:port'
+/**
+ * Inverse of split_authority()
+ * 
+ * >>> CW.URI.join_authority('user', 'password', 'host', port)
+ * 'user:password@host:port'
+ *
+ * See TestURI.js for the informal spec.
  */
 CW.URI.join_authority = function join_authority(user, passwd, host, port) {
 	var result = '';
