@@ -185,14 +185,18 @@ CW.Error.subclass(CW.URI, "BadURLError").methods(
 
 
 /**
- * Represents a URL. You can modify a L{CW.URI.URL} with C{.update('property', 'value'}
+ * Represents a URL. You can modify a L{CW.URI.URL} with C{.update('property', 'value')}
  * to change parts of the URL, clone a URL by passing a L{CW.URI.URL} instance
  * into the constructor, and serialize to a string with C{.getString()}.
  *
  * Do not modify any of the "public" attributes yourself.
  *
- * If you create a URL without an explicit port set, changing the scheme will
- * change the default port, if the scheme is in L{schemeToDefaultPort}.
+ * If you create a URL without an explicit port set, and you never updated
+ * the port yourself,
+ *    AND you are changing the scheme,
+ *          AND the scheme is in L{schemeToDefaultPort},
+ *                the port of the URL will change.
+ * 
  * This is to make it less error-prone to switch between http and https.
  */
 CW.Class.subclass(CW.URI, 'URL').methods(
@@ -204,6 +208,8 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 	function __init__(self, urlObjOrString) {
 		var split;
 		var authority;
+
+		self.port = null; // scary logic follows
 
 		if(urlObjOrString instanceof CW.URI.URL) {
 			// Clone it. We don't expect the object to have any crappy values like undefined,
@@ -233,8 +239,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			self.update('user', split[0], true);
 			self.update('password', split[1], true);
 			self.update('host', split[2], true);
-			self._explicitPort = split[3] === null ? false : true;
-			if(split[3]) { // 0, null, ''; sadly port 0 should be accepted, but whatever
+			if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
 				self.update('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
 			}
 		}
@@ -252,6 +257,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 
 		if(!self._explicitPort) {
 			if(self._defaultPortForMyScheme !== undefined) {
+				// Note how we don't call self.update('port', ...), because that would set _explicitPort
 				self.port = self._defaultPortForMyScheme;
 			}
 		}
@@ -264,9 +270,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 	},
 
 	function _postPropertyUpdate_port(self, _internalCall) {
-		if(!_internalCall) {
-			self._explicitPort = true;
-		}
+		self._explicitPort = true;
 	},
 
 	/**
@@ -292,12 +296,12 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 	function getString(self) {
 		/**
 		 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
-		 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay.
+		 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay (but only for getString)
 		 * 
 		 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
 		 */
 		var port;
-		if(self._defaultPortForMyScheme === self.port) {
+		if(!self.port || self._defaultPortForMyScheme === self.port) {
 			port = null;
 		} else {
 			port = '' + self.port; // convert to a string for join_authority

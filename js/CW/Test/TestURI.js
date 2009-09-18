@@ -216,6 +216,24 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 	},
 
 
+	function test_fullURLDefaultsUnknownScheme(self) {
+		var URL = CW.URI.URL;
+		var u = URL("asdfq://host");
+
+		self.assertEqual('asdfq', u.scheme);
+		self.assertEqual(null, u.user);
+		self.assertEqual(null, u.password);
+		self.assertEqual('host', u.host);
+		self.assertEqual(null, u.port);
+		self.assertEqual('/', u.path);
+		self.assertEqual(null, u.query);
+		self.assertEqual(null, u.fragment);
+
+		self.assertEqual("asdfq://host/", u.getString());
+		self.assertEqual('CW.URI.URL("asdfq://host/")', u.toString());
+	},
+
+
 	function test_changeSchemeStrangePort(self) {
 		var URL = CW.URI.URL;
 		var u = URL("http://user:pass@domain:81/path?query#fragment");
@@ -282,16 +300,44 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 		u.update('scheme', "htTP");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 		self.assertEqual(80, u.port);
+	},
+
+
+	function test_changePortForKnownScheme(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain:81/path?query#fragment");
+		u.update('port', 80);
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+	},
+
+
+	function test_changePortForUnknownScheme(self) {
+		var URL = CW.URI.URL;
+		var u = URL("asdfq://user:pass@domain/path?query#fragment");
+		self.assertEqual(null, u.port);
+
+		u.update('port', 80);
+		self.assertEqual(80, u.port);
+		self.assertEqual("asdfq://user:pass@domain:80/path?query#fragment", u.getString());
+
+		// Now go http
+		u.update('scheme', 'http');
+		self.assertEqual(80, u.port);
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+
+		// Now go https
+		u.update('scheme', 'https');
+		self.assertEqual(80, u.port);
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+	},
+
+
+	function test_changeSchemeAfterExplicitPortInStringConstruction(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain:81/path?query#fragment");
+		self.assertEqual(81, u.port);
+
+		u.update('scheme', 'https');
+		self.assertEqual(81, u.port);
 	}
-
-	// TODO: tests for unknown scheme & default port interaction
-
-//
-//	function test_changePort(self) {
-//		var u;
-//		var URL = CW.URI.URL;
-//		u = URL("http://user:pass@domain:81/path?query#fragment");
-//		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
-//		self.assertEqual('CW.URI.URL("http://user:pass@domain:81/path?query#fragment")', u.toString());
-//	}
 );
