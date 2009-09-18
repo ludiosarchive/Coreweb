@@ -439,6 +439,52 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 			CW.AssertionError,
 			function() { self.assertIdentical(foo, [1, 2]); }
 		);
+	},
+
+
+	/**
+	 * Test that L{assertIn} works in the positive.
+	 */
+	function test_assertIn(self) {
+		self.assertIn("1", [5, 6]);
+		self.assertIn("hello", {"hello": "world"});
+	},
+
+
+	/**
+	 * Test that L{assertIn} works in the negative.
+	 */
+	function test_assertInNegative(self) {
+		var e = self.assertThrows(
+			CW.AssertionError,
+			function() {
+				self.assertIn("1", [5]);
+			}
+		);
+		self.assertIdentical(e.getMessage(), '[0] "1" `not in´ [5]');
+	},
+
+
+	/**
+	 * Test that L{assertNotIn} works in the positive.
+	 */
+	function test_assertNotIn(self) {
+		self.assertNotIn("2", [5, 6]);
+		self.assertNotIn("x", {"hello": "world"});
+	},
+
+
+	/**
+	 * Test that L{assertNotIn} works in the negative.
+	 */
+	function test_assertNotInNegative(self) {
+		var e = self.assertThrows(
+			CW.AssertionError,
+			function() {
+				self.assertNotIn("0", [5]);
+			}
+		);
+		self.assertIdentical(e.getMessage(), '[0] "0" `in´ [5]');
 	}
 );
 
