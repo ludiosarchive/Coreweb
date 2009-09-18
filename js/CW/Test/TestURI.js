@@ -179,7 +179,99 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
-	function test_URL(self) {
 
+	function test_fullURL(self) {
+		var URL = CW.URI.URL;
+		var u = URL("scheme://user:password@host:81/path?query#fragment");
+
+		self.assertEqual('scheme', u.scheme);
+		self.assertEqual('user', u.user);
+		self.assertEqual('password', u.password);
+		self.assertEqual('host', u.host);
+		self.assertEqual(81, u.port);
+		self.assertEqual('/path', u.path);
+		self.assertEqual('query', u.query);
+		self.assertEqual('fragment', u.fragment);
+
+		self.assertEqual("scheme://user:password@host:81/path?query#fragment", u.getString());
+		self.assertEqual('CW.URI.URL("scheme://user:password@host:81/path?query#fragment")', u.toString());
+	},
+
+
+	function test_changeSchemeStrangePort(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain:81/path?query#fragment");
+		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
+
+		u.scheme = "HTTPS";
+		self.assertEqual("https://user:pass@domain:81/path?query#fragment", u.getString());
+	},
+
+
+	function test_changeSchemeExplicitPort1(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain/path?query#fragment");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+
+		u.update('port', 80);
+		u.update('scheme', 'HTTPS');
+
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+	},
+
+
+	function test_changeSchemeExplicitPort2(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain/path?query#fragment");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+
+		u.update('scheme', 'HTTPS');
+		u.update('port', 80);
+
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+	},
+
+
+	/**
+	 * If a port is ever explicitly given in a parsed string, or a port is every explicitly
+	 * set, cloning the URL means it's tainted with the 'explicit port set' bit
+	 */
+	function test_portMeansTaintedForever(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain/path?query#fragment");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+
+		u.update('port', 80);
+		var u2 = URL(u);
+		u2.update('scheme', 'https');
+
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+	},
+
+
+	function test_changeSchemeDefaultPort(self) {
+		var URL = CW.URI.URL;
+		var u = URL("http://user:pass@domain/path?query#fragment");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual(80, u.port);
+
+		// to https
+		u.update(scheme, "HTTPS");
+		self.assertEqual("https://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual(443, u.port);
+
+		// ...and back to http
+		u.update(scheme, "htTP");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual(80, u.port);
 	}
+
+//
+//	function test_changePort(self) {
+//		var u;
+//		var URL = CW.URI.URL;
+//		u = URL("http://user:pass@domain:81/path?query#fragment");
+//		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
+//		self.assertEqual('CW.URI.URL("http://user:pass@domain:81/path?query#fragment")', u.toString());
+//	}
 );

@@ -115,7 +115,7 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
  * See TestURI.js for the informal spec.
  */
 CW.URI.split_authority = function split_authority(authority) {
-	var userinfo, hostport, user, passwd, host, port, _split;
+	var userinfo, hostport, user, password, host, port, _split;
 	if(authority.indexOf('@') != -1) {
 		_split = CW.split(authority, '@', 1);
 		userinfo = _split[0];
@@ -128,10 +128,10 @@ CW.URI.split_authority = function split_authority(authority) {
 	if(userinfo && userinfo.indexOf(':') != -1) {
 		_split = CW.split(userinfo, ':', 1);
 		user = _split[0];
-		passwd = _split[1];
+		password = _split[1];
 	} else {
 		user = userinfo;
-		passwd = null;
+		password = null;
 	}
 
 	if(hostport && hostport.indexOf(':') != -1) {
@@ -146,7 +146,7 @@ CW.URI.split_authority = function split_authority(authority) {
 	// It really doesn't make sense to have an empty string for a host,
 	// but do it anyway for symmetry.
 
-	return [user, passwd, host, port];
+	return [user, password, host, port];
 }
 
 
@@ -158,12 +158,12 @@ CW.URI.split_authority = function split_authority(authority) {
  *
  * See TestURI.js for the informal spec.
  */
-CW.URI.join_authority = function join_authority(user, passwd, host, port) {
+CW.URI.join_authority = function join_authority(user, password, host, port) {
 	var result = '';
 	if (user !== null) {
 		result += user;
-		if (passwd !== null) {
-			result +=  (':' + passwd);
+		if (password !== null) {
+			result +=  (':' + password);
 		}
 		result += '@';
 	}
@@ -185,9 +185,15 @@ CW.Error.subclass(CW.URI, "BadURLError").methods(
 
 
 /**
- * Represents a URL. You can modify the public attributes on a L{CW.URI.URL}
+ * Represents a URL. You can modify a L{CW.URI.URL} with C{.update('property', 'value'}
  * to change parts of the URL, clone a URL by passing a L{CW.URI.URL} instance
  * into the constructor, and serialize to a string with C{.getString()}.
+ *
+ * Do not modify any of the "public" attributes yourself.
+ *
+ * If you create a URL without an explicit port set, changing the scheme will
+ * change the default port, if the scheme is in L{schemeToDefaultPort}.
+ * This is to make it less error-prone to switch between http and https.
  */
 CW.Class.subclass(CW.URI, 'URL').methods(
 	/**
@@ -202,45 +208,79 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		if(urlObjOrString instanceof CW.URI.URL) {
 			// Clone it. We don't expect the object to have any crappy values like undefined,
 			// but even if that's the case, there shouldn't be many problems.
-			self.scheme = urlObjOrString.scheme;
-			self.user = urlObjOrString.user;
-			self.passwd = urlObjOrString.passwd;
-			self.host = urlObjOrString.host;
-			self.port = urlObjOrString.port;
-			self.path = urlObjOrString.path;
-			self.query = urlObjOrString.query;
-			self.frag = urlObjOrString.frag;
+
+			// scheme must be set before port
+			self.update('scheme', urlObjOrString.scheme, true);
+			self.update('user', urlObjOrString.user, true);
+			self.update('password', urlObjOrString.password, true);
+			self.update('host', urlObjOrString.host, true);
+			self.update('port', urlObjOrString.port, true);
+			self.update('path', urlObjOrString.path, true);
+			self.update('query', urlObjOrString.query, true);
+			self.update('fragment', urlObjOrString.fragment, true);
+			self._explicitPort = urlObjOrString._explicitPort;
 		} else {
 			// Parse the (hopefully) string
 			split = CW.URI.urisplit(urlObjOrString);
-			self.scheme = split[0];
+			// scheme must be set before port
+			self.update('scheme', split[0], true);
 			authority = split[1];
-			self.path = split[2]; // at this point, self.path could be C{null} XOR C{''}
-			self.query = split[3];
-			self.frag = split[4];
+			self.update('path', split[2], true); // split[2] could be C{null} XOR C{''}
+			self.update('query', split[3], true);
+			self.update('fragment', split[4], true);
 
 			split = CW.URI.split_authority(authority);
-			self.user = split[0];
-			self.passwd = split[1];
-			self.host = parseInt(split[2], 10);
-			self.port = split[3]; // at this point, self.port could be C{null} XOR C{''}
+			self.update('user', split[0], true);
+			self.update('password', split[1], true);
+			self.update('host', split[2], true);
+			self._explicitPort = split[3] === null ? false : true;
+			self.update('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
 		}
-
-		// This might become undefined.
-		self._defaultPortForMyScheme = CW.URI.schemeToDefaultPort[self.scheme];
 
 		if(!(self.scheme && self.host)) {
 			throw new CW.URI.BadURLError("URL needs a scheme and a host");
 		}
+	},
 
-		if(!self.port) {
+	function _postPropertyUpdate_scheme(self, _internalCall) {
+		self.scheme = self.scheme.toLowerCase();
+
+		// This might become undefined.
+		self._defaultPortForMyScheme = CW.URI.schemeToDefaultPort[self.scheme];
+
+		if(!self._explicitPort) {
 			if(self._defaultPortForMyScheme !== undefined) {
 				self.port = self._defaultPortForMyScheme;
 			}
 		}
+	},
 
+	function _postPropertyUpdate_path(self, _internalCall) {
 		if(!self.path) {
 			self.path = '/';
+		}
+	},
+
+	function _postPropertyUpdate_port(self, _internalCall) {
+		if(!_internalCall) {
+			self._explicitPort = true;
+		}
+	},
+
+	/**
+	 * Don't give this unknown property names.
+	 */
+	function update(self, property, value, _internalCall/*=false*/) {
+		self[property] = value;
+
+		// Don't use dynamic self['_postPropertyUpdate_' + property] here,
+		// to make it easier to rename private property names later.
+		if(property === 'scheme') {
+			self._postPropertyUpdate_scheme(_internalCall);
+		} else if(property == 'path') {
+			self._postPropertyUpdate_path(_internalCall);
+		} else if(property == 'port') {
+			self._postPropertyUpdate_port(_internalCall);
 		}
 	},
 
@@ -252,7 +292,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
 		 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay.
 		 * 
-		 * We'll keep C{user} and C{passwd} exactly as-is because that feature is scary.
+		 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
 		 */
 		var port;
 		if(self._defaultPortForMyScheme === self.port) {
@@ -261,7 +301,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			port = '' + self.port; // convert to a string for join_authority
 		}
 
-		var authority = CW.URI.join_authority(self.user, self.passwd, self.host, port);
+		var authority = CW.URI.join_authority(self.user, self.password, self.host, port);
 		return CW.URI.uriunsplit(self.scheme, authority, self.path, self.query, self.fragment);
 	},
 
@@ -269,6 +309,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 	 * Think of this as the __repr__
 	 */
 	function toString(self) {
-		return 'CW.URI.URL("' + self.getString() + '")';
+		// TODO: use a string repr function instead of replacing quotes
+		return 'CW.URI.URL("' + self.getString().replace(/"/, '\\"') + '")';
 	}
 );
