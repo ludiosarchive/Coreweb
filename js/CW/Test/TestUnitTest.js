@@ -752,8 +752,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr(5), '5');
 		self.assertIdentical(repr([5]), '[5]');
 		self.assertIdentical(repr([5, 6]), '[5,6]');
+		self.assertIdentical(repr([5, null]), '[5,null]');
+		self.assertIdentical(repr([5, true]), '[5,true]');
+		self.assertIdentical(repr([5, false]), '[5,false]');
+
 		self.assertIdentical(repr({"a": 3, "b": 4}), '({"a":3,"b":4})');
 		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a":3,"b":{}})');
+		self.assertIdentical(repr({"a": 3, "b": {a: "c"}}), '({"a":3,"b":{"a":"c"}})');
 		self.assertIdentical(repr({"a": 3, "b": []}), '({"a":3,"b":[]})');
 		self.assertIdentical(repr('foo'), '"foo"');
 
@@ -782,6 +787,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr('\u1000'), '"\\u1000"');
 		self.assertIdentical(repr('\ubeef'), '"\\uBEEF"');
 		self.assertIdentical(repr('\uFFFF'), '"\\uFFFF"');
+
+		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\x00","\\x00"]');
+		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\x00","\\x00",{"\\x00":"0"}]');
 	}
 );
 

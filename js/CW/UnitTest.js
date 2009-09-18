@@ -1117,6 +1117,7 @@ CW.UnitTest.runRemote = function runRemote(test) {
  *    "str\"i'ng" instead of 'str\'i\"ng'
  *    fixed a major bug in escapeChar
  *    fixed a bug in char2esc - "\r" was incorrect
+ *    fixed to make recursive calls with noParens when iterating an array
  * 
  * Differs from our old repr:
  *    no more superfluous spaces between items in arrays.
@@ -1180,21 +1181,21 @@ CW.UnitTest._makeUneval = function() {
 			if (!hasOwnProperty.call(o, p)) {
 				continue;
 			}
-			src[src.length] = uneval(p)  + ':' + uneval(o[p], 1);
+			src[src.length] = uneval(p)  + ':' + uneval(o[p], /*noParens*/true);
 		};
 		// parens are needed for the outer-most object.
 		return noParens ? '{' + src.toString() + '}' : '({' + src.toString() + '})';
 	};
 
 	var uneval_set = function(proto, name, func) {
-		protos[protos.length] = [ proto, name ];
+		protos[protos.length] = [proto, name];
 		name2uneval[name] = func || uneval_default;
 	};
 
 	uneval_set(Array, 'array', function(o) {
 		var src = [];
 		for (var i = 0, l = o.length; i < l; i++) {
-			src[i] = uneval(o[i]);
+			src[i] = uneval(o[i], /*noParens*/true);
 		}
 		return '[' + src.toString() + ']';
 	});
@@ -1206,7 +1207,6 @@ CW.UnitTest._makeUneval = function() {
 	});
 
 	var typeName = function(o) {
-		// if (o === null) return 'null';
 		var t = typeof o;
 		if (t != 'object') {
 			return t;
@@ -1222,6 +1222,8 @@ CW.UnitTest._makeUneval = function() {
 
 	var uneval = function(o, noParens) {
 		// if (o.toSource) return o.toSource(); // a bad idea, but maybe useful for comparison
+
+		// null is of type "object", so short-circuit
 		if (o === null) {
 			return 'null';
 		}
