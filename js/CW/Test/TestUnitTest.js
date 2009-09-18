@@ -213,7 +213,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 			function() {
 				self.compare(
 					function (a, b) { return a === b; },
-					"not ===", "a", "b"
+					"!==", "a", "b"
 				);
 			}
 		);
@@ -259,7 +259,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 			}
 		);
 		self.assertIdentical(e.getMessage(),
-			'[0] "apple" `not ===´ "orange"');
+			'[0] "apple" `!==´ "orange"');
 	},
 
 
@@ -273,7 +273,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		} catch (e) {
 			self.assertIdentical(
 				e.getMessage(),
-				'[0] "apple" `not ===´ "orange": some message'
+				'[0] "apple" `!==´ "orange": some message'
 			);
 		}
 	},
@@ -301,7 +301,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		);
 		self.assertIdentical(
 			e.getMessage(),
-			'[0] 1 `not ===´ "1"');
+			'[0] 1 `!==´ "1"');
 	},
 
 

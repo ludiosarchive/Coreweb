@@ -599,7 +599,7 @@ CW.UnitTest.TestCase.methods(
 	 */
 	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(function (x, y) { return x === y; },
-					 '`not ===´', a, b, message, true);
+					 '`!==´', a, b, message, true);
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
