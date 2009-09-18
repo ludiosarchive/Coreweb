@@ -7,39 +7,44 @@
 
 CW.URI.URI_SPLIT_RE = /^(([^:\/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
 
+CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
+
+
 /*
-	Basic URI Parser according to STD66 aka RFC3986
+L{urisplit} is a basic URI Parser according to STD66 aka RFC3986
+
+// Examples:
 
 	>>> urisplit("scheme://authority/path?query#fragment")
-	('scheme', 'authority', '/path', 'query', 'fragment')
+	['scheme', 'authority', '/path', 'query', 'fragment']
 
 	>>> urisplit("scheme://authority/path?query#")
-	('scheme', 'authority', '/path', 'query', '')
+	['scheme', 'authority', '/path', 'query', '']
 
 	>>> urisplit("scheme://authority/path?query")
-	('scheme', 'authority', '/path', 'query', None)
+	['scheme', 'authority', '/path', 'query', null]
 
 	>>> urisplit("scheme://authority/path?")
-	('scheme', 'authority', '/path', '', None)
+	['scheme', 'authority', '/path', '', null]
 
 	>>> urisplit("scheme://authority/path")
-	('scheme', 'authority', '/path', None, None)
+	['scheme', 'authority', '/path', null, null]
 
 	>>> urisplit("scheme://authority/")
-	('scheme', 'authority', '/', None, None)
+	['scheme', 'authority', '/', null, null]
 
 	>>> urisplit("scheme://authority")
-	('scheme', 'authority', '', None, None)
+	['scheme', 'authority', '', null, null]
 
-	# auto-scheme-lowercasing
+// L{urisplit} automatically lowercases the scheme:
 
 	>>> urisplit("SCHEME://authority")
-	('scheme', 'authority', '', None, None)
+	['scheme', 'authority', '', null, null]
 
 	>>> urisplit("ScHeMe://authority")
-	('scheme', 'authority', '', None, None)
+	['scheme', 'authority', '', null, null]
 
-	# reversability tests
+// It is reversable:
 
 	>>> uriunsplit(urisplit("scheme://authority"))
 	'scheme://authority'
@@ -56,8 +61,15 @@ CW.URI.urisplit = function urisplit(uri) {
 		p[7], // query
 		p[9]  // fragment
 	];
-	if(parsed[0] == undefined) { // (or null)
+	if(parsed[0] !== undefined) { // (or null)
 		parsed[0] = parsed[0].toLowerCase();
+	}
+	// do undefined -> null, for API sanity
+	var n = 5; // parsed.length is always 5
+	while(n--) {
+		if(parsed[n] === undefined) {
+			parsed[n] = null;
+		}
 	}
 	return parsed;
 }
@@ -69,19 +81,19 @@ CW.URI.urisplit = function urisplit(uri) {
 	This function signature does not match the one in webmagic;
 	this one takes 5 arguments.
 
-	>>> uriunsplit('scheme','authority','/path','query','fragment')
+	>>> uriunsplit('scheme', 'authority', '/path', 'query', 'fragment')
 	'scheme://authority/path?query#fragment'
 
-	>>> uriunsplit('scheme','authority','/path',None,'fragment')
+	>>> uriunsplit('scheme', 'authority', '/path', null, 'fragment')
 	'scheme://authority/path#fragment'
 
-	>>> uriunsplit('scheme','authority','/path','','fragment')
+	>>> uriunsplit('scheme', 'authority', '/path', '', 'fragment')
 	'scheme://authority/path?#fragment'
 
-	>>> uriunsplit('scheme','authority','/path','',None)
+	>>> uriunsplit('scheme', 'authority', '/path', '', null)
 	'scheme://authority/path?'
 
-	>>> uriunsplit('scheme','authority','/path','','')
+	>>> uriunsplit('scheme', 'authority', '/path', '', '')
 	'scheme://authority/path?#'
  */
 
@@ -97,10 +109,10 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
 	if(path) {
 		result += path;
 	}
-	if(query != undefined) { // (or null)
+	if(query !== null) {
 		result += '?' + query;
 	}
-	if(fragment != undefined) { // (or null)
+	if(fragment !== null) {
 		result += '#' + fragment;
 	}
 	return result;
@@ -115,30 +127,39 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
    ['user', 'password', 'host', 'port']
 */
 CW.URI.split_authority = function split_authority(authority) {
+	var split, userinfo, hostport, user, passwd, host, port;
 	if(authority.indexOf('@') != -1) {
-		userinfo, hostport =
-		var split = authority.split('@');
+		split = CW.split(authority, '@', 1);
+		userinfo = split[0];
+		hostport = split[1];
 	} else {
-		userinfo, hostport = None, authority
+		userinfo = null;
+		hostport = authority;
 	}
 
-	if(userinfo and ':' in userinfo) {
-		user, passwd = userinfo.split(':', 1)
-} else {
-		user, passwd = userinfo, None
-}
+	if(userinfo && userinfo.indexOf(':') != -1) {
+		split = CW.split(userinfo, ':', 1);
+		user = split[0];
+		passwd = split[1];
+	} else {
+		user = userinfo;
+		passwd = null;
+	}
 
-	if(hostport and ':' in hostport) {
-		host, port = hostport.split(':', 1)
-} else {
-		host, port = hostport, None
-}
+	if(hostport && hostport.indexOf(':') != -1) {
+		split = hostport.split(':', 1)
+		host = split[0];
+		port = split[1];
+	} else {
+		host = hostport;
+		port = null;
+	}
 
-	if(not host) {
-		host = None
-}
+	if(!host) {
+		host = null;
+	}
 
-	return [user, passwd, host, port]
+	return [user, passwd, host, port];
 }
 
 
@@ -150,15 +171,15 @@ CW.URI.split_authority = function split_authority(authority) {
  */
 CW.URI.join_authority = function join_authority(user, passwd, host, port) {
 	var result = '';
-	if (user) {
+	if (user !== null) {
 		result += user;
-		if (passwd) {
+		if (passwd !== null) {
 			result +=  (':' + passwd);
 		}
 		result += '@';
 	}
 	result += host;
-	if (port) {
+	if (port !== null) {
 		result +=  (':' + port);
 	}
 	return result;
@@ -168,16 +189,75 @@ CW.URI.join_authority = function join_authority(user, passwd, host, port) {
 
 CW.Class.subclass(CW.URI, 'URL').methods(
 	function __init__(self, urlObjOrString) {
+		var split;
+		var authority;
+
 		if(urlObjOrString instanceof CW.URI.URL) {
 			// Clone it
-			self.
+			self.scheme = urlObjOrString.scheme;
+			self.user = urlObjOrString.user;
+			self.passwd = urlObjOrString.passwd;
+			self.host = urlObjOrString.host;
+			self.port = urlObjOrString.port;
+			self.path = urlObjOrString.path;
+			self.query = urlObjOrString.query;
+			self.frag = urlObjOrString.frag;
 		} else {
 			// Parse the (hopefully) string
+			split = CW.URI.urisplit(urlObjOrString);
+			self.scheme = split[0];
+			authority = split[1];
+			self.path = split[2];
+			self.query = split[3];
+			self.frag = split[4];
+
+			split = CW.URI.split_authority(authority);
+			self.user = split[0];
+			self.passwd = split[1];
+			self.host = split[2];
+			self.port = split[3];
+		}
+
+		// This might be undefined.
+		self._defaultPortForMyScheme = CW.URI.schemeToDefaultPort[self.scheme];
+
+		if(!self.port) {
+			self.port = self._defaultPortForMyScheme;
+			if(self.port === undefined) {
+				self.port = null;
+			}
+		}
+
+		if(!self.path) { // undefined, null, ''
+			self.path = '/';
 		}
 	},
-	
-	function copy(self) {
-		// return a clone of this object
-		return new CW.URI.URL
+
+	/**
+	 * Think of this as the __str__
+	 */
+	function getString(self) {
+		/**
+		 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
+		 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay.
+		 * 
+		 * We'll keep C{user} and C{passwd} exactly as-is because that feature is scary.
+		 */
+		var port;
+		if(self._defaultPortForMyScheme === self.port) {
+			port = null;
+		} else {
+			port = self.port;
+		}
+
+		var authority = CW.URI.join_authority(self.user, self.passwd, self.host, port);
+		return CW.URI.uriunsplit(self.scheme, authority, self.path, self.query, self.fragment);
+	},
+
+	/**
+	 * Think of this as the __repr__
+	 */
+	function toString(self) {
+		return 'CW.URI.URL("' + self.getString() + '")';
 	}
 );
