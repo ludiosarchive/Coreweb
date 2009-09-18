@@ -512,11 +512,11 @@ CW.UnitTest.TestCase.methods(
 	 * @param message: An optional parameter, explaining what the assertion
 	 * means.
 	 */
-	function assert(self, value, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assert(self, value, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		if (!value) {
 			self.fail(message);
 		}
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -549,7 +549,7 @@ CW.UnitTest.TestCase.methods(
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
-					 /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+					 /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var repr = CW.UnitTest.repr;
 		if (!predicate(a, b)) {
 			var msg = repr(a) + " " + description + " " + repr(b);
@@ -558,7 +558,7 @@ CW.UnitTest.TestCase.methods(
 			}
 			self.fail(msg);
 		}
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -568,9 +568,9 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that Arrays C{a} and C{b} are equal.
 	 * Uses a shallow comparison of items, strict equality (===).
 	 */
-	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(CW.arraysEqual, '`not array-equal to´', a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -580,7 +580,7 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that Arrays C{a} and C{b} are not equal.
 	 * Uses a shallow comparison of items, strict inequality (!==).
 	 */
-	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var invert = function(func) {
 			return function(){
 				return !func.apply(this, arguments);
@@ -588,7 +588,7 @@ CW.UnitTest.TestCase.methods(
 		};
 		var arraysNotEqual = invert(CW.arraysEqual);
 		self.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -597,10 +597,10 @@ CW.UnitTest.TestCase.methods(
 	/**
 	 * Assert that C{a} and C{b} are ===.
 	 */
-	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(function (x, y) { return x === y; },
 					 '`not ===´', a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -609,10 +609,10 @@ CW.UnitTest.TestCase.methods(
 	/**
 	 * Assert that C{a} and C{b} are !==.
 	 */
-	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(function (x, y) { return !(x === y); },
 					 '`===´', a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
@@ -622,9 +622,9 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that C{a} is "in" C{b}. Remember that JavaScript "in" only
 	 * checks if a property exists.
 	 */
-	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	 },
@@ -634,9 +634,9 @@ CW.UnitTest.TestCase.methods(
 	 * Assert that C{a} is not "in" C{b}. Remember that JavaScript "in"
 	 * only checks if a property exists.
 	 */
-	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		self.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	 },
@@ -654,7 +654,7 @@ CW.UnitTest.TestCase.methods(
 	 * If you give this function circularly-referenced objects, it will overflow
 	 * the stack.
 	 */
-	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		// Implementation note: these "original message"s will get nested if you have
 		// nested objects/arrays.
 
@@ -690,7 +690,7 @@ CW.UnitTest.TestCase.methods(
 		} else {
 			self.assertIdentical(a, b, message, true);
 		}
-		if(internalCall !== true) {
+		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
 	},
