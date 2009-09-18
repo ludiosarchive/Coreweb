@@ -209,8 +209,6 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		var split;
 		var authority;
 
-		self.port = null; // scary logic follows
-
 		if(urlObjOrString instanceof CW.URI.URL) {
 			// Clone it. We don't expect the object to have any crappy values like undefined,
 			// but even if that's the case, there shouldn't be many problems.
@@ -226,6 +224,8 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			self.update('fragment', urlObjOrString.fragment, true);
 			self._explicitPort = urlObjOrString._explicitPort;
 		} else {
+			self.port = null; // scary logic follows
+
 			// Parse the (hopefully) string
 			split = CW.URI.urisplit(urlObjOrString);
 			// scheme must be set before port
