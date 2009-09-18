@@ -234,7 +234,9 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			self.update('password', split[1], true);
 			self.update('host', split[2], true);
 			self._explicitPort = split[3] === null ? false : true;
-			self.update('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
+			if(split[3]) { // 0, null, ''; sadly port 0 should be accepted, but whatever
+				self.update('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
+			}
 		}
 
 		if(!(self.scheme && self.host)) {
