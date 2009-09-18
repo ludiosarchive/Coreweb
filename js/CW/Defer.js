@@ -310,9 +310,13 @@ CW.Defer.fail = function fail(err) {
 
 
 // Copied line-for-line from twisted.internet.defer.maybeDeferred
-CW.Defer.maybeDeferred = function maybeDeferred(f) {
+CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
+	if(args === undefined) {
+		args = [];
+	}
+	
 	try {
-		var result = f();
+		var result = f.apply(this, args);
 	} catch(e) {
 		return CW.Defer.fail(CW.Defer.Failure(e));
 	}
