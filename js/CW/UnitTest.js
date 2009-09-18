@@ -1140,11 +1140,21 @@ CW.UnitTest._makeUneval = function() {
 			return '\\' + char2esc[c];
 		}
 		var ord = c.charCodeAt(0);
-		return ord < 0x20   ? '\\x0' + ord.toString(16)
-		:  ord < 0x7F   ? '\\'   + c
-		:  ord < 0x100  ? '\\x'  + ord.toString(16)
-		:  ord < 0x1000 ? '\\u0' + ord.toString(16)
-		: '\\u'  + ord.toString(16)
+		if(ord < 0x10) {
+			return '\\x0' + ord.toString(16).toUpperCase();
+		} else if(ord < 0x20) {
+			return '\\x' + ord.toString(16).toUpperCase();
+		} else if(ord < 0x7F) {
+			// Because this character is in the visible character range,
+			// and we were asked to escape it anyway, just backslash it.
+			return '\\' + c;
+		} else if(ord < 0x100) {
+			return '\\x' + ord.toString(16).toUpperCase();
+		} else if(ord < 0x1000) {
+			return '\\u0' + ord.toString(16).toUpperCase();
+		} else {
+			return '\\u'  + ord.toString(16).toUpperCase();
+		}
 	};
 
 	var uneval_asIs = function(o) {

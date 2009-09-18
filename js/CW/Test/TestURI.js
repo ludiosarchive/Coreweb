@@ -135,30 +135,37 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 
 	function test_split_authority(self) {
 		self.assertEqual(
-			CW.URI.split_authority("user:password@host:1"),
+			CW.URI.split_authority(
+			"user:password@host:1"),
 			['user', 'password', 'host', '1']);
 
 		// No host, but a port? Ugly.
 		self.assertEqual(
-			CW.URI.split_authority("user:password@:1"),
+			CW.URI.split_authority(
+			"user:password@:1"),
 			['user', 'password', '', '1']);
 
 		self.assertEqual(
-			CW.URI.split_authority("user@host:1"),
+			CW.URI.split_authority(
+			"user@host:1"),
 			['user', null, 'host', '1']);
 
 		self.assertEqual(
-			CW.URI.split_authority("user:@host:999"),
+			CW.URI.split_authority(
+			"user:@host:999"),
 			['user', '', 'host', '999']);
 
 		self.assertEqual(
-			CW.URI.split_authority(":@host:1000000"),
+			CW.URI.split_authority(
+			":@host:1000000"),
 			['', '', 'host', '1000000']);
 	},
 
 	function test_join_authority(self) {
 		self.assertEqual('user:password@host:90', CW.URI.join_authority('user', 'password', 'host', '90'));
 		self.assertEqual('user:@host:90', CW.URI.join_authority('user', '', 'host', '90'));
+		self.assertEqual('user:@:90', CW.URI.join_authority('user', '', '', '90'));
+		self.assertEqual('user:@:', CW.URI.join_authority('user', '', '', ''));
 		self.assertEqual('user@host:90', CW.URI.join_authority('user', null, 'host', '90'));
 		self.assertEqual('host:90', CW.URI.join_authority(null, 'password', 'host', '90'));
 		self.assertEqual(':password@host:90', CW.URI.join_authority('', 'password', 'host', '90'));

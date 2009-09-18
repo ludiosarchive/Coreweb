@@ -756,7 +756,26 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a":3,"b":{}})');
 		self.assertIdentical(repr({"a": 3, "b": []}), '({"a":3,"b":[]})');
 		self.assertIdentical(repr('foo'), '"foo"');
-		self.assert(repr(['foo']).search('foo') >= 0);
+		self.assertIdentical(repr('fo\to'), '"fo\\to"');
+		// there's a /regex/g -style global expression in the code, so make
+		// sure it works when you do this a second time.
+		self.assertIdentical(repr('fo\to'), '"fo\\to"');
+		self.assertIdentical(repr('fo\fo'), '"fo\\fo"');
+		
+		self.assertIdentical(repr('\u0000'), '"\\x00"');
+		self.assertIdentical(repr('\u0010'), '"\\x10"');
+		self.assertIdentical(repr('\u0015'), '"\\x15"');
+		self.assertIdentical(repr('\u0019'), '"\\x19"');
+		self.assertIdentical(repr('\u0020'), '" "');
+		self.assertIdentical(repr('\u007E'), '"~"');
+		self.assertIdentical(repr('\u007F'), '"\\x7F"');
+		self.assertIdentical(repr('\u0099'), '"\\x99"');
+		self.assertIdentical(repr('\u0100'), '"\\u0100"');
+		self.assertIdentical(repr('\u0400'), '"\\u0400"');
+		self.assertIdentical(repr('\u0999'), '"\\u0999"');
+		self.assertIdentical(repr('\u1000'), '"\\u1000"');
+		self.assertIdentical(repr('\ubeef'), '"\\uBEEF"');
+		self.assertIdentical(repr('\uFFFF'), '"\\uFFFF"');
 	}
 );
 
