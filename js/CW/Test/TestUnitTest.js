@@ -750,6 +750,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	function test_simpleValues(self) {
 		var repr = CW.UnitTest.repr;
 		self.assertIdentical(repr(5), '5');
+		self.assertIdentical(repr([5]), '[5]');
+		self.assertIdentical(repr([5, 6]), '[5,6]');
+		self.assertIdentical(repr({"a": 3, "b": 4}), '({"a":3,"b":4})');
+		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a":3,"b":{}})');
+		self.assertIdentical(repr({"a": 3, "b": []}), '({"a":3,"b":[]})');
 		self.assertIdentical(repr('foo'), '"foo"');
 		self.assert(repr(['foo']).search('foo') >= 0);
 	}

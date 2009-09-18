@@ -452,7 +452,22 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 			}
 		);
 		self.assertIdentical(e.getMessage(), '[0] "0" `in´ [5]');
+	},
+
+
+	function test_assertEqual(self) {
+		self.assertEqual("2", "2");
+		var big = "big";
+		self.assertEqual(big, big);
+		
+		self.assertEqual([], []);
+		self.assertEqual([[]], [[]]);
+		self.assertEqual([[], []], [[], []]);
+		self.assertEqual([[1], [3]], [[1], [3]]);
+
+		self.assertEqual({}, {});
+		self.assertEqual({1: 3}, {"1": 3});
 	}
+
+	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE
 );
-
-

@@ -664,7 +664,10 @@ CW.UnitTest.TestCase.methods(
 			return Object.prototype.toString.apply(obj) === '[object Array]';
 		}
 
-		if(isArray(a) && isArray(b)) {
+		// Short circuit when it's the same object/array reference or identical immutable primitives
+		if(a === b) {
+			
+		} else if(isArray(a) && isArray(b)) {
 			// This is a deep (recursive) comparison, unlike assertArraysEqual or CW.arraysEqual
 
 			var i;
@@ -690,6 +693,7 @@ CW.UnitTest.TestCase.methods(
 		} else {
 			self.assertIdentical(a, b, message, true);
 		}
+
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -1102,30 +1106,146 @@ CW.UnitTest.runRemote = function runRemote(test) {
 /**
  * Return a string representation of an arbitrary value, similar to
  * Python's builtin repr() function.
+ *
+ * Copied from (same content)
+ *    http://blog.livedoor.jp/dankogai/js/uneval.txt
+ *    http://bulkya.blogdb.jp/share/browser/lang/javascript/clone/trunk/uneval.js
+ *
+ * TODO XXX LICENSE
+ *
+ * Modified to:
+ *    "str\"i'ng" instead of 'str\'i\"ng'
+ * 
+ * Differs from our old repr:
+ *    no more superfluous spaces.
  */
-CW.UnitTest.repr = function repr(value) {
+CW.UnitTest._makeUneval = function() {
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var protos = [];
+	// Note that the '\v' will be a 'v' in IE.
 
-	var cgiEscape = function(s) {
-		return value.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
+	var char2esc = {
+		'\t':'t',
+		'\n':'n',
+		'\v':'v',
+		'\f':'f',
+		'\r':'\r',
+		'\'':'\'',
+		'\"':'\"',
+		'\\':'\\'
+	};
+
+	var escapeChar = function(c) {
+		if (c in char2esc) return '\\' + char2esc[c];
+		var ord = c.charCodeAt(0);
+		return ord < 0x20   ? '\\x0' + ord.toString(16)
+		:  ord < 0x7F   ? '\\'   + c
+		:  ord < 0x100  ? '\\x'  + ord.toString(16)
+		:  ord < 0x1000 ? '\\u0' + ord.toString(16)
+		: '\\u'  + ord.toString(16)
+	};
+
+	var uneval_asIs = function(o) {
+		return o.toString();
+	};
+
+	// predefine for objects where typeof(o) != 'object'
+	var name2uneval = {
+		'boolean': uneval_asIs,
+		'number': uneval_asIs,
+		'string': function(o){
+			return '\"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, escapeChar) + '\"';
+		},
+		'undefined': function(o){
+			return 'undefined';
+		},
+		'function': uneval_asIs
+	};
+
+	var uneval_default = function(o, noParens) {
+		var src = []; // a-ha!
+		for (var p in o){
+			if (!hasOwnProperty.call(o, p)) {
+				continue;
+			}
+			src[src.length] = uneval(p)  + ':' + uneval(o[p], 1);
+		};
+		// parens are needed for the outer-most object.
+		return noParens ? '{' + src.toString() + '}' : '({' + src.toString() + '})';
+	};
+
+	var uneval_set = function(proto, name, func) {
+		protos[protos.length] = [ proto, name ];
+		name2uneval[name] = func || uneval_default;
+	};
+
+	uneval_set(Array, 'array', function(o) {
+		var src = [];
+		for (var i = 0, l = o.length; i < l; i++) {
+			src[i] = uneval(o[i]);
+		}
+		return '[' + src.toString() + ']';
+	});
+
+	uneval_set(RegExp, 'regexp', uneval_asIs);
+
+	uneval_set(Date, 'date', function(o) {
+		return '(new Date(' + o.valueOf() + '))';
+	});
+
+	var typeName = function(o) {
+		// if (o === null) return 'null';
+		var t = typeof o;
+		if (t != 'object') {
+			return t;
+		}
+		// we have to linear-search. sigh.
+		for (var i = 0, l = protos.length; i < l; i++){
+			if (o instanceof protos[i][0]) {
+				return protos[i][1];
+			}
+		}
+		return 'object';
+	};
+
+	var uneval = function(o, noParens) {
+		// if (o.toSource) return o.toSource();
+		if (o === null) {
+			return 'null';
+		}
+		var func = name2uneval[typeName(o)] || uneval_default;
+		return func(o, noParens);
 	}
 
-	// We can't call methods on undefined or null.
-	if (value === undefined) {
-		return 'undefined';
-	} else if (value === null) {
-		return 'null';
-	} else if (typeof value === 'string') {
-		return '"' + cgiEscape(value).replace(/"/g, '\\"') + '"';
-	} else if (typeof value === 'number') {
-		return '' + value;
-	} else if (value.toSource !== undefined) {
-		return value.toSource();
-	} else if (value.toString !== undefined) {
-		return value.toString();
-	} else {
-		return '' + value;
-	}
-};
+	return uneval;
+}
+
+CW.UnitTest.repr = CW.UnitTest._makeUneval();
+
+//
+//CW.UnitTest.repr = function repr(value) {
+//
+//	var cgiEscape = function(s) {
+//		return value.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
+//	}
+//
+//	// We can't call methods on undefined or null.
+//	if (value === undefined) {
+//		return 'undefined';
+//	} else if (value === null) {
+//		return 'null';
+//	} else if (typeof value === 'string') {
+//		return '"' + cgiEscape(value).replace(/"/g, '\\"') + '"';
+//	} else if (typeof value === 'number') {
+//		return '' + value;
+//	} else if (value.toSource !== undefined) {
+//		return value.toSource();
+//	} else if (value.toString !== undefined) {
+//		return value.toString();
+//	} else {
+//		return '' + value;
+//	}
+//};
 
 
 /* copy pasted from Nevow.Athena.Test.
