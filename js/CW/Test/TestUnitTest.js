@@ -374,18 +374,24 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	 * arrays.
 	 */
 	function test_assertArraysNotEqualNegative(self) {
-		self.assertThrows(CW.AssertionError,
-						  function() {
-							  self.assertArraysNotEqual([1, 2, 3], [1, 2, 3]);
-						  });
-		self.assertThrows(CW.AssertionError,
-						  function() {
-							  self.assertArraysNotEqual([2], [2]);
-						  });
-		self.assertThrows(CW.AssertionError,
-						  function() {
-							  self.assertArraysNotEqual([], []);
-						  });
+		self.assertThrows(
+			CW.AssertionError,
+			function() {
+				self.assertArraysNotEqual([1, 2, 3], [1, 2, 3]);
+			}
+		);
+		self.assertThrows(
+			CW.AssertionError,
+			function() {
+				self.assertArraysNotEqual([2], [2]);
+			}
+		);
+		self.assertThrows(
+			CW.AssertionError,
+			function() {
+				self.assertArraysNotEqual([], []);
+			}
+		);
 	},
 
 
@@ -396,8 +402,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 	function test_assertIdentical(self) {
 		var foo = [1, 2];
 		self.assertIdentical(foo, foo);
-		self.assertThrows(CW.AssertionError,
-						  function() { self.assertIdentical(foo, [1, 2]); });
+		self.assertThrows(
+			CW.AssertionError,
+			function() { self.assertIdentical(foo, [1, 2]); }
+		);
 	}
 );
 
