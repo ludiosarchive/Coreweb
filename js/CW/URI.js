@@ -111,29 +111,29 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
  * See TestURI.js for the informal spec.
  */
 CW.URI.split_authority = function split_authority(authority) {
-	var split, userinfo, hostport, user, passwd, host, port;
+	var userinfo, hostport, user, passwd, host, port, _split;
 	if(authority.indexOf('@') != -1) {
-		split = CW.split(authority, '@', 1);
-		userinfo = split[0];
-		hostport = split[1];
+		_split = CW.split(authority, '@', 1);
+		userinfo = _split[0];
+		hostport = _split[1];
 	} else {
 		userinfo = null;
 		hostport = authority;
 	}
 
 	if(userinfo && userinfo.indexOf(':') != -1) {
-		split = CW.split(userinfo, ':', 1);
-		user = split[0];
-		passwd = split[1];
+		_split = CW.split(userinfo, ':', 1);
+		user = _split[0];
+		passwd = _split[1];
 	} else {
 		user = userinfo;
 		passwd = null;
 	}
 
 	if(hostport && hostport.indexOf(':') != -1) {
-		split = hostport.split(':', 1)
-		host = split[0];
-		port = parseInt(split[1], 10);
+		_split = CW.split(hostport, ':', 1);
+		host = _split[0];
+		port = parseInt(_split[1], 10);
 	} else {
 		host = hostport;
 		port = null;

@@ -129,7 +129,21 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 	},
 
 	function test_split_authority(self) {
+		self.assertEqual(
+			CW.URI.split_authority("user:password@host:1"),
+			['user', 'password', 'host', 1]);
 
+		self.assertEqual(
+			CW.URI.split_authority("user@host:1"),
+			['user', null, 'host', 1]);
+
+		self.assertEqual(
+			CW.URI.split_authority("user:@host:999"),
+			['user', '', 'host', 999]);
+
+		self.assertEqual(
+			CW.URI.split_authority(":@host:1000000"),
+			['', '', 'host', 1000000]);
 	},
 
 	function test_join_authority(self) {
