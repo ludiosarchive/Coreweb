@@ -11,6 +11,10 @@
  *    http://stevenlevithan.com/demo/parseuri/js/
  */
 
+// FFFFFFFFFF---
+// http://blog.stevenlevithan.com/archives/npcg-javascript
+// http://blog.stevenlevithan.com/page/3
+
 // regex straight from STD 66 section B
 CW.URI.URI_SPLIT_RE = /^(([^:\/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
 
@@ -28,15 +32,35 @@ CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
 CW.URI.urisplit = function urisplit(uri) {
 	var p = CW.URI.URI_SPLIT_RE.exec(uri);
 	var parsed = [
-		p[2], // scheme
-		p[4], // authority
-		p[5], // path
-		p[7], // query
-		p[9]  // fragment
+		p[2], // scheme (there should always be a scheme)
+		p[4], // authority (undefined or "" if no authority)
+		p[5], // path (undefined or "" if no path) - TODO confirm
+		p[6], // query (starting with ? if one exists)
+		p[8]  // fragment (starting with # if one exists)
 	];
-	if(parsed[0] !== undefined) { // (or null)
+
+	// "fix" authority if needed
+	if(parsed[1] == "") { // IE sucks at NPCGs
+		parsed[1] = null;
+	}
+
+	if(parsed[3].substr(0, 1) == "?") {
+		parsed[3] = parsed[3].slice(1);
+	} else {
+		parsed[3] = null;
+	}
+
+	if(parsed[4].substr(0, 1) == "#") {
+		parsed[4] = parsed[4].slice(1);
+	} else {
+		parsed[4] = null;
+	}
+
+	// lowercase scheme
+	if(parsed[0] != undefined) { // (or null)
 		parsed[0] = parsed[0].toLowerCase();
 	}
+
 	// do undefined -> null, for API sanity
 	var n = 5; // parsed.length is always 5
 	while(n--) {

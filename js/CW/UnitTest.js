@@ -1136,7 +1136,9 @@ CW.UnitTest._makeUneval = function() {
 	};
 
 	var escapeChar = function(c) {
-		if (c in char2esc) return '\\' + char2esc[c];
+		if (c in char2esc) {
+			return '\\' + char2esc[c];
+		}
 		var ord = c.charCodeAt(0);
 		return ord < 0x20   ? '\\x0' + ord.toString(16)
 		:  ord < 0x7F   ? '\\'   + c
