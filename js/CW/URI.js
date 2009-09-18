@@ -112,10 +112,6 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
  * >>> CW.URI.split_authority("user:password@host:port")
  * ['user', 'password', 'host', port]
  *
- * join_authority is not the inverse of split_authority:
- *    - ports are parsed into integers; this conversion may be lossy on crap input
- *    - host of C{''} is not allowed, if there is no host, it will be C{null}
- *
  * See TestURI.js for the informal spec.
  */
 CW.URI.split_authority = function split_authority(authority) {
@@ -141,16 +137,14 @@ CW.URI.split_authority = function split_authority(authority) {
 	if(hostport && hostport.indexOf(':') != -1) {
 		_split = CW.split(hostport, ':', 1);
 		host = _split[0];
-		port = parseInt(_split[1], 10);
+		port = _split[1];
 	} else {
 		host = hostport;
 		port = null;
 	}
 
-	// It really doesn't make sense to have an empty string for a host.
-	if(!host) {
-		host = null;
-	}
+	// It really doesn't make sense to have an empty string for a host,
+	// but do it anyway for symmetry.
 
 	return [user, passwd, host, port];
 }
@@ -179,6 +173,15 @@ CW.URI.join_authority = function join_authority(user, passwd, host, port) {
 	}
 	return result;
 }
+
+
+
+CW.Error.subclass(CW.URI, "BadURLError").methods(
+	function toString(self) {
+		return 'BadURLError: ' + self.getMessage();
+	}
+);
+
 
 
 /**
@@ -219,12 +222,16 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			split = CW.URI.split_authority(authority);
 			self.user = split[0];
 			self.passwd = split[1];
-			self.host = split[2];
+			self.host = parseInt(split[2], 10);
 			self.port = split[3]; // at this point, self.port could be C{null} XOR C{''}
 		}
 
 		// This might become undefined.
 		self._defaultPortForMyScheme = CW.URI.schemeToDefaultPort[self.scheme];
+
+		if(!(self.scheme && self.host)) {
+			throw new CW.URI.BadURLError("URL needs a scheme and a host");
+		}
 
 		if(!self.port) {
 			if(self._defaultPortForMyScheme !== undefined) {
@@ -251,7 +258,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		if(self._defaultPortForMyScheme === self.port) {
 			port = null;
 		} else {
-			port = self.port;
+			port = '' + self.port; // convert to a string for join_authority
 		}
 
 		var authority = CW.URI.join_authority(self.user, self.passwd, self.host, port);
