@@ -619,6 +619,28 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
+	 * Assert that C{a} is "in" C{b}
+	 */
+	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+		self.compare(function(x, y){ return x in y }, "`not in`", a, b, message, true);
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
+	 },
+
+
+	/**
+	 * Assert that C{a} is not "in" C{b}
+	 */
+	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+		self.compare(function(x, y){ return !(x in y) }, "`in`", a, b, message, true);
+		if(internalCall !== true) {
+			self._assertCounter += 1;
+		}
+	 },
+
+
+	/**
 	 * Assert that C{a} and C{b} are equal. This handles strings, arrays,
 	 * objects, numbers, bools, and nulls.
 	 *
@@ -647,14 +669,12 @@ CW.UnitTest.TestCase.methods(
 			self.assertIdentical(a.length, b.length, "array length mismatch; original message: " + message, true);
 
 			for (i in a) {
-				self.compare(function(x, y){ return x in y }, "`not in`", i, b,
-					"array item #"+i+" not in b; original message: " + message, true);
+				self.assertIn(i, b, "array item #"+i+" not in b; original message: " + message, true);
 				self.assertEqual(a[i], b[i],
 					"array item mismatch a["+i+"] `not assertEqual` b["+i+"]; original message: " + message, true);
 			}
 			for (i in b) {
-				self.compare(function(x, y){ return x in y }, "`not in`", i, a,
-					"array item #"+i+" not in a; original message: " + message, true);
+				self.assertIn(i, a, "array item #"+i+" not in a; original message: " + message, true);
 			}
 		} else if(typeof a == 'object' && typeof b == 'object') {
 			for(k in a) {
