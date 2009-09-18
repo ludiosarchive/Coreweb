@@ -756,12 +756,18 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a":3,"b":{}})');
 		self.assertIdentical(repr({"a": 3, "b": []}), '({"a":3,"b":[]})');
 		self.assertIdentical(repr('foo'), '"foo"');
+
 		self.assertIdentical(repr('fo\to'), '"fo\\to"');
 		// there's a /regex/g -style global expression in the code, so make
 		// sure it works when you do this a second time.
 		self.assertIdentical(repr('fo\to'), '"fo\\to"');
 		self.assertIdentical(repr('fo\fo'), '"fo\\fo"');
-		
+		self.assertIdentical(repr('fo\ro'), '"fo\\ro"');
+
+		self.assertIdentical(repr('fo"o'), '"fo\\"o"');
+		self.assertIdentical(repr('fo\'o'), '"fo\'o"'); // no escape of single quote
+		self.assertIdentical(repr('fo\\o'), '"fo\\\\o"');
+
 		self.assertIdentical(repr('\u0000'), '"\\x00"');
 		self.assertIdentical(repr('\u0010'), '"\\x10"');
 		self.assertIdentical(repr('\u0015'), '"\\x15"');

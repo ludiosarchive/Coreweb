@@ -1113,26 +1113,24 @@ CW.UnitTest.runRemote = function runRemote(test) {
  *
  * TODO XXX LICENSE
  *
- * Modified to:
+ * Modified:
  *    "str\"i'ng" instead of 'str\'i\"ng'
+ *    fixed a major bug in escapeChar
+ *    fixed a bug in char2esc - "\r" was incorrect
  * 
  * Differs from our old repr:
- *    no more superfluous spaces.
+ *    no more superfluous spaces between items in arrays.
  */
 CW.UnitTest._makeUneval = function() {
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var protos = [];
-	// Note that the '\v' will be a 'v' in IE.
 
 	var char2esc = {
-		'\t':'t',
-		'\n':'n',
-		'\v':'v',
-		'\f':'f',
-		'\r':'\r',
-		'\'':'\'',
-		'\"':'\"',
-		'\\':'\\'
+		'\t':'t', // tab
+		'\n':'n', // newline
+		'\v':'v', // vertical tab; note that this will map 'v' -> 'v' in IE/JScript.
+		'\f':'f', // form feed
+		'\r':'r' // carriage return
 	};
 
 	var escapeChar = function(c) {
@@ -1140,6 +1138,8 @@ CW.UnitTest._makeUneval = function() {
 			return '\\' + char2esc[c];
 		}
 		var ord = c.charCodeAt(0);
+		// The choice is to use \x escapes, and to uppercase the hex,
+		// is based on .toSource() behavior in Firefox.
 		if(ord < 0x10) {
 			return '\\x0' + ord.toString(16).toUpperCase();
 		} else if(ord < 0x20) {
@@ -1221,7 +1221,7 @@ CW.UnitTest._makeUneval = function() {
 	};
 
 	var uneval = function(o, noParens) {
-		// if (o.toSource) return o.toSource();
+		// if (o.toSource) return o.toSource(); // a bad idea, but maybe useful for comparison
 		if (o === null) {
 			return 'null';
 		}
