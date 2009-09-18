@@ -566,7 +566,7 @@ CW.UnitTest.TestCase.methods(
 
 	/**
 	 * Assert that Arrays C{a} and C{b} are equal.
-	 * Uses a shallow comparison of items, strict equality.
+	 * Uses a shallow comparison of items, strict equality (===).
 	 */
 	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(CW.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
@@ -578,7 +578,7 @@ CW.UnitTest.TestCase.methods(
 
 	/**
 	 * Assert that Arrays C{a} and C{b} are not equal.
-	 * Uses a shallow comparison of items, strict equality.
+	 * Uses a shallow comparison of items, strict inequality (!==).
 	 */
 	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		var invert = function(func) {
@@ -595,7 +595,7 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} and C{b} are identical.
+	 * Assert that C{a} and C{b} are ===.
 	 */
 	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return x === y; },
@@ -607,7 +607,7 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} and C{b} are NOT identical.
+	 * Assert that C{a} and C{b} are !==.
 	 */
 	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return !(x === y); },
@@ -619,9 +619,21 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} and C{b} are equal. Handles strings, arrays, objects, numbers, bools, and nulls.
+	 * Assert that C{a} and C{b} are equal. This handles strings, arrays,
+	 * objects, numbers, bools, and nulls.
+	 *
+	 * Don't give this non-simple objects ("non-simple": functions,
+	 * callable host objects, Dates, RegExps, and so on.) Give it objects
+	 * made from object literals and new Object() calls only.
+	 *
+	 * If you give this function non-simple objects, it may produce lies.
+	 *
+	 * If you give this function circularly-referenced objects, it will overflow the stack.
 	 */
 	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+		// Implementation note: these "original message"s will get nested if you have
+		// nested objects/arrays.
+
 		var k;
 
 		function isArray(obj) {
@@ -629,7 +641,21 @@ CW.UnitTest.TestCase.methods(
 		}
 
 		if(isArray(a) && isArray(b)) {
-			self.assertArraysEqual(a, b, message, true);
+			// This is a deep (recursive) comparison, unlike assertArraysEqual or CW.arraysEqual
+
+			var i;
+			self.assertIdentical(a.length, b.length, "array length mismatch; original message: " + message, true);
+
+			for (i in a) {
+				self.compare(function(x, y){ return x in y }, "`not in`", i, b,
+					"array item #"+i+" not in b; original message: " + message, true);
+				self.assertEqual(a[i], b[i],
+					"array item mismatch a["+i+"] `not assertEqual` b["+i+"]; original message: " + message, true);
+			}
+			for (i in b) {
+				self.compare(function(x, y){ return x in y }, "`not in`", i, a,
+					"array item #"+i+" not in a; original message: " + message, true);
+			}
 		} else if(typeof a == 'object' && typeof b == 'object') {
 			for(k in a) {
 				self.assertEqual(a[k], b[k],
@@ -641,6 +667,9 @@ CW.UnitTest.TestCase.methods(
 			};
 		} else {
 			self.assertIdentical(a, b, message, true);
+		}
+		if(internalCall !== true) {
+			self._assertCounter += 1;
 		}
 	},
 
