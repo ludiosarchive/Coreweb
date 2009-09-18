@@ -628,8 +628,10 @@ CW.split = function split(s, sep, maxsplit) {
 	var pieces = s.split(sep);
 	var head = pieces.splice(0, maxsplit);
 	// after the splice, pieces is shorter and no longer has the C{head} elements.
-	var tail = pieces.join(sep);
-	head.push(tail); // no longer just the head.
+	if(pieces.length > 0) {
+		var tail = pieces.join(sep);
+		head.push(tail); // no longer just the head.
+	}
 	return head;
 };
 

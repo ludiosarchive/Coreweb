@@ -27,6 +27,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 
 		self.assertEqual(
 			CW.URI.urisplit(
+			"scheme://authority/path??"),
+			['scheme', 'authority', '/path', '?', null])
+
+		self.assertEqual(
+			CW.URI.urisplit("scheme://authority/path#?"),
+			['scheme', 'authority', '/path', null, '?'])
+
+		self.assertEqual(
+			CW.URI.urisplit("scheme://authority/path#?#"),
+			['scheme', 'authority', '/path', null, '?#'])
+
+		self.assertEqual(
+			CW.URI.urisplit(
 			"scheme://authority/path"),
 			['scheme', 'authority', '/path', null, null])
 
@@ -39,6 +52,23 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 			CW.URI.urisplit(
 			"scheme://authority"),
 			['scheme', 'authority', '', null, null])
+
+		self.assertEqual(
+			CW.URI.urisplit(
+			"scheme://"),
+			['scheme', '', '', null, null])
+
+		// No authority is okay, too
+
+		self.assertEqual(
+			CW.URI.urisplit(
+			"scheme:path"),
+			['scheme', null, 'path', null, null])
+
+		self.assertEqual(
+			CW.URI.urisplit(
+			"scheme:/path"),
+			['scheme', null, '/path', null, null])
 
 		// L{urisplit} automatically lowercases the scheme:
 

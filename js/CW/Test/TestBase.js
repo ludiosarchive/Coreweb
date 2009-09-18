@@ -152,6 +152,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 	 */
 	function test_splitUnlimited(self) {
 		self.assertArraysEqual(["", "ello"], CW.split("hello", "h"));
+		self.assertArraysEqual(["", ""], CW.split("hello", "hello"));
 		self.assertArraysEqual(["", "ello", "ello"], CW.split("hellohello", "h"));
 		self.assertArraysEqual(["1", "2", "3"], CW.split("1xy2xy3", "xy"));
 	},
@@ -162,6 +163,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		self.assertArraysEqual(["1", "2", "3", "4"], CW.split("1_2_3_4", "_", 3));
 		self.assertArraysEqual(["1", "2", "3", "4_5"], CW.split("1_2_3_4_5", "_", 3));
 		self.assertArraysEqual(["1", "2", "3", "4__5"], CW.split("1__2__3__4__5", "__", 3));
+	},
+
+
+	function test_splitLimitedEdgeCase(self) {
+		self.assertArraysEqual(["hello"], CW.split("hello", "_", 1));
+		self.assertArraysEqual(["hello", ""], CW.split("hello_", "_", 1));
+		self.assertArraysEqual(["hello", "world", ""], CW.split("hello_world_", "_", 2));
+		self.assertArraysEqual(["hello", "world_"], CW.split("hello_world_", "_", 1));
 	},
 
 

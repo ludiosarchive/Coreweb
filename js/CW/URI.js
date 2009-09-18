@@ -5,18 +5,14 @@
  * based on a patch attached to http://bugs.python.org/issue1462525
  */
 
-/**
- * There's an alternative MIT-licensed parser available at:
- *    http://blog.stevenlevithan.com/archives/parseuri
- *    http://stevenlevithan.com/demo/parseuri/js/
- */
 
-// FFFFFFFFFF---
+// For reasons on why you shouldn't use regexes, see
 // http://blog.stevenlevithan.com/archives/npcg-javascript
 // http://blog.stevenlevithan.com/page/3
 
-// regex straight from STD 66 section B
-CW.URI.URI_SPLIT_RE = /^(([^:\/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+// Alternate parser that may or may not differentiate no query/fragment and blank query/fragment:
+// http://blog.stevenlevithan.com/archives/parseuri
+// http://stevenlevithan.com/demo/parseuri/js/
 
 CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
 
@@ -30,46 +26,49 @@ CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
  * See TestURI.js for the informal spec.
  */
 CW.URI.urisplit = function urisplit(uri) {
-	var p = CW.URI.URI_SPLIT_RE.exec(uri);
-	var parsed = [
-		p[2], // scheme (there should always be a scheme)
-		p[4], // authority (undefined or "" if no authority)
-		p[5], // path (undefined or "" if no path) - TODO confirm
-		p[6], // query (starting with ? if one exists)
-		p[8]  // fragment (starting with # if one exists)
-	];
+	var scheme, authority = null, path = '', query = null, fragment = null, _rest, _split, _slashPos;
 
-	// "fix" authority if needed
-	if(parsed[1] == "") { // IE sucks at NPCGs
-		parsed[1] = null;
-	}
+	_split = CW.split(uri, ":", 1);
+	scheme = _split[0].toLowerCase();
+	_rest = _split[1]; // _rest is now everything after the scheme
 
-	if(parsed[3].substr(0, 1) == "?") {
-		parsed[3] = parsed[3].slice(1);
-	} else {
-		parsed[3] = null;
-	}
-
-	if(parsed[4].substr(0, 1) == "#") {
-		parsed[4] = parsed[4].slice(1);
-	} else {
-		parsed[4] = null;
-	}
-
-	// lowercase scheme
-	if(parsed[0] != undefined) { // (or null)
-		parsed[0] = parsed[0].toLowerCase();
-	}
-
-	// do undefined -> null, for API sanity
-	var n = 5; // parsed.length is always 5
-	while(n--) {
-		if(parsed[n] === undefined) {
-			parsed[n] = null;
+	if(CW.startswith(_rest, '//')) { // has an authority
+		_slashPos = _rest.slice(2).indexOf('/');
+		if(_slashPos !== -1) {
+			authority = _rest.slice(2, _slashPos + 2);
+			_rest = _rest.slice(_slashPos + 2);  // _rest is now everything after the authority
+		} else {
+			authority = _rest.slice(2);
+			_rest = null; // started with "//" but no slash? then there cannot be a path, query, or fragment
 		}
 	}
-	return parsed;
+
+	if(_rest) {
+		// Must do # first, because of path#? -> fragment is "?"; path#?# -> fragment is "?#"
+		_split = CW.split(_rest, '#', 1);
+		//alert(_split.toSource())
+		_rest = _split[0]; // _request is now path and query
+		if(_split[1] !== undefined) {
+			fragment = _split[1];
+		}
+	}
+
+	if(_rest) {
+		_split = CW.split(_rest, '?', 1);
+		path = _split[0];
+		if(_split[1] !== undefined) {
+			query = _split[1];
+		}
+	}
+
+	// scheme (there should always be a scheme)
+	// authority (null if no authority)
+	// path ("" if no path explicitly given)
+	// query (no query -> null; "?" -> "", "?hello" -> "hello")
+	// fragment (no fragment -> null; "#" -> "", "#hello" -> "hello")
+	return [scheme, authority, path, query, fragment];
 }
+
 
 
 /**
@@ -86,7 +85,7 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
 	if(scheme) {
 		result += scheme + ':';
 	}
-	if(authority) {
+	if(authority !== null) {
 		result += '//' + authority;
 	}
 	if(path) {
