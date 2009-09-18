@@ -569,7 +569,7 @@ CW.UnitTest.TestCase.methods(
 	 * Uses a shallow comparison of items, strict equality (===).
 	 */
 	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
-		self.compare(CW.arraysEqual, '<font color="red">not array-equal to</font>', a, b, message, true);
+		self.compare(CW.arraysEqual, '`not array-equal to´', a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -587,7 +587,7 @@ CW.UnitTest.TestCase.methods(
 			};
 		};
 		var arraysNotEqual = invert(CW.arraysEqual);
-		self.compare(arraysNotEqual, '<font color="red">array-equal to</font>', a, b, message, true);
+		self.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -599,7 +599,7 @@ CW.UnitTest.TestCase.methods(
 	 */
 	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return x === y; },
-					 '<font color="red">not ===</font>', a, b, message, true);
+					 '`not ===´', a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -611,7 +611,7 @@ CW.UnitTest.TestCase.methods(
 	 */
 	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function (x, y) { return !(x === y); },
-					 '<font color="red">===</font>', a, b, message, true);
+					 '`===´', a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -623,7 +623,7 @@ CW.UnitTest.TestCase.methods(
 	 * checks if a property exists.
 	 */
 	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
-		self.compare(function(x, y){ return x in y }, "`not in`", a, b, message, true);
+		self.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -635,7 +635,7 @@ CW.UnitTest.TestCase.methods(
 	 * only checks if a property exists.
 	 */
 	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
-		self.compare(function(x, y){ return !(x in y) }, "`in`", a, b, message, true);
+		self.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
 		if(internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -1115,10 +1115,6 @@ CW.UnitTest.repr = function repr(value) {
 	} else if (value === null) {
 		return 'null';
 	} else if (typeof value === 'string') {
-
-	// INCORRECT COMMENT
-//		 This backslashing will also break the red in our <font color="red">
-//		 Fun fact: In Opera, instead of breaking it to black, it turns blue!
 		return '"' + cgiEscape(value).replace(/"/g, '\\"') + '"';
 	} else if (typeof value === 'number') {
 		return '' + value;

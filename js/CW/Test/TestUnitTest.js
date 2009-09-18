@@ -259,7 +259,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 			}
 		);
 		self.assertIdentical(e.getMessage(),
-			'[0] "apple" <font color="red">not ===</font> "orange"');
+			'[0] "apple" `not ===´ "orange"');
 	},
 
 
@@ -273,7 +273,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		} catch (e) {
 			self.assertIdentical(
 				e.getMessage(),
-				'[0] "apple" <font color="red">not ===</font> "orange": some message'
+				'[0] "apple" `not ===´ "orange": some message'
 			);
 		}
 	},
@@ -301,7 +301,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'AssertionTests').methods(
 		);
 		self.assertIdentical(
 			e.getMessage(),
-			'[0] 1 <font color="red">not ===</font> "1"');
+			'[0] 1 `not ===´ "1"');
 	},
 
 
