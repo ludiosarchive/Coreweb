@@ -664,7 +664,9 @@ CW.UnitTest.TestCase.methods(
 			return Object.prototype.toString.apply(obj) === '[object Array]';
 		}
 
-		// Short circuit when it's the same object/array reference or identical immutable primitives
+		// If a === b, we don't need to dig through them. But if you somehow find an object
+		// in JavaScriptland that ==='s successfully but isn't identical, you should remove
+		// this short-circuit.
 		if(a === b) {
 
 		} else if(a === null || b === null) {
