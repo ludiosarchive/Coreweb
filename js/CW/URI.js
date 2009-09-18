@@ -78,6 +78,12 @@ CW.URI.urisplit = function urisplit(uri) {
  * 'scheme://authority/path?query#fragment'
  *
  * See TestURI.js for the informal spec.
+ *
+ * You must have a C{scheme}.
+ * If you have no C{authority}, you must pass C{null}.
+ * If you have no C{path}, pass C{''}
+ * If you have no C{query}, pass C{null}
+ * If you have no C{fragment}, pass C{null}
  */
 CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment) {
 	// Keep in mind: a path might not start with /, for example, the path of 'about:blank' is 'blank'
@@ -88,9 +94,7 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
 	if(authority !== null) {
 		result += '//' + authority;
 	}
-	if(path) {
-		result += path;
-	}
+	result += path;
 	if(query !== null) {
 		result += '?' + query;
 	}
@@ -107,6 +111,10 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
  * 
  * >>> CW.URI.split_authority("user:password@host:port")
  * ['user', 'password', 'host', port]
+ *
+ * join_authority is not the inverse of split_authority:
+ *    - ports are parsed into integers; this conversion may be lossy on crap input
+ *    - host of C{''} is not allowed, if there is no host, it will be C{null}
  *
  * See TestURI.js for the informal spec.
  */
@@ -139,6 +147,7 @@ CW.URI.split_authority = function split_authority(authority) {
 		port = null;
 	}
 
+	// It really doesn't make sense to have an empty string for a host.
 	if(!host) {
 		host = null;
 	}

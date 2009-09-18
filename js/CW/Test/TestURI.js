@@ -114,6 +114,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 
 		self.assertEqual(
 			CW.URI.uriunsplit(
+			'scheme', 'authority', '/path', '?', '?'),
+			'scheme://authority/path??#?');
+
+		self.assertEqual(
+			CW.URI.uriunsplit(
 			'scheme', 'authority', '/path', '', null),
 			'scheme://authority/path?');
 
@@ -132,6 +137,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 		self.assertEqual(
 			CW.URI.split_authority("user:password@host:1"),
 			['user', 'password', 'host', 1]);
+
+		// No host, but a port? Ugly.
+		self.assertEqual(
+			CW.URI.split_authority("user:password@:1"),
+			['user', 'password', null, 1]);
 
 		self.assertEqual(
 			CW.URI.split_authority("user@host:1"),
