@@ -686,6 +686,8 @@ CW.UnitTest.TestCase.methods(
 					"array item mismatch a["+i+"] `not assertEqual` b["+i+"]; original message: " + message, true);
 			}
 			for (i in b) {
+				// We already checked for equality when we iterated over C{a}, so just
+				// check that everything in C{b} is in C{a}
 				self.assertIn(i, a, "array item #"+i+" not in a; original message: " + message, true);
 			}
 		} else if(typeof a == 'object' && typeof b == 'object') {
@@ -820,29 +822,21 @@ CW.UnitTest.TestCase.methods(
 	},
 
 
-	function _maybeWrapWithDeferred(self, aFunction) {
-
-		/* Trying to "improve" the logic here is futile. Think about the catch() {} placement. Resist. */
-
-		var oneDeferredOrResult; // or Failure
-		var immediatelyFailed;
+	function _maybeWrapWithDeferred(self, f) {
+		// Copied line-for-line from twisted.internet.defer.maybeDeferred
 		try {
-			immediatelyFailed = false;
-			oneDeferredOrResult = aFunction();
-		} catch (err) { // this checks for immediate (synchronous) failures only. what() could still fail later.
-			immediatelyFailed = true;
-			oneDeferredOrResult = CW.Defer.fail(err);
+			var result = f();
+		} catch(e) {
+			return CW.Defer.fail(CW.Defer.Failure(e));
 		}
 
-
-		if (!immediatelyFailed) {
-			if (!(oneDeferredOrResult instanceof CW.Defer.Deferred)) {
-				oneDeferredOrResult = CW.Defer.succeed(oneDeferredOrResult);
-			}
+		if (result instanceof CW.Defer.Deferred) {
+			return result;
+		} else if(result instanceof CW.Defer.Failure) {
+			return CW.Defer.fail(result);
+		} else {
+			return CW.Defer.succeed(result);
 		}
-
-		return oneDeferredOrResult;
-
 	},
 
 
