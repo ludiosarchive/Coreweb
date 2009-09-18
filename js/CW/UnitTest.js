@@ -1167,6 +1167,7 @@ CW.UnitTest._makeUneval = function() {
 		'boolean': uneval_asIs,
 		'number': uneval_asIs,
 		'string': function(o){
+			// regex is: control characters, double quote, backslash,
 			return '\"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, escapeChar) + '\"';
 		},
 		'undefined': function(o){
@@ -1181,14 +1182,18 @@ CW.UnitTest._makeUneval = function() {
 			if (!hasOwnProperty.call(o, p)) {
 				continue;
 			}
-			src[src.length] = uneval(p)  + ':' + uneval(o[p], /*noParens*/true);
+			src.push(uneval(p, /*noParens*/true)  + ':' + uneval(o[p], /*noParens*/true));
 		};
-		// parens are needed for the outer-most object.
-		return noParens ? '{' + src.toString() + '}' : '({' + src.toString() + '})';
+		// parens are only used for the outer-most object.
+		if(noParens) {
+			return '{' + src.toString() + '}';
+		} else {
+			return '({' + src.toString() + '})';
+		}
 	};
 
 	var uneval_set = function(proto, name, func) {
-		protos[protos.length] = [proto, name];
+		protos.push([proto, name]);
 		name2uneval[name] = func || uneval_default;
 	};
 

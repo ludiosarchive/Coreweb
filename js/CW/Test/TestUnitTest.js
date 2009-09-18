@@ -756,6 +756,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr([5, true]), '[5,true]');
 		self.assertIdentical(repr([5, false]), '[5,false]');
 
+		self.assertIdentical(repr(new Object()), '({})');
+		self.assertIdentical(repr({}), '({})');
 		self.assertIdentical(repr({"a": 3, "b": 4}), '({"a":3,"b":4})');
 		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a":3,"b":{}})');
 		self.assertIdentical(repr({"a": 3, "b": {a: "c"}}), '({"a":3,"b":{"a":"c"}})');
@@ -788,8 +790,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr('\ubeef'), '"\\uBEEF"');
 		self.assertIdentical(repr('\uFFFF'), '"\\uFFFF"');
 
+		// All the escaping still works in nested objects/arrays
 		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\x00","\\x00"]');
 		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\x00","\\x00",{"\\x00":"0"}]');
+
+	      self.assertIdentical(repr(new Date(2009, 0, 1)), "(new Date(1230796800000))");
+		self.assertIdentical(repr(/\t/), '/\\t/');
+
+		// TODO: test that toString/other builtin properties are found in JScript; need a list of them
 	}
 );
 
