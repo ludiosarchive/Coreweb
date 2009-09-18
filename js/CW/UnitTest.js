@@ -666,7 +666,12 @@ CW.UnitTest.TestCase.methods(
 
 		// Short circuit when it's the same object/array reference or identical immutable primitives
 		if(a === b) {
-			
+
+		} else if(a === null || b === null) {
+			// Because C{null} has typeof C{object} and may successfully iterate (though with 0 properties),
+			// we need to catch it early and do a direct === comparison if either C{a} or C{b} is C{null}
+			self.assertIdentical(a, b, message, true);
+
 		} else if(isArray(a) && isArray(b)) {
 			// This is a deep (recursive) comparison, unlike assertArraysEqual or CW.arraysEqual
 

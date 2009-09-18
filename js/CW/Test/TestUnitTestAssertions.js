@@ -464,9 +464,36 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		self.assertEqual([[]], [[]]);
 		self.assertEqual([[], []], [[], []]);
 		self.assertEqual([[1], [3]], [[1], [3]]);
+		self.assertEqual([[1], [3, [{}]]], [[1], [3, [{}]]]);
+		self.assertEqual([[1], [3, [{}]]], [[1], [3, [new Object()]]]);
 
 		self.assertEqual({}, {});
 		self.assertEqual({1: 3}, {"1": 3});
+	},
+
+
+	function test_assertEqualNegative(self) {
+		function aT(f) {
+			self.assertThrows(CW.AssertionError, f);
+		}
+
+		aT(function() { self.assertEqual("2", 2); });
+		var big = "big";
+		aT(function() { self.assertEqual(big, "bigg"); });
+
+		var longer = []
+		longer.length = 1;
+		aT(function() { self.assertEqual([], longer); });
+
+		aT(function() { self.assertEqual([[]], [[[]]]); });
+		aT(function() { self.assertEqual([[], []], [[], [], null]); });
+		aT(function() { self.assertEqual([[1], [3]], [[3], [1]]); });
+		aT(function() { self.assertEqual([[1], [3, [{}]]], [[1], [3, [{n: 1}]]]); });
+
+		aT(function() { self.assertEqual({}, null); });
+		aT(function() { self.assertEqual(null, {}); });
+
+		aT(function() { self.assertEqual({1: 3}, {"1": 3.00001}); });
 	}
 
 	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE

@@ -332,12 +332,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 	},
 
 
+	/**
+	 * Even though 80 is the default port for HTTP, constructing it with the port
+	 * in the string means the port number is tainted, and will remain the same
+	 * after changing the scheme.
+	 */
 	function test_changeSchemeAfterExplicitPortInStringConstruction(self) {
 		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain:81/path?query#fragment");
-		self.assertEqual(81, u.port);
+		var u = URL("http://user:pass@domain:80/path?query#fragment");
+		self.assertEqual(80, u.port);
 
 		u.update('scheme', 'https');
-		self.assertEqual(81, u.port);
+		self.assertEqual(80, u.port);
 	}
 );

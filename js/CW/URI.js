@@ -46,7 +46,6 @@ CW.URI.urisplit = function urisplit(uri) {
 	if(_rest) {
 		// Must do # first, because of path#? -> fragment is "?"; path#?# -> fragment is "?#"
 		_split = CW.split(_rest, '#', 1);
-		//alert(_split.toSource())
 		_rest = _split[0]; // _request is now path and query
 		if(_split[1] !== undefined) {
 			fragment = _split[1];
