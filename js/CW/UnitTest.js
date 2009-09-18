@@ -619,6 +619,36 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
+	 * Assert that C{a} and C{b} are equal. Handles strings, arrays, objects, numbers, bools, and nulls.
+	 */
+	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
+		var k;
+
+		function isArray(obj) {
+			return Object.prototype.toString.apply(obj) === '[object Array]';
+		}
+
+		if(isArray(a) && isArray(b)) {
+			self.assertArraysEqual(a, b, message, true);
+		} else if(typeof a == 'object' && typeof b == 'object') {
+			for(k in a) {
+				self.assertEqual(a[k], b[k],
+					"property mismatch a["+k+"] `not assertEqual` b["+k+"]; original message: " + message, true);
+			};
+			for(k in b) {
+				self.assertEqual(b[k], a[k],
+					"property mismatch b["+k+"] `not assertEqual` a["+k+"]; original message: " + message, true);
+			};
+		} else {
+			self.assertIdentical(a, b, message, true);
+		}
+	},
+
+
+	// TODO: assertNotEqual
+
+
+	/**
 	 * Assert that C{callable} throws C{expectedError}
 	 *
 	 * @param expectedError: The error type (class or prototype) which is

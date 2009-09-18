@@ -5,6 +5,13 @@
  * based on a patch attached to http://bugs.python.org/issue1462525
  */
 
+/**
+ * There's an alternative MIT-licensed parser available at:
+ *    http://blog.stevenlevithan.com/archives/parseuri
+ *    http://stevenlevithan.com/demo/parseuri/js/
+ */
+
+// regex straight from STD 66 section B
 CW.URI.URI_SPLIT_RE = /^(([^:\/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
 
 CW.URI.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
@@ -46,10 +53,10 @@ L{urisplit} is a basic URI Parser according to STD66 aka RFC3986
 
 // It is reversable:
 
-	>>> uriunsplit(urisplit("scheme://authority"))
+	>>> uriunsplit.apply(this, urisplit("scheme://authority"))
 	'scheme://authority'
 
-	>>> uriunsplit(urisplit("scheme://authority/"))
+	>>> uriunsplit.apply(this, urisplit("scheme://authority/"))
 	'scheme://authority/'
  */
 CW.URI.urisplit = function urisplit(uri) {
@@ -124,7 +131,7 @@ CW.URI.uriunsplit = function uriunsplit(scheme, authority, path, query, fragment
    Basic authority parser that splits authority into component parts
    
    >>> split_authority("user:password@host:port")
-   ['user', 'password', 'host', 'port']
+   ['user', 'password', 'host', port]
 */
 CW.URI.split_authority = function split_authority(authority) {
 	var split, userinfo, hostport, user, passwd, host, port;
@@ -149,7 +156,7 @@ CW.URI.split_authority = function split_authority(authority) {
 	if(hostport && hostport.indexOf(':') != -1) {
 		split = hostport.split(':', 1)
 		host = split[0];
-		port = split[1];
+		port = parseInt(split[1], 10);
 	} else {
 		host = hostport;
 		port = null;
@@ -166,7 +173,7 @@ CW.URI.split_authority = function split_authority(authority) {
 /*
    Reverse of split_authority()
 
-   >>> join_authority('user', 'password', 'host', 'port')
+   >>> join_authority('user', 'password', 'host', port)
    'user:password@host:port'
  */
 CW.URI.join_authority = function join_authority(user, passwd, host, port) {
@@ -186,14 +193,24 @@ CW.URI.join_authority = function join_authority(user, passwd, host, port) {
 }
 
 
-
+/**
+ * Represents a URL. You can modify the public attributes on a L{CW.URI.URL}
+ * to change parts of the URL, clone a URL by passing a L{CW.URI.URL} instance
+ * into the constructor, and serialize to a string with C{.getString()}.
+ */
 CW.Class.subclass(CW.URI, 'URL').methods(
+	/**
+	 * C{urlObjOrString} must be
+	 *          - an instance of L{CW.URI.URL}
+	 * XOR   - any string, which will be parsed into a URL
+	 */
 	function __init__(self, urlObjOrString) {
 		var split;
 		var authority;
 
 		if(urlObjOrString instanceof CW.URI.URL) {
-			// Clone it
+			// Clone it. We don't expect the object to have any crappy values like undefined,
+			// but even if that's the case, there shouldn't be many problems.
 			self.scheme = urlObjOrString.scheme;
 			self.user = urlObjOrString.user;
 			self.passwd = urlObjOrString.passwd;
@@ -207,7 +224,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			split = CW.URI.urisplit(urlObjOrString);
 			self.scheme = split[0];
 			authority = split[1];
-			self.path = split[2];
+			self.path = split[2]; // at this point, self.path could be C{null} XOR C{''}
 			self.query = split[3];
 			self.frag = split[4];
 
@@ -215,26 +232,25 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 			self.user = split[0];
 			self.passwd = split[1];
 			self.host = split[2];
-			self.port = split[3];
+			self.port = split[3]; // at this point, self.port could be C{null} XOR C{''}
 		}
 
-		// This might be undefined.
+		// This might become undefined.
 		self._defaultPortForMyScheme = CW.URI.schemeToDefaultPort[self.scheme];
 
 		if(!self.port) {
-			self.port = self._defaultPortForMyScheme;
-			if(self.port === undefined) {
-				self.port = null;
+			if(self._defaultPortForMyScheme !== undefined) {
+				self.port = self._defaultPortForMyScheme;
 			}
 		}
 
-		if(!self.path) { // undefined, null, ''
+		if(!self.path) {
 			self.path = '/';
 		}
 	},
 
 	/**
-	 * Think of this as the __str__
+	 * Think of this as the __str__, for when you really need it as a string.
 	 */
 	function getString(self) {
 		/**
