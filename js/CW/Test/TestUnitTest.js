@@ -763,11 +763,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr({"a": 3, "b": {a: "c"}}), '({"a":3,"b":{"a":"c"}})');
 		self.assertIdentical(repr({"a": 3, "b": []}), '({"a":3,"b":[]})');
 		self.assertIdentical(repr('foo'), '"foo"');
+	},
 
+
+	function test_shortEscapes(self) {
+		var repr = CW.UnitTest.repr;
 		self.assertIdentical(repr('fo\to'), '"fo\\to"');
-		// there's a /regex/g -style global expression in the code, so make
-		// sure it works when you do this a second time.
-		self.assertIdentical(repr('fo\to'), '"fo\\to"');
+		self.assertIdentical(repr('fo\no'), '"fo\\no"');
 		self.assertIdentical(repr('fo\fo'), '"fo\\fo"');
 		self.assertIdentical(repr('fo\ro'), '"fo\\ro"');
 
@@ -775,7 +777,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr('fo\'o'), '"fo\'o"'); // no escape of single quote
 		self.assertIdentical(repr('fo\\o'), '"fo\\\\o"');
 
+	},
+
+	function test_xAndUEscapes(self) {
 		self.assertIdentical(repr('\u0000'), '"\\x00"');
+		self.assertIdentical(repr('\u000B'), '"\\x0B"'); // vertical tab; note that it's not \v
 		self.assertIdentical(repr('\u0010'), '"\\x10"');
 		self.assertIdentical(repr('\u0015'), '"\\x15"');
 		self.assertIdentical(repr('\u0019'), '"\\x19"');
@@ -790,15 +796,23 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr('\ubeef'), '"\\uBEEF"');
 		self.assertIdentical(repr('\uFFFF'), '"\\uFFFF"');
 
+	},
+
+	function test_nestedEscaping(self) {
+		var repr = CW.UnitTest.repr;
 		// All the escaping still works in nested objects/arrays
 		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\x00","\\x00"]');
 		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\x00","\\x00",{"\\x00":"0"}]');
 
+	},
+
+	function test_miscTypes(self) {
+		var repr = CW.UnitTest.repr;
 	      self.assertIdentical(repr(new Date(2009, 0, 1)), "(new Date(1230796800000))");
 		self.assertIdentical(repr(/\t/), '/\\t/');
-
-		// TODO: test that toString/other builtin properties are found in JScript; need a list of them
 	}
+
+	// TODO: test that toString/other builtin properties are found in JScript; need a list of them
 );
 
 

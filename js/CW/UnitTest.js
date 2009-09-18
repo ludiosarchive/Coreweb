@@ -1118,6 +1118,7 @@ CW.UnitTest.runRemote = function runRemote(test) {
  *    fixed a major bug in escapeChar
  *    fixed a bug in char2esc - "\r" was incorrect
  *    fixed to make recursive calls with noParens when iterating an array
+ *    remove short escape for vertical tab, because JScript doesn't support it.
  * 
  * Differs from our old repr:
  *    no more superfluous spaces between items in arrays.
@@ -1129,9 +1130,11 @@ CW.UnitTest._makeUneval = function() {
 	var char2esc = {
 		'\t':'t', // tab
 		'\n':'n', // newline
-		'\v':'v', // vertical tab; note that this will map 'v' -> 'v' in IE/JScript.
 		'\f':'f', // form feed
 		'\r':'r' // carriage return
+
+		// short vertical tab isn't here because JScript doesn't support it, so we'll
+		// pretend it doesn't exist in any browser, for consistency.
 	};
 
 	var escapeChar = function(c) {
