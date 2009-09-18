@@ -619,7 +619,8 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} is "in" C{b}
+	 * Assert that C{a} is "in" C{b}. Remember that JavaScript "in" only
+	 * checks if a property exists.
 	 */
 	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function(x, y){ return x in y }, "`not in`", a, b, message, true);
@@ -630,7 +631,8 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Assert that C{a} is not "in" C{b}
+	 * Assert that C{a} is not "in" C{b}. Remember that JavaScript "in"
+	 * only checks if a property exists.
 	 */
 	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		self.compare(function(x, y){ return !(x in y) }, "`in`", a, b, message, true);
@@ -649,8 +651,8 @@ CW.UnitTest.TestCase.methods(
 	 * made from object literals and new Object() calls only.
 	 *
 	 * If you give this function non-simple objects, it may produce lies.
-	 *
-	 * If you give this function circularly-referenced objects, it will overflow the stack.
+	 * If you give this function circularly-referenced objects, it will overflow
+	 * the stack.
 	 */
 	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ internalCall /*=false*/) {
 		// Implementation note: these "original message"s will get nested if you have
