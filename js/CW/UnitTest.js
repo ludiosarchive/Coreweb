@@ -659,6 +659,8 @@ CW.UnitTest.TestCase.methods(
 	 * If you give this function circularly-referenced objects, it will overflow
 	 * the stack.
 	 */
+	 // TODO: this could be further improved to handle Dates and a few other
+	 // types properly; see http://philrathe.com/articles/equiv and qunit/testrunner.js
 	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		// Implementation note: these "original message"s will get nested if you have
 		// nested objects/arrays.

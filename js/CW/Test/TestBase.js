@@ -222,3 +222,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'AssertTests').methods(
 		);
 	}
 );
+
+
+
+/**
+ * Check that CW.random works.
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'RandomTests').methods(
+
+	function test_random(self) {
+		var one = CW.random();
+		var two = CW.random();
+		self.assert(one.length > 8, "one.length was " + one.length);
+		self.assert(two.length > 8, "two.length was " + two.length);
+		self.assertNotIdentical(one, two, "Why are the two random strings identical?");
+	}
+);
