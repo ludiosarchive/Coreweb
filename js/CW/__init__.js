@@ -549,7 +549,7 @@ if(window.console && window.console.firebug) {
  * Set up the <div id="CW-debug-log"></div> as a CW log observer.
  */
 if(document.getElementById('CW-debug-log')) {
-	CW.logger.addObserver(function (evt) {
+	CW.logger.addObserver(function _CW_debug_log_observer(evt) {
 		var prepend;
 		if (evt.isError) {
 			prepend = "CW error: ";
