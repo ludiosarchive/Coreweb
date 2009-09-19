@@ -395,14 +395,14 @@ CW.UnitTest.TestSuite.methods(
 	function run(self, result) {
 		var installD = CW.UnitTest.installMonkeys();
 
-		installD.addCallback(function(){
+		installD.addCallback(function _TestSuite_run_visit_cases(){
 			var d = self.visit(function (test) { return test.run(result); });
 
 			/**
 			 * Possibly make it easier to figure out when IE is leaking memory.
 			 * Not really needed, especially because sIEve does this for us on the blank page.
 			 */
-			d.addBoth(function(){
+			d.addBoth(function _TestSuite_run_CollectGarbage(){
 				if (typeof CollectGarbage != 'undefined') {
 					CollectGarbage();
 				}
@@ -587,7 +587,7 @@ CW.UnitTest.TestCase.methods(
 	 */
 	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var invert = function(func) {
-			return function(){
+			return function _inverter(){
 				return !func.apply(this, arguments);
 			};
 		};
@@ -836,7 +836,7 @@ CW.UnitTest.TestCase.methods(
 
 
 	/**
-	 * Actually run this test.
+	 * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
 	 */
 	function run(self, result) {
 		var success = true;
@@ -846,17 +846,21 @@ CW.UnitTest.TestCase.methods(
 
 		result.startTest(self);
 
-		setUpD = CW.Defer.maybeDeferred(function(){return self.setUp();});
+		setUpD = CW.Defer.maybeDeferred(
+			function _TestCase_run_wrap_setUp(){ return self.setUp(); }
+		);
 
 		setUpD.addCallbacks(
 			/* callback */
-			function(){
+			function _TestCase_run_setUpD_callback(){
 
-				methodD = CW.Defer.maybeDeferred(function(){return self[self._methodName]();});
+				methodD = CW.Defer.maybeDeferred(
+					function _TestCase_run_wrap_method(){ return self[self._methodName](); }
+				);
 
 				//console.log("From " + self._methodName + " got a ", methodD);
 
-				methodD.addErrback(function(aFailure) {
+				methodD.addErrback(function _TestCase_run_methodD_errback(aFailure) {
 					// Note that we're not adding the Error as Divmod did; we are adding the Failure
 					if (aFailure.error instanceof CW.AssertionError) {
 						result.addFailure(self, aFailure);
@@ -869,23 +873,25 @@ CW.UnitTest.TestCase.methods(
 				});
 
 				// even if the test_ method fails, we must run tearDown.
-				methodD.addBoth(function(){
+				methodD.addBoth(function _TestCase_run_methodD_finally(){
 
 					// for some debugging, prepend the closure with
 					// console.log("in teardown after", self._methodName);
 
-					tearDownD = CW.Defer.maybeDeferred(function(){return self.tearDown();});
+					tearDownD = CW.Defer.maybeDeferred(
+						function _TestCase_run_wrap_tearDown(){ return self.tearDown(); }
+					);
 
-					// approaching the end of our journey
+					// Approaching the end of our journey...
 
-					tearDownD.addErrback(function(aFailure) {
-						// this *could* be the second error we add,
-						// because the method itself could have also produced a failure/error.
+					tearDownD.addErrback(function _TestCase_run_tearDownD_errback(aFailure) {
+						// This might be the second time C{result.addError} is called,
+						// because an error in both the method *and* tearDown is possible. 
 						result.addError(self, aFailure);
 						success = false;
 					});
 
-					tearDownD.addBoth(function(){
+					tearDownD.addBoth(function _TestCase_run_tearDownD_finally(){
 						if (success) {
 							var whichProblems = [];
 							for(var pendingType in CW.UnitTest.delayedCalls) {
@@ -925,7 +931,8 @@ CW.UnitTest.TestCase.methods(
 			},
 
 			/* errback */
-			function(aFailure){
+			function _TestCase_run_setUpD_errback(aFailure){
+				// Assertions are not allowed in C{setUp}, so we'll treat them an error.
 				if (aFailure.error instanceof CW.UnitTest.SkipTest) {
 					result.addSkip(self, aFailure);
 				} else {
@@ -1068,7 +1075,7 @@ CW.UnitTest.run = function run(test) {
 	var div = document.getElementById('CW-test-log');
 	var result = CW.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
-	d.addCallback(function(){	
+	d.addCallback(function _UnitTest_after_run(){	
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
 		var span = document.createElement('span');
@@ -1119,7 +1126,7 @@ CW.UnitTest.runRemote = function runRemote(test) {
  * Differs from our old repr:
  *    no more superfluous spaces between items in arrays.
  */
-CW.UnitTest._makeUneval = function() {
+CW.UnitTest._makeUneval = function _makeUneval() {
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var protos = [];
 
@@ -1330,7 +1337,11 @@ CW.UnitTest.SerialVisitor.methods(
 			//// completionDeferred.callback(null);
 
 			// asynchronous version
-			setTimeout(function(){completionDeferred.callback(null);}, 0);
+			setTimeout(
+				function _SerialVisitor_fire_completionDeferred(){
+					completionDeferred.callback(null);
+				},
+			0);
 		}
 	}
 );
@@ -1392,7 +1403,7 @@ CW.UnitTest.SynchronousVisitor.methods(
  *
  * This is called right before the tests start, and after the teardown of *any test* that ends dirty.
  */
-CW.UnitTest.stopTrackingDelayedCalls = function() {
+CW.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
 	CW.UnitTest.delayedCalls = {
 		'setTimeout_pending': {},
 		'setInterval_pending': {}
@@ -1415,7 +1426,7 @@ CW.UnitTest.TestResultReceiver.methods(
 
 
 CW.UnitTest.setTimeoutMonkey = function(callable, when) {
-	var replacementCallable = function() {
+	function replacementCallable() {
 //		var originalLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
 		delete CW.UnitTest.delayedCalls['setTimeout_pending'][this];
 //		var newLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
@@ -1432,9 +1443,13 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 	var ticket = null;
 
 	if(window.__CW_setTimeout_bak) {
-		ticket = __CW_setTimeout_bak(function(){replacementCallable.call(ticket, [])}, when);
+		ticket = __CW_setTimeout_bak(
+			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable.call(ticket, []) },
+		when);
 	} else if(window.frames[0] && window.frames[0].setTimeout) {
-		ticket = window.frames[0].setTimeout(function(){replacementCallable.call(ticket, [])}, when);
+		ticket = window.frames[0].setTimeout(
+			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable.call(ticket, []) },
+		when);
 	} else {
 		throw new CW.Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
 	}
@@ -1505,7 +1520,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 /**
  * This needs to be called before tests are started.
  */
-CW.UnitTest.installMonkeys = function() {
+CW.UnitTest.installMonkeys = function installMonkeys() {
 	//CW.msg('installMonkeys');
 
 	var installD = new CW.Defer.Deferred();
@@ -1560,7 +1575,9 @@ CW.UnitTest.installMonkeys = function() {
 
 		// Setting onload attribute or .onload property doesn't work in IE (6, 7 confirmed),
 		// so attachEvent instead.
-		iframe.attachEvent("onload", function(){CW.UnitTest._iframeReady.callback(null);});
+		iframe.attachEvent("onload", function _UnitTest_fire__iframeReady(){
+			CW.UnitTest._iframeReady.callback(null);
+		});
 
 		// setAttribute("style", ...  is not working in IE6 or IE7, so use .style instead.
 		iframe.style.height = '16px';
