@@ -174,6 +174,10 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 	},
 	
 	'addCallbacks': function(/* callback, errback, callbackArgs, errbackArgs */) {
+//] if _debugMode:
+		CW.assert(arguments.length === 4, "CW.Deferred.addCallbacks takes 4 arguments, not " + arguments.length);
+//] endif
+
 		// use `arguments' so that JScript doesn't have to create 4 local variables.
 		// TODO: need to verify that this really doesn't have adverse effects
 		// (keeping an activation object alive)
@@ -309,14 +313,31 @@ CW.Defer.fail = function fail(err) {
 
 
 
-// Copied line-for-line from twisted.internet.defer.maybeDeferred
+// maybeDeferred was copied line-for-line from twisted.internet.defer.maybeDeferred
+
+/**
+ * Invoke a function that may or may not return a deferred.
+ *
+ * Call the given function with the given arguments.  If the returned
+ * object is a C{Deferred}, return it.  If the returned object is a C{Failure},
+ *   wrap it with C{fail} and return it.  Otherwise, wrap it in C{succeed} and
+ *   return it.  If an exception is raised, convert it to a C{Failure}, wrap it
+ *   in C{fail}, and then return it.
+ *
+ * @type f: Any callable
+ * @param f: The callable to invoke
+ * @param args: The arguments to pass to C{f}
+ *
+ * @rtype: C{Deferred}
+ * @return: The result of the function call, wrapped in a C{Deferred} if necessary.
+ */
 CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
 	if(args === undefined) {
 		args = [];
 	}
 	
 	try {
-		var result = f.apply(this, args);
+		var result = f.apply(null, args);
 	} catch(e) {
 		return CW.Defer.fail(CW.Defer.Failure(e));
 	}

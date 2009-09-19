@@ -480,3 +480,64 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		self.assertArraysEqual(errbackArgs2, [20, 30, 40]);
 	}
 );
+
+
+
+// These tests copied from twisted.test.test_defer
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').methods(
+	/**
+	 * L{defer.maybeDeferred} should retrieve the result of a synchronous
+	 * function and pass it to its resulting L{defer.Deferred}.
+	 */
+	function test_maybeDeferredSync(self) {
+		var S = [], E = [];
+		var d = CW.Defer.maybeDeferred(function(x) { return x + 5 }, [10]);
+		d.addCallbacks(function(s){S.push(s)}, function(err){E.push(err)}, [], []);
+		self.assertEqual(E, []);
+		self.assertEqual(S, [15]);
+		return d
+	},
+
+	/**
+	 * L{CW.Defer.maybeDeferred} should catch exception raised by a synchronous
+	 * function and errback its resulting L{defer.Deferred} with it.
+	 */
+	function test_maybeDeferredSyncError(self) {
+		var S = [], E = [];
+		try {
+			throw new CW.Error("boom");
+		} catch(e) {
+			var expected = e.getMessage();
+		}
+		var d = CW.Defer.maybeDeferred(function(){throw new CW.Error("boom")});
+		d.addCallbacks(function(s){S.push(s)}, function(err){E.push(err)}, [], []);
+		self.assertEqual(S, []);
+		self.assertEqual(E.length, 1);
+		self.assertEqual(E[0].error.getMessage(), expected);
+		return d
+	},
+
+	/**
+	 * L{CW.Defer.maybeDeferred} should let L{defer.Deferred} instance pass by
+	 * so that original result is the same.
+	 */
+	function test_maybeDeferredAsync(self) {
+		var d = CW.Defer.Deferred();
+		var d2 = CW.Defer.maybeDeferred(function(){return d});
+		d.callback('Success');
+		return d2.addCallback(self.assertEqual, 'Success');
+	},
+
+	/**
+	 * L{defer.maybeDeferred} should let L{defer.Deferred} instance pass by
+	 * so that L{failure.Failure} returned by the original instance is the
+	 * same.
+	 */
+	function test_maybeDeferredAsyncError(self) {
+		var d = CW.Defer.Deferred();
+		var d2 = CW.Defer.maybeDeferred(function() {return d});
+		d.errback(CW.Defer.Failure(CW.Error()));
+		return self.assertFailure(d2, [CW.Error]);
+	}
+);
