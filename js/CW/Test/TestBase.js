@@ -4,7 +4,7 @@
 
 // import CW.UnitTest
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'JSONTests').methods(
 
 	// if ever need some kind of "bootstrap" we'll add it back
 //	/**
@@ -19,8 +19,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 //		self.assertIdentical(notCW._location, STUFF);
 //	},
 
-	// We don't care about CW.Base's old JSON code, but test our own.
-	
 	/**
 	 * Assert that JSON encoder is doing at least basic escaping.
 	 */
@@ -59,9 +57,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		// it won't be adding spaces. (FF 3.1 behavior seems to match this)
 		var expected = '[{},{"1":"2"},{"c":[null,null,[{"x":["\\\\","\'",""]}]]}]';
 		self.assertIdentical(json, expected);
-	},
+	}
+);
 
 
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	/**
 	 * Check that arrays which contain identical elements are considered
 	 * equal.
@@ -122,9 +123,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		b[3] = '3';
 		b[2] = '2';
 		self.assert(!CW.arraysEqual(a, b));
-	},
+	}
+);
 
 
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'StartsWithTests').methods(
 	/**
 	 * Check that startswith works as expected.
 	 */
@@ -144,12 +148,15 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		self.assertThrows(Error, function(){CW.startswith(3, "3");});
 		self.assertThrows(Error, function(){CW.startswith(33, "33");});
 		self.assertThrows(Error, function(){CW.startswith(33, "3");});
-	},
+	}
+);
 
 
-	/**
-	 * Check that split works as expected.
-	 */
+
+/**
+ * Check that split works as expected.
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'SplitTests').methods(
 	function test_splitUnlimited(self) {
 		self.assertArraysEqual(["", "ello"], CW.split("hello", "h"));
 		self.assertArraysEqual(["", ""], CW.split("hello", "hello"));
@@ -188,3 +195,5 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestBase').methods(
 		self.assertArraysEqual(["xx", "yy", "zz"], CW.split("xx_yy_zz", "_", -3));
 	}
 );
+
+
