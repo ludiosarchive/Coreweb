@@ -666,7 +666,7 @@ CW.Error.subclass(CW, "AssertionError").methods(
  * @param message: An optional parameter, explaining what the assertion
  * means.
  */
-CW.assert = function assert(self, value, /* optional */ message) {
+CW.assert = function assert(value, /* optional */ message) {
 	if (!value) {
 		throw new CW.AssertionError(message);
 	}
