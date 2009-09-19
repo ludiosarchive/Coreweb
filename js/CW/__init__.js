@@ -394,7 +394,7 @@ CW.Class.subclass(CW, "Error").methods(
 	 * @return: This error object, as a string.
 	 */
 	function toString(self) {
-		return self.__name__ + ': ' + self.getMessage();
+		return self.__class__.__name__ + ': ' + self.getMessage();
 	}
 );
 
@@ -533,7 +533,7 @@ if(window.console && window.console.firebug) {
 	// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
 	CW.logger.addObserver(function (evt) {
 		if (evt.isError) {
-			console.log("CW error: " + evt.message);
+			console.log(evt.message ? "CW error: " + evt.message : "CW error: (no evt.message)");
 			// Dump the object itself so that you can click and inspect it with Firebug.
 			console.log(evt.error);
 		} else {
@@ -650,7 +650,7 @@ CW.random = function() {
  */
 CW.Error.subclass(CW, "AssertionError").methods(
 	function toString(self) {
-		return 'AssertionError: ' + self.getMessage();
+		return self.__class__.__name__ + ': ' + self.getMessage();
 	}
 );
 

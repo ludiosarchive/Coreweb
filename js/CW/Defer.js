@@ -271,11 +271,14 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 			}
 		}
 
-		// In the twisted.internet version of Deferred, the Failure gets saved in _debugInfo.
-		
+		// In Twisted, the Failure gets saved in _debugInfo.
+		// In Twisted, Deferred only logs an never-sent error at C{__del__}-time.
+
 		if (this._result instanceof CWD.Failure) {
-			// This might be spurious
-			CW.err(this._result.error);
+			// We have an L{Failure} _result, but do not have an errback attached to send it right now.
+			// Log the error in case an errback is never attached, to prevent the error
+			// from being completely hidden. The log message will usually be spurious.
+			CW.err(this._result.error, "No errback attached yet to send this error into: (usually you can ignore this)");
 		}
 	},
 

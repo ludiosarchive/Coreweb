@@ -78,7 +78,7 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
  */
 CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
 	function toString(self) {
-		return 'SkipTest: ' + self.getMessage();
+		return self.__class__.__name__ + ': ' + self.getMessage();
 	}
 );
 
@@ -473,6 +473,11 @@ CW.UnitTest.TestCase.methods(
 	},
 
 
+	/**
+	 * Visit this test case synchronously.
+	 *
+	 * @param visitor: A callable which takes one argument (a test case).
+	 */
 	function visitSync(self, visitor) {
 		visitor(self);
 	},
@@ -754,11 +759,9 @@ CW.UnitTest.TestCase.methods(
 	},
 
 
+	// assertFailure was copied from Nevow.Athena.Test
 
 	/**
-	 *
-	 * assertFailure was copy/pasted from Nevow.Athena.Test:
-	 *
 	 * Add a callback and an errback to the given Deferred which will assert
 	 * that it is errbacked with one of the specified error types.
 	 *
