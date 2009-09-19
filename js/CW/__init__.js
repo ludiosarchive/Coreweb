@@ -34,7 +34,7 @@ CW.emptyFunc = new Function;
  * Return a date that looks like an ISO formatted one, except format
  * the tz in decimal hours, not HHMM offset.
  */
-CW.localTime = function() {
+CW.localTime = function localTime() {
 	function p2(s) {
 		return ('00' + s).slice(-2)
 	}
@@ -638,7 +638,7 @@ CW.split = function split(s, sep, maxsplit) {
 
 
 
-CW.random = function() {
+CW.random = function random() {
 	return (''+Math.random()).substr(2);
 };
 
