@@ -526,7 +526,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		var d = CW.Defer.Deferred();
 		var d2 = CW.Defer.maybeDeferred(function(){return d});
 		d.callback('Success');
-		return d2.addCallback(self.assertEqual, 'Success');
+		return d2.addCallback(function(s){self.assertEqual(s, 'Success')});
 	},
 
 	/**

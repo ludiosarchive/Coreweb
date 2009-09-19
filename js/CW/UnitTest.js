@@ -731,7 +731,8 @@ CW.UnitTest.TestCase.methods(
 	 *
 	 * @return: The exception that was raised by callable.
 	 */
-	function assertThrows(self, expectedError, callable, expectedMessage /*optional*/) {
+	function assertThrows(self, expectedError, callable,
+	/*optional*/expectedMessage, /*optional*/ _internalCall /*=false*/) {
 		var threw = null;
 		try {
 			callable();
@@ -746,7 +747,9 @@ CW.UnitTest.TestCase.methods(
 			}
 		}
 		self.assert(threw != null, "Callable threw no error", true);
-		self._assertCounter += 1;
+		if(_internalCall !== true) {
+			self._assertCounter += 1;
+		}
 		return threw;
 	},
 
@@ -775,11 +778,11 @@ CW.UnitTest.TestCase.methods(
 	 * C{errorTypes} or which will errback if the input Deferred either
 	 * succeeds or fails with a different error type.
 	 */
-	function assertFailure(self, deferred, errorTypes) {
+	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
 			throw new Error("Specify at least one error class to assertFailure");
 		}
-		return deferred.addCallbacks(
+		var d = deferred.addCallbacks(
 			function(result) {
 				self.fail("Deferred reached callback; expected an errback.");
 			},
@@ -795,6 +798,11 @@ CW.UnitTest.TestCase.methods(
 			},
 			[], []
 		);
+		// TODO: is this really the best place to increment the counter? maybe it should be in the function(err)?
+		if(_internalCall !== true) {
+			self._assertCounter += 1;
+		}
+		return d;
 	},
 
 
