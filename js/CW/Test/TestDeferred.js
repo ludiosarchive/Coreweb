@@ -487,8 +487,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').methods(
 	/**
-	 * L{defer.maybeDeferred} should retrieve the result of a synchronous
-	 * function and pass it to its resulting L{defer.Deferred}.
+	 * L{maybeDeferred} should retrieve the result of a synchronous
+	 * function and pass it to its resulting L{Deferred}.
 	 */
 	function test_maybeDeferredSync(self) {
 		var S = [], E = [];
@@ -500,8 +500,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	},
 
 	/**
-	 * L{CW.Defer.maybeDeferred} should catch exception raised by a synchronous
-	 * function and errback its resulting L{defer.Deferred} with it.
+	 * LmaybeDeferred} should catch exception raised by a synchronous
+	 * function and errback its resulting L{Deferred} with it.
 	 */
 	function test_maybeDeferredSyncError(self) {
 		var S = [], E = [];
@@ -519,7 +519,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	},
 
 	/**
-	 * L{CW.Defer.maybeDeferred} should let L{defer.Deferred} instance pass by
+	 * L{maybeDeferred} should let L{Deferred} instance pass by
 	 * so that original result is the same.
 	 */
 	function test_maybeDeferredAsync(self) {
@@ -530,8 +530,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	},
 
 	/**
-	 * L{defer.maybeDeferred} should let L{defer.Deferred} instance pass by
-	 * so that L{failure.Failure} returned by the original instance is the
+	 * L{maybeDeferred} should let L{Deferred} instance pass by
+	 * so that L{Failure} returned by the original instance is the
 	 * same.
 	 */
 	function test_maybeDeferredAsyncError(self) {
