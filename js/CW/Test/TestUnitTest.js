@@ -932,3 +932,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		return d;
 	}
 );
+
+
+
+/**
+ * Tests for L{CW.UnitTest.Clock}
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
+	
+);

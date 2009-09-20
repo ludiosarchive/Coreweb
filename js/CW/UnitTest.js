@@ -102,8 +102,7 @@ CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
  * @ivar errors: The errors that were raised by tests in this test run, paired
  *			   with the tests that generated them.
  */
-CW.UnitTest.TestResult = CW.Class.subclass('CW.UnitTest.TestResult');
-CW.UnitTest.TestResult.methods(
+CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	function __init__(self) {
 		self.testsRun = 0;
 		self.failures = [];
@@ -214,8 +213,7 @@ CW.UnitTest.TestResult.methods(
 /**
  * Adds test results to a div, as they are run.
  */
-CW.UnitTest.DIVTestResult = CW.UnitTest.TestResult.subclass('CW.UnitTest.DIVTestResult');
-CW.UnitTest.DIVTestResult.methods(
+CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	function __init__(self, div) {
 		CW.UnitTest.DIVTestResult.upcall(self, '__init__', []);
 		self._div = div;
@@ -279,8 +277,7 @@ CW.UnitTest.DIVTestResult.methods(
 
 // no more subunit/spidermonkey
 /*
-CW.UnitTest.SubunitTestClient = CW.UnitTest.TestResult.subclass('CW.UnitTest.SubunitTestClient');
-CW.UnitTest.SubunitTestClient.methods(
+CW.UnitTest.TestResult.subclass(CW.UnitTest, 'SubunitTestClient').methods(
 	function _write(self, string) {
 		print(string);
 	},
@@ -316,8 +313,7 @@ CW.UnitTest.SubunitTestClient.methods(
 /**
  * Represents a collection of tests. Implements the Composite pattern.
  */
-CW.UnitTest.TestSuite = CW.Class.subclass('CW.UnitTest.TestSuite');
-CW.UnitTest.TestSuite.methods(
+CW.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	function __init__(self, /*optional*/ tests) {
 		self.tests = [];
 		if (tests != undefined) {
@@ -430,8 +426,7 @@ CW.UnitTest.TestSuite.methods(
  */
 
 
-CW.UnitTest.TestCase = CW.Class.subclass('CW.UnitTest.TestCase');
-CW.UnitTest.TestCase.methods(
+CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	/**
 	 * Construct a test.
 	 *
@@ -1284,8 +1279,7 @@ CW.UnitTest.repr = CW.UnitTest._makeUneval();
  * suite without waiting for the Deferred from a visit to fire before
  * proceeding to the next method.
  */
-CW.UnitTest.ConcurrentVisitor = CW.Class.subclass('CW.UnitTest.ConcurrentVisitor');
-CW.UnitTest.ConcurrentVisitor.methods(
+CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
 	function traverse(self, visitor, tests) {
 		var deferreds = [];
 		CW.msg("Running " + tests.length + " methods/TestCases.");
@@ -1293,7 +1287,8 @@ CW.UnitTest.ConcurrentVisitor.methods(
 			deferreds.push(tests[i].visit(visitor));
 		}
 		return CW.Defer.DeferredList(deferreds);
-	});
+	}
+);
 
 
 /**
@@ -1301,8 +1296,7 @@ CW.UnitTest.ConcurrentVisitor.methods(
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
  */
-CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
-CW.UnitTest.SerialVisitor.methods(
+CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
 //		CW.msg('Using SerialVisitor on ' + tests);
 		var completionDeferred = new CW.Defer.Deferred();
@@ -1354,8 +1348,7 @@ CW.UnitTest.SerialVisitor.methods(
 // * suite, waiting for the Deferred from a visit to fire before proceeding to
 // * the next method.
 // */
-//CW.UnitTest.SerialVisitor = CW.Class.subclass('CW.UnitTest.SerialVisitor');
-//CW.UnitTest.SerialVisitor.methods(
+//CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
 //		var completionDeferred = new CW.Defer.Deferred();
@@ -1387,8 +1380,7 @@ CW.UnitTest.SerialVisitor.methods(
  *
  * This is how Divmod UnitTest worked.
  */
-CW.UnitTest.SynchronousVisitor = CW.Class.subclass('CW.UnitTest.SynchronousVisitor');
-CW.UnitTest.SynchronousVisitor.methods(
+CW.Class.subclass(CW.UnitTest, 'SynchronousVisitor').methods(
 	function traverse(self, visitor, tests) {
 		for (var i = 0; i < tests.length; ++i) {
 			// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
@@ -1413,13 +1405,6 @@ CW.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
 
 // Initialize the objects
 CW.UnitTest.stopTrackingDelayedCalls();
-
-
-CW.UnitTest.TestResultReceiver = CW.Class.subclass('CW.UnitTest.TestResultReceiver');
-CW.UnitTest.TestResultReceiver.methods(
-	function a() {}
-);
-
 
 
 // TODO: maybe generalize Timeout and Interval monkeys? with a monkeyMaker?
@@ -1615,3 +1600,106 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 
 	return installD;
 }
+
+
+/**
+ * Provide a deterministic, easily-controlled browser C{window}.
+ * This is commonly useful for writing deterministic unit tests for code which
+ * schedules events with C{setTimeout}, C{setInterval}, C{clearTimeout},
+ * and {clearInterval}.
+ *
+ * Note that this does not mimic browser deficiencies in C{setTimeout} and
+ * C{setInterval}: The C{1} in C{setTimeout(callable, 1)} will not be raised to C{13}.
+ */
+CW.Class.subclass(CW.UnitTest, 'Clock').methods(
+
+	function __init__(self) {
+		self._rightNow = 0.0;
+		self._counter = -1;
+		self._calls = [];
+
+		/**
+		 * A deterministic Date object that works sort of like a standard
+		 * C{window.Date}.
+		 */
+		self.Date = function _UnitTest_Clock_Date() {
+
+		}
+		/**
+		 * @rtype: C{Number}
+		 * @return: "Milliseconds since epoch", except deterministic and
+		 *    probably close to zero.
+		 */
+		self.Date.prototype.getTime = function getTime() {
+			return self._rightNow;
+		}
+	},
+
+
+	function setTimeout(self, callable, when) {
+		self._calls.append([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
+		return self._counter;
+	},
+
+
+	function setInterval(self, callable, when) {
+		self._calls.append([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
+		return self._counter;
+	},
+
+
+	/**
+	 * Notes: in both Firefox 3.5.3 and IE8, you can successfully clearTimeout() an interval,
+	 * and clearInterval() a timeout, so here we don't check the timeout/interval type.
+	 */
+	function _clearAnything(self, ticket) {
+		var n = self._calls.length;
+		while(n--) {
+			var call = self._calls[n];
+			if(call[0] === ticket) {
+				var ret = self._calls.splice(n, 1);
+//] if _debugMode:
+				CW.assert(ret[0] === ticket);
+//] endif
+				break;
+			}
+		}
+		return undefined;
+	},
+
+
+	function clearTimeout(self, ticket) {
+		return self._clearAnything(ticket);
+	},
+
+
+	function clearInterval(self, ticket) {
+		return self._clearAnything(ticket);
+	}
+);
+//
+//
+//	def advance(self, amount):
+//		"""
+//		Move time on this clock forward by the given amount and run whatever
+//		pending calls should be run.
+//
+//		@type amount: C{float}
+//		@param amount: The number of seconds which to advance this clock's
+//		time.
+//		"""
+//		self.rightNow += amount
+//		while self.calls and self.calls[0].getTime() <= self.seconds():
+//			call = self.calls.pop(0)
+//			call.called = 1
+//			call.func(*call.args, **call.kw)
+//
+//
+//	def pump(self, timings):
+//		"""
+//		Advance incrementally by the given set of times.
+//
+//		@type timings: iterable of C{float}
+//		"""
+//		for amount in timings:
+//			self.advance(amount)
