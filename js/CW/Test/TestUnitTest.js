@@ -854,23 +854,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 
 		var d = new CW.Defer.Deferred();
 
-		setTimeout(function() {
-			// Do this try/catch/errback to avoid breaking the test runner
-			// when the test fails. It breaks without this because setTimeout is in
-			// its own execution context, and doesn't reach `d.callback(null)` if the assert fails.
-			var errBacked = false;
-			try {
-				self.assertIdentical(false, neverRunMeWasRun);
-				self.assertIdentical(true, pleaseRunMeWasRun);
-				self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-			} catch(e) {
-				errBacked = true;
-				d.errback(e);
-			}
-			if(!errBacked) {
-				d.callback(null);
-			}
-		}, 30);
+		d.addCallback(function() {
+			self.assertIdentical(false, neverRunMeWasRun);
+			self.assertIdentical(true, pleaseRunMeWasRun);
+			self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		});
+
+		setTimeout(function(){d.callback(null)}, 30);
 
 		return d;
 	},
@@ -907,27 +897,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 
 		var d = new CW.Defer.Deferred();
 
-		setTimeout(function() {
-			// Do this try/catch/errback to avoid breaking the test runner
-			// when the test fails. It breaks without this because setTimeout is in
-			// its own execution context, and doesn't reach `d.callback(null)` if the assert fails.
-			// (this comment is copy/pasted)
-			var errBacked = false;
-			try {
-				self.assertIdentical(0, neverRunMeWasRun);
-				// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
-				self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
-				self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-				clearInterval(ticket2);
-				self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-			} catch(e) {
-				errBacked = true;
-				d.errback(e);
-			}
-			if(!errBacked) {
-				d.callback(null);
-			}
-		}, 35);
+		d.addCallback(function() {
+			self.assertIdentical(0, neverRunMeWasRun);
+			// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
+			self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
+			self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+			clearInterval(ticket2);
+			self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		});
+
+		setTimeout(function(){d.callback(null)}, 35);
 
 		return d;
 	}

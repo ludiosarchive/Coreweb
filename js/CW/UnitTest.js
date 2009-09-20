@@ -1610,10 +1610,15 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
  *
  * Note that this does not mimic browser deficiencies in C{setTimeout} and
  * C{setInterval}: The C{1} in C{setTimeout(callable, 1)} will not be raised to C{13}.
+ *
+ * Note: we must use .pmethods instead of .methods here, because IE leaks
+ * named functions into the outer scope, and we really can't deal with that here,
+ * because the function names are "setTimeout" and so on.
  */
-CW.Class.subclass(CW.UnitTest, 'Clock').methods(
+CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
-	function __init__(self) {
+	__init__: function(self) {
+		var self = this;
 		self._rightNow = 0.0;
 		self._counter = -1;
 		self._calls = [];
@@ -1636,14 +1641,16 @@ CW.Class.subclass(CW.UnitTest, 'Clock').methods(
 	},
 
 
-	function setTimeout(self, callable, when) {
-		self._calls.append([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
+	setTimeout: function(callable, when) {
+		var self= this;
+		self._calls.push([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
 		return self._counter;
 	},
 
 
-	function setInterval(self, callable, when) {
-		self._calls.append([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
+	setInterval: function(callable, when) {
+		var self = this;
+		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
 		return self._counter;
 	},
 
@@ -1652,7 +1659,8 @@ CW.Class.subclass(CW.UnitTest, 'Clock').methods(
 	 * Notes: in both Firefox 3.5.3 and IE8, you can successfully clearTimeout() an interval,
 	 * and clearInterval() a timeout, so here we don't check the timeout/interval type.
 	 */
-	function _clearAnything(self, ticket) {
+	_clearAnything: function(ticket) {
+		var self = this;
 		var n = self._calls.length;
 		while(n--) {
 			var call = self._calls[n];
@@ -1668,15 +1676,17 @@ CW.Class.subclass(CW.UnitTest, 'Clock').methods(
 	},
 
 
-	function clearTimeout(self, ticket) {
+	clearTimeout: function(ticket) {
+		var self = this;
 		return self._clearAnything(ticket);
 	},
 
 
-	function clearInterval(self, ticket) {
+	clearInterval: function(self, ticket) {
+		var self = this;
 		return self._clearAnything(ticket);
 	}
-);
+});
 //
 //
 //	def advance(self, amount):
