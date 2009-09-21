@@ -1618,9 +1618,7 @@ CW.UnitTest.uniqArray = function uniqArray(a) {
 	var sorted = a.slice(0).sort();
 	var newArray = [];
 	for (var i = 0; i < sorted.length; i++) {
-		if(i === 0) {
-			newArray.push(sorted[i]);
-		} else if (sorted[i - 1] !== sorted[i]) {
+		if (i === 0 || sorted[i - 1] !== sorted[i]) {
 			newArray.push(sorted[i]);
 		}
 	}
@@ -1643,7 +1641,7 @@ CW.UnitTest.uniqArray = function uniqArray(a) {
  */
 CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
-	__init__: function(self) {
+	__init__: function() {
 		var self = this;
 		self._rightNow = 0.0;
 		self._counter = -1;
@@ -1656,6 +1654,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		self.Date = function _UnitTest_Clock_Date() {
 
 		}
+
 		/**
 		 * @rtype: C{Number}
 		 * @return: "Milliseconds since epoch", except deterministic and
@@ -1668,7 +1667,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 
 	setTimeout: function(callable, when) {
-		var self= this;
+		var self = this;
 		self._calls.push([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
 		return self._counter;
 	},
@@ -1678,6 +1677,13 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		var self = this;
 		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
 		return self._counter;
+	},
+
+
+	// For the unit tests, mostly.
+	_countPendingEvents: function() {
+		var self = this;
+		return self._calls.length;
 	},
 
 
@@ -1693,7 +1699,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 			if(call[0] === ticket) {
 				var ret = self._calls.splice(n, 1);
 //] if _debugMode:
-				CW.assert(ret[0] === ticket);
+				CW.assert(ret[0][0] === ticket, ret[0][0] + " !== " + ticket);
 //] endif
 				break;
 			}
@@ -1708,7 +1714,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
-	clearInterval: function(self, ticket) {
+	clearInterval: function(ticket) {
 		var self = this;
 		return self._clearAnything(ticket);
 	}

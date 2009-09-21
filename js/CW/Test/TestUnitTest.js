@@ -992,11 +992,52 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 	/**
 	 * setTimeout and setInterval return tickets from the same pool
-	 * of numbers.
+	 * of numbers. None of the ticket numbers are the same.
 	 */
 	function test_setWhateverUseGlobalCounter(self) {
 		var clock = new CW.UnitTest.Clock();
-		var ticket1 = clock.setTimeout(function(){}, 0);
-	}
+		var tickets = [
+			clock.setTimeout(function(){}, 0),
+			clock.setTimeout(function(){}, 0),
+			clock.setInterval(function(){}, 0),
+			clock.setInterval(function(){}, 0)
+		];
 
+		self.assertEqual(4, CW.UnitTest.uniqArray(tickets).length);
+	},
+
+	/**
+	 * clearTimeout
+	 */
+	function test_clearTimeout(self) {
+		var clock = new CW.UnitTest.Clock();
+		var ticket = clock.setTimeout(function(){}, 0);
+		self.assertEqual(1, clock._countPendingEvents());
+
+		// "clear" some bogus ticket ID, make sure nothing changed.
+		clock.clearTimeout(-1237897661782631241233143);
+		self.assertEqual(1, clock._countPendingEvents());
+
+		// clear the real ticket
+		clock.clearTimeout(ticket);
+		self.assertEqual(0, clock._countPendingEvents());
+	},
+
+
+	/**
+	 * clearInterval. Copy/pasted from test_clearTimeout.
+	 */
+	function test_clearInterval(self) {
+		var clock = new CW.UnitTest.Clock();
+		var ticket = clock.setInterval(function(){}, 0);
+		self.assertEqual(1, clock._countPendingEvents());
+
+		// "clear" some bogus ticket ID, make sure nothing changed.
+		clock.clearInterval(-1237897661782631241233143);
+		self.assertEqual(1, clock._countPendingEvents());
+
+		// clear the real ticket
+		clock.clearInterval(ticket);
+		self.assertEqual(0, clock._countPendingEvents());
+	}
 );
