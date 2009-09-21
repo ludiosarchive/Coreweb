@@ -19,10 +19,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
 	 */
 	function test_dateShortcut(self) {
 		var normal = new Date().getTime();
-		var short = +new Date;
+		var shortForm = +new Date;
 
-		self.assertIdentical((''+normal).length, (''+short).length);
-		self.assertIdentical((''+normal).substr(0,7), (''+short).substr(0,7));
+		self.assertIdentical((''+normal).length, (''+shortForm).length);
+		self.assertIdentical((''+normal).substr(0,7), (''+shortForm).substr(0,7));
 	},
 
 
