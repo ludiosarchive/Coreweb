@@ -133,9 +133,11 @@ CW._globalsArray = CW._globalsArray.concat(
 // *** Modern firebug ***
 CW._globalsArray = CW._globalsArray.concat(['_firebug', '_FirebugCommandLine']);
 
+// *** more IE stuff ***
+CW._globalsArray = CW._globalsArray.concat(['CollectGarbage']);
+
 // *** CW ***
 CW._globalsArray = CW._globalsArray.concat(['CW']);
-
 
 // Now turn it into an object
 
