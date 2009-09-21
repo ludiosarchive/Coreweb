@@ -103,7 +103,8 @@ def megaScript(scripts, wrapper, dictionary={}):
 		otherwise C{False}.
 
 	C{dictionary} is a dictionary of key->value to pass into
-		template getContent()
+		template getContent(). If C{wrapper} was C{True},
+		C{'_wasWrapped': True} will be added to C{dictionary}.
 
 	Return the contents of many scripts, optionally wrapping
 	it with the anonymous function wrapper (useful for JScript,
@@ -111,6 +112,7 @@ def megaScript(scripts, wrapper, dictionary={}):
 	"""
 	data = ''
 	if wrapper:
+		dictionary['_wasWrapped'] = True
 		data += u'''\
 (function(window, undefined) {
 var document = window.document;

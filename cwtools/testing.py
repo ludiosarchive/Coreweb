@@ -39,7 +39,12 @@ class TestPage(resource.Resource):
 	def render_GET(self, request):
 		theTests = self._getTests()
 
-		scriptContent = jsimp.megaScript(jsimp.getDepsMany(theTests), True, dict(_debugMode=True))
+		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
+
+		scriptContent = jsimp.megaScript(
+			jsimp.getDepsMany(theTests),
+			wrapper=True,
+			dictionary=dict(_debugMode=True))
 
 		# ...but don't run the tests on the dependency modules
 		moduleList = []

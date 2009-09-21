@@ -3,10 +3,33 @@
 
 //] if _debugMode:
 
+/**
+ * In JScript, when named functions are used, they clobber the scope,
+ * even if the intended purpose is to use them in an expression.
+ *
+ * We serve an anonymous (function(){})() wrapper to JScript browsers
+ * (and possibly other browsers) to prevent this clobbering from actually
+ * affecting `window'. The list of globals below helps prevent bugs *within* the
+ * anonymous wrapper. For example, it will prevent the addition of a method
+ * `function window() {}' or `function print() {}'. If we did not prevent it, the
+ * `print' method would get added, and another method might assume that
+ * `print()' actually prints the page (while now it actually does something unrelated).
+ *
+ * Keep in mind that it can't stop all within-anonymous-wrapper clobbering,
+ * but that doesn't matter, as long as we don't use the clobbered identifier
+ * ourselves.
+ *
+ * For example, if an IE browser extension puts window.special on every page,
+ * and we have a `function special() {}' within anonymous-wrapper, we'll no longer be
+ * able to use the original `special' with `special()'. But this doesn't matter,
+ * because we don't need `special' anyway. (and if we did, we would add "special"
+ * to the list below and rename our method, or use `window.special' instead.
+ */
+
 // *** From qooxdoo/qooxdoo/tool/pylib/ecmascript/frontend/lang.py ***
 
 // Builtin names
-CW._GLOBALS = [
+CW._globalsArray = [
 	"ActiveXObject",
 	"Array",
 	"Boolean",
@@ -34,7 +57,7 @@ CW._GLOBALS = [
 	"Range"
 ]
 
-CW._GLOBALS = CW._GLOBALS.concat([
+CW._globalsArray = CW._globalsArray.concat([
 	// Java
 	"java", "sun", "Packages",
   
@@ -76,7 +99,7 @@ CW._GLOBALS = CW._GLOBALS.concat([
 // *** from http://msdn.microsoft.com/en-us/library/ms535873%28VS.85%29.aspx ***/
 // (copy/paste from IE -> Excel; save as csv, use Python to parse)
 
-CW._GLOBALS = CW._GLOBALS.concat(
+CW._globalsArray = CW._globalsArray.concat(
 	['closed', 'constructor', 'defaultStatus', 'dialogArguments',
 	'dialogHeight', 'dialogLeft',  'dialogTop', 'dialogWidth',
 	'frameElement', 'length', 'localStorage',  'maxConnectionsPerServer',
@@ -99,7 +122,7 @@ CW._GLOBALS = CW._GLOBALS.concat(
 // *** from http://code.google.com/p/doctype/wiki/WindowObject ***
 // (copy/paste into text file, use Python to parse)
 
-CW._GLOBALS = CW._GLOBALS.concat(
+CW._globalsArray = CW._globalsArray.concat(
 	['clientInformation', 'clipboardData', 'closed', 'content',
 	'controllers', 'crypto', 'defaultStatus', 'dialogArguments',
 	'dialogHeight', 'dialogLeft', 'dialogTop', 'dialogWidth', 'directories',
@@ -126,27 +149,28 @@ CW._GLOBALS = CW._GLOBALS.concat(
 );
 
 // *** Modern firebug ***
-CW._GLOBALS = CW._GLOBALS.concat(['_firebug']);
+CW._globalsArray = CW._globalsArray.concat(['_firebug']);
 
 // *** CW ***
-CW._GLOBALS = CW._GLOBALS.concat(['CW']);
+CW._globalsArray = CW._globalsArray.concat(['CW']);
 
 
 // Now turn it into an object
 
-CW._GLOBALS_LENGTH = CW._GLOBALS.length;
-CW._GLOBALS_OBJ = {};
-while(CW._GLOBALS_LENGTH--) {
-	CW._GLOBALS_OBJ[CW._GLOBALS[CW._GLOBALS_LENGTH]] = true;
+CW._globalsLength = CW._globalsArray.length;
+CW._globalNames = {};
+while(CW._globalsLength--) {
+	CW._globalNames[CW._globalsArray[CW._globalsLength]] = true;
 }
-delete CW._GLOBALS_LENGTH;
-delete CW._GLOBALS;
+delete CW._globalsLength;
+delete CW._globalsArray;
 
 //] endif
 
 
-// TODO: do this only if wrapped in the JScript wrapper
+//] if _wasWrapped:
 window.CW = CW;
+//] endif
 
 // Should we automatically run the tests with _debugMode = False; too? Probably,
 // that's the only way to make sure they're still passing.
@@ -368,7 +392,7 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 				subClass.__name__ + '.' + methodName);
 		}
 		if(!allowWindowPropertyNames) {
-			if(CW._GLOBALS_OBJ[methodName] === true) {
+			if(CW._globalNames[methodName] === true) {
 				throw new Error("CW.Class.subclass.subClass: Won't create " +
 					subClass.__name__ + '.' + methodName +
 					" because window." + methodName + " may exist in some browsers.");
