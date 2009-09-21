@@ -1615,7 +1615,17 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
  * @return: the uniq'ed array.
  */
 CW.UnitTest.uniqArray = function uniqArray(a) {
-	var sorted = a.slice(0).sort();
+	// Because JavaScript sort ignores types, it doesn't actually work. Observe:
+	// >>> a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0]
+	// >>> a.sort()
+	// [-2, 0, 2, "2", 3, 3, "3", 3, "3", "3", 3, 3, 3, "3", 3, "3", 3, 3, 3]
+	// , so, we use a special sort function that is probably "good enough".
+
+	// Is doing any of this crap better than just going for an O(N^2) uniq? Who knows.
+
+	var sorted = a.slice(0).sort(function(a, b){
+		return [typeof a, a] < [typeof b, b] ? -1 : 1;
+	});
 	var newArray = [];
 	for (var i = 0; i < sorted.length; i++) {
 		if (i === 0 || sorted[i - 1] !== sorted[i]) {

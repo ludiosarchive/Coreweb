@@ -954,7 +954,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 
 	function test_numbersAndStrings(self) {
-		var a = [3, 3, 2, 0, -2, '2', '3'];
+		var a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0];
 		var b = CW.UnitTest.uniqArray(a);
 		// How strings and numbers are mixed in a sorted array varies accross browsers,
 		// so we'll just check the length.
