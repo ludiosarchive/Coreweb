@@ -1028,10 +1028,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		self.assert(clock._isTicketInEvents(ticket1));
 		self.assert(clock._isTicketInEvents(ticket3));
 
-		// Check for clearInterval/clearTimeout equivalence
+		// Check for clearInterval can clear a timeout.
 		clock.clearInterval(ticket1);
 		clock.clearInterval(ticket3);
 		self.assertEqual(0, clock._countPendingEvents());
+	},
+
+
+	function test_clearBogusIntervals(self) {
+		var clock = new CW.UnitTest.Clock();
+		self.assertEqual(undefined, clock.clearTimeout(-1237897661782631241233143));
+		self.assertEqual(undefined, clock.clearInterval(1237897661782631241233143));
 	},
 
 
@@ -1134,24 +1141,64 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		clock.advance(4);
 		self.assertEqual(3, called1);
 		self.assertEqual(4, called2);
+	},
+
+
+	/**
+	 * Test that intervals can be cleared from inside a callable.
+	 */
+	function test_clearIntervalInsideCallable(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var called2 = 0;
+		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
+		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
+
+		clock.advance(2);
+		self.assertEqual(1, called1);
+		self.assertEqual(0, called2);
+
+		clock.advance(1);
+		self.assertEqual(1, called1);
+		self.assertEqual(1, called2);
+		// ticket1 should be cleared at this point.
+
+		clock.advance(6);
+		self.assertEqual(1, called1);
+		self.assertEqual(3, called2);
+	},
+
+
+	/**
+	 * Similar to test_clearIntervalInsideCallable, except we only advance the clock
+	 * once.
+	 */
+	function test_clearIntervalAppliesImmediately(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var called2 = 0;
+		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
+		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
+		
+		clock.advance(9);
+		self.assertEqual(1, called1);
+		self.assertEqual(3, called2);
+	},
+
+
+	function test_clockAdvanceError(self) {
+		var clock = new CW.UnitTest.Clock();
+		self.assertThrows(CW.UnitTest.ClockAdvanceError, function(){clock.advance(-1);});
+		self.assertThrows(CW.UnitTest.ClockAdvanceError, function(){clock.advance(-0.5);});
+	},
+
+
+	function test_dateObject(self) {
+		var clock = new CW.UnitTest.Clock();
+		var date = new clock.Date();
+		self.assertEqual(0, date.getTime());
+		clock.advance(1001);
+		self.assertEqual(1001, date.getTime());
 	}
 
-
-//
-//	/**
-//	 * clearInterval. Make sure
-//	 */
-//	function test_clearInterval(self) {
-//		var clock = new CW.UnitTest.Clock();
-//		var ticket = clock.setInterval(function(){}, 0);
-//		self.assertEqual(1, clock._countPendingEvents());
-//
-//		// "clear" some bogus ticket ID, make sure nothing changed.
-//		clock.clearInterval(-1237897661782631241233143);
-//		self.assertEqual(1, clock._countPendingEvents());
-//
-//		// clear the real ticket
-//		clock.clearInterval(ticket);
-//		self.assertEqual(0, clock._countPendingEvents());
-//	}
 );

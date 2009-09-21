@@ -1674,6 +1674,13 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
+	_addCall: function(call) {
+		var self = this;
+		self._calls.push(call);
+		self._sortCalls();
+	},
+
+
 	_sortCalls: function() {
 		var self = this;
 		var C_TIME = 1;
@@ -1699,8 +1706,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 */
 	setTimeout: function(callable, when) {
 		var self = this;
-		self._calls.push([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
-		self._sortCalls();
+		self._addCall([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
 		return self._counter;
 	},
 
@@ -1717,8 +1723,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 */
 	setInterval: function(callable, when) {
 		var self = this;
-		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/, when]);
-		self._sortCalls();
+		self._addCall([++self._counter, self._rightNow + when, callable, true/*respawn*/, when]);
 		return self._counter;
 	},
 
@@ -1832,32 +1837,15 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 			// callable may want to clear its own interval.
 			if(call[C_RESPAWN] === true) {
 				call[C_TIME] += call[C_INTERVAL];
-				self._calls.push(call);
-				self._sortCalls();
+				self._addCall(call);
 			}
 
 			call[C_CALLABLE]();
 		}
 	}
-});
-//
-//
-//	def advance(self, amount):
-//		"""
-//		Move time on this clock forward by the given amount and run whatever
-//		pending calls should be run.
-//
-//		@type amount: C{float}
-//		@param amount: The number of seconds which to advance this clock's
-//		time.
-//		"""
-//		self.rightNow += amount
-//		while self.calls and self.calls[0].getTime() <= self.seconds():
-//			call = self.calls.pop(0)
-//			call.called = 1
-//			call.func(*call.args, **call.kw)
-//
-//
+
+	// TODO: maybe implement and test pump, if needed
+
 //	def pump(self, timings):
 //		"""
 //		Advance incrementally by the given set of times.
@@ -1866,3 +1854,6 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 //		"""
 //		for amount in timings:
 //			self.advance(amount)
+
+});
+
