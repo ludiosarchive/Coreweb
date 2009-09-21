@@ -913,10 +913,90 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 );
 
 
+/**
+ * Tests for L{CW.UnitTest.uniqArray}
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
+
+	function test_returnsArray(self) {
+		var a = [3, 2];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assert(b.length !== undefined);
+	},
+
+	function test_noMutation(self) {
+		var a = [3, 3, 2];
+		CW.UnitTest.uniqArray(a);
+		self.assertEqual([3, 3, 2], a);
+	},
+
+	// "at end", "in middle", "at start" refer to the sorted array.
+
+	function test_numbersDupesAtEnd(self) {
+		var a = [3, 3, 2, 0, -2];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual([-2, 0, 2, 3], b);
+	},
+
+
+	function test_numbersDupesInMiddle(self) {
+		var a = [3, 3, 2, 2, 0, -2];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual([-2, 0, 2, 3], b);
+	},
+
+
+	function test_numbersDupesAtStart(self) {
+		var a = [3, 3, 2, 0, -2, -2, -2];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual([-2, 0, 2, 3], b);
+	},
+
+
+	function test_numbersAndStrings(self) {
+		var a = [3, 3, 2, 0, -2, '2', '3'];
+		var b = CW.UnitTest.uniqArray(a);
+		// How strings and numbers are mixed in a sorted array varies accross browsers,
+		// so we'll just check the length.
+		self.assertEqual(6, b.length);
+	},
+
+
+	function test_strings(self) {
+		var a = ['2', '2', '2'];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual(['2'], b);
+	},
+
+
+	function test_other(self) {
+		var a = [null, undefined, NaN, Infinity, true, false];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual(6, b.length);
+	},
+
+
+	function test_otherWithDupes(self) {
+		var a = [true, null, undefined, NaN, false, Infinity, undefined, true, false];
+		var b = CW.UnitTest.uniqArray(a);
+		self.assertEqual(6, b.length);
+	}
+);
+
+
 
 /**
  * Tests for L{CW.UnitTest.Clock}
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
-	
+
+	/**
+	 * setTimeout and setInterval return tickets from the same pool
+	 * of numbers.
+	 */
+	function test_setWhateverUseGlobalCounter(self) {
+		var clock = new CW.UnitTest.Clock();
+		var ticket1 = clock.setTimeout(function(){}, 0);
+	}
+
 );

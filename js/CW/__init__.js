@@ -131,7 +131,7 @@ CW._globalsArray = CW._globalsArray.concat(
 );
 
 // *** Modern firebug ***
-CW._globalsArray = CW._globalsArray.concat(['_firebug']);
+CW._globalsArray = CW._globalsArray.concat(['_firebug', '_FirebugCommandLine']);
 
 // *** CW ***
 CW._globalsArray = CW._globalsArray.concat(['CW']);

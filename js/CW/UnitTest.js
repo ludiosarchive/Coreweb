@@ -1603,6 +1603,32 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 
 
 /**
+ * Return the `uniq' array for C{a}. The returned array will be shorter, or
+ * the same size. The returned array will always be sorted.
+ *
+ * This implementation doesn't add the array elements to an object
+ * to check uniqueness, so it works with any mixture of types.
+ *
+ * @type a: array object
+ * @ivar a: array of items to "uniq"
+ *
+ * @return: the uniq'ed array.
+ */
+CW.UnitTest.uniqArray = function uniqArray(a) {
+	var sorted = a.slice(0).sort();
+	var newArray = [];
+	for (var i = 0; i < sorted.length; i++) {
+		if(i === 0) {
+			newArray.push(sorted[i]);
+		} else if (sorted[i - 1] !== sorted[i]) {
+			newArray.push(sorted[i]);
+		}
+	}
+	return newArray;
+}
+
+
+/**
  * Provide a deterministic, easily-controlled browser C{window}.
  * This is commonly useful for writing deterministic unit tests for code which
  * schedules events with C{setTimeout}, C{setInterval}, C{clearTimeout},
