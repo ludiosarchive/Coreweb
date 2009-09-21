@@ -497,10 +497,26 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 
 
+CW.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
+	function tearDown(self) {
+		try {
+			delete CW.__TestClassNoOverwrite_Temporary;
+		} catch(e) {}
+		try {
+			delete CW.__TestBadMethodNames_Temporary;
+		} catch(e) {}
+		try {
+			delete CW.__TestBadMethodNames2_Temporary;
+		} catch(e) {}
+	}
+);
+
+
+
 /**
  * Test that new-style subclassing doesn't overwrite anything (except undefined).
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
+CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
 	function setUp(self) {
 //] if not _debugMode:
 		throw new CW.UnitTest.SkipTest("Class-overwrite prevention only works in _debugMode");
@@ -515,8 +531,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').method
 		}
 
 		self.assertThrows(Error, makeSameClassName);
-		delete CW.__TestClassNoOverwrite_Temporary;
 	},
+
 
 	function test_noOverwriteNumber(self) {
 		CW.__TestClassNoOverwrite_Temporary = 4;
@@ -526,8 +542,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').method
 		}
 
 		self.assertThrows(Error, makeSameClassName);
-		delete CW.__TestClassNoOverwrite_Temporary;
 	},
+
 
 	function test_noOverwriteNull(self) {
 		CW.__TestClassNoOverwrite_Temporary = null;
@@ -537,7 +553,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').method
 		}
 
 		self.assertThrows(Error, makeSameClassName);
-		delete CW.__TestClassNoOverwrite_Temporary;
 	}
 );
 
@@ -553,7 +568,40 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 /**
  * Test that calling a method window or document is illegal (in _debugMode).
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
+CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
+	function setUp(self) {
+//] if not _debugMode:
+		throw new CW.UnitTest.SkipTest("Preventing the use of erroneous method names only works in _debugMode");
+//] endif
+	},
+
+	function test_cannotNameMethodWindow(self) {
+		var attachBadMethod1 = function() {
+			CW.Class.subclass(CW, '__TestBadMethodNames_Temporary').methods(
+				function crypto(){
+
+				}
+			);
+		}
+
+		var attachBadMethod2 = function() {
+			CW.Class.subclass(CW, '__TestBadMethodNames2_Temporary').methods(
+				function onbeforeprint(){
+
+				}
+			);
+		}
+
+		self.assertThrows(Error, attachBadMethod1);
+		self.assertThrows(Error, attachBadMethod2);
+	}
+);
+
+
+/**
+ * Test that pmethods does allow overriding window properties
+ */
+CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestPmethodsIsLenient').methods(
 	function setUp(self) {
 //] if not _debugMode:
 		throw new CW.UnitTest.SkipTest("Preventing the use of erroneous method names only works in _debugMode");
@@ -571,8 +619,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
 
 		CW.Class.subclass(CW, '__TestBadMethodNames_Temporary');
 
-		self.assertThrows(Error, attachBadMethod1);
-		self.assertThrows(Error, attachBadMethod2);
-		delete CW.__TestBadMethodNames_Temporary;
+		attachBadMethod1();
+		attachBadMethod2();
 	}
 );

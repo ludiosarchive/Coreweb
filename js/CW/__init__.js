@@ -1,5 +1,150 @@
 /* {LICENSE:primary,Nevow} */
 
+
+//] if _debugMode:
+
+// *** From qooxdoo/qooxdoo/tool/pylib/ecmascript/frontend/lang.py ***
+
+// Builtin names
+CW._GLOBALS = [
+	"ActiveXObject",
+	"Array",
+	"Boolean",
+	"Date",
+	"document",
+	"DOMParser",
+	"Element",
+	"Error",
+	"Event",
+	"Function",
+	"Image",
+	"Math",
+	"navigator",
+	"Node",
+	"Number",
+	"Object",
+	"Option",
+	"RegExp",
+	"String",
+	"window",
+	"XMLHttpRequest",
+	"XMLSerializer",
+	"XPathEvaluator",
+	"XPathResult",
+	"Range"
+]
+
+CW._GLOBALS = CW._GLOBALS.concat([
+	// Java
+	"java", "sun", "Packages",
+  
+	// Firefox Firebug/Webkit/IE8/other:
+	"console",
+  
+	// IE
+	"event", "offscreenBuffering", "clipboardData", "clientInformation",
+	"external", "screenTop", "screenLeft",
+  
+	// window
+	'addEventListener', '__firebug__', 'location', 'netscape',
+	'XPCNativeWrapper', 'Components', 'parent', 'top', 'scrollbars',
+	'name', 'scrollX', 'scrollY', 'scrollTo', 'scrollBy', 'getSelection',
+	'scrollByLines', 'scrollByPages', 'sizeToContent', 'dump',
+	'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval',
+	'setResizable', 'captureEvents', 'releaseEvents', 'routeEvent',
+	'enableExternalCapture', 'disableExternalCapture', 'prompt', 'open',
+	'openDialog', 'frames', 'find', 'self', 'screen', 'history',
+	'content', 'menubar', 'toolbar', 'locationbar', 'personalbar',
+	'statusbar', 'directories', 'closed', 'crypto', 'pkcs11',
+	'controllers', 'opener', 'status', 'defaultStatus', 'innerWidth',
+	'innerHeight', 'outerWidth', 'outerHeight', 'screenX', 'screenY',
+	'pageXOffset', 'pageYOffset', 'scrollMaxX', 'scrollMaxY', 'length',
+	'fullScreen', 'alert', 'confirm', 'focus', 'blur', 'back', 'forward',
+	'home', 'stop', 'print', 'moveTo', 'moveBy', 'resizeTo', 'resizeBy',
+	'scroll', 'close', 'updateCommands',
+
+	'atob', 'btoa', 'frameElement', 'removeEventListener', 'dispatchEvent',
+	'getComputedStyle', 'sessionStorage', 'globalStorage',
+  
+	// Language
+	"decodeURI", "decodeURIComponent", "encodeURIComponent",
+	"escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite",
+  
+	"this", "arguments", "undefined", "NaN", "Infinity"
+]);
+
+// *** from http://msdn.microsoft.com/en-us/library/ms535873%28VS.85%29.aspx ***/
+// (copy/paste from IE -> Excel; save as csv, use Python to parse)
+
+CW._GLOBALS = CW._GLOBALS.concat(
+	['closed', 'constructor', 'defaultStatus', 'dialogArguments',
+	'dialogHeight', 'dialogLeft',  'dialogTop', 'dialogWidth',
+	'frameElement', 'length', 'localStorage',  'maxConnectionsPerServer',
+	'name', 'offscreenBuffering', 'opener', 'parent',  'returnValue',
+	'screenLeft', 'screenTop', 'self', 'sessionStorage', 'status', 'top',
+	'XDomainRequest', 'XMLHttpRequest', 'frames', 'onafterprint',
+	'onbeforedeactivate',  'onbeforeprint', 'onbeforeunload', 'onblur',
+	'onerror', 'onfocus', 'onhashchange',  'onhelp', 'onload', 'onmessage',
+	'onunload', 'alert', 'attachEvent', 'blur', 'clearInterval',
+	'clearTimeout', 'close', 'confirm', 'createPopup', 'detachEvent',
+	'execScript', 'focus',  'item', 'moveBy', 'moveTo',
+	'msWriteProfilerMark', 'navigate', 'open', 'postMessage',  'print',
+	'prompt', 'resizeBy', 'resizeTo', 'scroll', 'scrollBy', 'scrollTo',
+	'setInterval',  'setTimeout', 'showHelp', 'showModalDialog',
+	'showModelessDialog', 'toStaticHTML',  'clientInformation',
+	'clipboardData', 'document', 'event', 'external', 'history', 'Image',
+	'location', 'navigator', 'Option', 'screen']
+);
+
+// *** from http://code.google.com/p/doctype/wiki/WindowObject ***
+// (copy/paste into text file, use Python to parse)
+
+CW._GLOBALS = CW._GLOBALS.concat(
+	['clientInformation', 'clipboardData', 'closed', 'content',
+	'controllers', 'crypto', 'defaultStatus', 'dialogArguments',
+	'dialogHeight', 'dialogLeft', 'dialogTop', 'dialogWidth', 'directories',
+	'event', 'frameElement', 'frames', 'fullScreen', 'globalStorage',
+	'history', 'innerHeight', 'innerWidth', 'length', 'location',
+	'locationbar', 'menubar', 'name', 'navigator', 'offscreenBuffering',
+	'opener', 'outerHeight', 'outerWidth', 'pageXOffset', 'pageYOffset',
+	'parent', 'personalbar', 'pkcs11', 'returnValue', 'screen',
+	'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollbars',
+	'scrollMaxX', 'scrollMaxY', 'scrollX', 'scrollY', 'self',
+	'sessionStorage', 'sidebar', 'status', 'statusbar', 'toolbar', 'top',
+	'XMLHttpRequest', 'window', 'alert', 'atob', 'attachEvent', 'back',
+	'blur', 'btoa', 'captureEvents', 'clearInterval', 'clearTimeout',
+	'close', 'confirm', 'createPopup', 'disableExternalCapture',
+	'detachEvent', 'dispatchEvent', 'dump', 'enableExternalCapture',
+	'escape', 'execScript', 'find', 'focus', 'forward', 'getComputedStyle',
+	'getSelection', 'home', 'moveBy', 'moveTo', 'navigate', 'open',
+	'openDialog', 'print', 'prompt', 'releaseEvents', 'removeEventListener',
+	'resizeBy', 'resizeTo', 'routeEvent', 'scroll', 'scrollBy',
+	'scrollByLines', 'scrollByPages', 'scrollTo', 'setActive',
+	'setInterval', 'setResizable', 'setTimeout', 'showHelp',
+	'showModalDialog', 'showModelessDialog', 'sizeToContent', 'stop',
+	'unescape', 'updateCommands']
+);
+
+// *** Modern firebug ***
+CW._GLOBALS = CW._GLOBALS.concat(['_firebug']);
+
+// *** CW ***
+CW._GLOBALS = CW._GLOBALS.concat(['CW']);
+
+
+// Now turn it into an object
+
+CW._GLOBALS_LENGTH = CW._GLOBALS.length;
+CW._GLOBALS_OBJ = {};
+while(CW._GLOBALS_LENGTH--) {
+	CW._GLOBALS_OBJ[CW._GLOBALS[CW._GLOBALS_LENGTH]] = true;
+}
+delete CW._GLOBALS_LENGTH;
+delete CW._GLOBALS;
+
+//] endif
+
+
 // TODO: do this only if wrapped in the JScript wrapper
 window.CW = CW;
 
@@ -203,22 +348,10 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	};
 
 //] if _debugMode:
-	// TODO: maybe add all commonly used window properties (bug #410)
-	// see: http://code.google.com/p/doctype/wiki/WindowObject
 	// This only helps prevent problems caused by JScript's mishandling of named functions.
-	// TODO: maybe use the values found in Qooxdoo
-	var windowProps =
-		('window,document,history,location,navigator,screen,opener,closed,parent,constructor'+
-		'clipboardData,crypto,external,status,defaultStatus,top,self,name,length,'+
-		'localStorage,sessionStorage,innerWidth,innerHeight,outerWidth,'+
-		'outerHeight,screenX,screenY,fullScreen,maxConnectionsPerServer'+
-		'onerror,onload,onunload,onbeforeunload,'+
-		'console,postMessage,showModalDialog,showModelessDialog').split(',');
-	subClass._alreadyDefinedMethods = {'CW': true};
-	var windowProps_n = windowProps.length;
-	while(windowProps_n--) {
-		subClass._alreadyDefinedMethods[windowProps[windowProps_n]] = true;
-	}
+
+	subClass._alreadyDefinedMethods = {};
+
 	// Pretty much any object has a toString method. _alreadyDefinedMethods is used
 	// as a set to keep track of already-defined methods (to detect a programming error at
 	// runtime: where the same method name is accidentally used twice).
@@ -228,11 +361,18 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	/**
 	 * Throw an Error if this method has already been defined.
 	 */
-	subClass._prepareToAdd = function(methodName) {
+	subClass._prepareToAdd = function(methodName, allowWindowPropertyNames) {
 		if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
 			// See explanation above for why Error instead of a CW.NameCollisionError
-			throw new Error("CW.Class.subclass.subClass.method: Won't overwrite " +
+			throw new Error("CW.Class.subclass.subClass: Won't overwrite already-defined " +
 				subClass.__name__ + '.' + methodName);
+		}
+		if(!allowWindowPropertyNames) {
+			if(CW._GLOBALS_OBJ[methodName] === true) {
+				throw new Error("CW.Class.subclass.subClass: Won't create " +
+					subClass.__name__ + '.' + methodName +
+					" because window." + methodName + " may exist in some browsers.");
+			}
 		}
 		subClass._alreadyDefinedMethods[methodName] = true;
 	}
@@ -258,7 +398,7 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		}
 
 //] if _debugMode:
-		subClass._prepareToAdd(methodName);
+		subClass._prepareToAdd(methodName, /*allowWindowPropertyNames=*/false);
 
 		/*
 		 * Safari 4 supports displayName to name any function for the debugger/profiler.
@@ -320,7 +460,7 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 			 * the same property; because the user could be using pmethods() to
 			 * accidentally overwrite a method set with methods()
 			 */
-			subClass._prepareToAdd(methodName);
+			subClass._prepareToAdd(methodName, /*allowWindowPropertyNames=*/true);
 
 			// See comment about Safari 4 above.
 			methodFunction.displayName = className + '.' + methodName;
