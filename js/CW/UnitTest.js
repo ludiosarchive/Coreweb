@@ -1683,12 +1683,11 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 	_sortCalls: function() {
 		var self = this;
-		var C_TIME = 1;
 		self._calls.sort(function(a, b) {
-			if(a[C_TIME] === b[C_TIME]) {
+			if(a.runAt == b.runAt) {
 				return 0;
 			} else {
-				return a[C_TIME] < b[C_TIME] ? -1 : 1;
+				return a.runAt < b.runAt ? -1 : 1;
 			}
 		});
 	},
@@ -1706,7 +1705,12 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 */
 	setTimeout: function(callable, when) {
 		var self = this;
-		self._addCall([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
+		self._addCall({
+			ticket: ++self._counter,
+			runAt: self._rightNow + when,
+			callable: callable,
+			respawn: false
+		});
 		return self._counter;
 	},
 
@@ -1723,7 +1727,13 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 */
 	setInterval: function(callable, when) {
 		var self = this;
-		self._addCall([++self._counter, self._rightNow + when, callable, true/*respawn*/, when]);
+		self._addCall({
+			ticket: ++self._counter,
+			runAt: self._rightNow + when,
+			callable: callable,
+			respawn: true,
+			interval: when
+		});
 		return self._counter;
 	},
 
@@ -1742,7 +1752,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		var n = self._calls.length;
 		while(n--) {
 			var call = self._calls[n];
-			if(call[0] === ticket) {
+			if(call.ticket === ticket) {
 				haveIt = true;
 			}
 		}
@@ -1759,10 +1769,10 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		var n = self._calls.length;
 		while(n--) {
 			var call = self._calls[n];
-			if(call[0] === ticket) {
+			if(call.ticket === ticket) {
 				var ret = self._calls.splice(n, 1);
 //] if _debugMode:
-				CW.assert(ret[0][0] === ticket, ret[0][0] + " !== " + ticket);
+				CW.assert(ret[0].ticket === ticket, ret[0].ticket + " !== " + ticket);
 //] endif
 				break;
 			}
@@ -1813,12 +1823,6 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 		var self = this;
 
-		var C_COUNTER = 0;
-		var C_TIME = 1;
-		var C_CALLABLE = 2;
-		var C_RESPAWN = 3;
-		var C_INTERVAL = 4;
-
 		if(amount < 0) {
 			throw new CW.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
 		}
@@ -1827,7 +1831,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 		for(;;) {
 			//console.log('_calls: ', CW.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
-			if(self._calls.length === 0 || self._calls[0][C_TIME] > self._rightNow) {
+			if(self._calls.length === 0 || self._calls[0].runAt > self._rightNow) {
 				break;
 			}
 			var call = self._calls.shift();
@@ -1835,12 +1839,12 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 			// If it needs to be respawned, do it now, before calling the callable,
 			// because the callable may raise an exception. Also because the
 			// callable may want to clear its own interval.
-			if(call[C_RESPAWN] === true) {
-				call[C_TIME] += call[C_INTERVAL];
+			if(call.respawn === true) {
+				call.runAt += call.interval;
 				self._addCall(call);
 			}
 
-			call[C_CALLABLE]();
+			call.callable.apply(null, []);
 		}
 	}
 
