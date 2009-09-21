@@ -26,42 +26,24 @@
  * to the list below and rename our method, or use `window.special' instead.
  */
 
+CW._globalsArray = [];
+
 // *** From qooxdoo/qooxdoo/tool/pylib/ecmascript/frontend/lang.py ***
 
 // Builtin names
-CW._globalsArray = [
-	"ActiveXObject",
-	"Array",
-	"Boolean",
-	"Date",
-	"document",
-	"DOMParser",
-	"Element",
-	"Error",
-	"Event",
-	"Function",
-	"Image",
-	"Math",
-	"navigator",
-	"Node",
-	"Number",
-	"Object",
-	"Option",
-	"RegExp",
-	"String",
-	"window",
-	"XMLHttpRequest",
-	"XMLSerializer",
-	"XPathEvaluator",
-	"XPathResult",
-	"Range"
-]
+CW._globalsArray = CW._globalsArray.concat([
+	"ActiveXObject", "Array", "Boolean", "Date", "document",
+	"DOMParser", "Element", "Error", "Event", "Function", "Image",
+	"Math", "navigator", "Node", "Number", "Object", "Option",
+	"RegExp", "String", "window", "XMLHttpRequest", "XMLSerializer",
+	"XPathEvaluator", "XPathResult", "Range"
+]);
 
 CW._globalsArray = CW._globalsArray.concat([
 	// Java
 	"java", "sun", "Packages",
   
-	// Firefox Firebug/Webkit/IE8/other:
+	// Firefox Firebug, Webkit, IE8, maybe others:
 	"console",
   
 	// IE
@@ -204,17 +186,17 @@ CW.emptyFunc = new Function;
  * the tz in decimal hours, not HHMM offset.
  */
 CW.localTime = function localTime() {
-	function p2(s) {
+	function pad2(s) {
 		return ('00' + s).slice(-2)
 	}
 
 	var time = new Date;
-	var day = time.getFullYear() + '-' + p2(time.getMonth() + 1) + '-' + p2(time.getDate());
+	var day = time.getFullYear() + '-' + pad2(time.getMonth() + 1) + '-' + pad2(time.getDate());
 
 	var clock =
-		p2(time.getHours()) + ':' +
-		p2(time.getMinutes()) + ':' +
-		p2(time.getSeconds()) + '.' +
+		pad2(time.getHours()) + ':' +
+		pad2(time.getMinutes()) + ':' +
+		pad2(time.getSeconds()) + '.' +
 		('000' + time.getMilliseconds()).slice(-3);
 
 	var tz = time.getTimezoneOffset() / 60;
