@@ -131,7 +131,15 @@ CW._globalsArray = CW._globalsArray.concat(
 );
 
 // *** Modern firebug ***
-CW._globalsArray = CW._globalsArray.concat(['_firebug', '_FirebugCommandLine']);
+CW._globalsArray = CW._globalsArray.concat(
+	['_firebug', '_FirebugCommandLine', 'loadFirebugConsole']
+);
+
+// *** Firefox 3.5.3 ***
+CW._globalsArray = CW._globalsArray.concat(
+	['GetWeakReference', 'XPCSafeJSObjectWrapper', 'getInterface',
+	'postMessage', 'applicationCache']
+);
 
 // *** more IE stuff ***
 CW._globalsArray = CW._globalsArray.concat(['CollectGarbage']);
