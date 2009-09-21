@@ -1612,16 +1612,18 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
  * @type a: array object
  * @param a: array of items to "uniq"
  *
+ * @rtype: array object
  * @return: the uniq'ed array.
  */
 CW.UnitTest.uniqArray = function uniqArray(a) {
-	// Because JavaScript's Array.sort ignores types, it doesn't actually work. Observe:
+	// Because JavaScript's Array.prototype.sort ignores types, it doesn't actually work. Observe:
 	// >>> a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0]
 	// >>> a.sort()
 	// [-2, 0, 2, "2", 3, 3, "3", 3, "3", "3", 3, 3, 3, "3", 3, "3", 3, 3, 3]
 
-	// So, we use a special sort function that is good enough for most cases.
-	// Note that this special sort function probably makes it longer an "in place" sort.
+	// So, we use a custom sort function that compares the 'typeof' value too, and probably
+	// works most of the time. Note that this custom sort function probably might ruin
+	// a default "in-place" sort (though ECMA-262 3rd edition does not guarantee in-place sort.)
 	// Hopefully jumping through these hoops is better than just going for an O(N^2) uniq.
 
 	var sorted = a.slice(0).sort(function(a, b){
@@ -1855,6 +1857,9 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 				self._addCall(call);
 			}
 
+			// Make sure `this' is the global object for callable (making `this'
+			// "worthless" like it is when the real setTimeout calls you.) Note that
+			// for callable, `this' becomes `window', not `null'.
 			call.callable.apply(null, []);
 		}
 	}

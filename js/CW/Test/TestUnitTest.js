@@ -1186,6 +1186,32 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 	},
 
 
+	function test_reentrantAdvance(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var called2 = 0;
+		clock.setTimeout(function(){called1 += 1; clock.advance(1);}, 2);
+		clock.setTimeout(function(){called2 += 1}, 3);
+		clock.advance(2);
+		self.assertEqual(1, called1);
+		self.assertEqual(1, called2);
+	},
+
+
+	function test_callablesCalledWithWindowThis(self) {
+		var called = 0;
+		function callable() {
+			// Don't use assertIdentical; if that fails here, you'll see a stack overflow. 
+			self.assert(this === window, "this !== window");
+			called = 1;
+		}
+		var clock = new CW.UnitTest.Clock();
+		clock.setTimeout(callable, 1);
+		clock.advance(1);
+		self.assert(called === 1, "callable wasn't even called?");
+	},
+
+
 	function test_clockAdvanceError(self) {
 		var clock = new CW.UnitTest.Clock();
 		self.assertThrows(CW.UnitTest.ClockAdvanceError, function(){clock.advance(-1);});
