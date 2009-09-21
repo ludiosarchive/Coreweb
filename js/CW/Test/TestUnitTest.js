@@ -999,8 +999,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		var tickets = [
 			clock.setTimeout(function(){}, 0),
 			clock.setTimeout(function(){}, 0),
-			clock.setInterval(function(){}, 0),
-			clock.setInterval(function(){}, 0)
+			clock.setInterval(function(){}, 1),
+			clock.setInterval(function(){}, 1)
 		];
 
 		self.assertEqual(4, CW.UnitTest.uniqArray(tickets).length);
@@ -1011,33 +1011,53 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 	 */
 	function test_clearTimeout(self) {
 		var clock = new CW.UnitTest.Clock();
-		var ticket = clock.setTimeout(function(){}, 0);
-		self.assertEqual(1, clock._countPendingEvents());
+		var ticket1 = clock.setTimeout(function(){}, 0);
+		var ticket2 = clock.setTimeout(function(){}, 0);
+		var ticket3 = clock.setTimeout(function(){}, 0);
+		self.assertEqual(3, clock._countPendingEvents());
 
 		// "clear" some bogus ticket ID, make sure nothing changed.
 		clock.clearTimeout(-1237897661782631241233143);
-		self.assertEqual(1, clock._countPendingEvents());
+		self.assertEqual(3, clock._countPendingEvents());
 
 		// clear the real ticket
-		clock.clearTimeout(ticket);
+		clock.clearTimeout(ticket2);
+		self.assertEqual(2, clock._countPendingEvents());
+
+		// make sure the other tickets are still there
+		self.assert(clock._isTicketInEvents(ticket1));
+		self.assert(clock._isTicketInEvents(ticket3));
+
+		// Check for clearInterval/clearTimeout equivalence
+		clock.clearInterval(ticket1);
+		clock.clearInterval(ticket3);
 		self.assertEqual(0, clock._countPendingEvents());
 	},
 
 
-	/**
-	 * clearInterval. Copy/pasted from test_clearTimeout.
-	 */
-	function test_clearInterval(self) {
+	function test_clearTimeoutCanClearInterval(self) {
 		var clock = new CW.UnitTest.Clock();
-		var ticket = clock.setInterval(function(){}, 0);
+		var ticket1 = clock.setInterval(function(){}, 1);
 		self.assertEqual(1, clock._countPendingEvents());
-
-		// "clear" some bogus ticket ID, make sure nothing changed.
-		clock.clearInterval(-1237897661782631241233143);
-		self.assertEqual(1, clock._countPendingEvents());
-
-		// clear the real ticket
-		clock.clearInterval(ticket);
+		clock.clearTimeout(ticket1);
 		self.assertEqual(0, clock._countPendingEvents());
 	}
+
+//
+//	/**
+//	 * clearInterval. Make sure
+//	 */
+//	function test_clearInterval(self) {
+//		var clock = new CW.UnitTest.Clock();
+//		var ticket = clock.setInterval(function(){}, 0);
+//		self.assertEqual(1, clock._countPendingEvents());
+//
+//		// "clear" some bogus ticket ID, make sure nothing changed.
+//		clock.clearInterval(-1237897661782631241233143);
+//		self.assertEqual(1, clock._countPendingEvents());
+//
+//		// clear the real ticket
+//		clock.clearInterval(ticket);
+//		self.assertEqual(0, clock._countPendingEvents());
+//	}
 );

@@ -1610,7 +1610,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
  * to check uniqueness, so it works with any mixture of types.
  *
  * @type a: array object
- * @ivar a: array of items to "uniq"
+ * @param a: array of items to "uniq"
  *
  * @return: the uniq'ed array.
  */
@@ -1624,6 +1624,10 @@ CW.UnitTest.uniqArray = function uniqArray(a) {
 	}
 	return newArray;
 }
+
+
+
+CW.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
 
 
 /**
@@ -1666,6 +1670,16 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
+	/**
+	 * @type callable: function or callable host object
+       * @param callable: the callable to call soon
+	 *
+	 * @type when: Number
+       * @param when: when to call C{callable}, in milliseconds. 
+	 *
+	 * @rtype: C{Number} (non-negative integer)
+	 * @return: The ticket number for the added event.
+	 */
 	setTimeout: function(callable, when) {
 		var self = this;
 		self._calls.push([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
@@ -1673,6 +1687,16 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
+	/**
+	 * @type callable: function or callable host object
+       * @param callable: the callable to call (possibly repeatedly) soon
+	 *
+	 * @type when: Number
+       * @param when: delay between calls to C{callable}, in milliseconds. 
+	 *
+	 * @rtype: C{Number} (non-negative integer)
+	 * @return: The ticket number for the added event.
+	 */
 	setInterval: function(callable, when) {
 		var self = this;
 		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
@@ -1680,10 +1704,25 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
-	// For the unit tests, mostly.
+	// For the unit tests.
 	_countPendingEvents: function() {
 		var self = this;
 		return self._calls.length;
+	},
+
+
+	// For the unit tests.
+	_isTicketInEvents: function(ticket) {
+		var self = this;
+		var haveIt = false;
+		var n = self._calls.length;
+		while(n--) {
+			var call = self._calls[n];
+			if(call[0] === ticket) {
+				haveIt = true;
+			}
+		}
+		return haveIt;
 	},
 
 
@@ -1717,6 +1756,25 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	clearInterval: function(ticket) {
 		var self = this;
 		return self._clearAnything(ticket);
+	},
+
+
+	/**
+	 * Move time on this clock forward by the given amount and run whatever
+	 * pending calls should be run.
+	 *
+	 * @type amount: C{Number} (positive integer or non-integer, but not
+	 *    NaN or Infinity)
+	 * @param amount: The number of seconds which to advance this clock's time.
+ 	 */
+
+	advance: function(amount) {
+		var self = this;
+		if(amount < 0) {
+			throw new CW.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
+		}
+
+
 	}
 });
 //
