@@ -1667,6 +1667,23 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		self.Date.prototype.getTime = function getTime() {
 			return self._rightNow;
 		}
+
+		// TODO: more Date functions, in case anything needs them.
+		// The general strategy to implement `someMethod' would be:
+		//    return new Date(self._RightNow).someMethod();
+	},
+
+
+	_sortCalls: function() {
+		var self = this;
+		var C_TIME = 1;
+		self._calls.sort(function(a, b) {
+			if(a[C_TIME] === b[C_TIME]) {
+				return 0;
+			} else {
+				return a[C_TIME] < b[C_TIME] ? -1 : 1;
+			}
+		});
 	},
 
 
@@ -1683,6 +1700,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	setTimeout: function(callable, when) {
 		var self = this;
 		self._calls.push([++self._counter, self._rightNow + when, callable, false/*respawn*/]);
+		self._sortCalls();
 		return self._counter;
 	},
 
@@ -1699,7 +1717,8 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 */
 	setInterval: function(callable, when) {
 		var self = this;
-		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/]);
+		self._calls.push([++self._counter, self._rightNow + when, callable, true/*respawn*/, when]);
+		self._sortCalls();
 		return self._counter;
 	},
 
@@ -1747,12 +1766,24 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	},
 
 
+	/**
+	 * @type ticket: Number
+       * @param ticket: the ticket number of the timeout to clear.
+	 *
+	 * @return: undefined
+	 */
 	clearTimeout: function(ticket) {
 		var self = this;
 		return self._clearAnything(ticket);
 	},
 
 
+	/**
+	 * @type ticket: Number
+       * @param ticket: the ticket number of the interval to clear.
+	 *
+	 * @return: undefined
+	 */
 	clearInterval: function(ticket) {
 		var self = this;
 		return self._clearAnything(ticket);
@@ -1763,18 +1794,49 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 	 * Move time on this clock forward by the given amount and run whatever
 	 * pending calls should be run.
 	 *
+	 * If a callable throws an error, no more callables will be called. But if you
+	 * C{advance()} again, they will.
+	 *
 	 * @type amount: C{Number} (positive integer or non-integer, but not
 	 *    NaN or Infinity)
 	 * @param amount: The number of seconds which to advance this clock's time.
  	 */
-
 	advance: function(amount) {
+		// Remember that callables can re-entrantly call advance(...), as
+		// well as add or clear timeouts/intervals. Don't try stupid optimization
+		// tricks.
+
 		var self = this;
+
+		var C_COUNTER = 0;
+		var C_TIME = 1;
+		var C_CALLABLE = 2;
+		var C_RESPAWN = 3;
+		var C_INTERVAL = 4;
+
 		if(amount < 0) {
 			throw new CW.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
 		}
 
+		self._rightNow += amount;
 
+		for(;;) {
+			//console.log('_calls: ', CW.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
+			if(self._calls.length === 0 || self._calls[0][C_TIME] > self._rightNow) {
+				break;
+			}
+			var call = self._calls.shift();
+
+			// If it needs to be respawned, do it now, before calling the callable,
+			// because the callable may raise an exception. Also because the
+			// callable may want to clear its own interval.
+			if(call[C_RESPAWN] === true) {
+				call[C_TIME] += call[C_INTERVAL];
+				self._calls.push(call);
+			}
+
+			call[C_CALLABLE]();
+		}
 	}
 });
 //

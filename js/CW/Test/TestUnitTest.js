@@ -1041,6 +1041,75 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		self.assertEqual(1, clock._countPendingEvents());
 		clock.clearTimeout(ticket1);
 		self.assertEqual(0, clock._countPendingEvents());
+	},
+
+
+	function test_advanceTwoTimeoutsSeperately(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = false;
+		var called2 = false;
+		clock.setTimeout(function(){called1 = true}, 3);
+		clock.setTimeout(function(){called2 = true}, 4);
+
+		clock.advance(1);
+		clock.advance(1);
+		self.assertEqual(false, called1);
+		clock.advance(1);
+		self.assertEqual(true, called1);
+		self.assertEqual(false, called2);
+
+		clock.advance(1);
+		self.assertEqual(true, called2);
+	},
+
+
+	function test_advanceTwoTimeoutsAtSameTime(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = false;
+		var called2 = false;
+		clock.setTimeout(function(){called1 = true}, 2);
+		clock.setTimeout(function(){called2 = true}, 2);
+		self.assertEqual(false, called1);
+		self.assertEqual(false, called2);
+
+		// the far future
+		clock.advance(10000);
+		self.assertEqual(true, called1);
+		self.assertEqual(true, called2);
+	},
+
+
+	function test_advanceSlowlyInterval(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var called2 = 0;
+		clock.setInterval(function(){called1 += 1}, 2);
+		clock.setInterval(function(){called2 += 1}, 3);
+
+		clock.advance(2);
+		self.assertEqual(1, called1);
+		self.assertEqual(0, called2);
+
+		clock.advance(1);
+		self.assertEqual(1, called1);
+		self.assertEqual(1, called2);
+
+		clock.advance(3);
+		self.assertEqual(3, called1);
+		self.assertEqual(2, called2);
+	},
+
+
+	function test_advanceQuicklyInterval(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var called2 = 0;
+		clock.setInterval(function(){called1 += 1}, 2);
+		clock.setInterval(function(){called2 += 1}, 3);
+
+		clock.advance(6);
+		self.assertEqual(3, called1);
+		self.assertEqual(2, called2);
 	}
 
 //
