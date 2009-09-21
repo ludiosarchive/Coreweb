@@ -1190,11 +1190,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		var clock = new CW.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
+		var called3 = 0;
+		var called4 = 0;
 		clock.setTimeout(function(){called1 += 1; clock.advance(1);}, 2);
 		clock.setTimeout(function(){called2 += 1}, 3);
+		clock.setTimeout(function(){called3 += 1}, 2);
+		clock.setTimeout(function(){called4 += 1}, 4);
 		clock.advance(2);
 		self.assertEqual(1, called1);
 		self.assertEqual(1, called2);
+		self.assertEqual(1, called3);
+		self.assertEqual(0, called4);
 	},
 
 

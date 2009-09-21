@@ -1650,7 +1650,8 @@ CW.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
  * and {clearInterval}.
  *
  * Note that this does not mimic browser deficiencies in C{setTimeout} and
- * C{setInterval}: The C{1} in C{setTimeout(callable, 1)} will not be raised to C{13}.
+ * C{setInterval}. For example, the C{1} in C{setTimeout(callable, 1)} will not
+ * be raised to C{13}.
  *
  * Note: we must use .pmethods instead of .methods here, because IE leaks
  * named functions into the outer scope, and we really can't deal with that here,
@@ -1730,22 +1731,24 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 	/**
 	 * @type callable: function or callable host object
-       * @param callable: the callable to call (possibly repeatedly) soon
+       * @param callable: the callable to call (possibly repeatedly)
 	 *
-	 * @type when: Number
-       * @param when: delay between calls to C{callable}, in milliseconds. 
+	 * @type interval: Number
+       * @param interval: delay between calls to C{callable}, in milliseconds.
+	 *    If you specify 0, the next call to C{advance} will result in an
+	 *    infinite loop.
 	 *
 	 * @rtype: C{Number} (non-negative integer)
 	 * @return: The ticket number for the added event.
 	 */
-	setInterval: function(callable, when) {
+	setInterval: function(callable, interval) {
 		var self = this;
 		self._addCall({
 			ticket: ++self._counter,
-			runAt: self._rightNow + when,
+			runAt: self._rightNow + interval,
 			callable: callable,
 			respawn: true,
-			interval: when
+			interval: interval
 		});
 		return self._counter;
 	},
@@ -1796,7 +1799,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 	/**
 	 * @type ticket: Number
-       * @param ticket: the ticket number of the timeout to clear.
+       * @param ticket: the ticket number of the timeout/interval to clear.
 	 *
 	 * @return: undefined
 	 */
@@ -1808,7 +1811,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 	/**
 	 * @type ticket: Number
-       * @param ticket: the ticket number of the interval to clear.
+       * @param ticket: the ticket number of the timeout/interval to clear.
 	 *
 	 * @return: undefined
 	 */
