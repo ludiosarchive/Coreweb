@@ -1110,7 +1110,32 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 		clock.advance(6);
 		self.assertEqual(3, called1);
 		self.assertEqual(2, called2);
+	},
+
+
+	function test_reentrantAddCalls(self) {
+		var clock = new CW.UnitTest.Clock();
+		var called1 = 0;
+		var immediateCall = false;
+		var called2 = 0;
+		clock.setInterval(function(){
+			if(called1 === 0) {
+				clock.setTimeout(function(){immediateCall = true}, 0);
+				clock.setInterval(function(){called2 += 1}, 1);
+			}
+			called1 += 1
+		}, 2);
+
+		clock.advance(2);
+		self.assertEqual(1, called1);
+		self.assertEqual(true, immediateCall);
+		self.assertEqual(0, called2);
+
+		clock.advance(4);
+		self.assertEqual(3, called1);
+		self.assertEqual(4, called2);
 	}
+
 
 //
 //	/**

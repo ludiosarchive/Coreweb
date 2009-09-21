@@ -1833,6 +1833,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 			if(call[C_RESPAWN] === true) {
 				call[C_TIME] += call[C_INTERVAL];
 				self._calls.push(call);
+				self._sortCalls();
 			}
 
 			call[C_CALLABLE]();
