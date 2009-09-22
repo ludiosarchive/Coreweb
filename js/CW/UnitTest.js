@@ -693,6 +693,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				self.assertIn(i, a, "array item #"+i+" not in a; original message: " + message, true);
 			}
 		} else if(typeof a == 'object' && typeof b == 'object') {
+			// TODO: could be slightly optimized by comparing __count__ first (available in Firefox)
 			for(k in a) {
 				self.assertEqual(a[k], b[k],
 					"property mismatch a["+k+"] `not assertEqual` b["+k+"]; original message: " + message, true);

@@ -130,7 +130,15 @@ CW._globalsArray = CW._globalsArray.concat(
 	'unescape', 'updateCommands']
 );
 
-// *** Modern firebug ***
+// *** Top-level functions (the Qoxdoo section is missing some) ***
+// https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions
+// + escape, unescape
+CW._globalsArray = CW._globalsArray.concat([
+	"decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent",
+	"eval", "escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite",
+]);
+
+// *** Modern Firebug ***
 CW._globalsArray = CW._globalsArray.concat(
 	['_firebug', '_FirebugCommandLine', 'loadFirebugConsole']
 );
@@ -141,10 +149,10 @@ CW._globalsArray = CW._globalsArray.concat(
 	'postMessage', 'applicationCache']
 );
 
-// *** more IE stuff ***
+// *** More IE stuff ***
 CW._globalsArray = CW._globalsArray.concat(['CollectGarbage']);
 
-// *** CW ***
+// *** CW itself ***
 CW._globalsArray = CW._globalsArray.concat(['CW']);
 
 // Now turn it into an object
