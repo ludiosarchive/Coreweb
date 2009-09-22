@@ -216,6 +216,37 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 	},
 
 
+	function test_changeEverything(self) {
+		var URL = CW.URI.URL;
+		var u = URL("https://host");
+		self.assertEqual("https://host/", u.getString());
+
+		u.update('scheme', 'http');
+		u.update('host', 'newhost');
+		u.update('port', 1);
+		u.update('user', 'auser')
+		// no password set.
+		u.update('path', '/newpath');
+		u.update('fragment', 'fragment');
+		u.update('query', 'aquery?yes');
+		self.assertEqual("http://auser@newhost:1/newpath?aquery?yes#fragment", u.getString());
+
+		// and back...
+		u.update('query', null);
+		u.update('fragment', null);
+		u.update('path', null);
+		u.update('user', null);
+		u.update('port', 443);
+		u.update('host', 'host');
+		u.update('scheme', 'https');
+		self.assertEqual("https://host/", u.getString());
+	}
+);
+
+
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').methods(
+
 	function test_fullURLDefaultsUnknownScheme(self) {
 		var URL = CW.URI.URL;
 		var u = URL("asdfq://host");
