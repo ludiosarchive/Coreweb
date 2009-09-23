@@ -39,6 +39,11 @@ class CacheBreakerTests(unittest.TestCase):
 
 
 
+class _AlmostAScript(jsimp.Script):
+	pass
+
+
+
 class ComparisonTests(unittest.TestCase):
 
 	def test_compare(self):
@@ -69,7 +74,6 @@ class ComparisonTests(unittest.TestCase):
 		)
 
 
-
 	def test_putInSet(self):
 		s = set()
 		x1 = jsimp.Script('p.mod1', '/tmp')
@@ -77,6 +81,13 @@ class ComparisonTests(unittest.TestCase):
 		s.add(x1)
 		s.add(x2)
 		self.assertEqual(1, len(s))
+
+
+	def test_compareDifferentTypes(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', '/tmp'),
+			_AlmostAScript('p.mod1', '/tmp')
+		)
 
 
 

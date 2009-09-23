@@ -166,7 +166,7 @@ class Script(object):
 
 
 	def __eq__(self, other):
-		if not isinstance(other, Script):
+		if not isinstance(other, self.__class__):
 			return False
 		return (self._name == other._name and
 			self._basePath == other._basePath and
