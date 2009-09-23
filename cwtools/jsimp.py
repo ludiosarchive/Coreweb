@@ -136,12 +136,17 @@ var document = window.document;
 
 class Script(object):
 	"""
-	Represents a JavaScript file.
+	Represents a JavaScript file that has:
+		a full name,
+		a base path where the "root package" is located on a filesystem,
+		(maybe) a place where it "mounted at" on a web server.
+
+	Depending its full name and its file contents, it may have:
+		import dependencies
+		a parent
 
 	Modifying private attributes will screw up everything.
 	"""
-
-	# TODO: use flyweight pattern on Script, and cache the dependency list.
 
 	packageFilename = '__init__.js'
 	__slots__ = ['_name', '_basePath', '_mountedAt', '_importStringCache', '__weakref__']
