@@ -40,7 +40,7 @@ def cacheBreakerForPath(path):
 
 
 
-def _depTraverse(script, flat=None, depChain=None):
+def _depTraverse(script, treeCache, flat=None, depChain=None):
 	"""
 	DFS
 	"""
@@ -50,26 +50,28 @@ def _depTraverse(script, flat=None, depChain=None):
 		depChain = [script]
 
 	flat.append(script)
-	deps = script.getDependencies()
+	deps = script.getDependencies(treeCache)
 	for dep in deps: # remember, there could be 0 deps
 		if dep in depChain:
 			raise CircularDependencyError(
 				"There exists a circular dependency in %r's imports." % (script,))
 
 		flat.append(dep)
-		_depTraverse(dep, flat, depChain + [dep]) # ignore the return value
+		_depTraverse(dep, treeCache, flat, depChain + [dep]) # ignore the return value
 
 	return flat
 
 
 
-def getDeps(script):
+def getDeps(script, treeCache=None):
 	"""
 	Return the list of scripts that must be included
 	for L{script} to work properly.
 	"""
+	if treeCache is None:
+		treeCache = {}
 	final = []
-	bigList = _depTraverse(script)
+	bigList = _depTraverse(script, treeCache)
 	bigList.reverse()
 	alreadySeen = set()
 	for item in bigList:
@@ -80,15 +82,17 @@ def getDeps(script):
 
 
 
-def getDepsMany(scripts):
+def getDepsMany(scripts, treeCache=None):
 	"""
 	Return the list of scripts that must be included
 	for L{scripts} to work properly.
 	"""
+	if treeCache is None:
+		treeCache = {}
 	alreadySeen = set()
 	returnList = []
 	for script in scripts:
-		deps = getDeps(script)
+		deps = getDeps(script, treeCache)
 		for dep in deps:
 			if dep not in alreadySeen:
 				returnList.append(dep)
@@ -105,7 +109,7 @@ def megaScript(scripts, wrapper, dictionary={}):
 		otherwise C{False}.
 
 	C{dictionary} is a dictionary of key->value to pass into
-		template getContent(). If C{wrapper} was C{True},
+		each Script's renderContent(). If C{wrapper} was C{True},
 		C{'_wasWrapped': True} will be added to C{dictionary}.
 
 	Return the contents of many scripts, optionally wrapping
@@ -121,7 +125,7 @@ var document = window.document;
 '''
 	for script in scripts:
 		data += script._underscoreName() + u';\n'
-		data += script.getContent(dictionary)
+		data += script.renderContent(dictionary)
 
 	if wrapper:
 		data += u'})(window);\n'
@@ -140,7 +144,7 @@ class Script(object):
 	# TODO: use flyweight pattern on Script, and cache the dependency list.
 
 	packageFilename = '__init__.js'
-	__slots__ = ['_name', '_basePath', '_mountedAt', '__weakref__']
+	__slots__ = ['_name', '_basePath', '_mountedAt', '_importStringCache', '__weakref__']
 
 	def __init__(self, name, basePath, mountedAt=None):
 		"""
@@ -153,6 +157,7 @@ class Script(object):
 		self._name = name
 		self._basePath = basePath
 		self._mountedAt = mountedAt
+		self._importStringCache = None
 
 
 	def __eq__(self, other):
@@ -168,8 +173,12 @@ class Script(object):
 
 
 	def __repr__(self):
-		return '<Script %r in %r @ %r>' % (
-			self._name, self._basePath.basename(), self._mountedAt)
+		return '<%s %r in %r @ %r>' % (
+			self.__class__.__name__, self._name, self._basePath.basename(), self._mountedAt)
+
+
+	def _getScriptWithName(self, name):
+		return self.__class__(name, self._basePath, self._mountedAt)
 
 
 	def getName(self):
@@ -217,11 +226,9 @@ class Script(object):
 		return self._basePath.preauthChild(self.getFilename())
 
 
-	def getContent(self, dictionary={}):
+	def getContent(self):
 		"""
-		Get the post-template-render textual content of this script. Returns unicode.
-
-		L{dictionary} is a dictionary of key->value for the template renderer.
+		Get the unicode content of this file.
 		"""
 		bytes = self.getAbsoluteFilename().getContent()
 		if len(bytes) == 0:
@@ -229,49 +236,100 @@ class Script(object):
 		elif bytes[-1] != '\n':
 			raise CorruptScriptError((
 				r"Script %r needs to end with a \n. "
-				r"\n is a line terminator, not a separator. Fix your text editor.") % (self,))
+				r"\n is a line terminator, not a separator. "
+				"Fix your text editor. Last 100 bytes were: %r") % (self, bytes[-100:]))
 		else:
 			uni = bytes.decode('utf-8')
 
+		return uni
+
+
+	def renderContent(self, dictionary={}):
+		"""
+		Get the post-template-render textual content of this script. Returns unicode.
+
+		L{dictionary} is a dictionary of key->value for the template renderer.
+		"""
+		uni = self.getContent()
 		return _theWriter.render(uni, dictionary)
 
 
-	def getParent(self):
+	def _getParentName(self):
+		"""
+		Returns None if this Script is the root.
+		"""
 		parts = self._name.split('.')
 		if len(parts) == 1:
 			return None
 		else:
-			return Script('.'.join(parts[:-1]), self._basePath, self._mountedAt)
+			return '.'.join(parts[:-1])
+
+
+	def getParent(self, treeCache=None):
+		if treeCache is None:
+			treeCache = {}
+
+		parentName = self._getParentName()
+		if not parentName:
+			return None
+		parentModule = treeCache.get(parentName)
+		if not parentModule:
+			parentModule = self._getScriptWithName(parentName)
+			treeCache[parentName] = parentModule
+
+		return parentModule
 
 
 	def _getImportStrings(self):
+		if self._importStringCache is not None:
+			return self._importStringCache
+
+		# Returns a list of UTF-8 encoded strings.
 		imports = []
 		for line in self.getContent().split('\n'):
 			clean = line.rstrip()
 			if clean.startswith('// import '):
-				imports.append(clean.replace('// import ', '', 1))
+				imports.append(clean.replace('// import ', '', 1).encode('utf-8'))
 			elif clean.startswith('//import '):
-				imports.append(clean.replace('//import ', '', 1))
+				imports.append(clean.replace('//import ', '', 1).encode('utf-8'))
 			else:
 				continue
 
+		self._importStringCache = imports
 		return imports
 
 
-	def getDependencies(self):
+	def getDependencies(self, treeCache=None):
+		"""
+		Get dependency scripts for this script.
+
+		To speed things up, caller can pass in the same dictionary for
+		C{treeCache}, if doing many calls to L{getDependencies}.
+
+		If using the same C{treeCache}, caller is responsible for calling
+		L{getDependencies} only for the same pair of (self._basePath, self._mountedAt).
+
+		As long as caller holds a reference to this dictionary and keeps
+		passing it in, changes to scripts on disk will not be seen.
+		"""
+		if treeCache is None:
+			treeCache = {}
+
 		deps = []
 
 		# Parent module is an implicit dependency
-		parentModule = self.getParent()
-		if parentModule:
-			deps.append(parentModule)
+		parent = self.getParent(treeCache)
+		if parent:
+			deps.append(parent)
 		
-		for mod in self._getImportStrings():
-			dep = Script(mod, self._basePath, self._mountedAt)
-			if dep in deps:
-				log.msg('Duplicate or unnecessary import line in %r: // import %s' % (self, mod))
-			else:
-				deps.append(dep)
+		for importeeName in self._getImportStrings():
+			importee = treeCache.get(importeeName)
+			if not importee:
+				importee = self._getScriptWithName(importeeName)
+				treeCache[importeeName] = importee
+				if importee in deps:
+					log.msg('Unnecessary import line in %r: // import %s' % (self, importeeName))
+			deps.append(importee)
 		return deps
 
 
@@ -305,7 +363,7 @@ class Script(object):
 
 			name = '.'.join(parts + [moduleName])
 
-			children.append(Script(name, self._basePath, self._mountedAt))
+			children.append(self._getScriptWithName(name))
 
 		return children
 

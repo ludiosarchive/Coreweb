@@ -212,9 +212,13 @@ function a() { return "A func"; }
 '''
 		c.child('mod1.js').setContent(contents)
 
+		strings = jsimp.Script('p.mod1', d)._getImportStrings()
+
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
-			jsimp.Script('p.mod1', d)._getImportStrings())
+			strings)
+
+		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
 
 
 	def test_getDependencies(self):
@@ -287,6 +291,79 @@ class GetNameTests(unittest.TestCase):
 		self.assertEqual(
 			'apackage.amodule',
 			jsimp.Script('apackage.amodule', d).getName())
+
+
+
+class _ScriptTracksReads(jsimp.Script):
+	"""
+	A Script that tracks when getContent is called, to verify
+	that caching actually works.
+	"""
+
+	def __init__(self, name, basePath, trackingList):
+		jsimp.Script.__init__(self, name, basePath)
+		self.trackingList = trackingList
+
+
+	def _getScriptWithName(self, name):
+		return self.__class__(name, self._basePath, self.trackingList)
+
+
+	def getContent(self):
+		#print self
+		self.trackingList.append(self)
+		return jsimp.Script.getContent(self)
+
+
+
+class TreeCacheTests(unittest.TestCase):
+
+	def setUp(self):
+		self.trackingList = []
+
+		d = FilePath(self.mktemp())
+		d.makedirs()
+
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//\n')
+		d.child('p1').child('child1.js').setContent('//\n')
+		d.child('p1').child('child2.js').setContent('// import p1.child1\n')
+		d.child('p1').child('child3.js').setContent('// import p1.child2\n//import p1.child1\n')
+		d.child('p1').child('child4.js').setContent('// import p1.child3\n// import p1.child2\n//import p1.child1\n')
+
+		self.initjs = _ScriptTracksReads('p1', d, self.trackingList)
+		self.child1 = _ScriptTracksReads('p1.child1', d, self.trackingList)
+		self.child2 = _ScriptTracksReads('p1.child2', d, self.trackingList)
+		self.child3 = _ScriptTracksReads('p1.child3', d, self.trackingList)
+		self.child4 = _ScriptTracksReads('p1.child4', d, self.trackingList)
+
+		self.goodOrder = [self.child4, self.initjs, self.child3, self.child2, self.child1]
+
+
+	def test_getDependenciesNotCached(self):
+		"""
+		Proper read-order is impossible without cache.
+		"""
+		# Do it twice, to make sure there's no caching.
+		jsimp.getDeps(self.child4)
+		jsimp.getDeps(self.child4)
+
+		self.assert_(len(self.trackingList) > len(self.goodOrder),
+			'self.trackingList %r should have been longer than self.goodOrder' % (self.trackingList,))
+
+		self.assertNotEqual(self.goodOrder, self.trackingList)
+
+
+	def test_getDependenciesIsCached(self):
+		"""
+		Even with a lot of imports, each script is only read once.
+		"""
+		treeCache =  {}
+		# Do it twice, to make sure treeCache is being used.
+		jsimp.getDeps(self.child4, treeCache)
+		jsimp.getDeps(self.child4, treeCache)
+
+		self.assertEqual(self.goodOrder, self.trackingList)
 
 
 
@@ -388,8 +465,6 @@ class GetChildrenTests(unittest.TestCase):
 
 
 
-
-
 class _DummyScript(object):
 	"""
 	A dummy for L{Script}, to avoid writing files to disk and to avoid
@@ -414,7 +489,7 @@ class _DummyScript(object):
 		return hash(self.name)
 
 
-	def getDependencies(self):
+	def getDependencies(self, treeCache=None): # treeCache is ignored
 		# O(N^2) but it doesn't matter since this is a dummy
 		final = []
 		for dep in self.deps:
@@ -652,11 +727,11 @@ var y=;
 
 
 
-class GetContentTests(unittest.TestCase):
+class RenderContentTests(unittest.TestCase):
 
 	def test_getNormalContent(self):
 		s1 = _DummyContentScript('name', 'content\n')
-		self.assertEqual('content\n', s1.getContent())
+		self.assertEqual('content\n', s1.renderContent({}))
 
 
 	def test_getTemplatedContent(self):
@@ -667,7 +742,7 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\nx\n', s1.getContent())
+		self.assertEqual(u'content\nx\n', s1.renderContent({}))
 
 
 	def test_getTemplatedVariableContent1(self):
@@ -678,7 +753,7 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\nx\n', s1.getContent(dict(_xMode=1)))
+		self.assertEqual(u'content\nx\n', s1.renderContent(dict(_xMode=1)))
 
 
 	def test_getTemplatedVariableContent2(self):
@@ -689,4 +764,4 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\n', s1.getContent(dict(_xMode="1")))
+		self.assertEqual(u'content\n', s1.renderContent(dict(_xMode="1")))
