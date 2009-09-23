@@ -234,6 +234,36 @@ function a() { return "A func"; }
 			p.getDependencies())
 
 
+	def test_getDependenciesIncludesParents(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('sub').makedirs()
+
+		d.child('p.js').setContent('// import q\n// import r\n')
+		d.child('q.js').setContent('// \n')
+		d.child('r.js').setContent('// \n')
+		d.child('sub').child('__init__.js').setContent('// import q\n')
+		d.child('sub').child('noimportlines.js').setContent('// \n')
+
+		p = jsimp.Script('p', d)
+		q = jsimp.Script('q', d)
+		r = jsimp.Script('r', d)
+		initjs = jsimp.Script('sub', d)
+		noimportlines = jsimp.Script('sub.noimportlines', d)
+
+		self.assertEqual(
+			[q, r],
+			p.getDependencies())
+
+		self.assertEqual(
+			[q],
+			initjs.getDependencies())
+
+		self.assertEqual(
+			[initjs],
+			noimportlines.getDependencies())
+
+
 
 class GetNameTests(unittest.TestCase):
 

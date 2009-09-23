@@ -24,12 +24,14 @@ class TestPage(resource.Resource):
 
 	"""
 	isLeaf = True
+
+	# C{testPackages} is a sequence of strings, which represent JavaScript packages or modules.
 	testPackages = None # your subclass should define this
 
-	def _getTests(self):
+	def _getTests(self, packages):
 		JSPATH = FilePath(os.environ['JSPATH'])
 		tests = []
-		for package in self.testPackages:
+		for package in packages:
 			tests.append(jsimp.Script(package, JSPATH, '/@js/'))
 			# TODO: make this descend Test packages, too (imitate Twisted Trial)
 			tests.extend(jsimp.Script(package, JSPATH, '/@js/').globChildren('Test*'))
@@ -37,7 +39,20 @@ class TestPage(resource.Resource):
 
 
 	def render_GET(self, request):
-		theTests = self._getTests()
+		# Both the client and server are responsible for making ?only= work.
+		# The server sends less code down the wire, which is great because
+		# you will know if your '// import X' imports are incomplete.
+		# The client should make sure each test module/class/method it runs
+		# is a child of `only'.
+
+		# Note that unless restrictions are added to this feature, anyone
+		# who can visit the test page can download any JavaScript module in JSPATH.
+
+		if request.args.get('only'):
+			theTests = self._getTests(request.args['only'][0].split(','))
+		else:
+			theTests = self._getTests(self.testPackages)
+
 
 		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
 

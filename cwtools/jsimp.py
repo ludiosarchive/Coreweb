@@ -1,6 +1,8 @@
 import struct
 import jinja2
 
+from twisted.python import log
+
 from webmagic import uriparse
 
 
@@ -234,6 +236,14 @@ class Script(object):
 		return _theWriter.render(uni, dictionary)
 
 
+	def getParent(self):
+		parts = self._name.split('.')
+		if len(parts) == 1:
+			return None
+		else:
+			return Script('.'.join(parts[:-1]), self._basePath, self._mountedAt)
+
+
 	def _getImportStrings(self):
 		imports = []
 		for line in self.getContent().split('\n'):
@@ -250,8 +260,18 @@ class Script(object):
 
 	def getDependencies(self):
 		deps = []
+
+		# Parent module is an implicit dependency
+		parentModule = self.getParent()
+		if parentModule:
+			deps.append(parentModule)
+		
 		for mod in self._getImportStrings():
-			deps.append(Script(mod, self._basePath, self._mountedAt))
+			dep = Script(mod, self._basePath, self._mountedAt)
+			if dep in deps:
+				log.msg('Duplicate or unnecessary import line in %r: // import %s' % (self, mod))
+			else:
+				deps.append(dep)
 		return deps
 
 

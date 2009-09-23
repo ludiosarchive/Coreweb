@@ -19,7 +19,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 
 	/**
 	 * Check that we can format a 'frame', as returned from
-	 * L{Failure.parseStack}.
+	 * L{Failure.parseStack}. 
 	 */
 	function test_frameToPrettyText(self) {
 		var text = self.failure.frameToPrettyText({func: 'foo',

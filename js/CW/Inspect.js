@@ -2,7 +2,6 @@
  * Various tools for introspecting objects at runtime.
  */
 
-// import CW
 
 /**
  * Retrieve an C{Array} of C{String}s naming the methods defined on the given
