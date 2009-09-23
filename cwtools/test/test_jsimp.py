@@ -340,7 +340,9 @@ class TreeCacheTests(unittest.TestCase):
 		d.child('p1').makedirs()
 		d.child('p1').child('__init__.js').setContent('//\n')
 		d.child('p1').child('child1.js').setContent('//\n')
-		d.child('p1').child('child2.js').setContent('// import p1.child1\n')
+		
+		# This one contains an unnecessary import line, which might produce a log message
+		d.child('p1').child('child2.js').setContent('// import p1.child1\n//import p1\n')
 		d.child('p1').child('child3.js').setContent('// import p1.child2\n//import p1.child1\n')
 		d.child('p1').child('child4.js').setContent('// import p1.child3\n// import p1.child2\n//import p1.child1\n')
 
@@ -474,6 +476,45 @@ class GetChildrenTests(unittest.TestCase):
 		self.assertEqual(
 			set([child1, child3]),
 			set(p1.globChildren('Test*')))
+
+
+	def test_globChildrenNonPackage(self):
+		"""
+		The children of a non-package are []
+		"""
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.Testchild1', d)
+
+		self.assertEqual([], child1.globChildren('Test*'))
+
+
+
+
+class GetParentTests(unittest.TestCase):
+
+	def setUp(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+
+		self.p1 = jsimp.Script('p1', d)
+		self.child1 = jsimp.Script('p1.Testchild1', d)
+
+
+	def test_getParentNoTreeCache(self):
+		self.assertEqual(self.p1, self.child1.getParent())
+
+
+	def test_getParentWithTreeCache(self):
+		self.assertEqual(self.p1, self.child1.getParent({}))
 
 
 

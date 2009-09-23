@@ -134,6 +134,11 @@ var document = window.document;
 
 
 
+def parentContainsChild(parent, child):
+	return child.startswith(parent + '.')
+
+
+
 class Script(object):
 	"""
 	Represents a JavaScript file that has:
@@ -301,8 +306,6 @@ class Script(object):
 				imports.append(clean.replace('// import ', '', 1).encode('utf-8'))
 			elif clean.startswith('//import '):
 				imports.append(clean.replace('//import ', '', 1).encode('utf-8'))
-			else:
-				continue
 
 		self._importStringCache = imports
 		return imports
@@ -325,6 +328,7 @@ class Script(object):
 			treeCache = {}
 
 		deps = []
+		namesSeen = set()
 
 		# Parent module is an implicit dependency
 		parent = self.getParent(treeCache)
@@ -332,12 +336,14 @@ class Script(object):
 			deps.append(parent)
 		
 		for importeeName in self._getImportStrings():
+			if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
+				log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
+			namesSeen.add(importeeName)
+
 			importee = treeCache.get(importeeName)
 			if not importee:
 				importee = self._getScriptWithName(importeeName)
 				treeCache[importeeName] = importee
-				if importee in deps:
-					log.msg('Unnecessary import line in %r: // import %s' % (self, importeeName))
 			deps.append(importee)
 		return deps
 
