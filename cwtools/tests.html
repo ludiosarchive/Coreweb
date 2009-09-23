@@ -22,15 +22,19 @@ div, p, body {
 
 
 <script>
-/**
- * A function to enumerate and check for new properties,
- * to make sure there's little window pollution besides
- * `TestRunnerPage` and `CW`.
- */
+
 TestRunnerPage = {};
+TestRunnerPage._abortExecution = true;
+TestRunnerPage._abortMessage =
+	"TestRunnerPage._abortExecution is true. " +
+	"Check for errors on this test page in your JavaScript console.";
 TestRunnerPage.timers = {};
 
-TestRunnerPage.enumerateProperties = function(object) {
+/**
+ * Clone just the property strings, ignore the values.
+ * @return {'propertyname': true, ...} for each property in C{object}.
+ */
+TestRunnerPage.cloneProperties = function(object) {
 	var c = {}, k;
 	for(k in object) {
 		c[k] = true;
@@ -39,7 +43,7 @@ TestRunnerPage.enumerateProperties = function(object) {
 }
 
 
-TestRunnerPage.findNew = function(oldSet, object) {
+TestRunnerPage.getNewProperties = function(oldSet, object) {
 	var k;
 	var newProps = [];
 	for(k in object) {
@@ -62,7 +66,7 @@ TestRunnerPage.toggleVisibility = function(id) {
 
 
 TestRunnerPage.logNewProps = function() {
-	var newProps = TestRunnerPage.findNew(TestRunnerPage.propsBefore, window);
+	var newProps = TestRunnerPage.getNewProperties(TestRunnerPage.propsBefore, window);
 	CW.msg('New window properties: ' + newProps.join(','));
 }
 
@@ -78,17 +82,43 @@ TestRunnerPage.startTests = function() {
 }
 
 
+
+// Enumerate properties now and check for new ones later, to
+// to make sure there's very little `window` pollution besides
+//`TestRunnerPage` and `CW`.
+
 // We look at the properties before we even load the <script>,
 // in case there's a bug that leaks a variable at the top-level scope of the script.
-TestRunnerPage.propsBefore = TestRunnerPage.enumerateProperties(window);
+TestRunnerPage.propsBefore = TestRunnerPage.cloneProperties(window);
 
 TestRunnerPage.timers.scriptLoadStart = +new Date; /* scripts begin */
-</script>
-<script>
-/**/scriptContent//
-</script>
 
+
+
+// Stopping all script execution if there's an error above is good. We could use just
+// one <script> on this page to achieve that effect, but then we don't get timing
+// information about how long it takes for the scriptContent to parse (because it's
+// already parsed as we're in the <script>). So we use three <script>s and check for
+// a failure condition.
+
+TestRunnerPage._abortExecution = false;
+
+</script>
 <script>
+
+if(TestRunnerPage._abortExecution) {
+	throw new Error("[0] " + TestRunnerPage._abortMessage);
+}
+
+/**/scriptContent//
+
+</script>
+<script>
+
+if(TestRunnerPage._abortExecution) {
+	throw new Error("[1] " + TestRunnerPage._abortMessage);
+}
+
 TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
 
 CW.msg(
