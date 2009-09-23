@@ -48,36 +48,36 @@ class ComparisonTests(unittest.TestCase):
 
 	def test_compare(self):
 		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp')
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod1', FilePath('/tmp'))
 		)
 
 
 	def test_compareAndMountedAt(self):
 		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp', '/'),
-			jsimp.Script('p.mod1', '/tmp', '/')
+			jsimp.Script('p.mod1', FilePath('/tmp'), '/'),
+			jsimp.Script('p.mod1', FilePath('/tmp'), '/')
 		)
 
 
 	def test_notEqualAndMountedAt(self):
 		self.assertNotEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp', '')
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod1', FilePath('/tmp'), '')
 		)
 
 
 	def test_sameHash(self):
 		self.assertEqual(
-			hash(jsimp.Script('p.mod1', '/tmp')),
-			hash(jsimp.Script('p.mod1', '/tmp'))
+			hash(jsimp.Script('p.mod1', FilePath('/tmp'))),
+			hash(jsimp.Script('p.mod1', FilePath('/tmp')))
 		)
 
 
 	def test_putInSet(self):
 		s = set()
-		x1 = jsimp.Script('p.mod1', '/tmp')
-		x2 = jsimp.Script('p.mod1', '/tmp')
+		x1 = jsimp.Script('p.mod1', FilePath('/tmp'))
+		x2 = jsimp.Script('p.mod1', FilePath('/tmp'))
 		s.add(x1)
 		s.add(x2)
 		self.assertEqual(1, len(s))
@@ -85,8 +85,8 @@ class ComparisonTests(unittest.TestCase):
 
 	def test_compareDifferentTypes(self):
 		self.assertNotEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			_AlmostAScript('p.mod1', '/tmp')
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			_AlmostAScript('p.mod1', FilePath('/tmp'))
 		)
 
 

@@ -166,11 +166,15 @@ class Script(object):
 
 
 	def __eq__(self, other):
-		if not isinstance(other, self.__class__):
+		if type(self) != type(other):
 			return False
 		return (self._name == other._name and
 			self._basePath == other._basePath and
 			self._mountedAt == other._mountedAt)
+
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
 
 
 	def __hash__(self):
