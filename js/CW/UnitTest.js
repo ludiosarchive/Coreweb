@@ -1511,7 +1511,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 	var installD = new CW.Defer.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
-		CW.msg('Monkeys already installed or being installed.');
+		//CW.msg('Monkeys already installed or being installed.');
 		installD.callback(null);
 		return installD;
 	}

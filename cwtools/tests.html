@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<!-- Don't allow turning on IE7 compatibility mode -->
+<!-- IE=8 prevents the user from turning on IE7 compatibility mode -->
 <meta http-equiv="X-UA-Compatible" content="IE=8" />
 <title>/**/pageTitle//</title>
 </head>
@@ -15,48 +15,43 @@ div, p, body {
 }
 </style>
 
-<a href="#" onclick="__CW_toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
+<a href="#" onclick="TestRunnerPage.toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
 
 <div id="CW-debug-log" style="background-color:#ddd;display:none"></div>
 <div id="CW-test-log" style="background-color:#ccc"></div>
 
 
 <script>
-/*
-	function to count number of window properties,
-	to help make sure nothing (besides __CW_x and CW) are added
-*/
-__CW_x = {
-	enumerate: function() {
-		var c = {}, k;
-		for(k in window) {
-			c[k] = true;
-		};
-		return c;
-	},
-	check: function(old) {
-		var k;
-		var newProps = [];
-		for(k in window) {
-			if(!old[k]) {
-				newProps.push(k);
-			}
+/**
+ * A function to enumerate and check for new properties,
+ * to make sure there's little window pollution besides
+ * `TestRunnerPage` and `CW`.
+ */
+TestRunnerPage = {};
+TestRunnerPage.timers = {};
+
+TestRunnerPage.enumerateProperties = function(object) {
+	var c = {}, k;
+	for(k in object) {
+		c[k] = true;
+	};
+	return c;
+}
+
+
+TestRunnerPage.findNew = function(oldSet, object) {
+	var k;
+	var newProps = [];
+	for(k in object) {
+		if(!oldSet[k]) {
+			newProps.push(k);
 		}
-		return newProps;
 	}
-};
-__CW_x.sb = +new Date; /* scripts begin */
-__CW_x.propsBefore = __CW_x.enumerate();
-</script>
-<script>
-/**/scriptContent//
-</script>
-
-<script>
-__CW_x.se = +new Date; /* scripts end */
+	return newProps;
+}
 
 
-function __CW_toggleVisibility(id) {
+TestRunnerPage.toggleVisibility = function(id) {
 	var e = document.getElementById(id);
 	if(e.style.display == 'block' || !e.style.display) {
 		e.style.display = 'none';
@@ -65,31 +60,42 @@ function __CW_toggleVisibility(id) {
 	}
 }
 
-CW.msg("Took " + (__CW_x.se-__CW_x.sb) + " ms to load scripts.");
 
-(function() {
+TestRunnerPage.logNewProps = function() {
+	var newProps = TestRunnerPage.findNew(TestRunnerPage.propsBefore, window);
+	CW.msg('New window properties: ' + newProps.join(','));
+}
 
-function _startTests() {
+
+TestRunnerPage.startTests = function() {
 	CW.msg('Running tests.');
 
 	var modules = /**/moduleString//
 	var suite = CW.UnitTest.loadFromModules(modules);
 
 	var d = CW.UnitTest.run(suite);
-	//d.addCallback(function(){document.body.style.backgroundColor = 'green';});
-
-	function _checkProps() {
-		var newProps = __CW_x.check(__CW_x.propsBefore);
-		CW.msg('New window properties: ' + newProps.join(','));
-	}
-
-	d.addCallback(_checkProps);
+	d.addCallback(TestRunnerPage.logNewProps);
 }
 
-// TODO: use event listeners?
-window.onload = _startTests;
 
-})();
+// We look at the properties before we even load the <script>,
+// in case there's a bug that leaks a variable at the top-level scope of the script.
+TestRunnerPage.propsBefore = TestRunnerPage.enumerateProperties(window);
+
+TestRunnerPage.timers.scriptLoadStart = +new Date; /* scripts begin */
+</script>
+<script>
+/**/scriptContent//
+</script>
+
+<script>
+TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
+
+CW.msg(
+	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +
+	" ms to load scripts.");
+
+window.onload = TestRunnerPage.startTests;
 
 </script>
 
