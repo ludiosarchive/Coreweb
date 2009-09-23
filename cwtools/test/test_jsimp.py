@@ -324,6 +324,8 @@ class TreeCacheTests(unittest.TestCase):
 		d = FilePath(self.mktemp())
 		d.makedirs()
 
+		# These tests must have a parent. Both parents and importees are cached.
+
 		d.child('p1').makedirs()
 		d.child('p1').child('__init__.js').setContent('//\n')
 		d.child('p1').child('child1.js').setContent('//\n')
