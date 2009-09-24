@@ -40,8 +40,6 @@ def cacheBreakerForPath(path):
 	return cacheBreaker
 
 
-
-
 def scriptContent(script, dictionary=None):
 	"""
 	Generate an HTML4/5 <script> tag with the script contents.
@@ -50,7 +48,6 @@ def scriptContent(script, dictionary=None):
 	template = "<script>%s;\n%s</script>"
 
 	return template % (script._underscoreName(), script.renderContent(dictionary))
-
 
 
 def scriptSrc(script, mountedAt):
