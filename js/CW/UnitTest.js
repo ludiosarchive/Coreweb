@@ -1157,7 +1157,8 @@ CW.UnitTest.runConsole = function runConsole(test) {
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
 		print(CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
-		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|');
+		// If you forget the newline at the end of this line, Node.js will drop the line completely.
+		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
 	});
 	return d;
 };

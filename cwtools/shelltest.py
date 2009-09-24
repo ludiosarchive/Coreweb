@@ -4,7 +4,7 @@ Run a test suite and output results to stdout.
 """
 
 from cwtools import testing
-from twisted.internet import reactor, error
+from twisted.internet import reactor, error, utils, defer
 from twisted.python import log, filepath
 import tempfile
 import sys
@@ -35,17 +35,37 @@ d.addCallback(function(){});
 
 
 
+@defer.inlineCallbacks
 def run():
 	bytes = makeScriptForNode().encode('utf-8')
-	temp = tempfile.NamedTemporaryFile(mode='wb', delete=False)
-	temp.write(bytes)
-	temp.flush()
-	temp.close()
-	print temp.name
+	scriptFile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+	scriptFile.write(bytes)
+	scriptFile.flush()
+	scriptFile.close()
 
-	#os.system(os.environ['NODE_BIN'] + ' ' + temp.name)
+	logFile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+	logFile.close()
 
-	#os.unlink(temp.name)
+	log.msg('Running %s' % (scriptFile.name,))
+	log.msg('Log file is %s' % (logFile.name,))
+
+	env = {}
+	env['HOME'] = '/tmp/not-a-real-home' # rargh Node.js needs this
+	env['UNITTEST_LOGFILE'] = logFile.name
+
+	out = yield utils.getProcessOutput(
+		os.environ['NODE_BIN'],
+		args=(scriptFile.name,),
+		env=env,
+		errortoo=True,
+		reactor=reactor)
+
+	sys.stdout.write(out)
+
+	log.msg('Ran %s' % (scriptFile.name,))
+	log.msg('Log file was %s' % (logFile.name,))
+
+	#os.unlink(scriptFile.name)
 
 	try:
 		reactor.stop()
