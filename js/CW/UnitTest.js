@@ -295,21 +295,21 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'ConsoleTestResult').methods(
 	function addError(self, test, error) {
 		CW.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
 		print('... ERROR\n');
-		print(error.toString());
+		print('\n' + error.toString() + '\n\n');
 	},
 
 
 	function addFailure(self, test, failure) {
 		CW.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
 		print('... FAILURE\n');
-		print(failure.toString());
+		print('\n' + failure.toString() + '\n\n');
 	},
 
 
 	function addSkip(self, test, skip) {
 		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
 		print('... SKIP\n');
-		print(skip.toString());
+		print('\n' + skip.toString() + '\n\n');
 	},
 
 
