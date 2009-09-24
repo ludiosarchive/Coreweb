@@ -784,6 +784,22 @@ var y=;
 ''', result)
 
 
+	def test_dictionaryNotMutated(self):
+		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
+
+		# With wrapper
+		d = dict(something='2')
+		dCopy = d.copy()
+		jsimp.megaScript([s1], True, d)
+		self.assertEqual(dCopy, d)
+
+		# No wrapper
+		d2 = dict(something='3')
+		d2Copy = d2.copy()
+		jsimp.megaScript([s1], False, d2)
+		self.assertEqual(d2Copy, d2)
+
+
 
 class RenderContentTests(unittest.TestCase):
 
@@ -823,3 +839,15 @@ x
 //] endif
 ''')
 		self.assertEqual(u'content\n', s1.renderContent(dict(_xMode="1")))
+
+
+	def test_dictionaryNotMutated(self):
+		"""
+		Well, L{renderContent} doesn't even need to mutate anything right
+		now, but someone could screw it up and forget to C{dictionary.copy()}.
+		"""
+		s1 = _DummyContentScript('name', 'content\n')
+		d = dict(something='2')
+		dCopy = d.copy()
+		s1.renderContent(d)
+		self.assertEqual(dCopy, d)

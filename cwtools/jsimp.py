@@ -135,7 +135,7 @@ def getDepsMany(scripts, treeCache=None):
 
 
 
-def megaScript(scripts, wrapper, dictionary=None):
+def megaScript(scripts, wrapper, dictionary={}):
 	"""
 	C{scripts} is an iterable of L{Script} objects.
 
@@ -150,8 +150,8 @@ def megaScript(scripts, wrapper, dictionary=None):
 	it with the anonymous function wrapper (useful for JScript,
 	which thinks named function expressions are declarations.)
 	"""
-	if dictionary is None:
-		dictionary = {}
+	# Don't mutate the caller's dictionary. Don't mutate our default arg.
+	dictionary = dictionary.copy()
 	data = ''
 	if wrapper:
 		dictionary['_wasWrapped'] = True
@@ -296,8 +296,6 @@ class Script(object):
 
 		C{dictionary} is a dictionary of key->value for the template renderer.
 		"""
-		if dictionary is None:
-			dictionary = {}
 		uni = self.getContent()
 		return _theWriter.render(uni, dictionary)
 
@@ -456,13 +454,15 @@ class JavaScriptWriter(object):
 		)
 
 
-	def render(self, template, dictionary):
+	def render(self, template, dictionary=None):
 		"""
 		C{template} is the unicode (or str) template.
 		C{dictionary} is a dict of values to help fill the template.
 
 		Return value is the rendered template, in unicode.
 		"""
+		if dictionary is None:
+			dictionary = {}
 		rendered = self.env.from_string(template).render(dictionary)
 		# jinja2 forgets about how many newlines there should be at the end, or something
 		if not rendered.endswith(u'\n'):
