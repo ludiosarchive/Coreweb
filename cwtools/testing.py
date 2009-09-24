@@ -5,6 +5,16 @@ from twisted.web import resource
 from cwtools import jsimp
 
 
+def _getTests(packages):
+	JSPATH = FilePath(os.environ['JSPATH'])
+	tests = []
+	for package in packages:
+		tests.append(jsimp.Script(package, JSPATH))
+		# TODO: make this descend Test packages, too (imitate Twisted Trial)
+		tests.extend(jsimp.Script(package, JSPATH).globChildren('Test*'))
+	return tests
+
+
 class TestPage(resource.Resource):
 	"""
 	This is a Resource that generates pages that run CW.UnitTest-based tests.
@@ -28,16 +38,6 @@ class TestPage(resource.Resource):
 	# C{testPackages} is a sequence of strings, which represent JavaScript packages or modules.
 	testPackages = None # your subclass should define this
 
-	def _getTests(self, packages):
-		JSPATH = FilePath(os.environ['JSPATH'])
-		tests = []
-		for package in packages:
-			tests.append(jsimp.Script(package, JSPATH, '/@js/'))
-			# TODO: make this descend Test packages, too (imitate Twisted Trial)
-			tests.extend(jsimp.Script(package, JSPATH, '/@js/').globChildren('Test*'))
-		return tests
-
-
 	def render_GET(self, request):
 		# Both the client and server are responsible for making ?only= work.
 		# The server sends less code down the wire, which is great because
@@ -49,9 +49,9 @@ class TestPage(resource.Resource):
 		# who can visit the test page can download any JavaScript module in JSPATH.
 
 		if request.args.get('only'):
-			theTests = self._getTests(request.args['only'][0].split(','))
+			theTests = _getTests(request.args['only'][0].split(','))
 		else:
-			theTests = self._getTests(self.testPackages)
+			theTests = _getTests(self.testPackages)
 
 
 		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)

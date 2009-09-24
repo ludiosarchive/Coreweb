@@ -251,16 +251,16 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	},
 
 
-	function addSkip(self, test, failure) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, failure]);
+	function addSkip(self, test, skip) {
+		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... SKIP');
 		var pre = document.createElement("pre");
-		pre.innerHTML = failure.toString();
+		pre.innerHTML = skip.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
-		//self._div.appendChild(failure.toPrettyNode());
+		//self._div.appendChild(skip.toPrettyNode());
 	},
 
 
@@ -272,6 +272,54 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		self._div.appendChild(br);
 	}
 );
+
+
+
+/**
+ * Print tests results to the console, as they are run. If you try to use
+ * this in a browser environment, it will repeatedly open the 'print page'
+ * dialog.
+ */
+CW.UnitTest.TestResult.subclass(CW.UnitTest, 'ConsoleTestResult').methods(
+	function __init__(self) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, '__init__', []);
+	},
+
+
+	function startTest(self, test) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'startTest', [test]);
+		print(test.id());
+	},
+
+
+	function addError(self, test, error) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
+		print('... ERROR\n');
+		print(error.toString());
+	},
+
+
+	function addFailure(self, test, failure) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
+		print('... FAILURE\n');
+		print(failure.toString());
+	},
+
+
+	function addSkip(self, test, skip) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
+		print('... SKIP\n');
+		print(skip.toString());
+	},
+
+
+	function addSuccess(self, test) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSuccess', [test]);
+		print('... OK\n');
+	}
+);
+
+
 
 
 // no more subunit/spidermonkey
@@ -1061,12 +1109,14 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 
 
 /**
- * Run the given test, printing the summary of results and any errors.
+ * Run the given test, printing the summary of results and any errors
+ * to a DIV with id 'CW-test-log', then display an summary in the top-
+ * right corner.
  *
  * @param test: The test to run.
  * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
-CW.UnitTest.run = function run(test) {
+CW.UnitTest.runWeb = function runWeb(test) {
 	var div = document.getElementById('CW-test-log');
 	var result = CW.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
@@ -1090,6 +1140,28 @@ CW.UnitTest.run = function run(test) {
 	});
 	return d;
 };
+
+
+
+/**
+ * Run the given test, printing the summary of results and any errors
+ * to the console, which must have a print statement in the global object.
+ *
+ * @param test: The test to run.
+ * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
+ */
+CW.UnitTest.runConsole = function runWeb(test) {
+	var result = CW.UnitTest.ConsoleTestResult();
+	var d = test.run(result);
+	d.addCallback(function _UnitTest_after_run(){
+		var timeTaken = new Date().getTime() - result.timeStarted;
+
+		print(CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
+		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|');
+	});
+	return d;
+};
+
 
 
 

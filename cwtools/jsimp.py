@@ -109,7 +109,7 @@ var document = window.document;
 		data += script.renderContent(dictionary)
 
 	if wrapper:
-		data += u'})(window);\n'
+		data += u'})(this);\n'
 
 	return data
 

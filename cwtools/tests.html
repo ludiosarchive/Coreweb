@@ -77,7 +77,7 @@ TestRunnerPage.startTests = function() {
 	var modules = /**/moduleString//
 	var suite = CW.UnitTest.loadFromModules(modules);
 
-	var d = CW.UnitTest.run(suite);
+	var d = CW.UnitTest.runWeb(suite);
 	d.addCallback(TestRunnerPage.logNewProps);
 }
 
