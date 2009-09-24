@@ -39,44 +39,55 @@ class CacheBreakerTests(unittest.TestCase):
 
 
 
+class _AlmostAScript(jsimp.Script):
+	pass
+
+
+
 class ComparisonTests(unittest.TestCase):
 
-	def test_compare(self):
+	def test_equal(self):
 		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp')
-		)
-
-
-	def test_compareAndMountedAt(self):
-		self.assertEqual(
-			jsimp.Script('p.mod1', '/tmp', '/'),
-			jsimp.Script('p.mod1', '/tmp', '/')
-		)
-
-
-	def test_notEqualAndMountedAt(self):
-		self.assertNotEqual(
-			jsimp.Script('p.mod1', '/tmp'),
-			jsimp.Script('p.mod1', '/tmp', '')
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod1', FilePath('/tmp'))
 		)
 
 
 	def test_sameHash(self):
 		self.assertEqual(
-			hash(jsimp.Script('p.mod1', '/tmp')),
-			hash(jsimp.Script('p.mod1', '/tmp'))
+			hash(jsimp.Script('p.mod1', FilePath('/tmp'))),
+			hash(jsimp.Script('p.mod1', FilePath('/tmp')))
 		)
 
+
+	def test_notEqualNames(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod2', FilePath('/tmp'))
+		)
+
+
+	def test_notEqualPaths(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod1', FilePath('/tmp/a'))
+		)
 
 
 	def test_putInSet(self):
 		s = set()
-		x1 = jsimp.Script('p.mod1', '/tmp')
-		x2 = jsimp.Script('p.mod1', '/tmp')
+		x1 = jsimp.Script('p.mod1', FilePath('/tmp'))
+		x2 = jsimp.Script('p.mod1', FilePath('/tmp'))
 		s.add(x1)
 		s.add(x2)
 		self.assertEqual(1, len(s))
+
+
+	def test_compareDifferentTypes(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			_AlmostAScript('p.mod1', FilePath('/tmp'))
+		)
 
 
 
@@ -143,7 +154,7 @@ class PathForModuleTests(unittest.TestCase):
 
 class ScriptTagTests(unittest.TestCase):
 	"""
-	Tests for L{Script}'s L{scriptContent} and L{scriptSrc}
+	Tests for L{scriptContent} and L{scriptSrc}
 	"""
 
 	def test_scriptContents(self):
@@ -154,7 +165,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }\n'
 		c.child('mod1.js').setContent(contents)
 
-		html = jsimp.Script('p.mod1', d).scriptContent()
+		html = jsimp.scriptContent(jsimp.Script('p.mod1', d))
 		self.assertEqual(
 			u"""<script>p.mod1 = {'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
 			html
@@ -171,15 +182,19 @@ class ScriptTagTests(unittest.TestCase):
 
 		for mountedAt in ['/hello/', 'http://another.domain/']:
 
-			script = jsimp.Script('p.mod1', d, mountedAt=mountedAt)
-			html = script.scriptSrc()
+			script = jsimp.Script('p.mod1', d)
+			html = jsimp.scriptSrc(script, mountedAt)
 
 			self.assert_(
-				html.startswith("""<script>%s</script><script src="%s?""" % (script._underscoreName(), mountedAt + 'p/mod1.js'))
+				html.startswith(
+					"""<script>%s</script><script src="%s?""" % (
+					script._underscoreName(), mountedAt + 'p/mod1.js')),
+				html
 			)
 
 			self.assert_(
-				html.endswith("""</script>\n""")
+				html.endswith("""</script>\n"""),
+				html
 			)
 
 
@@ -191,7 +206,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		self.assertRaises(ValueError, lambda: jsimp.Script('p.mod1', d).scriptSrc())
+		self.assertRaises(ValueError, lambda: jsimp.scriptSrc(jsimp.Script('p.mod1', d), u'bad-unicode-url'))
 
 
 
@@ -212,9 +227,13 @@ function a() { return "A func"; }
 '''
 		c.child('mod1.js').setContent(contents)
 
+		strings = jsimp.Script('p.mod1', d)._getImportStrings()
+
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
-			jsimp.Script('p.mod1', d)._getImportStrings())
+			strings)
+
+		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
 
 
 	def test_getDependencies(self):
@@ -287,6 +306,83 @@ class GetNameTests(unittest.TestCase):
 		self.assertEqual(
 			'apackage.amodule',
 			jsimp.Script('apackage.amodule', d).getName())
+
+
+
+class _ScriptTracksReads(jsimp.Script):
+	"""
+	A Script that tracks when getContent is called, to verify
+	that caching actually works.
+	"""
+
+	def __init__(self, name, basePath, trackingList):
+		jsimp.Script.__init__(self, name, basePath)
+		self.trackingList = trackingList
+
+
+	def _getScriptWithName(self, name):
+		return self.__class__(name, self._basePath, self.trackingList)
+
+
+	def getContent(self):
+		#print self
+		self.trackingList.append(self)
+		return jsimp.Script.getContent(self)
+
+
+
+class TreeCacheTests(unittest.TestCase):
+
+	def setUp(self):
+		self.trackingList = []
+
+		d = FilePath(self.mktemp())
+		d.makedirs()
+
+		# These tests must have a parent. Both parents and importees are cached.
+
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//\n')
+		d.child('p1').child('child1.js').setContent('//\n')
+		
+		# This one contains an unnecessary import line, which might produce a log message
+		d.child('p1').child('child2.js').setContent('// import p1.child1\n//import p1\n')
+		d.child('p1').child('child3.js').setContent('// import p1.child2\n//import p1.child1\n')
+		d.child('p1').child('child4.js').setContent('// import p1.child3\n// import p1.child2\n//import p1.child1\n')
+
+		self.initjs = _ScriptTracksReads('p1', d, self.trackingList)
+		self.child1 = _ScriptTracksReads('p1.child1', d, self.trackingList)
+		self.child2 = _ScriptTracksReads('p1.child2', d, self.trackingList)
+		self.child3 = _ScriptTracksReads('p1.child3', d, self.trackingList)
+		self.child4 = _ScriptTracksReads('p1.child4', d, self.trackingList)
+
+		self.goodOrder = [self.child4, self.initjs, self.child3, self.child2, self.child1]
+
+
+	def test_getDependenciesNotCached(self):
+		"""
+		Proper read-order is impossible without cache.
+		"""
+		# Do it twice, to make sure there's no caching.
+		jsimp.getDeps(self.child4)
+		jsimp.getDeps(self.child4)
+
+		self.assert_(len(self.trackingList) > len(self.goodOrder),
+			'self.trackingList %r should have been longer than self.goodOrder' % (self.trackingList,))
+
+		self.assertNotEqual(self.goodOrder, self.trackingList)
+
+
+	def test_getDependenciesIsCached(self):
+		"""
+		Even with a lot of imports, each script is only read once.
+		"""
+		treeCache =  {}
+		# Do it twice, to make sure treeCache is being used.
+		jsimp.getDeps(self.child4, treeCache)
+		jsimp.getDeps(self.child4, treeCache)
+
+		self.assertEqual(self.goodOrder, self.trackingList)
 
 
 
@@ -386,6 +482,43 @@ class GetChildrenTests(unittest.TestCase):
 			set(p1.globChildren('Test*')))
 
 
+	def test_globChildrenNonPackage(self):
+		"""
+		The children of a non-package are []
+		"""
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+
+		p1 = jsimp.Script('p1', d)
+		child1 = jsimp.Script('p1.Testchild1', d)
+
+		self.assertEqual([], child1.globChildren('Test*'))
+
+
+
+
+class GetParentTests(unittest.TestCase):
+
+	def setUp(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('p1').makedirs()
+		d.child('p1').child('__init__.js').setContent('//')
+		d.child('p1').child('Testchild1.js').setContent('//')
+
+		self.p1 = jsimp.Script('p1', d)
+		self.child1 = jsimp.Script('p1.Testchild1', d)
+
+
+	def test_getParentNoTreeCache(self):
+		self.assertEqual(self.p1, self.child1.getParent())
+
+
+	def test_getParentWithTreeCache(self):
+		self.assertEqual(self.p1, self.child1.getParent({}))
 
 
 
@@ -414,7 +547,7 @@ class _DummyScript(object):
 		return hash(self.name)
 
 
-	def getDependencies(self):
+	def getDependencies(self, treeCache=None): # treeCache is ignored
 		# O(N^2) but it doesn't matter since this is a dummy
 		final = []
 		for dep in self.deps:
@@ -652,11 +785,11 @@ var y=;
 
 
 
-class GetContentTests(unittest.TestCase):
+class RenderContentTests(unittest.TestCase):
 
 	def test_getNormalContent(self):
 		s1 = _DummyContentScript('name', 'content\n')
-		self.assertEqual('content\n', s1.getContent())
+		self.assertEqual('content\n', s1.renderContent({}))
 
 
 	def test_getTemplatedContent(self):
@@ -667,7 +800,7 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\nx\n', s1.getContent())
+		self.assertEqual(u'content\nx\n', s1.renderContent({}))
 
 
 	def test_getTemplatedVariableContent1(self):
@@ -678,7 +811,7 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\nx\n', s1.getContent(dict(_xMode=1)))
+		self.assertEqual(u'content\nx\n', s1.renderContent(dict(_xMode=1)))
 
 
 	def test_getTemplatedVariableContent2(self):
@@ -689,4 +822,4 @@ content
 x
 //] endif
 ''')
-		self.assertEqual(u'content\n', s1.getContent(dict(_xMode="1")))
+		self.assertEqual(u'content\n', s1.renderContent(dict(_xMode="1")))
