@@ -22,6 +22,7 @@ class CorruptScriptError(Exception):
 
 
 
+# HTML helpers. TODO: move these elsewhere
 def cacheBreakerForPath(path):
 	"""
 	Create a ?cachebreaker useful for appending to a URL.
@@ -37,6 +38,42 @@ def cacheBreakerForPath(path):
 	cacheBreaker = struct.pack('<d', timestamp).encode('hex')
 
 	return cacheBreaker
+
+
+
+
+def scriptContent(script, dictionary=None):
+	"""
+	Generate an HTML4/5 <script> tag with the script contents.
+	"""
+
+	template = "<script>%s;\n%s</script>"
+
+	return template % (script._underscoreName(), script.renderContent(dictionary))
+
+
+
+def scriptSrc(script, mountedAt):
+	"""
+	Generate an HTML4/5 <script src="...">
+
+	C{script} is a L{Script}
+	C{mountedAt} is a relative or absolute URI,
+		indicating where the root package is on the web server.
+	"""
+
+	if not isinstance(mountedAt, str):
+		raise ValueError("Need a str for mountedAt; got %r" % (mountedAt,))
+
+	template = """<script>%s</script><script src="%s?%s"></script>\n"""
+
+	cacheBreaker = cacheBreakerForPath(script.getAbsoluteFilename())
+
+	return template % (
+		script._underscoreName(),
+		uriparse.urljoin(mountedAt, script.getFilename()),
+		cacheBreaker)
+# End HTML helpers
 
 
 
@@ -66,7 +103,7 @@ def _depTraverse(script, treeCache, flat=None, depChain=None):
 def getDeps(script, treeCache=None):
 	"""
 	Return the list of scripts that must be included
-	for L{script} to work properly.
+	for C{script} to work properly.
 	"""
 	if treeCache is None:
 		treeCache = {}
@@ -85,7 +122,7 @@ def getDeps(script, treeCache=None):
 def getDepsMany(scripts, treeCache=None):
 	"""
 	Return the list of scripts that must be included
-	for L{scripts} to work properly.
+	for C{scripts} to work properly.
 	"""
 	if treeCache is None:
 		treeCache = {}
@@ -101,7 +138,7 @@ def getDepsMany(scripts, treeCache=None):
 
 
 
-def megaScript(scripts, wrapper, dictionary={}):
+def megaScript(scripts, wrapper, dictionary=None):
 	"""
 	C{scripts} is an iterable of L{Script} objects.
 
@@ -116,6 +153,8 @@ def megaScript(scripts, wrapper, dictionary={}):
 	it with the anonymous function wrapper (useful for JScript,
 	which thinks named function expressions are declarations.)
 	"""
+	if dictionary is None:
+		dictionary = {}
 	data = ''
 	if wrapper:
 		dictionary['_wasWrapped'] = True
@@ -154,19 +193,16 @@ class Script(object):
 	"""
 
 	packageFilename = '__init__.js'
-	__slots__ = ['_name', '_basePath', '_mountedAt', '_importStringCache', '__weakref__']
+	__slots__ = ['_name', '_basePath', '_importStringCache', '__weakref__']
 
-	def __init__(self, name, basePath, mountedAt=None):
+	def __init__(self, name, basePath):
 		"""
-		L{name} is the module name (examples: 'module', 'package', 'package.module')
-		L{basePath} is a twisted.python.filepath.FilePath instance.
-		L{mountedAt} (optional) is a relative or absolute URI,
-			indicating where the root package is on the web server.
+		C{name} is the module name (examples: 'module', 'package', 'package.module')
+		C{basePath} is a L{twisted.python.filepath.FilePath}.
 		"""
 		# TODO: verify that `name' is a valid JavaScript identifier (or identifier.identifier, and so on.)
 		self._name = name
 		self._basePath = basePath
-		self._mountedAt = mountedAt
 		self._importStringCache = None
 
 
@@ -174,8 +210,7 @@ class Script(object):
 		if type(self) != type(other):
 			return False
 		return (self._name == other._name and
-			self._basePath == other._basePath and
-			self._mountedAt == other._mountedAt)
+			self._basePath == other._basePath)
 
 
 	def __ne__(self, other):
@@ -183,16 +218,16 @@ class Script(object):
 
 
 	def __hash__(self):
-		return hash((self._name, self._basePath, self._mountedAt))
+		return hash((self._name, self._basePath))
 
 
 	def __repr__(self):
-		return '<%s %r in %r @ %r>' % (
-			self.__class__.__name__, self._name, self._basePath.basename(), self._mountedAt)
+		return '<%s %r in %r>' % (
+			self.__class__.__name__, self._name, self._basePath.basename())
 
 
 	def _getScriptWithName(self, name):
-		return self.__class__(name, self._basePath, self._mountedAt)
+		return self.__class__(name, self._basePath)
 
 
 	def getName(self):
@@ -258,12 +293,14 @@ class Script(object):
 		return uni
 
 
-	def renderContent(self, dictionary={}):
+	def renderContent(self, dictionary=None):
 		"""
 		Get the post-template-render textual content of this script. Returns unicode.
 
-		L{dictionary} is a dictionary of key->value for the template renderer.
+		C{dictionary} is a dictionary of key->value for the template renderer.
 		"""
+		if dictionary is None:
+			dictionary = {}
 		uni = self.getContent()
 		return _theWriter.render(uni, dictionary)
 
@@ -319,7 +356,7 @@ class Script(object):
 		C{treeCache}, if doing many calls to L{getDependencies}.
 
 		If using the same C{treeCache}, caller is responsible for calling
-		L{getDependencies} only for the same pair of (self._basePath, self._mountedAt).
+		L{getDependencies} only for the same self._basePath.
 
 		As long as caller holds a reference to this dictionary and keeps
 		passing it in, changes to scripts on disk will not be seen.
@@ -350,7 +387,7 @@ class Script(object):
 
 	def globChildren(self, pattern):
 		"""
-		L{pattern} is a glob pattern that matches filenames
+		C{pattern} is a glob pattern that matches filenames
 		(including the .js extension) and package directories.
 		It should almost always end with C{'*'}.
 
@@ -393,34 +430,6 @@ class Script(object):
 		return "%s = {'__name__': '%s'}" % (self._name, self._name)
 
 
-	def scriptContent(self):
-		"""
-		Generate an HTML4/5 <script> tag with the script contents.
-		"""
-
-		template = "<script>%s;\n%s</script>"
-
-		return template % (self._underscoreName(), self.getContent())
-
-
-	def scriptSrc(self):
-		"""
-		Generate an HTML4/5 <script src="...">
-		"""
-
-		if not isinstance(self._mountedAt, str):
-			raise ValueError("Need a str for self._mountedAt; had %r" % (self._mountedAt,))
-
-		template = """<script>%s</script><script src="%s?%s"></script>\n"""
-
-		cacheBreaker = cacheBreakerForPath(self.getAbsoluteFilename())
-
-		return template % (
-			self._underscoreName(),
-			uriparse.urljoin(self._mountedAt, self.getFilename()),
-			cacheBreaker)
-
-
 
 class JavaScriptWriter(object):
 
@@ -452,8 +461,8 @@ class JavaScriptWriter(object):
 
 	def render(self, template, dictionary):
 		"""
-		L{template} is the unicode (or str) template.
-		L{dictionary} is a dict of values to help fill the template.
+		C{template} is the unicode (or str) template.
+		C{dictionary} is a dict of values to help fill the template.
 
 		Return value is the rendered template, in unicode.
 		"""

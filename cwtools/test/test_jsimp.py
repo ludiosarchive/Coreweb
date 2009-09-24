@@ -46,24 +46,10 @@ class _AlmostAScript(jsimp.Script):
 
 class ComparisonTests(unittest.TestCase):
 
-	def test_compare(self):
+	def test_equal(self):
 		self.assertEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
 			jsimp.Script('p.mod1', FilePath('/tmp'))
-		)
-
-
-	def test_compareAndMountedAt(self):
-		self.assertEqual(
-			jsimp.Script('p.mod1', FilePath('/tmp'), '/'),
-			jsimp.Script('p.mod1', FilePath('/tmp'), '/')
-		)
-
-
-	def test_notEqualAndMountedAt(self):
-		self.assertNotEqual(
-			jsimp.Script('p.mod1', FilePath('/tmp')),
-			jsimp.Script('p.mod1', FilePath('/tmp'), '')
 		)
 
 
@@ -71,6 +57,20 @@ class ComparisonTests(unittest.TestCase):
 		self.assertEqual(
 			hash(jsimp.Script('p.mod1', FilePath('/tmp'))),
 			hash(jsimp.Script('p.mod1', FilePath('/tmp')))
+		)
+
+
+	def test_notEqualNames(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod2', FilePath('/tmp'))
+		)
+
+
+	def test_notEqualPaths(self):
+		self.assertNotEqual(
+			jsimp.Script('p.mod1', FilePath('/tmp')),
+			jsimp.Script('p.mod1', FilePath('/tmp/a'))
 		)
 
 
@@ -154,7 +154,7 @@ class PathForModuleTests(unittest.TestCase):
 
 class ScriptTagTests(unittest.TestCase):
 	"""
-	Tests for L{Script}'s L{scriptContent} and L{scriptSrc}
+	Tests for L{scriptContent} and L{scriptSrc}
 	"""
 
 	def test_scriptContents(self):
@@ -165,7 +165,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }\n'
 		c.child('mod1.js').setContent(contents)
 
-		html = jsimp.Script('p.mod1', d).scriptContent()
+		html = jsimp.scriptContent(jsimp.Script('p.mod1', d))
 		self.assertEqual(
 			u"""<script>p.mod1 = {'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
 			html
@@ -182,15 +182,19 @@ class ScriptTagTests(unittest.TestCase):
 
 		for mountedAt in ['/hello/', 'http://another.domain/']:
 
-			script = jsimp.Script('p.mod1', d, mountedAt=mountedAt)
-			html = script.scriptSrc()
+			script = jsimp.Script('p.mod1', d)
+			html = jsimp.scriptSrc(script, mountedAt)
 
 			self.assert_(
-				html.startswith("""<script>%s</script><script src="%s?""" % (script._underscoreName(), mountedAt + 'p/mod1.js'))
+				html.startswith(
+					"""<script>%s</script><script src="%s?""" % (
+					script._underscoreName(), mountedAt + 'p/mod1.js')),
+				html
 			)
 
 			self.assert_(
-				html.endswith("""</script>\n""")
+				html.endswith("""</script>\n"""),
+				html
 			)
 
 
@@ -202,7 +206,7 @@ class ScriptTagTests(unittest.TestCase):
 		contents = 'function a() { return "A func"; }'
 		c.child('mod1.js').setContent(contents)
 
-		self.assertRaises(ValueError, lambda: jsimp.Script('p.mod1', d).scriptSrc())
+		self.assertRaises(ValueError, lambda: jsimp.scriptSrc(jsimp.Script('p.mod1', d), u'bad-unicode-url'))
 
 
 
