@@ -6,6 +6,11 @@ from cwtools import jsimp
 
 
 def _getTests(packages):
+	"""
+	C{packages} is a list of strings representing JavaScript package names.
+
+	@return: a list of L{Script}s.
+	"""
 	JSPATH = FilePath(os.environ['JSPATH'])
 	tests = []
 	for package in packages:
@@ -13,6 +18,26 @@ def _getTests(packages):
 		# TODO: make this descend Test packages, too (imitate Twisted Trial)
 		tests.extend(jsimp.Script(package, JSPATH).globChildren('Test*'))
 	return tests
+
+
+
+def _getScriptContent(tests, globalObject):
+	scriptContent = jsimp.megaScript(
+		jsimp.getDepsMany(tests),
+		wrapper=True,
+		dictionary=dict(_debugMode=True),
+		globalObject=globalObject)
+	return scriptContent
+
+
+
+def _getModuleListString(tests):
+	moduleList = []
+	for t in tests:
+		moduleList.append(t.getName())
+	moduleString = '[' + ','.join(moduleList) + ']'
+	return moduleString
+
 
 
 class TestPage(resource.Resource):
@@ -55,17 +80,13 @@ class TestPage(resource.Resource):
 
 
 		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
+		# `Node' also needs the wrapper because our code assumes the global object is `window',
+		# and the wrapper fixes that.
 
-		scriptContent = jsimp.megaScript(
-			jsimp.getDepsMany(theTests),
-			wrapper=True,
-			dictionary=dict(_debugMode=True))
+		scriptContent = _getScriptContent(theTests, 'window')
 
 		# ...but don't run the tests on the dependency modules
-		moduleList = []
-		for t in theTests:
-			moduleList.append(t.getName())
-		moduleString = '[' + ','.join(moduleList) + ']'
+		moduleString = _getModuleListString(theTests)
 
 		jsw = jsimp.JavaScriptWriter()
 		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()

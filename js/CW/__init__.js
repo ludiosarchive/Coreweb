@@ -712,7 +712,7 @@ if(window.console && window.console.firebug) {
 /*
  * Set up the <div id="CW-debug-log"></div> as a CW log observer.
  */
-if(document.getElementById('CW-debug-log')) {
+if(window.document && document.getElementById('CW-debug-log')) {
 	CW.logger.addObserver(function _CW_debug_log_observer(evt) {
 		var prepend;
 		if (evt.isError) {
@@ -734,6 +734,32 @@ if(document.getElementById('CW-debug-log')) {
 
 		if (evt.isError) {
 			appendLine('', evt.error);
+		}
+	});
+}
+
+
+// TODO: Log to file? Log to stderr?
+if(typeof puts !== 'undefined' && typeof p !== 'undefined') {
+	CW.logger.addObserver(function _CW_debug_log_observer(evt) {
+		var prepend;
+		if (evt.isError) {
+			prepend = "CW error: ";
+		} else {
+			prepend = "CW log: ";
+		}
+
+		function appendLine(prefix, message) {
+			print('[' + CW.localTime() + '] ' + prefix + message + '\n');
+		}
+
+		appendLine(prepend, evt.message);
+
+		if (evt.isError) {
+			appendLine('', evt.error);
+			if(evt.error.stack) {
+				appendLine('', evt.error.stack);
+			}
 		}
 	});
 }

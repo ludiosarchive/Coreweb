@@ -1150,7 +1150,7 @@ CW.UnitTest.runWeb = function runWeb(test) {
  * @param test: The test to run.
  * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
-CW.UnitTest.runConsole = function runWeb(test) {
+CW.UnitTest.runConsole = function runConsole(test) {
 	var result = CW.UnitTest.ConsoleTestResult();
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){
@@ -1503,7 +1503,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 		ticket = __CW_setTimeout_bak(
 			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable.call(ticket, []) },
 		when);
-	} else if(window.frames[0] && window.frames[0].setTimeout) {
+	} else if(window.frames && window.frames[0] && window.frames[0].setTimeout) {
 		ticket = window.frames[0].setTimeout(
 			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable.call(ticket, []) },
 		when);
@@ -1526,7 +1526,7 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 
 	if(window.__CW_setInterval_bak) {
 		ticket = __CW_setInterval_bak(callable, when);
-	} else if(window.frames[0] && window.frames[0].setInterval) {
+	} else if(window.frames && window.frames[0] && window.frames[0].setInterval) {
 		ticket = window.frames[0].setInterval(callable, when);
 	} else {
 		throw new CW.Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
@@ -1545,7 +1545,7 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	if(window.__CW_clearTimeout_bak) {
 		output = __CW_clearTimeout_bak(ticket);
-	} else if(window.frames[0] && window.frames[0].clearTimeout) {
+	} else if(window.frames && window.frames[0] && window.frames[0].clearTimeout) {
 		output = window.frames[0].clearTimeout(ticket);
 	} else {
 		throw new CW.Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
@@ -1563,7 +1563,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	if(window.__CW_clearInterval_bak) {
 		output = __CW_clearInterval_bak(ticket);
-	} else if(window.frames[0] && window.frames[0].clearInterval) {
+	} else if(window.frames && window.frames[0] && window.frames[0].clearInterval) {
 		output = window.frames[0].clearInterval(ticket);
 	} else {
 		throw new CW.Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
