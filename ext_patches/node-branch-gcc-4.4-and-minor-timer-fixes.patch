@@ -1,0 +1,60 @@
+diff --git a/deps/v8/SConstruct b/deps/v8/SConstruct
+index b5aa7ab..b9f5308 100644
+--- a/deps/v8/SConstruct
++++ b/deps/v8/SConstruct
+@@ -238,7 +238,7 @@ V8_EXTRA_FLAGS = {
+   'gcc': {
+     'all': {
+       'WARNINGFLAGS': ['-Wall',
+-                       '-Werror',
++#                       '-Werror',
+                        '-W',
+                        '-Wno-unused-parameter',
+                        '-Wnon-virtual-dtor']
+diff --git a/src/node.js b/src/node.js
+index 257c5e8..cd7204f 100644
+--- a/src/node.js
++++ b/src/node.js
+@@ -48,22 +48,38 @@ node.tcp.createConnection = function (port, host) {
+ 
+ // Timers
+ 
++// The first ticket number will be 2, which is how Firefox and Chrome do it.
++__globalTimerCounter__ = 1;
++__globalTimerMap__ = {};
++
+ function setTimeout (callback, after) {
+   var timer = new node.Timer();
+-  timer.addListener("timeout", callback);
++  var ticket = ++__globalTimerCounter__;
++  __globalTimerMap__[ticket] = timer;
++  timer.addListener("timeout", function(){
++    callback.apply(null, []);
++    delete __globalTimerMap__[ticket];
++  });
+   timer.start(after, 0);
+-  return timer;
++  return ticket;
+ }
+ 
+ function setInterval (callback, repeat) {
+   var timer = new node.Timer();
+   timer.addListener("timeout", callback);
+   timer.start(repeat, repeat);
+-  return timer;
++  var ticket = ++__globalTimerCounter__;
++  __globalTimerMap__[ticket] = timer;
++  return ticket;
+ }
+ 
+-function clearTimeout (timer) {
++function clearTimeout (ticket) {
++  var timer = __globalTimerMap__[ticket];
++  if(timer === undefined) {
++    return;
++  }
+   timer.stop();
++  delete __globalTimerMap__[ticket];
+   delete timer;
+ }
+ 
