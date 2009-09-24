@@ -20,7 +20,8 @@ def cacheBreakerForPath(path):
 	and not just for development.
 	"""
 
-	# Timestamp from the filesystem may come in nanosecond precision (6 decimal places)
+	# The timestamp from the filesystem may have any amount of precision.
+	# Nanosecond precision (6 decimal places) on Linux has been observed.
 	timestamp = path.getModificationTime()
 
 	# Pack the timestamp (float) for slight obfuscation.
@@ -29,6 +30,7 @@ def cacheBreakerForPath(path):
 	return cacheBreaker
 
 
+# TODO: handle higher Mozilla-only JavaScript versions. (1.6-1.8); applies to scriptSrc too
 def scriptContent(script, dictionary=None):
 	"""
 	Generate an HTML4/5 <script> tag with the script contents.
