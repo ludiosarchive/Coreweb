@@ -1,3 +1,4 @@
+/* {LICENSE:primary,Nevow,Twisted} */
 /* obfu-vars:
 _pauseLevel, _continue, _runCallbacks, _callbacks, _called, _result */
 

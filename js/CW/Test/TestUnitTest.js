@@ -456,6 +456,10 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 				self.result.errors[0][1].error.getMessage(),
 				"Test ended with 1 pending call(s): setInterval_pending");
 		});
+		d.addBoth(function(){
+			// Cleanup
+			clearInterval(error._interval);
+		});
 		return d;
 	},
 
@@ -838,19 +842,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 			pleaseRunMeWasRun = true;
 		};
 
-		var ticket1 = setTimeout(neverRunMe, 10);
+		self._ticket1 = setTimeout(neverRunMe, 10);
 		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 
-		var ticket2 = setTimeout(pleaseRunMe, 11);
+		self._ticket2 = setTimeout(pleaseRunMe, 11);
 		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
-		clearTimeout(ticket1);
+		clearTimeout(self._ticket1);
 		// ticket2 is *not* cleared. we want to test that setTimeout does work.
 		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket1]);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][ticket2]);
+		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
 		var d = new CW.Defer.Deferred();
 
@@ -881,19 +885,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 			pleaseRunMeWasRun += 1;
 		};
 
-		var ticket1 = setInterval(neverRunMe, 10);
+		self._ticket1 = setInterval(neverRunMe, 10);
 		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 
-		var ticket2 = setInterval(pleaseRunMe, 10);
+		self._ticket2 = setInterval(pleaseRunMe, 10);
 		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
-		clearInterval(ticket1);
+		clearInterval(self._ticket1);
 		// ticket2 is *not* cleared yet. we want to test that setInterval does work.
 		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket1]);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][ticket2]);
+		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
+		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
 		var d = new CW.Defer.Deferred();
 
@@ -902,13 +906,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 			// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
 			self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
 			self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-			clearInterval(ticket2);
+			clearInterval(self._ticket2);
 			self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 		});
 
 		setTimeout(function(){d.callback(null)}, 35);
 
 		return d;
+	},
+
+
+	function tearDown(self) {
+		clearInterval(self._ticket1);
+		clearInterval(self._ticket2);
 	}
 );
 

@@ -106,6 +106,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_setTimeoutLoose').methods(
 
 CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_setIntervalLoose').methods(
 	function test_method(self) {
-		setInterval(function(){}, 10);
+		self._interval = setInterval(function(){}, 10);
 	}
 );

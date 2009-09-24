@@ -251,16 +251,16 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	},
 
 
-	function addSkip(self, test, failure) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, failure]);
+	function addSkip(self, test, skip) {
+		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... SKIP');
 		var pre = document.createElement("pre");
-		pre.innerHTML = failure.toString();
+		pre.innerHTML = skip.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
-		//self._div.appendChild(failure.toPrettyNode());
+		//self._div.appendChild(skip.toPrettyNode());
 	},
 
 
@@ -272,6 +272,54 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		self._div.appendChild(br);
 	}
 );
+
+
+
+/**
+ * Print tests results to the console, as they are run. If you try to use
+ * this in a browser environment, it will repeatedly open the 'print page'
+ * dialog.
+ */
+CW.UnitTest.TestResult.subclass(CW.UnitTest, 'ConsoleTestResult').methods(
+	function __init__(self) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, '__init__', []);
+	},
+
+
+	function startTest(self, test) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'startTest', [test]);
+		print(test.id());
+	},
+
+
+	function addError(self, test, error) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
+		print('... ERROR\n');
+		print('\n' + error.toString() + '\n\n');
+	},
+
+
+	function addFailure(self, test, failure) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
+		print('... FAILURE\n');
+		print('\n' + failure.toString() + '\n\n');
+	},
+
+
+	function addSkip(self, test, skip) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
+		print('... SKIP\n');
+		print('\n' + skip.toString() + '\n\n');
+	},
+
+
+	function addSuccess(self, test) {
+		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSuccess', [test]);
+		print('... OK\n');
+	}
+);
+
+
 
 
 // no more subunit/spidermonkey
@@ -1061,12 +1109,14 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 
 
 /**
- * Run the given test, printing the summary of results and any errors.
+ * Run the given test, printing the summary of results and any errors
+ * to a DIV with id 'CW-test-log', then display an summary in the top-
+ * right corner.
  *
  * @param test: The test to run.
  * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
-CW.UnitTest.run = function run(test) {
+CW.UnitTest.runWeb = function runWeb(test) {
 	var div = document.getElementById('CW-test-log');
 	var result = CW.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
@@ -1090,6 +1140,29 @@ CW.UnitTest.run = function run(test) {
 	});
 	return d;
 };
+
+
+
+/**
+ * Run the given test, printing the summary of results and any errors
+ * to the console, which must have a print statement in the global object.
+ *
+ * @param test: The test to run.
+ * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
+ */
+CW.UnitTest.runConsole = function runConsole(test) {
+	var result = CW.UnitTest.ConsoleTestResult();
+	var d = test.run(result);
+	d.addCallback(function _UnitTest_after_run(){
+		var timeTaken = new Date().getTime() - result.timeStarted;
+
+		print(CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
+		// If you forget the newline at the end of this line, Node.js will drop the line completely.
+		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
+	});
+	return d;
+};
+
 
 
 
@@ -1411,10 +1484,8 @@ CW.UnitTest.stopTrackingDelayedCalls();
 
 
 CW.UnitTest.setTimeoutMonkey = function(callable, when) {
-	function replacementCallable() {
-//		var originalLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
-		delete CW.UnitTest.delayedCalls['setTimeout_pending'][this];
-//		var newLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
+	function replacementCallable(ticket) {
+		delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
@@ -1422,18 +1493,18 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 //		}
 
 		// actually run the callable
-		callable();
+		callable.apply(null, []);
 	}
 
 	var ticket = null;
 
 	if(window.__CW_setTimeout_bak) {
 		ticket = __CW_setTimeout_bak(
-			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable.call(ticket, []) },
+			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable(ticket) },
 		when);
-	} else if(window.frames[0] && window.frames[0].setTimeout) {
+	} else if(window.frames && window.frames[0] && window.frames[0].setTimeout) {
 		ticket = window.frames[0].setTimeout(
-			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable.call(ticket, []) },
+			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable(ticket) },
 		when);
 	} else {
 		throw new CW.Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
@@ -1454,7 +1525,7 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 
 	if(window.__CW_setInterval_bak) {
 		ticket = __CW_setInterval_bak(callable, when);
-	} else if(window.frames[0] && window.frames[0].setInterval) {
+	} else if(window.frames && window.frames[0] && window.frames[0].setInterval) {
 		ticket = window.frames[0].setInterval(callable, when);
 	} else {
 		throw new CW.Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
@@ -1473,7 +1544,7 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	if(window.__CW_clearTimeout_bak) {
 		output = __CW_clearTimeout_bak(ticket);
-	} else if(window.frames[0] && window.frames[0].clearTimeout) {
+	} else if(window.frames && window.frames[0] && window.frames[0].clearTimeout) {
 		output = window.frames[0].clearTimeout(ticket);
 	} else {
 		throw new CW.Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
@@ -1491,7 +1562,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	if(window.__CW_clearInterval_bak) {
 		output = __CW_clearInterval_bak(ticket);
-	} else if(window.frames[0] && window.frames[0].clearInterval) {
+	} else if(window.frames && window.frames[0] && window.frames[0].clearInterval) {
 		output = window.frames[0].clearInterval(ticket);
 	} else {
 		throw new CW.Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");

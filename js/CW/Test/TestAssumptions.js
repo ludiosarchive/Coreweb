@@ -9,8 +9,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
 	 * Browser detection from jQuery 1.3.2.
 	 */
 	function setUp(self) {
-		var userAgent = window.navigator.userAgent.toLowerCase();
-		self.probablyMSIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+		try {
+			var userAgent = window.navigator.userAgent.toLowerCase();
+			self.probablyMSIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+		} catch(e) {
+			// Some strange environment like Node.js, most likely not MSIE
+			self.probablyMSIE = false;
+		}
 	},
 
 

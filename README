@@ -1,3 +1,5 @@
+=== Limited project scope ===
+
 Coreweb should contain JavaScript and Flash (haXe/AS3) files that assist in
 building web applications, but not related to any server-side technology.
 
@@ -7,7 +9,16 @@ requires a custom-built (and unstandardized) server.
 Another example: client-side code to synchronize the client's clock with a server
 should not be here, because that requires a custom-built server.
 
-The code in Coreweb should not rely on Python at all.
+The JavaScript code in Coreweb should not rely on Python at all.
 
 Nothing here relies on special server code, so cwtools/testres/ contains only static
 files, which are expected to be served at /@testres_CW/
+
+=== Browser-environment testing ===
+
+Start the web server, navigate to its /@tests/ page.
+TODO: write more
+
+=== Command-line testing ===
+
+For the command line testing, a patched Node.js is required.
