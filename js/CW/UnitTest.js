@@ -1484,10 +1484,8 @@ CW.UnitTest.stopTrackingDelayedCalls();
 
 
 CW.UnitTest.setTimeoutMonkey = function(callable, when) {
-	function replacementCallable() {
-//		var originalLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
-		delete CW.UnitTest.delayedCalls['setTimeout_pending'][this];
-//		var newLen = CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length;
+	function replacementCallable(ticket) {
+		delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
@@ -1495,18 +1493,18 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 //		}
 
 		// actually run the callable
-		callable();
+		callable.apply(null, []);
 	}
 
 	var ticket = null;
 
 	if(window.__CW_setTimeout_bak) {
 		ticket = __CW_setTimeout_bak(
-			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable.call(ticket, []) },
+			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable(ticket) },
 		when);
 	} else if(window.frames && window.frames[0] && window.frames[0].setTimeout) {
 		ticket = window.frames[0].setTimeout(
-			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable.call(ticket, []) },
+			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable(ticket) },
 		when);
 	} else {
 		throw new CW.Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
