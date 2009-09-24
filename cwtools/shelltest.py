@@ -26,6 +26,11 @@ var d = CW.UnitTest.runConsole(suite);
 d.addCallback(function(){});
 """ % (moduleString,)
 
+	# Node will exit automatically when all timeouts/intervals are done.
+	# Do not call node.exit(code) when the tests are done. One reason we're using
+	# Node.js is to make sure that all timeouts and intervals are cleared after a
+	# test suite finishes.
+
 	return scriptContent + runCode
 
 
