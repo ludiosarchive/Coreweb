@@ -241,6 +241,17 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 		u.update('host', 'host');
 		u.update('scheme', 'https');
 		self.assertEqual("https://host/", u.getString());
+	},
+
+
+	/**
+	 * .update calls can be chained
+	 */
+	function test_fluentInterface(self) {
+		var URL = CW.URI.URL;
+		var u = URL("https://host");
+		u.update('host', 'newhost').update('scheme', 'http');
+		self.assertEqual("http://newhost/", u.getString());
 	}
 );
 

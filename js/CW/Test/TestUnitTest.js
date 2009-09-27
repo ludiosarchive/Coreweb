@@ -475,7 +475,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 	 */
 	function test_setTimeoutLooseNested(self) {
 		// the loose call in this "parent" test
-		setTimeout(function(){}, 300);
+		setTimeout(function(){}, 60);
 
 		var suite = CW.UnitTest.TestSuite();
 		// "child" test will have a loose call, too.

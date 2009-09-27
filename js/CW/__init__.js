@@ -186,6 +186,31 @@ CW.dir = function dir(obj) {
 };
 
 
+/**
+ * Returns a function, which when called, calls C{func} in
+ * context C{context} (i.e., C{this} will be C{context} in C{func})
+ */
+CW.bind = function bind(context, func) {
+	return function() {
+		func.apply(context, arguments);
+	}
+}
+
+
+/*
+Idea for CW.bindReplaceArgs:
+
+CW.bindReplaceArgs = function bind(context, func, args) {
+	return function() {
+		func.apply(context, args);
+	}
+}
+
+(Prototype.js's Function.prototype.bind does args + arguments,
+but taking this speed hit is not good)
+ */
+
+
 // Useful for blanking event handlers, especially in CW.Net 
 CW.emptyFunc = new Function;
 

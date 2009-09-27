@@ -272,7 +272,11 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 	},
 
 	/**
+	 * Set URL C{property} to C{value}.
+	 *
 	 * Don't give this unknown property names.
+	 *
+	 * @return: C{this}
 	 */
 	function update(self, property, value, _internalCall/*=false*/) {
 		self[property] = value;
@@ -286,6 +290,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		} else if(property == 'port') {
 			self._postPropertyUpdate_port(_internalCall);
 		}
+		return this;
 	},
 
 	/**
