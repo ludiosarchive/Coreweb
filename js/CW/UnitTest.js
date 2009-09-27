@@ -6,6 +6,7 @@
  */
 
 
+// import CW.DOM
 // import CW.Defer
 // import CW.Inspect
 
@@ -231,7 +232,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
-		pre.innerHTML = error.toString();
+		CW.DOM.setText(pre, error.toString());
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -243,7 +244,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
-		pre.innerHTML = failure.toString();
+		CW.DOM.setText(pre, failure.toString());
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -256,7 +257,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... SKIP');
 		var pre = document.createElement("pre");
-		pre.innerHTML = skip.toString();
+		CW.DOM.setText(pre, skip.toString());
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
