@@ -275,5 +275,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'FormatTests').methods(
 		self.assertEqual("hello", CW.format("hello"));
 		self.assertEqual("hello{}", CW.format("hello{}"));
 		self.assertEqual("{}hello", CW.format("{}hello"));
+		self.assertEqual("{}hello", CW.format("{}hello", "ignored-param"));
 	}
 );
