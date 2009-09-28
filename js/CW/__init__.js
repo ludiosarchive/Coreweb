@@ -211,6 +211,22 @@ but taking this speed hit is not good)
  */
 
 
+/**
+ * Like Python 2.6+ str.format, except no auto-numbering.
+ *
+ * Example:
+ * var url = CW.format("{0}{1}.{2}/index.html", arg1, arg2, arg3);
+ */
+CW.format = function format() {
+	var values = Array.prototype.slice.call(arguments);
+	var string = values.shift();
+	return string.replace(/\{(\d+)\}/g, function() {
+		return values[arguments[1]];
+	});
+};
+
+
+
 // Useful for blanking event handlers, especially in CW.Net 
 CW.emptyFunc = new Function;
 

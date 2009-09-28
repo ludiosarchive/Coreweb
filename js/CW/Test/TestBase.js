@@ -245,3 +245,35 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'RandomTests').methods(
 		self.assertNotIdentical(one, two, "Why are the two random strings identical?");
 	}
 );
+
+
+
+/**
+ * Check that CW.format works.
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'FormatTests').methods(
+
+	function test_format(self) {
+		self.assertEqual("hello", CW.format("hell{0}", "o"));
+		self.assertEqual("hello world", CW.format("hell{0}{1}", "o", " world"));
+	},
+
+
+	/**
+	 * CW.format works beyond 10 parameters.
+	 * (at least 2 digits are supported)
+	 */
+	function test_noLimitOf10(self) {
+		self.assertEqual("abcdefghijk",
+			CW.format(
+				"{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}",
+				"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"));
+	},
+
+
+	function test_formatNoSubstitutions(self) {
+		self.assertEqual("hello", CW.format("hello"));
+		self.assertEqual("hello{}", CW.format("hello{}"));
+		self.assertEqual("{}hello", CW.format("{}hello"));
+	}
+);
