@@ -255,12 +255,9 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	function addSkip(self, test, skip) {
 		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
-		var textnode = document.createTextNode('... SKIP');
-		var pre = document.createElement("pre");
-		CW.DOM.setText(pre, skip.toString());
+		var textnode = document.createTextNode('... SKIP: ' + skip.error.getMessage());
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
-		self._div.appendChild(pre);
 		//self._div.appendChild(skip.toPrettyNode());
 	},
 
