@@ -120,7 +120,7 @@ class PathForModuleTests(unittest.TestCase):
 
 
 
-class ImportParsingTests(unittest.TestCase):
+class ImportParsingForScriptTests(unittest.TestCase):
 
 	def test_getImportStrings(self):
 		d = FilePath(self.mktemp())
@@ -194,6 +194,44 @@ function a() { return "A func"; }
 
 
 
+class ImportParsingForVirtualScriptTests(unittest.TestCase):
+
+	def test_getImportStrings(self):
+		contents = '''\
+// import p	\r
+// import p.blah
+//import p.other
+
+function a() { return "A func"; }
+
+// import p.last
+'''
+		strings = jsimp.VirtualScript(contents)._getImportStrings()
+
+		self.assertEqual(
+			['p', 'p.blah', 'p.other', 'p.last'],
+			strings)
+
+		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
+
+
+	def test_getDependencies(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+
+		d.child('q.js').setContent('// \n')
+		d.child('r.js').setContent('// \n')
+
+		p = jsimp.VirtualScript('// import q\n// import r\n', basePath=d)
+		q = jsimp.Script('q', d)
+		r = jsimp.Script('r', d)
+
+		self.assertEqual(
+			[q, r],
+			p.getDependencies())
+
+
+
 class GetNameTests(unittest.TestCase):
 
 	def test_getNameRoot(self):
@@ -221,10 +259,9 @@ class GetNameTests(unittest.TestCase):
 
 class _ScriptTracksReads(jsimp.Script):
 	"""
-	A Script that tracks when getContent is called, to verify
-	that caching actually works.
+	I am a Script that tracks when getContent is called,
+	to verify that caching actually works.
 	"""
-
 	def __init__(self, name, basePath, trackingList):
 		jsimp.Script.__init__(self, name, basePath)
 		self.trackingList = trackingList
@@ -410,7 +447,7 @@ class GetChildrenTests(unittest.TestCase):
 
 
 
-class GetParentTests(unittest.TestCase):
+class GetParentForScriptTests(unittest.TestCase):
 
 	def setUp(self):
 		d = FilePath(self.mktemp())
@@ -428,8 +465,22 @@ class GetParentTests(unittest.TestCase):
 
 
 	def test_getParentWithTreeCache(self):
-		self.assertEqual(self.p1, self.child1.getParent({}))
+		self.assertEqual(self.p1, self.child1.getParent(treeCache={}))
 
+
+
+class GetParentForVirtualScriptTests(unittest.TestCase):
+
+	def setUp(self):
+		self.p1 = jsimp.VirtualScript('// some contents')
+
+
+	def test_getParentNoTreeCache(self):
+		self.assertEqual(None, self.p1.getParent())
+
+
+	def test_getParentWithTreeCache(self):
+		self.assertEqual(None, self.p1.getParent(treeCache={}))
 
 
 
@@ -656,7 +707,7 @@ class MegaScriptTests(unittest.TestCase):
 	def test_megaScriptNoWrapper(self):
 		s1 = _DummyContentScript('s1', 'var x={};\n')
 		s2 = _DummyContentScript('s2', 'var y={};\n')
-		result = jsimp.megaScript([s1, s2], False)
+		result = jsimp.megaScript([s1, s2], wrapper=False)
 		self.assertEqual(u'''\
 s1 = {'__name__': 's1'};
 var x={};
@@ -668,7 +719,7 @@ var y={};
 	def test_megaScriptWrapper(self):
 		s1 = _DummyContentScript('s1', 'var x={};\n')
 		s2 = _DummyContentScript('s2', 'var y={};\n')
-		result = jsimp.megaScript([s1, s2], True)
+		result = jsimp.megaScript([s1, s2], wrapper=True)
 		self.assertEqual(u'''\
 (function(window, undefined) {
 var document = window.document;
@@ -684,7 +735,7 @@ var y={};
 		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
 		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
 
-		result = jsimp.megaScript([s1, s2], False, dict(something="hi"))
+		result = jsimp.megaScript([s1, s2], wrapper=False, dictionary=dict(something="hi"))
 
 		self.assertEqual(u'''\
 s1 = {'__name__': 's1'};
@@ -710,16 +761,40 @@ var y=;
 		self.assertEqual(d2Copy, d2)
 
 
+	def test_virtualScript(self):
+		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
+		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
+		v = jsimp.VirtualScript('// import s1\n// import s2\nvar z = 3;\n', basePath=None)
 
-class RenderContentTests(unittest.TestCase):
+		result = jsimp.megaScript([s1, s2, v], wrapper=False, dictionary=dict(something="hi"))
+
+		self.assertEqual(u'''\
+s1 = {'__name__': 's1'};
+var x=hi;
+s2 = {'__name__': 's2'};
+var y=;
+/* VirtualScript */;
+// import s1
+// import s2
+var z = 3;
+''', result)
+
+
+
+
+class RenderContentOnScriptTests(unittest.TestCase):
+
+	def _make(self, name, content):
+		return _DummyContentScript(name, content)
+
 
 	def test_getNormalContent(self):
-		s1 = _DummyContentScript('name', 'content\n')
+		s1 = self._make('name', 'content\n')
 		self.assertEqual('content\n', s1.renderContent({}))
 
 
 	def test_getTemplatedContent(self):
-		s1 = _DummyContentScript('name',
+		s1 = self._make('name',
 u'''\
 content
 //] if 1 == 1
@@ -730,7 +805,7 @@ x
 
 
 	def test_getTemplatedVariableContent1(self):
-		s1 = _DummyContentScript('name',
+		s1 = self._make('name',
 u'''\
 content
 //] if _xMode == 1
@@ -741,7 +816,7 @@ x
 
 
 	def test_getTemplatedVariableContent2(self):
-		s1 = _DummyContentScript('name',
+		s1 = self._make('name',
 u'''\
 content
 //] if _xMode == 1
@@ -756,8 +831,15 @@ x
 		Well, L{renderContent} doesn't even need to mutate anything right
 		now, but someone could screw it up and forget to C{dictionary.copy()}.
 		"""
-		s1 = _DummyContentScript('name', 'content\n')
+		s1 = self._make('name', 'content\n')
 		d = dict(something='2')
 		dCopy = d.copy()
 		s1.renderContent(d)
 		self.assertEqual(dCopy, d)
+
+
+
+class RenderContentOnVirtualScriptTests(RenderContentOnScriptTests):
+
+	def _make(self, name, content):
+		return jsimp.VirtualScript(content)

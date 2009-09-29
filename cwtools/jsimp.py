@@ -82,9 +82,9 @@ def getDepsMany(scripts, treeCache=None):
 
 def megaScript(scripts, wrapper, dictionary={}, globalObject=u'window'):
 	"""
-	C{scripts} is an iterable of L{Script} objects.
+	C{scripts} is an iterable of L{Script} or L{VirtualScript} objects.
 
-	C{wrapper} should be true C{True} if you want the wrapper,
+	C{wrapper} should be C{True} if you want the wrapper,
 		otherwise C{False}.
 
 	C{dictionary} is a dictionary of key->value to pass into
@@ -120,7 +120,76 @@ def parentContainsChild(parent, child):
 
 
 
-class Script(object):
+class _BaseScript(object):
+	"""
+	Base class for both on-disk and in-memory scripts.
+	"""
+	def renderContent(self, dictionary=None):
+		"""
+		Get the post-template-render textual content of this script. Returns unicode.
+
+		C{dictionary} is a dictionary of key->value for the template renderer.
+		"""
+		uni = self.getContent()
+		return _theWriter.render(uni, dictionary)
+
+
+	def _getImportStrings(self):
+		if self._importStringCache is not None:
+			return self._importStringCache
+
+		# Returns a list of UTF-8 encoded strings.
+		imports = []
+		for line in self.getContent().split('\n'):
+			clean = line.rstrip()
+			if clean.startswith('// import '):
+				imports.append(clean.replace('// import ', '', 1).encode('utf-8'))
+			elif clean.startswith('//import '):
+				imports.append(clean.replace('//import ', '', 1).encode('utf-8'))
+
+		self._importStringCache = imports
+		return imports
+
+
+	def getDependencies(self, treeCache=None):
+		"""
+		Get dependency scripts for this script.
+
+		To speed things up, caller can pass in the same dictionary for
+		C{treeCache}, if doing many calls to L{getDependencies}.
+
+		If using the same C{treeCache}, caller is responsible for calling
+		L{getDependencies} only for the same self._basePath.
+
+		As long as caller holds a reference to this dictionary and keeps
+		passing it in, changes to scripts on disk will not be seen.
+		"""
+		if treeCache is None:
+			treeCache = {}
+
+		deps = []
+		namesSeen = set()
+
+		# Parent module is an implicit dependency
+		parent = self.getParent(treeCache)
+		if parent:
+			deps.append(parent)
+
+		for importeeName in self._getImportStrings():
+			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
+			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
+			namesSeen.add(importeeName)
+
+			importee = treeCache.get(importeeName)
+			if not importee:
+				importee = self._getScriptWithName(importeeName)
+				treeCache[importeeName] = importee
+			deps.append(importee)
+		return deps
+
+
+
+class Script(_BaseScript):
 	"""
 	Represents a JavaScript file that has:
 		a full name,
@@ -135,7 +204,7 @@ class Script(object):
 	"""
 
 	packageFilename = '__init__.js'
-	__slots__ = ['_name', '_basePath', '_importStringCache', '__weakref__']
+	##__slots__ = ['_name', '_basePath', '_importStringCache', '__weakref__']
 
 	def __init__(self, name, basePath):
 		"""
@@ -219,7 +288,7 @@ class Script(object):
 
 	def getContent(self):
 		"""
-		Get the unicode content of this file.
+		Get the unicode content of this script.
 		"""
 		bytes = self.getAbsoluteFilename().getContent()
 		if len(bytes) == 0:
@@ -233,16 +302,6 @@ class Script(object):
 			uni = bytes.decode('utf-8')
 
 		return uni
-
-
-	def renderContent(self, dictionary=None):
-		"""
-		Get the post-template-render textual content of this script. Returns unicode.
-
-		C{dictionary} is a dictionary of key->value for the template renderer.
-		"""
-		uni = self.getContent()
-		return _theWriter.render(uni, dictionary)
 
 
 	def _getParentName(self):
@@ -269,60 +328,6 @@ class Script(object):
 			treeCache[parentName] = parentModule
 
 		return parentModule
-
-
-	def _getImportStrings(self):
-		if self._importStringCache is not None:
-			return self._importStringCache
-
-		# Returns a list of UTF-8 encoded strings.
-		imports = []
-		for line in self.getContent().split('\n'):
-			clean = line.rstrip()
-			if clean.startswith('// import '):
-				imports.append(clean.replace('// import ', '', 1).encode('utf-8'))
-			elif clean.startswith('//import '):
-				imports.append(clean.replace('//import ', '', 1).encode('utf-8'))
-
-		self._importStringCache = imports
-		return imports
-
-
-	def getDependencies(self, treeCache=None):
-		"""
-		Get dependency scripts for this script.
-
-		To speed things up, caller can pass in the same dictionary for
-		C{treeCache}, if doing many calls to L{getDependencies}.
-
-		If using the same C{treeCache}, caller is responsible for calling
-		L{getDependencies} only for the same self._basePath.
-
-		As long as caller holds a reference to this dictionary and keeps
-		passing it in, changes to scripts on disk will not be seen.
-		"""
-		if treeCache is None:
-			treeCache = {}
-
-		deps = []
-		namesSeen = set()
-
-		# Parent module is an implicit dependency
-		parent = self.getParent(treeCache)
-		if parent:
-			deps.append(parent)
-		
-		for importeeName in self._getImportStrings():
-			if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
-				log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
-			namesSeen.add(importeeName)
-
-			importee = treeCache.get(importeeName)
-			if not importee:
-				importee = self._getScriptWithName(importeeName)
-				treeCache[importeeName] = importee
-			deps.append(importee)
-		return deps
 
 
 	def globChildren(self, pattern):
@@ -368,6 +373,72 @@ class Script(object):
 		"""
 		
 		return "%s = {'__name__': '%s'}" % (self._name, self._name)
+
+
+
+class NoBasePathNoImportsError(Exception):
+	pass
+
+
+
+class VirtualScript(_BaseScript):
+	"""
+	Represents a JavaScript script stored only in memory.
+	"""
+	def __init__(self, contents, basePath=None):
+		"""
+		@param contents: the script contents
+		@type contents: unicode
+
+		@param basePath: base path for on-disk scripts that
+			this L{VirtualScript} can import
+		@type basePath: L{twisted.python.filepath.FilePath}
+		"""
+		self._contents = contents
+		self._basePath = basePath
+		self._importStringCache = None
+
+
+	def __eq__(self, other):
+		if type(self) != type(other):
+			return False
+		return (
+			self._contents == other._contents and
+			self._basePath == other._basePath)
+
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+
+	def __hash__(self):
+		return hash(self._contents)
+
+
+	def __repr__(self):
+		return '<%s, contents begin with %r>' % (
+			self.__class__.__name__, self._contents)
+
+
+	def _getScriptWithName(self, name):
+		if self._basePath is None:
+			raise NoBasePathNoImportsError("basePath is None, so I cannot instantiate Scripts")
+		return Script(name, self._basePath)
+
+
+	def _underscoreName(self):
+		return "/* %s */" % (self.__class__.__name__,)
+
+
+	def getContent(self):
+		"""
+		Get the unicode content of this script.
+		"""
+		return self._contents
+
+
+	def getParent(self, treeCache=None):
+		return None
 
 
 
