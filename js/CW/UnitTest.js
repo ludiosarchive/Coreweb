@@ -60,7 +60,8 @@ CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
 	var namePieces = klass.__name__.split('.');
 	var lastPiece = namePieces[namePieces.length - 1];
 	if (lastPiece.substr(0, 1) == '_') {
-		CW.msg('Assuming ' + klass + ' is not a runnable TestCase class.');
+		CW.msg('CW.UnitTest.isRunnableTestCaseClass: ' +
+			'assuming ' + klass + ' is not a runnable TestCase class.');
 		return false;
 	}
 	return true;
