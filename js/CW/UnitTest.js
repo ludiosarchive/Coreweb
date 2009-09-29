@@ -52,9 +52,6 @@ CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
 	if(!CW.UnitTest.isTestCaseClass(klass)) {
 		return false;
 	}
-	if(!klass.__name__) { // Strange, but we'll allow it.
-		return true;
-	}
 	// JavaScript has no multiple inheritance, which makes defining
 	// a "base class" with tests, and then defining a real test case
 	// that subclasses (BaseTestClass, CW.UnitTest.TestCase) impossible.
