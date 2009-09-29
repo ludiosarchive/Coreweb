@@ -8,6 +8,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, '_StartsWithUnders
 );
 
 
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'EndsWithUnderscore_').methods(
+	function test_nothing(self) {
+
+	}
+);
+
+
 
 /**
  * Tests for assertions in L{CW.UnitTest.TestCase}.
@@ -24,7 +31,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	},
 
 	/**
-	 * Verify that isTestCaseClass returns a positive result for TestCase
+	 * Verify that L{isTestCaseClass} returns a positive result for L{TestCase}
 	 * subclasses and a negative result for other types of object.
 	 */
 	function test_isTestCaseClass(self) {
@@ -41,8 +48,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 
 
 	/**
-	 * Verify that isRunnableTestCaseClass returns a positive result for
-	 * TestCase subclasses that don't start with "_" and a negative result
+	 * Verify that L{isRunnableTestCaseClass} returns a positive result for
+	 * L{TestCase} subclasses that don't start with "_" and a negative result
 	 * for others.
 	 */
 	function test_isRunnableTestCaseClass(self) {
@@ -60,6 +67,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		self.assertIdentical(
 			false, CW.UnitTest.isRunnableTestCaseClass(
 				CW.Test.TestUnitTestAssertions._StartsWithUnderscore));
+		self.assertIdentical(
+			true, CW.UnitTest.isRunnableTestCaseClass(
+				CW.Test.TestUnitTestAssertions.EndsWithUnderscore_));
 	},
 
 
