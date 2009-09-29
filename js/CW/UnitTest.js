@@ -30,14 +30,43 @@ CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 
 
 /**
- * Return C{true} is given value is a subclass of L{CW.UnitTest.TestCase},
+ * @return: C{true} if C{klass} is a subclass of L{CW.UnitTest.TestCase}
  * C{false} otherwise.
  */
 CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 	if (klass.subclassOf === undefined) {
 		return false;
 	}
-	return klass.subclassOf(CW.UnitTest.TestCase);
+	if(!klass.subclassOf(CW.UnitTest.TestCase)) {
+		return false;
+	}
+	return true;
+};
+
+
+/**
+ * @return: C{true} if C{klass} is a subclass of L{CW.UnitTest.TestCase}
+ * and its name does not start with "_", C{false} otherwise.
+ */
+CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
+	if(!CW.UnitTest.isTestCaseClass(klass)) {
+		return false;
+	}
+	if(!klass.__name__) { // Strange, but we'll allow it.
+		return true;
+	}
+	// JavaScript has no multiple inheritance, which makes defining
+	// a "base class" with tests, and then defining a real test case
+	// that subclasses (BaseTestClass, CW.UnitTest.TestCase) impossible.
+	// So, we implement this primitive system that avoids running TestCase
+	// subclasses that start with "_".
+	var namePieces = klass.__name__.split('.');
+	var lastPiece = namePieces[namePieces.length - 1];
+	if (lastPiece.substr(0, 1) == '_') {
+		CW.msg('Assuming ' + klass + ' is not a runnable TestCase class.');
+		return false;
+	}
+	return true;
 };
 
 
@@ -47,7 +76,7 @@ CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 CW.UnitTest.loadFromModule = function loadFromModule(testModule) {
 	var suite = CW.UnitTest.TestSuite();
 	for (var name in testModule) {
-		if (CW.UnitTest.isTestCaseClass(testModule[name])) {
+		if (CW.UnitTest.isRunnableTestCaseClass(testModule[name])) {
 			suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
 		}
 	}
@@ -64,7 +93,7 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 	for (var i in testModules) {
 		var testModule = testModules[i];
 		for (var name in testModule) {
-			if (CW.UnitTest.isTestCaseClass(testModule[name])) {
+			if (CW.UnitTest.isRunnableTestCaseClass(testModule[name])) {
 				suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
 			}
 		}

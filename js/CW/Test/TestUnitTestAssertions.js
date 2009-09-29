@@ -1,5 +1,14 @@
 // import CW.UnitTest
 
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, '_StartsWithUnderscore').methods(
+	function test_nothing(self) {
+
+	}
+);
+
+
+
 /**
  * Tests for assertions in L{CW.UnitTest.TestCase}.
  */
@@ -18,7 +27,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	 * Verify that isTestCaseClass returns a positive result for TestCase
 	 * subclasses and a negative result for other types of object.
 	 */
-
 	function test_isTestCaseClass(self) {
 		self.assertIdentical(
 			true, CW.UnitTest.isTestCaseClass(
@@ -27,8 +35,33 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 			false, CW.UnitTest.isTestCaseClass(
 				CW.Test.TestUnitTestAssertions.AssertionTests()));
 		self.assertIdentical(
-			false, CW.UnitTest.isTestCaseClass(1));
+			false, CW.UnitTest.isTestCaseClass(
+				1));
 	},
+
+
+	/**
+	 * Verify that isRunnableTestCaseClass returns a positive result for
+	 * TestCase subclasses that don't start with "_" and a negative result
+	 * for others.
+	 */
+	function test_isRunnableTestCaseClass(self) {
+		// copy/paste from above; changed method name.
+		self.assertIdentical(
+			true, CW.UnitTest.isRunnableTestCaseClass(
+				CW.Test.TestUnitTestAssertions.AssertionTests));
+		self.assertIdentical(
+			false, CW.UnitTest.isRunnableTestCaseClass(
+				CW.Test.TestUnitTestAssertions.AssertionTests()));
+		self.assertIdentical(
+			false, CW.UnitTest.isRunnableTestCaseClass(
+				1));
+
+		self.assertIdentical(
+			false, CW.UnitTest.isRunnableTestCaseClass(
+				CW.Test.TestUnitTestAssertions._StartsWithUnderscore));
+	},
+
 
 
 	/**
