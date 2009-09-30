@@ -81,9 +81,9 @@ def getDepsMany(scripts, treeCache=None):
 	# We don't need a real basePath for the VirtualScript; the
 	# C{scripts} themselves may have real basePaths if needed.
 	v = VirtualScript('', basePath=None, forcedDeps=scripts)
+
 	deps = getDeps(v, treeCache=treeCache)
-	# The last item is the VirtualScript itself, which we don't want.
-	deps.pop()
+	deps.pop() # The last item is the VirtualScript itself, which we don't want.
 	return deps
 
 
