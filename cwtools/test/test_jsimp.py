@@ -835,20 +835,19 @@ var z = 3;
 
 
 
-
 class RenderContentOnScriptTests(unittest.TestCase):
 
-	def _make(self, name, content):
+	def _makeScript(self, name, content):
 		return _DummyContentScript(name, content)
 
 
 	def test_getNormalContent(self):
-		s1 = self._make('name', 'content\n')
+		s1 = self._makeScript('name', 'content\n')
 		self.assertEqual('content\n', s1.renderContent({}))
 
 
 	def test_getTemplatedContent(self):
-		s1 = self._make('name',
+		s1 = self._makeScript('name',
 u'''\
 content
 //] if 1 == 1
@@ -859,7 +858,7 @@ x
 
 
 	def test_getTemplatedVariableContent1(self):
-		s1 = self._make('name',
+		s1 = self._makeScript('name',
 u'''\
 content
 //] if _xMode == 1
@@ -870,7 +869,7 @@ x
 
 
 	def test_getTemplatedVariableContent2(self):
-		s1 = self._make('name',
+		s1 = self._makeScript('name',
 u'''\
 content
 //] if _xMode == 1
@@ -885,7 +884,7 @@ x
 		Well, L{renderContent} doesn't even need to mutate anything right
 		now, but someone could screw it up and forget to C{dictionary.copy()}.
 		"""
-		s1 = self._make('name', 'content\n')
+		s1 = self._makeScript('name', 'content\n')
 		d = dict(something='2')
 		dCopy = d.copy()
 		s1.renderContent(d)
@@ -895,5 +894,5 @@ x
 
 class RenderContentOnVirtualScriptTests(RenderContentOnScriptTests):
 
-	def _make(self, name, content):
+	def _makeScript(self, name, content):
 		return jsimp.VirtualScript(content)
