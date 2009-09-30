@@ -1,6 +1,6 @@
 import jinja2
 
-from twisted.python import log
+##from twisted.python import log
 
 
 class FindScriptError(Exception):
@@ -472,16 +472,15 @@ class VirtualScript(_BaseScript):
 
 
 class JavaScriptWriter(object):
-
 	"""
 	The macro language defined here should be easily portable to another
 	template system / language (maybe TeX?).
 
 	When writing things for this template system, make it sound like English:
 
-	browser.supports('JSON')
+		browser.supports('JSON')
 
-	browser.hasBug('')
+		browser.hasBug('')
 	"""
 
 	def __init__(self):
