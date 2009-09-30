@@ -404,10 +404,10 @@ class VirtualScript(_BaseScript):
 	"""
 	_realScriptClass = Script
 
-	def __init__(self, contents, basePath=None, forcedDeps=None):
+	def __init__(self, content, basePath=None, forcedDeps=None):
 		"""
-		@param contents: the script contents
-		@type contents: unicode
+		@param content: the script content
+		@type content: unicode
 
 		@param basePath: base path for on-disk scripts that
 			this L{VirtualScript} can import
@@ -415,10 +415,10 @@ class VirtualScript(_BaseScript):
 
 		@param forcedDeps: sequence of L{Script}-like objects to
 			treat as dependencies for this L{VirtualScript}, in addition
-			to the imports in C{contents}.
+			to the imports in C{content}.
 		@type forcedDeps: any sequence
 		"""
-		self._contents = contents
+		self._content = content
 		self._basePath = basePath
 		self._forcedDeps = forcedDeps
 		self._importStringCache = None
@@ -428,7 +428,7 @@ class VirtualScript(_BaseScript):
 		if type(self) != type(other):
 			return False
 		return (
-			self._contents == other._contents and
+			self._content == other._content and
 			self._basePath == other._basePath)
 
 
@@ -437,12 +437,12 @@ class VirtualScript(_BaseScript):
 
 
 	def __hash__(self):
-		return hash(self._contents)
+		return hash(self._content)
 
 
 	def __repr__(self):
-		return '<%s, contents begin with %r>' % (
-			self.__class__.__name__, self._contents)
+		return '<%s, content begin with %r>' % (
+			self.__class__.__name__, self._content)
 
 
 	def _getForcedDependencies(self):
@@ -463,7 +463,7 @@ class VirtualScript(_BaseScript):
 		"""
 		Get the unicode content of this script.
 		"""
-		return self._contents
+		return self._content
 
 
 	def getParent(self, treeCache=None):
