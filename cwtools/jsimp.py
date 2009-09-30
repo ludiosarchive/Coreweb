@@ -385,6 +385,8 @@ class VirtualScript(_BaseScript):
 	"""
 	Represents a JavaScript script stored only in memory.
 	"""
+	_realScriptClass = Script
+
 	def __init__(self, contents, basePath=None):
 		"""
 		@param contents: the script contents
@@ -423,7 +425,7 @@ class VirtualScript(_BaseScript):
 	def _getScriptWithName(self, name):
 		if self._basePath is None:
 			raise NoBasePathNoImportsError("basePath is None, so I cannot instantiate Scripts")
-		return Script(name, self._basePath)
+		return self._realScriptClass(name, self._basePath)
 
 
 	def _underscoreName(self):
