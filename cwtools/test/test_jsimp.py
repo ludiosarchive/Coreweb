@@ -12,7 +12,12 @@ class _AlmostAScript(jsimp.Script):
 
 
 
-class ComparisonTests(unittest.TestCase):
+class _AlmostAVirtualScript(jsimp.VirtualScript):
+	pass
+
+
+
+class ScriptComparisonTests(unittest.TestCase):
 
 	def test_equal(self):
 		self.assertEqual(
@@ -55,6 +60,53 @@ class ComparisonTests(unittest.TestCase):
 		self.assertNotEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
 			_AlmostAScript('p.mod1', FilePath('/tmp'))
+		)
+
+
+
+class VirtualScriptComparisonTests(unittest.TestCase):
+
+	def test_equal(self):
+		self.assertEqual(
+			jsimp.VirtualScript('contents'),
+			jsimp.VirtualScript('contents')
+		)
+
+
+	def test_sameHash(self):
+		self.assertEqual(
+			hash(jsimp.VirtualScript('contents')),
+			hash(jsimp.VirtualScript('contents'))
+		)
+
+
+	def test_notEqualNames(self):
+		self.assertNotEqual(
+			jsimp.VirtualScript('contents'),
+			jsimp.VirtualScript('different-contents')
+		)
+
+
+	def test_notEqualPaths(self):
+		self.assertNotEqual(
+			jsimp.VirtualScript('contents', FilePath('/tmp')),
+			jsimp.VirtualScript('contents', FilePath('/tmp/a'))
+		)
+
+
+	def test_putInSet(self):
+		s = set()
+		x1 = jsimp.VirtualScript('contents')
+		x2 = jsimp.VirtualScript('contents')
+		s.add(x1)
+		s.add(x2)
+		self.assertEqual(1, len(s))
+
+
+	def test_compareDifferentTypes(self):
+		self.assertNotEqual(
+			jsimp.VirtualScript('contents'),
+			_AlmostAVirtualScript('contents')
 		)
 
 
