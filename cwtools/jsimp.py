@@ -44,7 +44,12 @@ def _depTraverse(script, treeCache, flat=None, depChain=None):
 
 def getDeps(script, treeCache=None):
 	"""
-	Return the list of scripts that must be included
+	@type script: a L{Script}-like object.
+	@param scripts: a L{Script}-like object which may or may not
+		have dependencies.
+
+	@rtype: list
+	@return: the list of scripts that must be included
 	for C{script} to work properly.
 	"""
 	if treeCache is None:
@@ -63,7 +68,11 @@ def getDeps(script, treeCache=None):
 
 def getDepsMany(scripts, treeCache=None):
 	"""
-	Return the list of scripts that must be included
+	@type scripts: any sequence
+	@param scripts: sequence of L{Script}-like objects.
+
+	@rtype: list
+	@return: the list of scripts that must be included
 	for C{scripts} to work properly.
 	"""
 	if treeCache is None:
