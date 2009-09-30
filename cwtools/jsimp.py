@@ -77,15 +77,14 @@ def getDepsMany(scripts, treeCache=None):
 	"""
 	if treeCache is None:
 		treeCache = {}
-	alreadySeen = set()
-	returnList = []
-	for script in scripts:
-		deps = getDeps(script, treeCache)
-		for dep in deps:
-			if dep not in alreadySeen:
-				returnList.append(dep)
-				alreadySeen.add(dep)
-	return returnList
+
+	# We don't need a real basePath for the VirtualScript; the
+	# C{scripts} themselves may have real basePaths if needed.
+	v = VirtualScript('', basePath=None, forcedDeps=scripts)
+	deps = getDeps(v, treeCache=treeCache)
+	# The last item is the VirtualScript itself, which we don't want.
+	deps.pop()
+	return deps
 
 
 
@@ -160,6 +159,10 @@ class _BaseScript(object):
 		return imports
 
 
+	def _getForcedDependencies(self):
+		return None
+
+
 	def getDependencies(self, treeCache=None):
 		"""
 		Get dependency scripts for this script.
@@ -183,6 +186,11 @@ class _BaseScript(object):
 		parent = self.getParent(treeCache)
 		if parent:
 			deps.append(parent)
+
+		# Forced dependencies, if any
+		forced = self._getForcedDependencies()
+		if forced:
+			deps.extend(forced)
 
 		for importeeName in self._getImportStrings():
 			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
@@ -396,7 +404,7 @@ class VirtualScript(_BaseScript):
 	"""
 	_realScriptClass = Script
 
-	def __init__(self, contents, basePath=None):
+	def __init__(self, contents, basePath=None, forcedDeps=None):
 		"""
 		@param contents: the script contents
 		@type contents: unicode
@@ -407,6 +415,7 @@ class VirtualScript(_BaseScript):
 		"""
 		self._contents = contents
 		self._basePath = basePath
+		self._forcedDeps = forcedDeps
 		self._importStringCache = None
 
 
@@ -429,6 +438,10 @@ class VirtualScript(_BaseScript):
 	def __repr__(self):
 		return '<%s, contents begin with %r>' % (
 			self.__class__.__name__, self._contents)
+
+
+	def _getForcedDependencies(self):
+		return self._forcedDeps
 
 
 	def _getScriptWithName(self, name):

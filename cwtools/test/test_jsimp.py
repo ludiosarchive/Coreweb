@@ -553,6 +553,8 @@ class _DummyScript(object):
 
 
 	def __eq__(self, other):
+		if type(self) != type(other):
+			return False
 		return (self.name == other.name)
 
 
@@ -687,7 +689,7 @@ class DependencyTests(unittest.TestCase):
 		allDummies.update([a, b, d, z])
 
 		self.assertEqual(
-			[b, a, z, d],
+			[z, d, b, a],
 			jsimp.getDepsMany([a, d])
 		)
 
@@ -707,7 +709,7 @@ class DependencyTests(unittest.TestCase):
 		allDummies.update([a, b, d, z])
 
 		self.assertEqual(
-			[z, b, a, d],
+			[z, d, b, a],
 			jsimp.getDepsMany([a, d])
 		)
 
