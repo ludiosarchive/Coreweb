@@ -412,6 +412,11 @@ class VirtualScript(_BaseScript):
 		@param basePath: base path for on-disk scripts that
 			this L{VirtualScript} can import
 		@type basePath: L{twisted.python.filepath.FilePath}
+
+		@param forcedDeps: sequence of L{Script}-like objects to
+			treat as dependencies for this L{VirtualScript}, in addition
+			to the imports in C{contents}.
+		@type forcedDeps: any sequence
 		"""
 		self._contents = contents
 		self._basePath = basePath
