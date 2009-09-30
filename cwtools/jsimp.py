@@ -88,7 +88,7 @@ def getDepsMany(scripts, treeCache=None):
 
 
 
-def megaScript(scripts, wrapper, dictionary={}, globalObject=u'window'):
+def megaScript(scripts, wrapper, dictionary={}, globalObjectName=u'window'):
 	"""
 	C{scripts} is an iterable of L{Script} or L{VirtualScript} objects.
 
@@ -117,7 +117,7 @@ var document = window.document;
 		data += script.renderContent(dictionary)
 
 	if wrapper:
-		data += u'})(%s);\n' % (globalObject,)
+		data += u'})(%s);\n' % (globalObjectName,)
 
 	return data
 

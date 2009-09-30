@@ -21,12 +21,12 @@ def _getTests(packages):
 
 
 
-def _getScriptContent(tests, globalObject):
+def _getScriptContent(tests, globalObjectName):
 	scriptContent = jsimp.megaScript(
 		jsimp.getDepsMany(tests),
 		wrapper=True,
 		dictionary=dict(_debugMode=True),
-		globalObject=globalObject)
+		globalObjectName=globalObjectName)
 	return scriptContent
 
 
