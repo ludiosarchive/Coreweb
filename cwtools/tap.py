@@ -34,13 +34,15 @@ This starts a Coreweb Testrun."""
 
 
 def makeService(config):
+	from twisted.internet import reactor
+
 	s = service.MultiService()
 
 	testPackages = config['packages'].split(',')
 
 	root = corewebsite.Index(testPackages)
 
-	site = server.Site(root)
+	site = server.Site(root, clock=reactor)
 	site.displayTracebacks = not config["notracebacks"]
 
 	if not config['servera']:

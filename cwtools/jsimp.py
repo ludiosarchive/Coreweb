@@ -503,7 +503,8 @@ class JavaScriptWriter(object):
 		C{template} is the unicode (or str) template.
 		C{dictionary} is a dict of values to help fill the template.
 
-		Return value is the rendered template, in unicode.
+		@rtype: unicode
+		@return: the rendered template
 		"""
 		if dictionary is None:
 			dictionary = {}
