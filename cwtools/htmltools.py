@@ -10,6 +10,7 @@ work better when JavaScript is loaded from many files.
 
 import struct
 from webmagic import uriparse
+from cwtools import jsimp
 
 
 def cacheBreakerForPath(path):
@@ -61,3 +62,17 @@ def scriptSrc(script, mountedAt):
 		script._underscoreName(),
 		uriparse.urljoin(mountedAt, script.getFilename()),
 		cacheBreaker)
+
+
+def expandScript(script, basePath=None):
+	if basePath is None:
+		import os
+		if not 'JSPATH' in os.environ:
+			raise RuntimeError("No basePath argument passed, and no os.environ['JSPATH']")
+		from twisted.python.filepath import FilePath
+		basePath=FilePath(os.environ['JSPATH'])
+
+	v = jsimp.VirtualScript(script, basePath)
+	deps = jsimp.getDeps(v)
+	full = jsimp.megaScript(deps, wrapper=True, dictionary=dict(_debugMode=True))
+	return full

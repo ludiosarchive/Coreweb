@@ -96,3 +96,32 @@ class ScriptTagTests(unittest.TestCase):
 
 		self.assertRaises(ValueError, lambda: htmltools.scriptSrc(jsimp.Script('p.mod1', d), u'bad-unicode-url'))
 
+
+
+class ExpandScriptTests(unittest.TestCase):
+	"""
+	Tests for L{htmltools.expandScript}
+	"""
+	def test_basicExpansion(self):
+		d = FilePath(self.mktemp())
+
+		c = d.child('p')
+		c.makedirs()
+		contents = 'x + 3;\n'
+		c.child('__init__.js').setContent('\n')
+		c.child('mod1.js').setContent(contents)
+
+		expected = u"""\
+(function(window, undefined) {
+var document = window.document;
+p = {'__name__': 'p'};
+
+p.mod1 = {'__name__': 'p.mod1'};
+x + 3;
+/* VirtualScript */;
+// import p.mod1
+x + 4;
+})(window);
+"""
+
+		self.assertEqual(expected, htmltools.expandScript("// import p.mod1\nx + 4;\n", d))
