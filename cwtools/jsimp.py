@@ -250,6 +250,8 @@ class _BaseScript(object):
 		if self._stringCache is not None:
 			return self._stringCache
 
+		self._implicitlyImportsParents = True # by default, assume it is not Closure-style code.
+
 		# Returns a list of UTF-8 encoded strings.
 		data = dict(imports=[], requires=[])
 		imports = data['imports']
@@ -261,6 +263,8 @@ class _BaseScript(object):
 				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
 			elif line.startswith('goog.require('):
 				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
+			elif line.startswith('goog.provide('):
+				self._implicitlyImportsParents = False
 
 		self._stringCache = data
 		return data
@@ -288,32 +292,37 @@ class _BaseScript(object):
 
 		deps = []
 		namesSeen = set()
+		data = self._getImportantStrings()
 
-		# Parent module is an implicit dependency
-		parent = self.getParent(treeCache)
-		if parent:
-			deps.append(parent)
+		# Parent module is an implicit dependency for Divmod/CW-style code.
+		if self._implicitlyImportsParents:
+			parent = self.getParent(treeCache)
+			if parent:
+				deps.append(parent)
 
 		# Forced dependencies, if any
 		forced = self._getForcedDependencies()
 		if forced:
 			deps.extend(forced)
 
-		for importeeName in self._getImportantStrings()['imports']:
-			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
-			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
-			namesSeen.add(importeeName)
-
+		def _addImportee(importeeName):
 			importee = treeCache.get(importeeName)
 			if not importee:
 				importee = self._getScriptWithName(importeeName)
 				treeCache[importeeName] = importee
 			deps.append(importee)
 
-		for requireeName in self._getImportantStrings()['requires']:
-			who = self._directoryScan.whoProvide(requireeName)
-			if who is None:
+		for importeeName in data['imports']:
+			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
+			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
+			namesSeen.add(importeeName)
+			_addImportee(importeeName)
+
+		for requireeName in data['requires']:
+			importee = self._directoryScan.whoProvide(requireeName)
+			if importee is None:
 				raise NobodyProvidesThis("%r requires %r but nobody provides it." % (self, requireeName))
+			_addImportee(importee)
 
 		return deps
 
