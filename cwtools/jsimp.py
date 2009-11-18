@@ -1,6 +1,84 @@
+"""
+This is designed to provide a Pythonic interface for concatenating both
+Divmod (CW)-style JavaScript code, and Closure-style code.
+
+Divmod-style code maps directly from the package name to a file path.
+For example, Divmod.Defer maps to either
+Divmod/Defer/__init__.js (first priority), or Divmod/Defer.js
+
+Closure-style code does not map from "requires name" to a file path. Each
+source file declares what it provides, like this:
+	goog.provide('goog.mod1');
+	goog.provide('goog.mod2');
+It also declares what it requires:
+	goog.require('goog.somedep');
+
+
+Why do we bother concatenating Closure-style code, when Closure can load all
+the JS it needs dynamically? Because a large project may require ~50 files, and
+with a separate <script> per file, the page load slows down by at least a second.
+"""
+
+# TODO: write function to scan an entire directory (This will usually be the JSPATH)
+# and build a cache of provided->file
+
+# // import Some.thing
+# lines will be assumed to use the filesystem directly, while
+# goog.require(...) lines will use the provided->file dict to determine the file.
+
+# In addition, the goog.require lines must be modified automatically: either comment, or remove
+
+
 import jinja2
+import simplejson
 
 ##from twisted.python import log
+
+
+class ProvideConflict(Exception):
+	pass
+
+
+
+class DirectoryScan(object):
+
+	def __init__(self, basePath):
+		self._basePath = basePath
+		self._mapping = {}
+		self.rescan()
+
+
+	def _scanPath(self, path):
+		for c in path.children():
+			if c.isdir():
+				self._scanPath(c)
+			elif c.path.endswith('.js'):
+				f = c.open('rb')
+				for line in f:
+					if line.startswith('goog.provide('):
+						quotedString = line[len('goog.provide('):line.find(')')]
+						if quotedString[0] == "'" and quotedString[-1] == "'":
+							quotedString = '"' + quotedString[1:-1] + '"'
+						provide = simplejson.loads(quotedString)
+						if provide in self._mapping:
+							raise ProvideConflict('%r already in _mapping. Conflict between files %r and %r.' % (provide, c, self._mapping[provide]))
+						self._mapping[provide] = c
+
+
+	def rescan(self):
+		self._mapping = {}
+		self._scanPath(self._basePath)
+
+
+	def whoProvide(self, what):
+		"""
+		@param what: a thing that a js file provides with goog.provide(...)
+		@type what: str
+
+		Return the L{FilePath} object of the file that provides this
+		"""
+		return self._mapping.get(what)
+
 
 
 class FindScriptError(Exception):

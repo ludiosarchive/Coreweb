@@ -7,6 +7,75 @@ from cwtools import jsimp
 
 
 
+class DirectoryScanTests(unittest.TestCase):
+
+	def setUp(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('sub').makedirs()
+		d.child('p.js').setContent(r'''
+goog.provide('hello.something');
+goog.provide('hello.another')
+goog.provide("hello.\u0000another2") // with comments
+goog.provide("hello.another3");
+goog.provide("hello.another4");/* with comments */
+''')
+
+		d.child('sub').child('x.js').setContent(r'''
+goog.provide('another');
+''')
+
+		self.d = d
+
+
+	def _testDefaultSet(self, ds):
+		self.aE(None, ds.whoProvide('missing'))
+		self.aE(self.d.child('p.js'), ds.whoProvide('hello.something'))
+		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another'))
+		self.aE(self.d.child('p.js'), ds.whoProvide(u'hello.\u0000another2'))
+		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another3'))
+		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another4'))
+		self.aE(self.d.child('sub').child('x.js'), ds.whoProvide('another'))
+
+
+	def test_scan(self):
+		ds = jsimp.DirectoryScan(self.d)
+		self._testDefaultSet(ds)
+
+
+	def test_rescan(self):
+		ds = jsimp.DirectoryScan(self.d)
+
+		self.d.child('newFile.js').setContent(r'''
+goog.provide('new.thing1');
+''')
+
+		self.d.child('newDir').makedirs()
+		self.d.child('newDir').child('newFile2.js').setContent(r'''
+goog.provide('new.thing2');
+''')
+
+		self._testDefaultSet(ds)
+		ds.rescan()
+		self._testDefaultSet(ds)
+
+		self.aE(self.d.child('newFile.js'), ds.whoProvide('new.thing1'))
+		self.aE(self.d.child('newDir').child('newFile2.js'), ds.whoProvide('new.thing2'))
+		self.aE(None, ds.whoProvide('new.missing'))
+
+
+	def test_conflictDuringInit(self):
+		self.d.child('q.js').setContent('goog.provide("hello.something")')
+		self.aR(jsimp.ProvideConflict, lambda: jsimp.DirectoryScan(self.d))
+
+
+	def test_conflictDuringRescan(self):
+		ds = jsimp.DirectoryScan(self.d)
+		self.d.child('q.js').setContent('goog.provide("hello.something")')
+		self.aR(jsimp.ProvideConflict, lambda: ds.rescan())
+
+
+
 class _AlmostAScript(jsimp.Script):
 	pass
 
