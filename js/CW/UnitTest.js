@@ -110,6 +110,17 @@ CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
 );
 
 
+/**
+ * Extract message from an error
+ */
+CW.UnitTest.extractMessage = function(error) {
+	if(error.getMessage) {
+		return error.getMessage(error);
+	} else {
+		return error.message;
+	}
+}
+
 
 /**
  * Represents the results of a run of unit tests.
@@ -282,7 +293,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	function addSkip(self, test, skip) {
 		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
-		var textnode = document.createTextNode('... SKIP: ' + skip.error.getMessage());
+		var textnode = document.createTextNode('... SKIP: ' + CW.UnitTest.extractMessage(skip.error));
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		//self._div.appendChild(skip.toPrettyNode());
@@ -816,9 +827,10 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			self.assert(e instanceof expectedError,
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
-				self.assertIdentical(
-					e.getMessage(), expectedMessage,
-					"Error started with wrong message: " + e.getMessage(), true);
+				var errorMessage = CW.UnitTest.extractMessage(e);
+				self.assert(CW.startswith(
+					errorMessage, expectedMessage),
+					"Error started with wrong message: " + errorMessage, true);
 			}
 		}
 		self.assert(threw != null, "Callable threw no error", true);

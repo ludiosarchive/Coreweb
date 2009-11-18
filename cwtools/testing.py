@@ -23,7 +23,9 @@ def _getTests(packages, basePath, directoryScan):
 def _getScriptContent(tests, globalObjectName):
 	scriptContent = jsimp.megaScript(
 		jsimp.getDepsMany(tests),
-		wrapper=True,
+		# Because we only use CW-style code for test runner pages, we don't care that
+		# the test page gets polluted with sort-of-visible window.* properties.
+		wrapper=False,
 		dictionary=dict(_debugMode=True),
 		globalObjectName=globalObjectName)
 	return scriptContent
