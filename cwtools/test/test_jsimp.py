@@ -303,12 +303,14 @@ goog.require("something.else");\r
 		d.child('r.js').setContent('// \n')
 		d.child('sub').child('__init__.js').setContent('// import q\n')
 		d.child('sub').child('noimportlines.js').setContent('// \n')
+		d.child('sub').child('closure_style_code.js').setContent('goog.provide("something")\n')
 
 		p = jsimp.Script('p', d)
 		q = jsimp.Script('q', d)
 		r = jsimp.Script('r', d)
 		initjs = jsimp.Script('sub', d)
 		noimportlines = jsimp.Script('sub.noimportlines', d)
+		closure_style_code = jsimp.Script('sub.closure_style_code', d)
 
 		self.assertEqual(
 			[q, r],
@@ -321,6 +323,11 @@ goog.require("something.else");\r
 		self.assertEqual(
 			[initjs],
 			noimportlines.getDependencies())
+
+		# Closure-style code does not implicitly depend on its parent
+		self.assertEqual(
+			[],
+			closure_style_code.getDependencies())
 
 
 
