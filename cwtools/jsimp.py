@@ -24,9 +24,7 @@ with a separate <script> per file, the page load slows down by at least a second
 
 # // import Some.thing
 # lines will be assumed to use the filesystem directly, while
-# goog.require(...) lines will use the provided->file dict to determine the file.
-
-# In addition, the goog.require lines must be modified automatically: either comment, or remove
+# goog.require(...) lines will use the provided->file dict to determine the Script.
 
 
 import jinja2
@@ -621,7 +619,7 @@ class JavaScriptWriter(object):
 
 		self.env = jinja2.Environment(
 			line_statement_prefix = '//]',
-			variable_start_string = '/**/',
+			variable_start_string = '/***/',
 			variable_end_string = '//',
 			# TODO: ? also define block_(end|start)_string
 			comment_start_string = '/*###',

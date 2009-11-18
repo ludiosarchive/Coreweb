@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- IE=8 prevents the user from turning on IE7 compatibility mode -->
 <meta http-equiv="X-UA-Compatible" content="IE=8" />
-<title>/**/pageTitle//</title>
+<title>/***/pageTitle//</title>
 </head>
 <body>
 
@@ -74,7 +74,7 @@ TestRunnerPage.logNewProps = function() {
 TestRunnerPage.startTests = function() {
 	CW.msg('Running tests.');
 
-	var modules = /**/moduleString//;
+	var modules = /***/moduleString//;
 	var suite = CW.UnitTest.loadFromModules(modules);
 
 	var d = CW.UnitTest.runWeb(suite);
@@ -110,7 +110,7 @@ if(TestRunnerPage._abortExecution) {
 	throw new Error("[0] " + TestRunnerPage._abortMessage);
 }
 
-/**/scriptContent//
+/***/scriptContent//
 
 </script>
 <script>

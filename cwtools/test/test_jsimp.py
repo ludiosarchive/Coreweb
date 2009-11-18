@@ -353,7 +353,8 @@ goog.require("something.else");\r
 			[initjs],
 			noimportlines.getDependencies())
 
-		# Closure-style code does not implicitly depend on its parent
+		# Closure-style code does not implicitly depend on its parent.
+		# Closure-style code always implicitly depends on goog.base.
 		self.assertEqual(
 			[goog_base],
 			closure_style_code.getDependencies())
@@ -931,8 +932,8 @@ var y={};
 
 
 	def test_dictionaryOption(self):
-		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
-		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
+		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
+		s2 = _DummyContentScript('s2', 'var y=/***/not_passed//;\n', )
 
 		result = jsimp.megaScript([s1, s2], wrapper=False, dictionary=dict(something="hi"))
 
@@ -945,7 +946,7 @@ var y=;
 
 
 	def test_dictionaryNotMutated(self):
-		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
+		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
 
 		# With wrapper
 		d = dict(something='2')
@@ -961,8 +962,8 @@ var y=;
 
 
 	def test_virtualScript(self):
-		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
-		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
+		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
+		s2 = _DummyContentScript('s2', 'var y=/***/not_passed//;\n', )
 		v = jsimp.VirtualScript(u'// import s1\n// import s2\nvar z = 3;\n', basePath=None)
 
 		result = jsimp.megaScript([s1, s2, v], wrapper=False, dictionary=dict(something="hi"))
