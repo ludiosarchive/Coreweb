@@ -55,7 +55,9 @@ class ScriptTagTests(unittest.TestCase):
 
 		html = htmltools.scriptContent(jsimp.Script('p.mod1', d))
 		self.assertEqual(
-			u"""<script>p.mod1 = {'__name__': 'p.mod1'};\n%s</script>""" % (contents,),
+			u"""\
+<script>if(typeof p.mod1 == 'undefined') { p.mod1 = {} }; p.mod1.__name__ = 'p.mod1';
+%s</script>""" % (contents,),
 			html
 		)
 
@@ -114,9 +116,9 @@ class ExpandScriptTests(unittest.TestCase):
 		expected = u"""\
 (function(window, undefined) {
 var document = window.document;
-p = {'__name__': 'p'};
+if(typeof p == 'undefined') { p = {} }; p.__name__ = 'p';
 
-p.mod1 = {'__name__': 'p.mod1'};
+if(typeof p.mod1 == 'undefined') { p.mod1 = {} }; p.mod1.__name__ = 'p.mod1';
 x + 3;
 /* VirtualScript */;
 // import p.mod1

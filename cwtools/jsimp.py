@@ -88,6 +88,9 @@ class DirectoryScan(object):
 	def rescan(self):
 		self._mapping = {}
 		self._scanPath(self._basePath, [])
+#		for k, v in self._mapping.iteritems():
+#			if not 'goog.' in k:
+#				print k, '->', v
 
 
 	def whoProvide(self, what):
@@ -296,7 +299,7 @@ class _BaseScript(object):
 		data = self._getImportantStrings()
 
 		# Parent module is an implicit dependency for Divmod/CW-style code.
-		if not self._isClosureStyle and not self._isGoogBase():
+		if not (self._isClosureStyle or self._isGoogBase()):
 			parent = self.getParent(treeCache)
 			if parent:
 				deps.append(parent)
@@ -325,10 +328,10 @@ class _BaseScript(object):
 			_addImportee('goog.base')
 
 		for requireeName in data['requires']:
-			importee = self._directoryScan.whoProvide(requireeName)
-			if importee is None:
+			importeeName = self._directoryScan.whoProvide(requireeName)
+			if importeeName is None:
 				raise NobodyProvidesThis("%r requires %r but nobody provides it." % (self, requireeName))
-			_addImportee(importee)
+			_addImportee(importeeName)
 
 		return deps
 
@@ -452,6 +455,9 @@ class Script(_BaseScript):
 		else:
 			uni = bytes.decode('utf-8')
 
+		if self._isGoogBase():
+			uni = u"window.goog = {}; window.goog.global = {}; window.goog.global.CLOSURE_NO_DEPS = true; /* Added by jsimp */\n" + uni
+
 		return uni
 
 
@@ -525,7 +531,11 @@ class Script(_BaseScript):
 			self._getImportantStrings()
 
 		if not self._isClosureStyle and not self._isGoogBase():
-			return "%s = {'__name__': '%s'}" % (self._name, self._name)
+			# This is absolutely necessary, even if current script is CW-style. Consider this case:
+			#     cw.net.Test is CW-Style
+			#     cw.net is Closure-style
+			# The loading of cw.net.Test cannot override the existing cw.net namespace.
+			return "if(typeof %s == 'undefined') { %s = {} }; %s.__name__ = '%s'" % ((self._name,) * 4)
 		else:
 			return '/* Closure-style module: %s */' % (self._name,)
 

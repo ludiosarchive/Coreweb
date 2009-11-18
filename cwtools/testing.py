@@ -13,7 +13,7 @@ def _getTests(packages, basePath, directoryScan):
 	"""
 	tests = []
 	for package in packages:
-		tests.append(jsimp.Script(package, basePath, directoryScan))
+		# This used to add `package' itself, but no longer.
 		# TODO: make this descend Test packages, too (imitate Twisted Trial)
 		tests.extend(jsimp.Script(package, basePath, directoryScan).globChildren('Test*'))
 	return tests

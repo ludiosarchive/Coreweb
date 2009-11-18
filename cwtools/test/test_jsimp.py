@@ -921,6 +921,12 @@ class _DummyContentScript(jsimp.Script):
 
 
 
+def _nameFor(n):
+	# Copied from jsimp
+	return "if(typeof %s == 'undefined') { %s = {} }; %s.__name__ = '%s'" % ((n,) * 4)
+
+
+
 class MegaScriptTests(unittest.TestCase):
 
 	def test_megaScriptNoWrapper(self):
@@ -928,11 +934,11 @@ class MegaScriptTests(unittest.TestCase):
 		s2 = _DummyContentScript('s2', 'var y={};\n')
 		result = jsimp.megaScript([s1, s2], wrapper=False)
 		self.assertEqual(u'''\
-s1 = {'__name__': 's1'};
+%s;
 var x={};
-s2 = {'__name__': 's2'};
+%s;
 var y={};
-''', result)
+''' % (_nameFor('s1'), _nameFor('s2')), result)
 
 
 	def test_megaScriptWrapper(self):
@@ -942,12 +948,12 @@ var y={};
 		self.assertEqual(u'''\
 (function(window, undefined) {
 var document = window.document;
-s1 = {'__name__': 's1'};
+%s;
 var x={};
-s2 = {'__name__': 's2'};
+%s;
 var y={};
 })(window);
-''', result)
+''' % (_nameFor('s1'), _nameFor('s2')), result)
 
 
 	def test_dictionaryOption(self):
@@ -957,11 +963,11 @@ var y={};
 		result = jsimp.megaScript([s1, s2], wrapper=False, dictionary=dict(something="hi"))
 
 		self.assertEqual(u'''\
-s1 = {'__name__': 's1'};
+%s;
 var x=hi;
-s2 = {'__name__': 's2'};
+%s;
 var y=;
-''', result)
+''' % (_nameFor('s1'), _nameFor('s2')), result)
 
 
 	def test_dictionaryNotMutated(self):
@@ -988,15 +994,15 @@ var y=;
 		result = jsimp.megaScript([s1, s2, v], wrapper=False, dictionary=dict(something="hi"))
 
 		self.assertEqual(u'''\
-s1 = {'__name__': 's1'};
+%s;
 var x=hi;
-s2 = {'__name__': 's2'};
+%s;
 var y=;
 /* VirtualScript */;
 // import s1
 // import s2
 var z = 3;
-''', result)
+''' % (_nameFor('s1'), _nameFor('s2')), result)
 
 
 	def test_megaScriptClosureStyle(self):
@@ -1004,12 +1010,12 @@ var z = 3;
 		s2 = _DummyContentScript('s2', 'goog.provide("something")\nvar y={};\n')
 		result = jsimp.megaScript([s1, s2], wrapper=False)
 		self.assertEqual(u'''\
-s1 = {'__name__': 's1'};
+%s;
 var x={};
 /* Closure-style module: s2 */;
 goog.provide("something")
 var y={};
-''', result)
+''' % (_nameFor('s1'),), result)
 
 
 
