@@ -1,9 +1,9 @@
 === FAQ ===
 
-Q: Why are my // import or goog.provide(...) lines being ignored?
+Q: Why are my goog.provide(...) lines being ignored?
 
 A: The implementation stops reading the file after it doesn't see such a line after 100 lines.
-Move the import/provide lines closer together.
+Move the provide lines closer together.
 
 
 

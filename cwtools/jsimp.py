@@ -35,6 +35,21 @@ import simplejson
 ##from twisted.python import log
 
 
+def _extractOneArgFromFuncall(line, prefix):
+	"""
+	Sample usage:
+		>>> _extractOneArgFromFuncall('goog.provide("test one")', 'goog.provide')
+		"test one"
+	"""
+	quotedString = line[len(prefix) + 1:line.find(')')] # len(prefix) + 1 because C{prefix} doesn't include the "("
+	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
+	if quotedString[0] == "'" and quotedString[-1] == "'":
+		quotedString = '"' + quotedString[1:-1] + '"'
+	provide = simplejson.loads(quotedString)
+	return provide
+
+
+
 class ProvideConflict(Exception):
 	pass
 
@@ -60,11 +75,7 @@ class DirectoryScan(object):
 						break
 					if line.startswith('goog.provide('):
 						last = n
-						quotedString = line[len('goog.provide('):line.find(')')]
-						# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
-						if quotedString[0] == "'" and quotedString[-1] == "'":
-							quotedString = '"' + quotedString[1:-1] + '"'
-						provide = simplejson.loads(quotedString)
+						provide = _extractOneArgFromFuncall(line, 'goog.provide')
 						if provide in self._mapping:
 							raise ProvideConflict('%r already in _mapping. Conflict between files %r and %r.' % (provide, c, self._mapping[provide]))
 						self._mapping[provide] = c
@@ -307,14 +318,16 @@ class Script(_BaseScript):
 	packageFilename = '__init__.js'
 	##__slots__ = ['_name', '_basePath', '_importStringCache', '__weakref__']
 
-	def __init__(self, name, basePath):
+	def __init__(self, name, basePath, directoryScan=None):
 		"""
 		C{name} is the module name (examples: 'module', 'package', 'package.module')
 		C{basePath} is a L{twisted.python.filepath.FilePath}.
+		C{directoryScan} is a L{DirectoryScan}, or C{None}.
 		"""
 		# TODO: verify that `name' is a valid JavaScript identifier (or identifier.identifier, and so on.)
 		self._name = name
 		self._basePath = basePath
+		self._directoryScan = directoryScan
 		self._importStringCache = None
 
 
@@ -339,7 +352,7 @@ class Script(_BaseScript):
 
 
 	def _getScriptWithName(self, name):
-		return self.__class__(name, self._basePath)
+		return self.__class__(name, self._basePath, self._directoryScan)
 
 
 	def getName(self):

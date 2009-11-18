@@ -357,6 +357,13 @@ function a() { return "A func"; }
 
 
 
+class ClosureStyleRequire(unittest.TestCase):
+	"""
+	Test that Closure Library-style goog.require(...) lines work
+	"""
+
+
+
 class GetNameTests(unittest.TestCase):
 
 	def test_getNameRoot(self):
