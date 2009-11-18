@@ -87,6 +87,10 @@ class TestPage(resource.Resource):
 		# `Node' also needs the wrapper because our code assumes the global object is `window',
 		# and the wrapper fixes that.
 
+		# This try/except/rescan only handles the case where a `provide' could not be found.
+		# If the name being `provide'd moved to another JavaScript file, the state will be
+		# bad and the assembled JavaScript will be wrong. In this case, restarting the
+		# development server is the best option.
 		try:
 			scriptContent = _getScriptContent(theTests, 'window')
 		except jsimp.NobodyProvidesThis:
