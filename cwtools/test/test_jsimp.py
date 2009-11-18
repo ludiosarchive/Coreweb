@@ -310,13 +310,14 @@ goog.require("something.else");\r
 		r = jsimp.Script('r', d, ds)
 		closure_style = jsimp.Script('closure_style', d, ds)
 		closure_style2 = jsimp.Script('closure_style2', d, ds)
+		goog_base = jsimp.Script('goog.base', d, ds)
 
 		self.assertEqual(
-			[q, r, closure_style],
+			[q, r, goog_base, closure_style],
 			p.getDependencies())
 
 		self.assertEqual(
-			[closure_style2],
+			[goog_base, closure_style2],
 			closure_style.getDependencies())
 
 
@@ -338,6 +339,7 @@ goog.require("something.else");\r
 		initjs = jsimp.Script('sub', d)
 		noimportlines = jsimp.Script('sub.noimportlines', d)
 		closure_style_code = jsimp.Script('sub.closure_style_code', d)
+		goog_base = jsimp.Script('goog.base', d)
 
 		self.assertEqual(
 			[q, r],
@@ -353,7 +355,7 @@ goog.require("something.else");\r
 
 		# Closure-style code does not implicitly depend on its parent
 		self.assertEqual(
-			[],
+			[goog_base],
 			closure_style_code.getDependencies())
 
 

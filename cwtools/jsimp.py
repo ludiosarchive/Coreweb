@@ -38,11 +38,12 @@ import simplejson
 def _extractOneArgFromFuncall(line, prefix):
 	"""
 	Sample usage:
-		>>> _extractOneArgFromFuncall('goog.provide("test one")', 'goog.provide')
-		'test one'
 
-		>>> _extractOneArgFromFuncall("goog.provide('test one')", 'goog.provide')
-		'test one'
+	>>> _extractOneArgFromFuncall('goog.provide("test one")', 'goog.provide')
+	'test one'
+
+	>>> _extractOneArgFromFuncall("goog.provide('test one')", 'goog.provide')
+	'test one'
 	"""
 	quotedString = line[len(prefix) + 1:line.find(')')] # len(prefix) + 1 because C{prefix} doesn't include the "("
 	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
@@ -250,7 +251,7 @@ class _BaseScript(object):
 		if self._stringCache is not None:
 			return self._stringCache
 
-		self._implicitlyImportsParents = True # by default, assume it is not Closure-style code.
+		self._isClosureStyle = False # by default, assume it is not Closure-style code.
 
 		# Returns a list of UTF-8 encoded strings.
 		data = dict(imports=[], requires=[])
@@ -262,9 +263,10 @@ class _BaseScript(object):
 			elif line.startswith('//import '):
 				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
 			elif line.startswith('goog.require('):
+				self._isClosureStyle = True
 				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
 			elif line.startswith('goog.provide('):
-				self._implicitlyImportsParents = False
+				self._isClosureStyle = True
 
 		self._stringCache = data
 		return data
@@ -295,7 +297,7 @@ class _BaseScript(object):
 		data = self._getImportantStrings()
 
 		# Parent module is an implicit dependency for Divmod/CW-style code.
-		if self._implicitlyImportsParents:
+		if not self._isClosureStyle:
 			parent = self.getParent(treeCache)
 			if parent:
 				deps.append(parent)
@@ -317,6 +319,11 @@ class _BaseScript(object):
 			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
 			namesSeen.add(importeeName)
 			_addImportee(importeeName)
+
+		# All Closure-style scripts depend on goog.base
+		# Because Script('goog.base') is not Closure-style, it doesn't import itself
+		if self._isClosureStyle:
+			_addImportee('goog.base')
 
 		for requireeName in data['requires']:
 			importee = self._directoryScan.whoProvide(requireeName)
