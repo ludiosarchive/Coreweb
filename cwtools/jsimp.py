@@ -66,10 +66,10 @@ class DirectoryScan(object):
 		self.rescan()
 
 
-	def _scanPath(self, path):
+	def _scanPath(self, path, location):
 		for c in path.children():
 			if c.isdir():
-				self._scanPath(c)
+				self._scanPath(c, [c.basename()] + location)
 			elif c.path.endswith('.js'):
 				f = c.open('rb')
 				last = -1
@@ -81,13 +81,14 @@ class DirectoryScan(object):
 						provide = _extractOneArgFromFuncall(line, 'goog.provide')
 						if provide in self._mapping:
 							raise ProvideConflict('%r already in _mapping. Conflict between files %r and %r.' % (provide, c, self._mapping[provide]))
-						self._mapping[provide] = c
+						moduleName = c.basename().split('.', 1)[0] # copied from globChildren
+						self._mapping[provide] = '.'.join(location + [moduleName])
 				f.close()
 
 
 	def rescan(self):
 		self._mapping = {}
-		self._scanPath(self._basePath)
+		self._scanPath(self._basePath, [])
 
 
 	def whoProvide(self, what):
@@ -226,6 +227,11 @@ def parentContainsChild(parent, child):
 
 
 
+class NobodyProvidesThis(Exception):
+	pass
+
+
+
 class _BaseScript(object):
 	"""
 	Base class for both on-disk and in-memory scripts.
@@ -303,6 +309,12 @@ class _BaseScript(object):
 				importee = self._getScriptWithName(importeeName)
 				treeCache[importeeName] = importee
 			deps.append(importee)
+
+		for requireeName in self._getImportantStrings()['requires']:
+			who = self._directoryScan.whoProvide(requireeName)
+			if who is None:
+				raise NobodyProvidesThis("%r requires %r but nobody provides it." % (self, requireeName))
+
 		return deps
 
 
