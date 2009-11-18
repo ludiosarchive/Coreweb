@@ -65,7 +65,7 @@ class ScriptTagTests(unittest.TestCase):
 
 		c = d.child('p')
 		c.makedirs()
-		contents = 'function a() { return "A func"; }'
+		contents = 'function a() { return "A func"; }\n'
 		c.child('mod1.js').setContent(contents)
 
 		for mountedAt in ['/hello/', 'http://another.domain/']:

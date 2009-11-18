@@ -261,7 +261,8 @@ class _BaseScript(object):
 			elif line.startswith('//import '):
 				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
 			elif line.startswith('goog.require('):
-				self._isClosureStyle = True
+				# goog.require doesn't make a script Closure-style - it could be a Closure/CW hybrid that does both // import and goog.require
+				# But scripts that have a goog.provide are obviously Closure-style.
 				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
 			elif line.startswith('goog.provide('):
 				self._isClosureStyle = True
@@ -518,11 +519,15 @@ class Script(_BaseScript):
 	def _underscoreName(self):
 		"""
 		Return the header required for the JS module to run.
-
-		TODO: but only CW things require this. Should it just be in the module?
 		"""
-		
-		return "%s = {'__name__': '%s'}" % (self._name, self._name)
+
+		if not hasattr(self, '_isClosureStyle'):
+			self._getImportantStrings()
+
+		if not self._isClosureStyle and not self._isGoogBase():
+			return "%s = {'__name__': '%s'}" % (self._name, self._name)
+		else:
+			return '/* Closure-style module: %s */' % (self._name,)
 
 
 

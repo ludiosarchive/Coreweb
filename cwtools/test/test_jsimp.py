@@ -297,7 +297,8 @@ goog.require("something.else");\r
 		d = FilePath(self.mktemp())
 		d.makedirs()
 
-		d.child('p.js').setContent('// import q\n// import r\ngoog.require("special.thing")\n')
+            # goog.provide just to make it a Closure-style file
+		d.child('p.js').setContent('// import q\n// import r\ngoog.require("special.thing")\ngoog.provide("something")\n')
 		d.child('q.js').setContent('// \n')
 		d.child('r.js').setContent('// \n')
 		d.child('closure_style.js').setContent('goog.require("special.thing2")\ngoog.provide("special.thing")\n')
@@ -996,6 +997,20 @@ var y=;
 // import s2
 var z = 3;
 ''', result)
+
+
+	def test_megaScriptClosureStyle(self):
+		s1 = _DummyContentScript('s1', 'var x={};\n')
+		s2 = _DummyContentScript('s2', 'goog.provide("something")\nvar y={};\n')
+		result = jsimp.megaScript([s1, s2], wrapper=False)
+		self.assertEqual(u'''\
+s1 = {'__name__': 's1'};
+var x={};
+/* Closure-style module: s2 */;
+goog.provide("something")
+var y={};
+''', result)
+
 
 
 
