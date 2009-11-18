@@ -300,7 +300,8 @@ goog.require("something.else");\r
 		d.child('p.js').setContent('// import q\n// import r\ngoog.require("special.thing")\n')
 		d.child('q.js').setContent('// \n')
 		d.child('r.js').setContent('// \n')
-		d.child('closure_style.js').setContent('goog.provide("special.thing")\n')
+		d.child('closure_style.js').setContent('goog.require("special.thing2")\ngoog.provide("special.thing")\n')
+		d.child('closure_style2.js').setContent('goog.provide("special.thing2")\n')
 
 		ds = jsimp.DirectoryScan(d)
 
@@ -308,10 +309,15 @@ goog.require("something.else");\r
 		q = jsimp.Script('q', d, ds)
 		r = jsimp.Script('r', d, ds)
 		closure_style = jsimp.Script('closure_style', d, ds)
+		closure_style2 = jsimp.Script('closure_style2', d, ds)
 
 		self.assertEqual(
 			[q, r, closure_style],
 			p.getDependencies())
+
+		self.assertEqual(
+			[closure_style2],
+			closure_style.getDependencies())
 
 
 	def test_getDependenciesIncludesParents(self):
