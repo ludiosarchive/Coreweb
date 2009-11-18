@@ -247,7 +247,7 @@ class PathForModuleTests(unittest.TestCase):
 
 class ImportParsingForScriptTests(unittest.TestCase):
 
-	def test_getImportStrings(self):
+	def test_getImportantStrings(self):
 		d = FilePath(self.mktemp())
 		c = d.child('p')
 		c.makedirs()
@@ -265,7 +265,7 @@ goog.require("something.else");\r
 '''
 		c.child('mod1.js').setContent(contents)
 
-		gIS = jsimp.Script('p.mod1', d)._getImportStrings()
+		gIS = jsimp.Script('p.mod1', d)._getImportantStrings()
 		imports = gIS['imports']
 		requires = gIS['requires']
 
@@ -326,7 +326,7 @@ goog.require("something.else");\r
 
 class ImportParsingForVirtualScriptTests(unittest.TestCase):
 
-	def test_getImportStrings(self):
+	def test_getImportantStrings(self):
 		contents = u'''\
 // import p	\r
 // import p.blah
@@ -340,7 +340,7 @@ goog.require('something')
 goog.require("something.else");\r
 '''
 
-		gIS = jsimp.VirtualScript(contents)._getImportStrings()
+		gIS = jsimp.VirtualScript(contents)._getImportantStrings()
 		imports = gIS['imports']
 		requires = gIS['requires']
 
@@ -382,7 +382,7 @@ class ClosureStyleRequire(unittest.TestCase):
 #
 #// import p.last
 #'''
-#		strings = jsimp.VirtualScript(contents)._getImportStrings()
+#		strings = jsimp.VirtualScript(contents)._getImportantStrings()
 #
 #		self.assertEqual(
 #			['p', 'p.blah', 'p.other', 'p.last'],

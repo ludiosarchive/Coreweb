@@ -240,9 +240,9 @@ class _BaseScript(object):
 		return _theWriter.render(uni, dictionary)
 
 
-	def _getImportStrings(self):
-		if self._importStringCache is not None:
-			return self._importStringCache
+	def _getImportantStrings(self):
+		if self._stringCache is not None:
+			return self._stringCache
 
 		# Returns a list of UTF-8 encoded strings.
 		data = dict(imports=[], requires=[])
@@ -256,7 +256,7 @@ class _BaseScript(object):
 			elif line.startswith('goog.require('):
 				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
 
-		self._importStringCache = data
+		self._stringCache = data
 		return data
 
 
@@ -293,7 +293,7 @@ class _BaseScript(object):
 		if forced:
 			deps.extend(forced)
 
-		for importeeName in self._getImportStrings()['imports']:
+		for importeeName in self._getImportantStrings()['imports']:
 			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
 			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
 			namesSeen.add(importeeName)
@@ -322,7 +322,7 @@ class Script(_BaseScript):
 	"""
 
 	packageFilename = '__init__.js'
-	##__slots__ = ['_name', '_basePath', '_importStringCache', '__weakref__']
+	##__slots__ = ['_name', '_basePath', '_stringCache', '__weakref__']
 
 	def __init__(self, name, basePath, directoryScan=None):
 		"""
@@ -334,7 +334,7 @@ class Script(_BaseScript):
 		self._name = name
 		self._basePath = basePath
 		self._directoryScan = directoryScan
-		self._importStringCache = None
+		self._stringCache = None
 
 
 	def __eq__(self, other):
@@ -524,7 +524,7 @@ class VirtualScript(_BaseScript):
 		self._content = content
 		self._basePath = basePath
 		self._forcedDeps = forcedDeps
-		self._importStringCache = None
+		self._stringCache = None
 
 
 	def __eq__(self, other):
