@@ -293,6 +293,27 @@ goog.require("something.else");\r
 			p.getDependencies())
 
 
+	def test_getDependenciesClosureStyle(self):
+		d = FilePath(self.mktemp())
+		d.makedirs()
+
+		d.child('p.js').setContent('// import q\n// import r\ngoog.require("special.thing")\n')
+		d.child('q.js').setContent('// \n')
+		d.child('r.js').setContent('// \n')
+		d.child('closure_style.js').setContent('goog.provide("special.thing")\n')
+
+		ds = jsimp.DirectoryScan(d)
+
+		p = jsimp.Script('p', d, ds)
+		q = jsimp.Script('q', d, ds)
+		r = jsimp.Script('r', d, ds)
+		closure_style = jsimp.Script('closure_style', d, ds)
+
+		self.assertEqual(
+			[q, r, closure_style],
+			p.getDependencies())
+
+
 	def test_getDependenciesIncludesParents(self):
 		d = FilePath(self.mktemp())
 		d.makedirs()
