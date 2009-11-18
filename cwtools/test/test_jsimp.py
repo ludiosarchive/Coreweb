@@ -259,16 +259,21 @@ class ImportParsingForScriptTests(unittest.TestCase):
 function a() { return "A func"; }
 
 // import p.last
+
+goog.require('something')
+goog.require("something.else");\r
 '''
 		c.child('mod1.js').setContent(contents)
 
-		strings = jsimp.Script('p.mod1', d)._getImportStrings()['imports']
+		gIS = jsimp.Script('p.mod1', d)._getImportStrings()
+		imports = gIS['imports']
+		requires = gIS['requires']
 
-		self.assertEqual(
-			['p', 'p.blah', 'p.other', 'p.last'],
-			strings)
+		self.assertEqual(['p', 'p.blah', 'p.other', 'p.last'], imports)
+		self.assertEqual(['something', 'something.else'], requires)
 
-		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
+		self.assert_(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
+		self.assert_(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
 
 
 	def test_getDependencies(self):
@@ -322,7 +327,7 @@ function a() { return "A func"; }
 class ImportParsingForVirtualScriptTests(unittest.TestCase):
 
 	def test_getImportStrings(self):
-		contents = '''\
+		contents = u'''\
 // import p	\r
 // import p.blah
 //import p.other
@@ -330,14 +335,20 @@ class ImportParsingForVirtualScriptTests(unittest.TestCase):
 function a() { return "A func"; }
 
 // import p.last
+
+goog.require('something')
+goog.require("something.else");\r
 '''
-		strings = jsimp.VirtualScript(contents)._getImportStrings()['imports']
 
-		self.assertEqual(
-			['p', 'p.blah', 'p.other', 'p.last'],
-			strings)
+		gIS = jsimp.VirtualScript(contents)._getImportStrings()
+		imports = gIS['imports']
+		requires = gIS['requires']
 
-		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
+		self.assertEqual(['p', 'p.blah', 'p.other', 'p.last'], imports)
+		self.assertEqual(['something', 'something.else'], requires)
+
+		self.assert_(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
+		self.assert_(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
 
 
 	def test_getDependencies(self):
@@ -347,7 +358,7 @@ function a() { return "A func"; }
 		d.child('q.js').setContent('// \n')
 		d.child('r.js').setContent('// \n')
 
-		p = jsimp.VirtualScript('// import q\n// import r\n', basePath=d)
+		p = jsimp.VirtualScript(u'// import q\n// import r\n', basePath=d)
 		q = jsimp.Script('q', d)
 		r = jsimp.Script('r', d)
 
@@ -622,7 +633,7 @@ class GetParentForScriptTests(unittest.TestCase):
 class GetParentForVirtualScriptTests(unittest.TestCase):
 
 	def setUp(self):
-		self.p1 = jsimp.VirtualScript('// some contents')
+		self.p1 = jsimp.VirtualScript(u'// some contents')
 
 
 	def test_getParentNoTreeCache(self):
@@ -916,7 +927,7 @@ var y=;
 	def test_virtualScript(self):
 		s1 = _DummyContentScript('s1', 'var x=/**/something//;\n', )
 		s2 = _DummyContentScript('s2', 'var y=/**/not_passed//;\n', )
-		v = jsimp.VirtualScript('// import s1\n// import s2\nvar z = 3;\n', basePath=None)
+		v = jsimp.VirtualScript(u'// import s1\n// import s2\nvar z = 3;\n', basePath=None)
 
 		result = jsimp.megaScript([s1, s2, v], wrapper=False, dictionary=dict(something="hi"))
 

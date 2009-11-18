@@ -247,11 +247,14 @@ class _BaseScript(object):
 		# Returns a list of UTF-8 encoded strings.
 		data = dict(imports=[], requires=[])
 		imports = data['imports']
+		requires = data['requires']
 		for line in self.getContent().split('\n'):
 			if line.startswith('// import '):
 				imports.append(line.rstrip().replace('// import ', '', 1).encode('utf-8'))
 			elif line.startswith('//import '):
 				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
+			elif line.startswith('goog.require('):
+				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
 
 		self._importStringCache = data
 		return data
