@@ -5,18 +5,17 @@ from twisted.web import resource
 from cwtools import jsimp
 
 
-def _getTests(packages):
+def _getTests(packages, basePath, directoryScan):
 	"""
 	C{packages} is a list of strings representing JavaScript package names.
 
 	@return: a list of L{Script}s.
 	"""
-	JSPATH = FilePath(os.environ['JSPATH'])
 	tests = []
 	for package in packages:
-		tests.append(jsimp.Script(package, JSPATH))
+		tests.append(jsimp.Script(package, basePath, directoryScan))
 		# TODO: make this descend Test packages, too (imitate Twisted Trial)
-		tests.extend(jsimp.Script(package, JSPATH).globChildren('Test*'))
+		tests.extend(jsimp.Script(package, basePath, directoryScan).globChildren('Test*'))
 	return tests
 
 
@@ -64,6 +63,8 @@ class TestPage(resource.Resource):
 	testPackages = None # your subclass should define this
 
 	def render_GET(self, request):
+		# Comment below is half wrong: client doesn't help ?only= work yet.
+		
 		# Both the client and server are responsible for making ?only= work.
 		# The server sends less code down the wire, which is great because
 		# you will know if your '// import X' imports are incomplete.
@@ -73,17 +74,24 @@ class TestPage(resource.Resource):
 		# Note that unless restrictions are added to this feature, anyone
 		# who can visit the test page can download any JavaScript module in JSPATH.
 
+		JSPATH = FilePath(os.environ['JSPATH'])
+		directoryScan = jsimp.DirectoryScan(JSPATH)
+
 		if request.args.get('only'):
-			theTests = _getTests(request.args['only'][0].split(','))
+			theTests = _getTests(request.args['only'][0].split(','), JSPATH, directoryScan)
 		else:
-			theTests = _getTests(self.testPackages)
+			theTests = _getTests(self.testPackages, JSPATH, directoryScan)
 
 
 		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
 		# `Node' also needs the wrapper because our code assumes the global object is `window',
 		# and the wrapper fixes that.
 
-		scriptContent = _getScriptContent(theTests, 'window')
+		try:
+			scriptContent = _getScriptContent(theTests, 'window')
+		except jsimp.NobodyProvidesThis:
+			directoryScan.rescan()
+			scriptContent = _getScriptContent(theTests, 'window')
 
 		# ...but don't run the tests on the dependency modules
 		moduleString = _getModuleListString(theTests)

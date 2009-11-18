@@ -360,6 +360,24 @@ goog.require("something.else");\r
 			closure_style_code.getDependencies())
 
 
+	def test_getDependenciesGoogBaseException(self):
+		"""
+		Scripts named goog.base are special and has no parents,
+		even if they are not a Closure-style file. (and the standard goog.base is not)
+		"""
+
+		d = FilePath(self.mktemp())
+		d.makedirs()
+		d.child('goog').makedirs()
+		d.child('goog').child('base.js').setContent('')
+
+		goog_base = jsimp.Script('goog.base', d)
+		self.assertEqual(
+			[],
+			goog_base.getDependencies())
+
+
+
 
 class ImportParsingForVirtualScriptTests(unittest.TestCase):
 

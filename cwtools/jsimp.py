@@ -295,7 +295,7 @@ class _BaseScript(object):
 		data = self._getImportantStrings()
 
 		# Parent module is an implicit dependency for Divmod/CW-style code.
-		if not self._isClosureStyle:
+		if not self._isClosureStyle and not self._isGoogBase():
 			parent = self.getParent(treeCache)
 			if parent:
 				deps.append(parent)
@@ -389,6 +389,10 @@ class Script(_BaseScript):
 
 	def getName(self):
 		return self._name
+
+
+	def _isGoogBase(self):
+		return self._name == 'goog.base'
 
 
 	def _isPackage(self):
@@ -572,6 +576,10 @@ class VirtualScript(_BaseScript):
 	def __repr__(self):
 		return '<%s, content begin with %r>' % (
 			self.__class__.__name__, self._content)
+
+
+	def _isGoogBase(self):
+		return False
 
 
 	def _getForcedDependencies(self):
