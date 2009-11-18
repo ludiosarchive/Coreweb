@@ -68,7 +68,7 @@ class DirectoryScan(object):
 	def _scanPath(self, path, location):
 		for c in path.children():
 			if c.isdir():
-				self._scanPath(c, [c.basename()] + location)
+				self._scanPath(c, location + [c.basename()])
 			elif c.path.endswith('.js'):
 				f = c.open('rb')
 				last = -1
