@@ -54,15 +54,21 @@ class DirectoryScan(object):
 				self._scanPath(c)
 			elif c.path.endswith('.js'):
 				f = c.open('rb')
-				for line in f:
+				last = -1
+				for n, line in enumerate(f):
+					if last != -1 and n > last + 100:
+						break
 					if line.startswith('goog.provide('):
+						last = n
 						quotedString = line[len('goog.provide('):line.find(')')]
+						# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
 						if quotedString[0] == "'" and quotedString[-1] == "'":
 							quotedString = '"' + quotedString[1:-1] + '"'
 						provide = simplejson.loads(quotedString)
 						if provide in self._mapping:
 							raise ProvideConflict('%r already in _mapping. Conflict between files %r and %r.' % (provide, c, self._mapping[provide]))
 						self._mapping[provide] = c
+				f.close()
 
 
 	def rescan(self):

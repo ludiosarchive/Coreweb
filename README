@@ -1,3 +1,12 @@
+=== FAQ ===
+
+Q: Why are my // import or goog.provide(...) lines being ignored?
+
+A: The implementation stops reading the file after it doesn't see such a line after 100 lines.
+Move the import/provide lines closer together.
+
+
+
 === Limited project scope ===
 
 Coreweb should contain JavaScript and Flash (haXe/AS3) files that assist in

@@ -19,23 +19,27 @@ goog.provide('hello.another')
 goog.provide("hello.\u0000another2") // with comments
 goog.provide("hello.another3");
 goog.provide("hello.another4");/* with comments */
-''')
+''' + ('\n'*101) + r'goog.provide("too.far.down")')
 
 		d.child('sub').child('x.js').setContent(r'''
 goog.provide('another');
 ''')
+
+		d.child('sub').child('file.with.very.long.copyright.message.js').setContent("// Blah, blah, blah\n" * 200 + 'goog.provide("still.scanned")')
 
 		self.d = d
 
 
 	def _testDefaultSet(self, ds):
 		self.aE(None, ds.whoProvide('missing'))
+		self.aE(None, ds.whoProvide('too.far.down'))
 		self.aE(self.d.child('p.js'), ds.whoProvide('hello.something'))
 		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another'))
 		self.aE(self.d.child('p.js'), ds.whoProvide(u'hello.\u0000another2'))
 		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another3'))
 		self.aE(self.d.child('p.js'), ds.whoProvide('hello.another4'))
 		self.aE(self.d.child('sub').child('x.js'), ds.whoProvide('another'))
+		self.aE(self.d.child('sub').child('file.with.very.long.copyright.message.js'), ds.whoProvide('still.scanned'))
 
 
 	def test_scan(self):
