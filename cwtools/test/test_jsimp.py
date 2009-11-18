@@ -262,7 +262,7 @@ function a() { return "A func"; }
 '''
 		c.child('mod1.js').setContent(contents)
 
-		strings = jsimp.Script('p.mod1', d)._getImportStrings()
+		strings = jsimp.Script('p.mod1', d)._getImportStrings()['imports']
 
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
@@ -331,7 +331,7 @@ function a() { return "A func"; }
 
 // import p.last
 '''
-		strings = jsimp.VirtualScript(contents)._getImportStrings()
+		strings = jsimp.VirtualScript(contents)._getImportStrings()['imports']
 
 		self.assertEqual(
 			['p', 'p.blah', 'p.other', 'p.last'],
@@ -361,6 +361,24 @@ class ClosureStyleRequire(unittest.TestCase):
 	"""
 	Test that Closure Library-style goog.require(...) lines work
 	"""
+#	def test_getRequireStrings(self):
+#		contents = '''\
+#// import p	\r
+#// import p.blah
+#//import p.other
+#
+#function a() { return "A func"; }
+#
+#// import p.last
+#'''
+#		strings = jsimp.VirtualScript(contents)._getImportStrings()
+#
+#		self.assertEqual(
+#			['p', 'p.blah', 'p.other', 'p.last'],
+#			strings)
+#
+#		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
+
 
 
 

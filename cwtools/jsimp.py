@@ -39,7 +39,10 @@ def _extractOneArgFromFuncall(line, prefix):
 	"""
 	Sample usage:
 		>>> _extractOneArgFromFuncall('goog.provide("test one")', 'goog.provide')
-		"test one"
+		'test one'
+
+		>>> _extractOneArgFromFuncall("goog.provide('test one')", 'goog.provide')
+		'test one'
 	"""
 	quotedString = line[len(prefix) + 1:line.find(')')] # len(prefix) + 1 because C{prefix} doesn't include the "("
 	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
@@ -242,16 +245,16 @@ class _BaseScript(object):
 			return self._importStringCache
 
 		# Returns a list of UTF-8 encoded strings.
-		imports = []
+		data = dict(imports=[], requires=[])
+		imports = data['imports']
 		for line in self.getContent().split('\n'):
-			clean = line.rstrip()
-			if clean.startswith('// import '):
-				imports.append(clean.replace('// import ', '', 1).encode('utf-8'))
-			elif clean.startswith('//import '):
-				imports.append(clean.replace('//import ', '', 1).encode('utf-8'))
+			if line.startswith('// import '):
+				imports.append(line.rstrip().replace('// import ', '', 1).encode('utf-8'))
+			elif line.startswith('//import '):
+				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
 
-		self._importStringCache = imports
-		return imports
+		self._importStringCache = data
+		return data
 
 
 	def _getForcedDependencies(self):
@@ -287,7 +290,7 @@ class _BaseScript(object):
 		if forced:
 			deps.extend(forced)
 
-		for importeeName in self._getImportStrings():
+		for importeeName in self._getImportStrings()['imports']:
 			##if importeeName in namesSeen or parentContainsChild(importeeName, self._name):
 			##	log.msg('Unnecessary or duplicate import line in %r: // import %s' % (self, importeeName))
 			namesSeen.add(importeeName)
