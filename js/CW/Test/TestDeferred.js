@@ -37,6 +37,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 * that formats frames using L{Failure.frameToPrettyText}.
 	 */
 	function test_toPrettyText(self) {
+		if(CW.UnitTest.browserAddsCrapToErrorMessages) {
+			throw new CW.UnitTest.SkipTest('Yeah, whatever, Opera.');
+		}
 		var frames = self.failure.parseStack();
 		var text = self.failure.toPrettyText();
 		var lines = text.split('\n');
