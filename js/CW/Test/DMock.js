@@ -2,7 +2,7 @@
  * These are some mock L{TestCase}s that are used by L{TestUnitTest}
  * in order to test the unit testing framework.
  *
- * This file was copy/pasted from DMock.js, and modified to return L{goog.async.Deferred}s.
+ * This file was copy/pasted from Mock.js, and modified to return L{goog.async.Deferred}s.
  */
 
 // import CW.UnitTest
@@ -15,10 +15,10 @@ goog.require('goog.async.Deferred');
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.GDMock, '_WasRun').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDMock._WasRun.upcall(self, '__init__', [methodName]);
+		CW.Test.DMock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -63,10 +63,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.GDMock, '_WasRun').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.GDMock, '_BadSetUp').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDMock._BadSetUp.upcall(self, '__init__', [methodName]);
+		CW.Test.DMock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -90,7 +90,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.GDMock, '_BadSetUp').methods(
 
 
 
-CW.Test.GDMock._BadSetUp.subclass(CW.Test.GDMock, '_SkipTestInSetUp').methods(
+CW.Test.DMock._BadSetUp.subclass(CW.Test.DMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new goog.async.Deferred();
 		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip in setUp"));}, 0);
@@ -100,10 +100,10 @@ CW.Test.GDMock._BadSetUp.subclass(CW.Test.GDMock, '_SkipTestInSetUp').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.GDMock, '_BadTearDown').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDMock._BadTearDown.upcall(self, '__init__', [methodName]);
+		CW.Test.DMock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {

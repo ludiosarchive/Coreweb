@@ -2,9 +2,10 @@
  * These are some mock L{TestCase}s that are used by L{TestUnitTest}
  * in order to test the unit testing framework.
  *
- * This file was copy/pasted from DSMock.js, and modified to return L{goog.async.Deferred}s.
+ * This file was copy/pasted from DMock.js, and modified to fire Deferreds
+ * synchronously.
  *
- * "GDS" means "Google Deferred synchronous"
+ * "DS" means "Deferred synchronous"
  */
 
 // import CW.UnitTest
@@ -17,10 +18,10 @@ goog.require('goog.async.Deferred');
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.GDSMock, '_WasRun').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDSMock._WasRun.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -64,10 +65,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.GDSMock, '_WasRun').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.GDSMock, '_BadSetUp').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDSMock._BadSetUp.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -91,7 +92,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.GDSMock, '_BadSetUp').methods(
 
 
 
-CW.Test.GDSMock._BadSetUp.subclass(CW.Test.GDSMock, '_SkipTestInSetUp').methods(
+CW.Test.DSMock._BadSetUp.subclass(CW.Test.DSMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new goog.async.Deferred();
 		d.errback(new CW.UnitTest.SkipTest("skip in setUp"));
@@ -101,10 +102,10 @@ CW.Test.GDSMock._BadSetUp.subclass(CW.Test.GDSMock, '_SkipTestInSetUp').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.GDSMock, '_BadTearDown').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.GDSMock._BadTearDown.upcall(self, '__init__', [methodName]);
+		CW.Test.DSMock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {

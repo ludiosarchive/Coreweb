@@ -5,8 +5,8 @@
 
 // import CW.UnitTest
 // import CW.Test.Mock
-// import CW.Test.GDMock
-// import CW.Test.GDSMock
+// import CW.Test.DMock
+// import CW.Test.DSMock
 
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
@@ -378,7 +378,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDMock;
+		self.mockModule = CW.Test.DMock;
 	}
 );
 
@@ -387,7 +387,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDSMock;
+		self.mockModule = CW.Test.DSMock;
 	}
 );
 
@@ -575,7 +575,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDMock;
+		self.mockModule = CW.Test.DMock;
 	}
 );
 
@@ -584,7 +584,7 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD')
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDSMock;
+		self.mockModule = CW.Test.DSMock;
 	}
 );
 
@@ -701,7 +701,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDMock;
+		self.mockModule = CW.Test.DMock;
 	}
 );
 
@@ -710,7 +710,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').m
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.GDSMock;
+		self.mockModule = CW.Test.DSMock;
 	}
 );
 
