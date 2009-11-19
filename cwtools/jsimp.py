@@ -455,9 +455,6 @@ class Script(_BaseScript):
 		else:
 			uni = bytes.decode('utf-8')
 
-		if self._isGoogBase():
-			uni = u"window.goog = {}; window.goog.global = {}; window.goog.global.CLOSURE_NO_DEPS = true; /* Added by jsimp */\n" + uni
-
 		return uni
 
 

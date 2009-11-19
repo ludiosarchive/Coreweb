@@ -2,6 +2,8 @@
 /* obfu-vars:
 _pauseLevel, _continue, _runCallbacks, _callbacks, _called, _result */
 
+goog.require('goog.async.Deferred');
+
 
 /**
  * General limitations:
@@ -292,9 +294,8 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 	},
 
 	'errback': function(err) {
-		var Failure = CW.Defer.Failure; /* JScript speedup */
-		if (!(err instanceof Failure)) {
-			err = new Failure(err);
+		if (!(err instanceof CW.Defer.Failure)) {
+			err = new CW.Defer.Failure(err);
 		}
 		this.callback(err); /* Divmod.Defer called _startRunCallbacks */
 	}
@@ -316,7 +317,8 @@ CW.Defer.fail = function fail(err) {
 
 
 
-// maybeDeferred was copied line-for-line from twisted.internet.defer.maybeDeferred
+// maybeDeferred was copied line-for-line from twisted.internet.defer.maybeDeferred,
+// then modified to translate L{goog.async.Deferred}s.
 
 /**
  * Invoke a function that may or may not return a deferred.
@@ -345,7 +347,18 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
 		return CW.Defer.fail(CW.Defer.Failure(e));
 	}
 
-	if (result instanceof CW.Defer.Deferred) {
+	if (result instanceof goog.async.Deferred) {
+		var newD = new CW.Defer.Deferred();
+		result.chainDeferred(newD);
+//		function newCallback(result) {
+//			newD.callback(result);
+//		}
+//		function newErrback(error) {
+//			newD.errback(CW.Defer.Failure(error));
+//		}
+//		result.addCallbacks(newCallback, newErrback);
+		return newD;
+	} else if (result instanceof CW.Defer.Deferred) {
 		return result;
 	} else if(result instanceof CW.Defer.Failure) {
 		return CW.Defer.fail(result);

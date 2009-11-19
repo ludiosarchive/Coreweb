@@ -564,6 +564,7 @@ CW.Class.prototype.__init__ = function() {
 	//CW.msg("In CW.Class.prototype.__init__");
 };
 
+
 /**
  * Base class for all error classes.
  *
@@ -572,6 +573,7 @@ CW.Class.prototype.__init__ = function() {
  */
 CW.Class.subclass(CW, "Error").methods(
 	function __init__(self, /*optional*/ message) {
+		self._isErrorObject = true;
 		// Because Opera 10's getter for the 'message' property on any thrown
 		// object appends either informational garbage or a stack trace, we save
 		// data to _message instead and provide a getMessage method to get the
