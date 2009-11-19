@@ -138,7 +138,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assert(
 				self.result.failures[0][1] instanceof CW.AssertionError,
 				"self.result.failures[0][1] should have been a CW.AssertionError, not a: " + self.result.failures[0][1]);
-			self.assertIdentical(self.result.failures[0][1].getMessage(), "[0] fail this test deliberately");
+			self.assertErrorMessage(self.result.failures[0][1], "[0] fail this test deliberately");
 
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
@@ -154,7 +154,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 				self.result.skips[0][1] instanceof CW.UnitTest.SkipTest,
 				"self.result.skips[0][1] should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
 
-			self.assertIdentical(self.result.errors[0][1].getMessage(), "error");
+			self.assertErrorMessage(self.result.errors[0][1], "error");
 			self.assertArraysEqual(self.result.successes, [good]);
 		});
 		return d;
@@ -339,7 +339,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 			// this is needed here because we're testing the async visit() and this is the only visitor
 			// for the async visit() that doesn't natively return a Deferred.
-			return CW.Defer.succeed(null);
+			return goog.async.Deferred.succeed(null);
 		}
 		var d = CW.UnitTest.TestSuite().visit(visitor);
 
@@ -375,7 +375,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD').methods(
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
@@ -384,7 +384,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGDS').methods(
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;
@@ -413,8 +413,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertIdentical(
-				self.result.errors[0][1].getMessage(),
+			self.assertErrorMessage(
+				self.result.errors[0][1],
 				"Test ended with 1 pending call(s): setTimeout_pending");
 		});
 		return d;
@@ -434,8 +434,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertIdentical(
-				self.result.errors[0][1].getMessage(),
+			self.assertErrorMessage(
+				self.result.errors[0][1],
 				"Test ended with 1 pending call(s): setInterval_pending");
 		});
 		d.addBoth(function(){
@@ -469,8 +469,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertIdentical(
-				self.result.errors[0][1].getMessage(),
+			self.assertErrorMessage(
+				self.result.errors[0][1],
 				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
 
 			// the inner test stopped tracking all the pending calls.
@@ -572,7 +572,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 
 
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD').methods(
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
@@ -581,7 +581,7 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD')
 
 
 
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGDS').methods(
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;
@@ -698,7 +698,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 
 
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').methods(
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DMock;
@@ -707,7 +707,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').m
 
 
 
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGDS').methods(
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.DSMock;

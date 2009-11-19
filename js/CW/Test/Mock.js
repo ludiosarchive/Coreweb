@@ -30,11 +30,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 	},
 
 	function test_error(self) {
-		throw CW.Error("error");
+		throw new CW.Error("error");
 	},
 
 	function test_skip(self) {
-		throw CW.UnitTest.SkipTest("skip");
+		throw new CW.UnitTest.SkipTest("skip");
 	},
 
 	function tearDown(self) {

@@ -12,7 +12,7 @@ goog.require('goog.async.Deferred');
 CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	function setUp(self) {
 		try {
-			throw CW.Error("message");
+			throw new CW.Error("message");
 		} catch (e) {
 			self.failure = CW.Defer.Failure(e);
 		}
@@ -114,7 +114,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_failDeferred(self) {
 		var result = null;
 		var error = null;
-		var d = CW.Defer.fail(CW.Error("failure"));
+		var d = CW.Defer.fail(new CW.Error("failure"));
 		d.addCallback(function(res) {
 			result = res;
 		});
@@ -541,7 +541,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		
 		var d = CW.Defer.Deferred();
 		var d2 = CW.Defer.maybeDeferred(function() {return d});
-		d.errback(CW.Defer.Failure(CW.Error()));
+		d.errback(CW.Defer.Failure(new CW.Error()));
 		return self.assertFailure(d2, [CW.Error]);
 	}
 

@@ -105,23 +105,17 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 /**
  * Raised to indicate that a test is being skipped.
  */
-CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
-	function toString(self) {
-		return self.__class__.__name__ + ': ' + self.getMessage();
-	}
-);
+//CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
+//	function toString(self) {
+//		return self.__class__.__name__ + ': ' + self.getMessage();
+//	}
+//);
+CW.UnitTest.SkipTest = function(opt_msg) {
+	CW.Error.call(this, opt_msg);
+};
+CW.UnitTest.SkipTest.prototype.name = 'CW.UnitTest.SkipTest';
+goog.inherits(CW.UnitTest.SkipTest, CW.Error);
 
-
-/**
- * Extract message from a CW.Error subclass, or a typical Error.
- */
-CW.UnitTest.extractMessage = function(error) {
-	if(error.getMessage) {
-		return error.getMessage(error);
-	} else {
-		return error.message;
-	}
-}
 
 
 CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
@@ -300,7 +294,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	function addSkip(self, test, skip) {
 		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
-		var textnode = document.createTextNode('... SKIP: ' + CW.UnitTest.extractMessage(skip));
+		var textnode = document.createTextNode('... SKIP: ' + skip.message);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		//self._div.appendChild(skip.toPrettyNode());
@@ -804,6 +798,22 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	// TODO: assertNotEqual
 
 
+	function assertErrorMessage(self, e, expectedMessage, _internalCall /*=false*/) {
+		var errorMessage = e.message;
+		if(!CW.UnitTest.browserAddsCrapToErrorMessages) {
+			self.assertIdentical(errorMessage, expectedMessage,
+				"Error was of wrong message: " + errorMessage, true);
+		} else {
+			self.assert(
+				CW.startswith(errorMessage, expectedMessage),
+				"Error started with wrong message: " + errorMessage, true);
+		}
+		if(_internalCall !== true) {
+			self._assertCounter += 1;
+		}
+	},
+
+
 	/**
 	 * Assert that C{callable} throws C{expectedError}
 	 *
@@ -833,15 +843,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			self.assert(e instanceof expectedError,
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
-				var errorMessage = CW.UnitTest.extractMessage(e);
-				if(!CW.UnitTest.browserAddsCrapToErrorMessages) {
-					self.assertIdentical(errorMessage, expectedMessage,
-						"Error was of wrong message: " + errorMessage, true);
-				} else {
-					self.assert(
-						CW.startswith(errorMessage, expectedMessage),
-						"Error started with wrong message: " + errorMessage, true);
-				}
+				self.assertErrorMessage(e, expectedMessage, true);
 			}
 		}
 		self.assert(threw != null, "Callable threw no error", true);
@@ -926,47 +928,6 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	},
 
 
-	// maybeDeferred was copied line-for-line from twisted.internet.defer.maybeDeferred,
-	// then modified to not know about Failures, because L{goog.async.Deferred}s does not know about Failures.
-
-	/**
-	 * Invoke a function that may or may not return a deferred.
-	 *
-	 *  WRONG WRONG WRONG no FAILURE objects
-	 * Call the given function with the given arguments.  If the returned
-	 * object is a C{Deferred}, return it.  If the returned object is a C{Failure},
-	 *   wrap it with C{fail} and return it.  Otherwise, wrap it in C{succeed} and
-	 *   return it.  If an exception is raised, convert it to a C{Failure}, wrap it
-	 *   in C{fail}, and then return it.
-	 *
-	 * @type f: Any callable
-	 * @param f: The callable to invoke
-	 * @param args: The arguments to pass to C{f}
-	 *
-	 * @rtype: C{Deferred}
-	 * @return: The result of the function call, wrapped in a C{Deferred} if necessary.
-	 */
-	function maybeDeferred(self, f, args) {
-		if(args === undefined) {
-			args = [];
-		}
-
-		try {
-			var result = f.apply(null, args);
-		} catch(e) {
-			return goog.async.Deferred.fail(e);
-		}
-
-		if (result instanceof goog.async.Deferred) {
-			return result;
-		} else if(result instanceof Error || (result && result._isErrorObject)) {
-			return goog.async.Deferred.fail(result);
-		} else {
-			return goog.async.Deferred.succeed(result);
-		}
-	},
-
-
 	/**
 	 * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
 	 */
@@ -978,7 +939,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 		result.startTest(self);
 
-		setUpD = self.maybeDeferred(
+		setUpD = goog.async.Deferred.maybeDeferred(
 			function _TestCase_run_wrap_setUp(){ return self.setUp(); }
 		);
 
@@ -986,7 +947,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			/* callback */
 			function _TestCase_run_setUpD_callback(){
 
-				methodD = self.maybeDeferred(
+				methodD = goog.async.Deferred.maybeDeferred(
 					function _TestCase_run_wrap_method(){ return self[self._methodName](); }
 				);
 
@@ -1009,7 +970,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 					// for some debugging, prepend the closure with
 					// console.log("in teardown after", self._methodName);
 
-					tearDownD = self.maybeDeferred(
+					tearDownD = goog.async.Deferred.maybeDeferred(
 						function _TestCase_run_wrap_tearDown(){ return self.tearDown(); }
 					);
 

@@ -42,13 +42,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 
 	function test_error(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(CW.Error("error")); }, 0);
+		setTimeout(function(){d.errback(new CW.Error("error")); }, 0);
 		return d;
 	},
 
 	function test_skip(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(CW.UnitTest.SkipTest("skip")); }, 0);
+		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip")); }, 0);
 		return d;
 	},
 

@@ -44,13 +44,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 
 	function test_error(self) {
 		var d = new goog.async.Deferred();
-		d.errback(CW.Error("error"));
+		d.errback(new CW.Error("error"));
 		return d;
 	},
 
 	function test_skip(self) {
 		var d = new goog.async.Deferred();
-		d.errback(CW.UnitTest.SkipTest("skip"));
+		d.errback(new CW.UnitTest.SkipTest("skip"));
 		return d;
 	},
 
