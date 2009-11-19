@@ -1,12 +1,14 @@
 /**
  * Tests for CW.UnitTest, the Javascript unit-testing framework.
- * Uses mock test cases provided by CW.Test.(Mock|DMock).
+ * Uses mock test cases provided by CW.Test.*Mock
  */
 
 // import CW.UnitTest
 // import CW.Test.Mock
 // import CW.Test.DMock
 // import CW.Test.DSMock
+// import CW.Test.GDMock
+// import CW.Test.GDSMock
 
 
 /**
@@ -408,6 +410,24 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS
 
 
 
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGDS').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDSMock;
+	}
+);
+
+
+
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
 	function setUp(self) {
 		self.result = CW.UnitTest.TestResult();
@@ -609,6 +629,24 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS')
 
 
 
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.LoaderTestsD.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGDS').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.LoaderTestsDS.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDSMock;
+	}
+);
+
+
+
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	function setUp(self) {
 		self.result = CW.UnitTest.TestResult();
@@ -733,6 +771,23 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').m
 	}
 );
 
+
+
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.RunnerTestD.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDMock;
+	}
+);
+
+
+
+CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGDS').methods(
+	function setUp(self) {
+		CW.Test.TestUnitTest.RunnerTestDS.upcall(self, 'setUp', []);
+		self.mockModule = CW.Test.GDSMock;
+	}
+);
 
 
 /**

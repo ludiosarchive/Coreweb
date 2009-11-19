@@ -10,6 +10,7 @@
 // import CW.Defer
 // import CW.Inspect
 
+goog.require('goog.userAgent');
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -111,7 +112,7 @@ CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
 
 
 /**
- * Extract message from an error
+ * Extract message from a CW.Error subclass, or a typical Error.
  */
 CW.UnitTest.extractMessage = function(error) {
 	if(error.getMessage) {
@@ -120,6 +121,10 @@ CW.UnitTest.extractMessage = function(error) {
 		return error.message;
 	}
 }
+
+
+CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
+
 
 
 /**
@@ -828,9 +833,14 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
 				var errorMessage = CW.UnitTest.extractMessage(e);
-				self.assert(CW.startswith(
-					errorMessage, expectedMessage),
-					"Error started with wrong message: " + errorMessage, true);
+				if(!CW.UnitTest.browserAddsCrapToErrorMessages) {
+					self.assertIdentical(errorMessage, expectedMessage,
+						"Error was of wrong message: " + errorMessage, true);
+				} else {
+					self.assert(
+						CW.startswith(errorMessage, expectedMessage),
+						"Error started with wrong message: " + errorMessage, true);
+				}
 			}
 		}
 		self.assert(threw != null, "Callable threw no error", true);
