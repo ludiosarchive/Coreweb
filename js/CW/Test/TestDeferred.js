@@ -122,7 +122,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			error = err;
 		});
 		self.assertIdentical(result, null);
-		self.assertIdentical(error.error.getMessage(), 'failure');
+		self.assertErrorMessage(error.error, 'failure');
 	},
 
 
@@ -227,7 +227,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		// if you pass a number to new Error(stringedNumber),
 		// IE will set e.message = "" and e.number = number
 		var anError = new CW.Error("some error");
-		self.assertIdentical("some error", anError.getMessage());
+		self.assertErrorMessage(anError, "some error");
 		defr2.errback(anError);
 		defr3.callback("3");
 
@@ -238,7 +238,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		self.assertIdentical(2, result[1].length);
 		self.assertIdentical(false, result[1][0]);
 		self.assertIdentical(true, result[1][1] instanceof CW.Defer.Failure);
-		self.assertIdentical("some error", result[1][1].error.getMessage());
+		self.assertErrorMessage(result[1][1].error, "some error");
 		self.assertIdentical(2, result[2].length);
 		self.assertIdentical(true, result[2][0]);
 		self.assertIdentical("3", result[2][1]);
@@ -510,13 +510,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		try {
 			throw new CW.Error("boom");
 		} catch(e) {
-			var expected = e.getMessage();
+			var saved = e;
 		}
 		var d = CW.Defer.maybeDeferred(function(){throw new CW.Error("boom")});
 		d.addCallbacks(function(s){S.push(s)}, function(err){E.push(err)}, [], []);
 		self.assertEqual(S, []);
 		self.assertEqual(E.length, 1);
-		self.assertEqual(E[0].error.getMessage(), expected);
+		self.assertErrorMessage(saved, "boom");
 		return d
 	},
 
@@ -537,7 +537,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	 * same.
 	 */
 	function test_maybeDeferredAsyncError(self) {
-		throw CW.UnitTest.SkipTest('No longer works because assertFailure assumes goog.async.Deferred addCallbacks takes 2-3 args, not 4');
+		throw new CW.UnitTest.SkipTest('No longer works because assertFailure assumes goog.async.Deferred addCallbacks takes 2-3 args, not 4');
 		
 		var d = CW.Defer.Deferred();
 		var d2 = CW.Defer.maybeDeferred(function() {return d});

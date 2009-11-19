@@ -67,7 +67,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
 
 CW.Test.Mock._BadSetUp.subclass(CW.Test.Mock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
-		throw CW.UnitTest.SkipTest("skip in setUp");
+		throw new CW.UnitTest.SkipTest("skip in setUp");
 	}
 );
 

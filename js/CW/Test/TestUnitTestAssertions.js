@@ -107,10 +107,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.assertThrows(
 				CW.AssertionError,
-				function() { throw CW.AssertionError(); }
+				function() { throw new CW.AssertionError(); }
 			);
 		} catch (e) {
-			self.fail("assertThrows should have passed: " + e.getMessage());
+			self.fail("assertThrows should have passed: " + e.message);
 		}
 	},
 
@@ -165,12 +165,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	 * the wrong kind of exception.
 	 */
 	function test_assertThrowsWrongException(self) {
-		var IndexError = CW.Error.subclass("IndexError");
 		var raised = true;
 		try {
 			self.assertThrows(
 				CW.AssertionError,
-				function() { throw IndexError(); }
+				function() { throw new CW.IndexError(); }
 			);
 			raised = false;
 		} catch (e) {
@@ -190,10 +189,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertThrowsWrongMessage(self) {
 		var raised = true;
-		var IndexError = CW.Error.subclass("IndexError");
 		try {
-			self.assertThrows(IndexError,
-							  function() { throw IndexError("correct message"); }, "wrong message");
+			self.assertThrows(CW.IndexError,
+							  function() { throw new CW.IndexError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
 			if (!(e instanceof CW.AssertionError)) {
@@ -239,7 +237,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.compare(function() { return false; }, "<->", "a", "b");
 		} catch (e) {
-			self.assertIdentical(e.getMessage(), '[0] "a" <-> "b"');
+			self.assertErrorMessage(e, '[0] "a" <-> "b"');
 		}
 	},
 
@@ -252,7 +250,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.compare(function() { return false; }, "<->", "a", "b", "Hello");
 		} catch (e) {
-			self.assertIdentical(e.getMessage(), '[0] "a" <-> "b": Hello');
+			self.assertErrorMessage(e, '[0] "a" <-> "b": Hello');
 		}
 	},
 
@@ -269,7 +267,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 				self.assertIdentical('apple', 'orange');
 			}
 		);
-		self.assertIdentical(e.getMessage(),
+		self.assertErrorMessage(e,
 			'[0] "apple" `!==´ "orange"');
 	},
 
@@ -282,8 +280,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.assertIdentical('apple', 'orange', 'some message');
 		} catch (e) {
-			self.assertIdentical(
-				e.getMessage(),
+			self.assertErrorMessage(
+				e,
 				'[0] "apple" `!==´ "orange": some message'
 			);
 		}
@@ -310,8 +308,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 				self.assertIdentical(1, '1');
 			}
 		);
-		self.assertIdentical(
-			e.getMessage(),
+		self.assertErrorMessage(
+			e,
 			'[0] 1 `!==´ "1"');
 	},
 
@@ -324,8 +322,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.assertNotIdentical('apple', 'apple', 'some message');
 		} catch (e) {
-			self.assertIdentical(
-				e.getMessage(),
+			self.assertErrorMessage(
+				e,
 				'[0] "apple" `===´ "apple": some message'
 			);
 		}
@@ -472,7 +470,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 				self.assertIn("1", [5]);
 			}
 		);
-		self.assertIdentical(e.getMessage(), '[0] "1" `not in´ [5]');
+		self.assertErrorMessage(e, '[0] "1" `not in´ [5]');
 	},
 
 
@@ -495,7 +493,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 				self.assertNotIn("0", [5]);
 			}
 		);
-		self.assertIdentical(e.getMessage(), '[0] "0" `in´ [5]');
+		self.assertErrorMessage(e, '[0] "0" `in´ [5]');
 	},
 
 

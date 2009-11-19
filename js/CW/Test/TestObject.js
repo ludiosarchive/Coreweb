@@ -326,7 +326,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assertIdentical(1, logEvents.length);
 		self.assertIdentical(true, logEvents[0].isError);
 		self.assertIdentical(true, logEvents[0].error instanceof CW.Error);
-		self.assertIdentical(logerr, logEvents[0].error.getMessage());
+		self.assertErrorMessage(logEvents[0].error, logerr);
 		self.assertIdentical(logmsg, logEvents[0].message);
 
 		removeObserver();
@@ -344,7 +344,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assertIdentical(false, logEvents[0].isError, "First event should not have been an error");
 		self.assertIdentical(logmsg, logEvents[0].message, "First event had wrong message");
 		self.assertIdentical(true, logEvents[1].isError, "Second event should have been an error");
-		self.assertIdentical(observererr, logEvents[1].error.getMessage(), "Second event had wrong message");
+		self.assertErrorMessage(logEvents[1].error, observererr); // "Second event had wrong message"
 		self.assertIdentical(false, logEvents[2].isError, "Third event should not have been an error");
 		self.assertIdentical(logerr, logEvents[2].message, "Third event had wrong message");
 

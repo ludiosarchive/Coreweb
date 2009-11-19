@@ -371,17 +371,25 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
  * @ivar index: the index of the Deferred in the DeferredList where it
  * happened.
  */
-CW.Error.subclass(CW.Defer, 'FirstError').methods(
-	function __init__(self, err, index) {
-		CW.Defer.FirstError.upcall(self, '__init__', []);
-		self.err = err;
-		self.index = index;
-	},
+//CW.Error.subclass(CW.Defer, 'FirstError').methods(
+//	function __init__(self, err, index) {
+//		CW.Defer.FirstError.upcall(self, '__init__', []);
+//		self.err = err;
+//		self.index = index;
+//	},
+//
+//	function toString(self) {
+//		return '<FirstError @ ' + self.index + ': ' + self.err.toString() + '>';
+//	}
+//);
+CW.Defer.FirstError = function(err, index) {
+	this.err = err;
+	this.index = index;
+	CW.Error.call(this);
+};
+CW.Defer.FirstError.prototype.name = 'CW.Defer.FirstError';
+goog.inherits(CW.Defer.FirstError, CW.Error);
 
-	function toString(self) {
-		return '<FirstError @ ' + self.index + ': ' + self.err.toString() + '>';
-	}
-);
 
 /*
  * I combine a group of deferreds into one callback.

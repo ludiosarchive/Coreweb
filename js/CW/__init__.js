@@ -616,10 +616,15 @@ goog.inherits(CW.Error, goog.debug.Error);
 
 /**
  * Sequence container index out of bounds.
+ * This is (probably) used only by TestUnitTestAssertions
  */
-/* // commented out until we need it, if ever
-CW.Error.subclass(CW, "IndexError");
-*/
+CW.IndexError = function(opt_msg) {
+	CW.Error.call(this, opt_msg);
+};
+CW.IndexError.prototype.name = 'CW.IndexError';
+goog.inherits(CW.IndexError, CW.Error);
+
+
 
 /**
  * Base class for all warning classes.

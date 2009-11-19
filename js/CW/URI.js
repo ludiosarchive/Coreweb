@@ -173,15 +173,6 @@ CW.URI.join_authority = function join_authority(user, password, host, port) {
 }
 
 
-
-CW.Error.subclass(CW.URI, "BadURLError").methods(
-	function toString(self) {
-		return 'BadURLError: ' + self.getMessage();
-	}
-);
-
-
-
 /**
  * Represents a URL. You can modify a L{CW.URI.URL} with C{.update('property', 'value')}
  * to change parts of the URL, clone a URL by passing a L{CW.URI.URL} instance
@@ -243,7 +234,7 @@ CW.Class.subclass(CW.URI, 'URL').methods(
 		}
 
 		if(!(self.scheme && self.host)) {
-			throw new CW.URI.BadURLError("URL needs a scheme and a host");
+			throw new Error("URL needs a scheme and a host");
 		}
 	},
 

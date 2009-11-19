@@ -65,7 +65,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 			function() {
 				return CW.Inspect.methods([]);
 			});
-		self.assertIdentical(error.getMessage(), msg);
+		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
 			CW.Error,
@@ -73,27 +73,27 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 				return CW.Inspect.methods({});
 			});
 		//alert(error.message.replace('Stacktrace', 'Funtime'));
-		self.assertIdentical(error.getMessage(), msg);
+		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
 			CW.Error,
 			function() {
 				return CW.Inspect.methods(0);
 			});
-		self.assertIdentical(error.getMessage(), msg);
+		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
 			CW.Error,
 			function() {
 				return CW.Inspect.methods("");
 			});
-		self.assertIdentical(error.getMessage(), msg);
+		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
 			CW.Error,
 			function() {
 				return CW.Inspect.methods(CW.Class());
 			});
-		self.assertIdentical(error.getMessage(), msg);
+		self.assertErrorMessage(error, msg);
 	}
 );
