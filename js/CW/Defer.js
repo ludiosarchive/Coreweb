@@ -15,7 +15,12 @@ goog.require('goog.async.Deferred');
  * error and removes them when errback fires
  */
 
-CW.Class.subclass(CW.Defer, 'AlreadyCalledError');
+CW.Defer.AlreadyCalledError = function(opt_msg) {
+	CW.Error.call(this, opt_msg);
+};
+CW.Defer.AlreadyCalledError.prototype.name = 'CW.Defer.AlreadyCalledError';
+goog.inherits(CW.Defer.AlreadyCalledError, CW.Error);
+
 
 CW.Class.subclass(CW.Defer, 'Failure').methods(
 	function __init__(self, error) {
