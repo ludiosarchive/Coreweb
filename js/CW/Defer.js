@@ -350,13 +350,6 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
 	if (result instanceof goog.async.Deferred) {
 		var newD = new CW.Defer.Deferred();
 		result.chainDeferred(newD);
-//		function newCallback(result) {
-//			newD.callback(result);
-//		}
-//		function newErrback(error) {
-//			newD.errback(CW.Defer.Failure(error));
-//		}
-//		result.addCallbacks(newCallback, newErrback);
 		return newD;
 	} else if (result instanceof CW.Defer.Deferred) {
 		return result;

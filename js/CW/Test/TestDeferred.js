@@ -545,9 +545,54 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 
 
 	/**
-	 * L{maybeDeferred} translates L{goog.async.Deferred}s to L{CW.Defer.Deferred}.
+	 * L{maybeDeferred} translates L{goog.async.Deferred}s to L{CW.Defer.Deferred}. Callbacks work.
 	 */
-	 function test_deferredTranslation(self) {
-		// TODO!
+	 function test_deferredTranslationCallback(self) {
+	      var oldD = new goog.async.Deferred();
+	      var oldDFunc = function(){return oldD;}
+		var newD = CW.Defer.maybeDeferred(oldDFunc);
+		self.assert(newD instanceof CW.Defer.Deferred);
+		var expected = 3;
+		function cb(result) {
+			self.assertEqual(expected, result);
+		}
+		newD.addCallback(cb)
+		oldD.callback(expected);
+		return newD;
+	 },
+
+	 /**
+	 * L{maybeDeferred} translates L{goog.async.Deferred}s to L{CW.Defer.Deferred}. Errbacks work.
+	 */
+	 function test_deferredTranslationErrback(self) {
+	      var oldD = new goog.async.Deferred();
+	      var oldDFunc = function(){return oldD;}
+		var newD = CW.Defer.maybeDeferred(oldDFunc);
+		self.assert(newD instanceof CW.Defer.Deferred);
+		var expected = new Error("boom");
+		function eb(failure) {
+			self.assertEqual(expected, failure.error);
+		}
+		newD.addErrback(eb)
+		oldD.errback(expected);
+		return newD;
+	 },
+
+
+	 /**
+	 * L{maybeDeferred} translates L{goog.async.Deferred}s to L{CW.Defer.Deferred}. Errbacks work, even for L{CW.Error}s.
+	 */
+	 function test_deferredTranslationErrbackCWError(self) {
+	      var oldD = new goog.async.Deferred();
+	      var oldDFunc = function(){return oldD;}
+		var newD = CW.Defer.maybeDeferred(oldDFunc);
+		self.assert(newD instanceof CW.Defer.Deferred);
+		var expected = new CW.Error("boom");
+		function eb(failure) {
+			self.assertEqual(expected, failure.error);
+		}
+		newD.addErrback(eb)
+		oldD.errback(expected);
+		return newD;
 	 }
 );
