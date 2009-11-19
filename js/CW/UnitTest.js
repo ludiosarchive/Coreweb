@@ -7,10 +7,11 @@
 
 
 // import CW.DOM
-// import CW.Defer
 // import CW.Inspect
 
 goog.require('goog.userAgent');
+goog.require('goog.async.Deferred');
+goog.require('goog.async.DeferredList');
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -187,7 +188,7 @@ CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param error: The error that occurred.
-	 * @type error: Generally a L{CW.Defer.Failure} wrapping a L{CW.Error} instance.
+	 * @type error: Generally an L{Error} or L{CW.Error} instance.
 	 */
 	function addError(self, test, error) {
 		self.errors.push([test, error]);
@@ -203,7 +204,7 @@ CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.AssertionError} instance.
+	 * @type failure: A L{CW.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -217,7 +218,7 @@ CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.Defer.Failure} wrapping a L{CW.UnitTest.SkipTest} instance.
+	 * @type failure: A L{CW.UnitTest.SkipTest} instance.
 	 */
 	function addSkip(self, test, skip) {
 		self.skips.push([test, skip]);
@@ -271,6 +272,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addError(self, test, error) {
+		//console.log(error);
 		CW.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
@@ -298,7 +300,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 	function addSkip(self, test, skip) {
 		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
-		var textnode = document.createTextNode('... SKIP: ' + CW.UnitTest.extractMessage(skip.error));
+		var textnode = document.createTextNode('... SKIP: ' + CW.UnitTest.extractMessage(skip));
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		//self._div.appendChild(skip.toPrettyNode());
@@ -551,7 +553,6 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
 	function visit(self, visitor) {
-		//return CW.Defer.succeed(visitor(self));
 		return visitor(self);
 	},
 
@@ -859,14 +860,14 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * This "Failure" has to do with the "Failure" objects, not the assert failures.
 	 *
-	 * @param deferred: The L{CW.Defer.Deferred} which is expected to fail.
+	 * @param deferred: The L{goog.async.Deferred} which is expected to fail.
 	 *
 	 * @param errorTypes: An C{Array} of L{CW.Error} subclasses which are
 	 * the allowed failure types for the given Deferred.
 	 *
 	 * @throw Error: Thrown if C{errorTypes} has a length of 0.
 	 *
-	 * @rtype: L{CW.Defer.Deferred}
+	 * @rtype: L{goog.async.Deferred}
 	 *
 	 * @return: A Deferred which will fire with the error instance with which
 	 * the input Deferred fails if it is one of the types specified in
@@ -878,23 +879,14 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			throw new Error("Specify at least one error class to assertFailure");
 		}
 
-		// Translate goog.async.Deferred to CW.Defer.Deferred, so that below err.check works.
-		if(deferred.chainDeferred) {
-			var newDeferred = new CW.Defer.Deferred();
-			deferred.chainDeferred(newDeferred);
-		} else {
-			var newDeferred = deferred;
-		}
-
-		var d = newDeferred.addCallbacks(
+		var d = deferred.addCallbacks(
 			function(result) {
 				self.fail("Deferred reached callback; expected an errback.");
 			},
 			function(err) {
 				var result;
 				for (var i = 0; i < errorTypes.length; ++i) {
-					result = err.check(errorTypes[i]);
-					if (result != null) {
+					if (result === errorTypes[i]) {
 						return result;
 					}
 				}
@@ -934,6 +926,47 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	},
 
 
+	// maybeDeferred was copied line-for-line from twisted.internet.defer.maybeDeferred,
+	// then modified to not know about Failures, because L{goog.async.Deferred}s does not know about Failures.
+
+	/**
+	 * Invoke a function that may or may not return a deferred.
+	 *
+	 *  WRONG WRONG WRONG no FAILURE objects
+	 * Call the given function with the given arguments.  If the returned
+	 * object is a C{Deferred}, return it.  If the returned object is a C{Failure},
+	 *   wrap it with C{fail} and return it.  Otherwise, wrap it in C{succeed} and
+	 *   return it.  If an exception is raised, convert it to a C{Failure}, wrap it
+	 *   in C{fail}, and then return it.
+	 *
+	 * @type f: Any callable
+	 * @param f: The callable to invoke
+	 * @param args: The arguments to pass to C{f}
+	 *
+	 * @rtype: C{Deferred}
+	 * @return: The result of the function call, wrapped in a C{Deferred} if necessary.
+	 */
+	function maybeDeferred(self, f, args) {
+		if(args === undefined) {
+			args = [];
+		}
+
+		try {
+			var result = f.apply(null, args);
+		} catch(e) {
+			return goog.async.Deferred.fail(e);
+		}
+
+		if (result instanceof goog.async.Deferred) {
+			return result;
+		} else if(result instanceof Error || result instanceof CW.Error) {
+			return goog.async.Deferred.fail(result);
+		} else {
+			return goog.async.Deferred.succeed(result);
+		}
+	},
+
+
 	/**
 	 * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
 	 */
@@ -945,7 +978,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 		result.startTest(self);
 
-		setUpD = CW.Defer.maybeDeferred(
+		setUpD = self.maybeDeferred(
 			function _TestCase_run_wrap_setUp(){ return self.setUp(); }
 		);
 
@@ -953,20 +986,19 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			/* callback */
 			function _TestCase_run_setUpD_callback(){
 
-				methodD = CW.Defer.maybeDeferred(
+				methodD = self.maybeDeferred(
 					function _TestCase_run_wrap_method(){ return self[self._methodName](); }
 				);
 
 				//console.log("From " + self._methodName + " got a ", methodD);
 
-				methodD.addErrback(function _TestCase_run_methodD_errback(aFailure) {
-					// Note that we're not adding the Error as Divmod did; we are adding the Failure
-					if (aFailure.error instanceof CW.AssertionError) {
-						result.addFailure(self, aFailure);
-					} else if (aFailure.error instanceof CW.UnitTest.SkipTest) {
-						result.addSkip(self, aFailure);
+				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
+					if (anError instanceof CW.AssertionError) {
+						result.addFailure(self, anError);
+					} else if (anError instanceof CW.UnitTest.SkipTest) {
+						result.addSkip(self, anError);
 					} else {
-						result.addError(self, aFailure);
+						result.addError(self, anError);
 					}
 					success = false;
 				});
@@ -977,20 +1009,20 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 					// for some debugging, prepend the closure with
 					// console.log("in teardown after", self._methodName);
 
-					tearDownD = CW.Defer.maybeDeferred(
+					tearDownD = self.maybeDeferred(
 						function _TestCase_run_wrap_tearDown(){ return self.tearDown(); }
 					);
 
 					// Approaching the end of our journey...
 
-					tearDownD.addErrback(function _TestCase_run_tearDownD_errback(aFailure) {
+					tearDownD.addErrback(function _TestCase_run_tearDownD_errback(anError) {
 						// This might be the second time C{result.addError} is called,
 						// because an error in both the method *and* tearDown is possible. 
-						result.addError(self, aFailure);
+						result.addError(self, anError);
 						success = false;
 					});
 
-					tearDownD.addBoth(function _TestCase_run_tearDownD_finally(){
+					tearDownD.addBoth(function _TestCase_run_tearDownD_finally() {
 						if (success) {
 							var whichProblems = [];
 							for(var pendingType in CW.UnitTest.delayedCalls) {
@@ -1003,10 +1035,9 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 								success = false;
 
 								result.addError(self,
-									new CW.Defer.Failure(
-										new CW.Error(
-											"Test ended with " + whichProblems.length +
-											" pending call(s): " + whichProblems)));
+									new CW.Error(
+										"Test ended with " + whichProblems.length +
+										" pending call(s): " + whichProblems));
 
 								// Cleanup everything. If we don't do this, test output is impossible
 								// to decipher, because delayed calls "spill over" to future tests.
@@ -1030,12 +1061,12 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			},
 
 			/* errback */
-			function _TestCase_run_setUpD_errback(aFailure){
+			function _TestCase_run_setUpD_errback(anError){
 				// Assertions are not allowed in C{setUp}, so we'll treat them an error.
-				if (aFailure.error instanceof CW.UnitTest.SkipTest) {
-					result.addSkip(self, aFailure);
+				if (anError instanceof CW.UnitTest.SkipTest) {
+					result.addSkip(self, anError);
 				} else {
-					result.addError(self, aFailure);
+					result.addError(self, anError);
 				}
 			},
 
@@ -1415,7 +1446,7 @@ CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
 		for (var i = 0; i < tests.length; ++i) {
 			deferreds.push(tests[i].visit(visitor));
 		}
-		return CW.Defer.DeferredList(deferreds);
+		return new goog.async.DeferredList(deferreds);
 	}
 );
 
@@ -1428,7 +1459,7 @@ CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
 CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
 //		CW.msg('Using SerialVisitor on ' + tests);
-		var completionDeferred = new CW.Defer.Deferred();
+		var completionDeferred = new goog.async.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
 	},
@@ -1480,7 +1511,7 @@ CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 //CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
-//		var completionDeferred = new CW.Defer.Deferred();
+//		var completionDeferred = new goog.async.Deferred();
 //		self._traverse(visitor, tests, completionDeferred);
 //		return completionDeferred;
 //	},
@@ -1635,7 +1666,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 CW.UnitTest.installMonkeys = function installMonkeys() {
 	//CW.msg('installMonkeys');
 
-	var installD = new CW.Defer.Deferred();
+	var installD = new goog.async.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
 		//CW.msg('Monkeys already installed or being installed.');
@@ -1667,7 +1698,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 		window.clearInterval = CW.UnitTest.clearIntervalMonkey;
 		installD.callback(null);
 	} else {
-		CW.UnitTest._iframeReady = new CW.Defer.Deferred();
+		CW.UnitTest._iframeReady = new goog.async.Deferred();
 
 		/*
 		 * This special frame keeps unmodified versions of setTimeout,

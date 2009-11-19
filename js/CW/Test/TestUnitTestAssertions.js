@@ -1,5 +1,8 @@
 // import CW.UnitTest
 
+goog.require('goog.async.Deferred');
+goog.require('goog.async.DeferredList');
+
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, '_StartsWithUnderscore').methods(
 	function test_nothing(self) {
@@ -79,7 +82,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 
 	function test_assertFailureImmediate(self) {
-		var d = new CW.Defer.Deferred();
+		var d = new goog.async.Deferred();
 		d.errback(Error("Throwing an Error.")); // right now
 		self.assertFailure(d, [Error]);
 		return d;
@@ -91,7 +94,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 
 	function test_assertFailureDelayed(self) {
-		var d = new CW.Defer.Deferred();
+		var d = new goog.async.Deferred();
 		setTimeout(function(){d.errback(Error("Throwing an Error."));}, 10);
 		self.assertFailure(d, [Error]);
 		return d;

@@ -250,7 +250,7 @@ there';
 //
 //		var allResponseTexts = [];
 //
-//		var d = new CW.Defer.Deferred();
+//		var d = new goog.async.Deferred();
 //
 //		var stateCounters = {};
 //

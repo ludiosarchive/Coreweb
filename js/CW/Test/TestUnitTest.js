@@ -5,10 +5,11 @@
 
 // import CW.UnitTest
 // import CW.Test.Mock
-// import CW.Test.DMock
-// import CW.Test.DSMock
 // import CW.Test.GDMock
 // import CW.Test.GDSMock
+
+goog.require('goog.async.Deferred');
+goog.require('goog.async.DeferredList');
 
 
 /**
@@ -135,32 +136,23 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(
-				self.result.failures[0][1] instanceof CW.Defer.Failure,
-				"self.result.failures[0][1] should have been a CW.Defer.Failure, not a: " + self.result.failures[0][1]);
-			self.assert(
-				self.result.failures[0][1].error instanceof CW.AssertionError,
-				"self.result.failures[0][1].error should have been a CW.AssertionError, not a: " + self.result.failures[0][1].error);
-			self.assertIdentical(self.result.failures[0][1].error.getMessage(), "[0] fail this test deliberately");
+				self.result.failures[0][1] instanceof CW.AssertionError,
+				"self.result.failures[0][1] should have been a CW.AssertionError, not a: " + self.result.failures[0][1]);
+			self.assertIdentical(self.result.failures[0][1].getMessage(), "[0] fail this test deliberately");
 
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(
-				self.result.errors[0][1] instanceof CW.Defer.Failure,
-				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
-			self.assert(
-				self.result.errors[0][1].error instanceof CW.Error,
-				"self.result.errors[0][1].error should have been a CW.Error, not a: " + self.result.errors[0][1].error);
+				self.result.errors[0][1] instanceof CW.Error,
+				"self.result.errors[0][1] should have been a CW.Error, not a: " + self.result.errors[0][1]);
 
 			// check the skip
 			self.assertIdentical(self.result.skips[0].length, 2);
 			self.assertIdentical(self.result.skips[0][0], skip);
 			self.assert(
-				self.result.skips[0][1] instanceof CW.Defer.Failure,
-				"self.result.skips[0][1] should have been a CW.Defer.Failure, not a: " + self.result.skips[0][1]);
-			self.assert(
-				self.result.skips[0][1].error instanceof CW.UnitTest.SkipTest,
-				"self.result.skips[0][1].error should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1].error);
+				self.result.skips[0][1] instanceof CW.UnitTest.SkipTest,
+				"self.result.skips[0][1] should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
 
 			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "error");
 			self.assertArraysEqual(self.result.successes, [good]);
@@ -208,9 +200,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
-			self.assert(
-				self.result.errors[0][1] instanceof CW.Defer.Failure,
-				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
@@ -225,9 +214,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 1]);
-			self.assert(
-				self.result.skips[0][1] instanceof CW.Defer.Failure,
-				"self.result.skips[0][1] should have been a CW.Defer.Failure, not a: " + self.result.skips[0][1]);
 		});
 		return d;
 	},
@@ -242,9 +228,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addBoth(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
-			self.assert(
-				self.result.errors[0][1] instanceof CW.Defer.Failure,
-				"self.result.errors[0][1] should have been a CW.Defer.Failure, not a: " + self.result.errors[0][1]);
 		});
 		return d;
 	},
@@ -392,27 +375,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
-	}
-);
-
-
-
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
-	}
-);
-
-
-
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDMock;
 	}
 );
@@ -421,7 +386,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGD
 
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestGDS').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDSMock;
 	}
 );
@@ -448,9 +413,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
 			self.assertIdentical(
-				self.result.errors[0][1].error.getMessage(),
+				self.result.errors[0][1].getMessage(),
 				"Test ended with 1 pending call(s): setTimeout_pending");
 		});
 		return d;
@@ -470,10 +434,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			//CW.msg('the error: ' + self.result.errors[0][1] + ', ' + self.result.errors[0][1].message);
-			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure); // seen some cases where IE6 disagree with this, and the thing below.
 			self.assertIdentical(
-				self.result.errors[0][1].error.getMessage(),
+				self.result.errors[0][1].getMessage(),
 				"Test ended with 1 pending call(s): setInterval_pending");
 		});
 		d.addBoth(function(){
@@ -507,9 +469,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(self.result.errors[0][1] instanceof CW.Defer.Failure);
 			self.assertIdentical(
-				self.result.errors[0][1].error.getMessage(),
+				self.result.errors[0][1].getMessage(),
 				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
 
 			// the inner test stopped tracking all the pending calls.
@@ -611,27 +572,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 
 
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.LoaderTestsD.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
-	}
-);
-
-
-
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.LoaderTestsDS.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
-	}
-);
-
-
-
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.LoaderTestsD.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDMock;
 	}
 );
@@ -640,7 +583,7 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGD')
 
 CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsGDS').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.LoaderTestsDS.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDSMock;
 	}
 );
@@ -755,27 +698,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 
 
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.RunnerTestD.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
-	}
-);
-
-
-
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').methods(
-	function setUp(self) {
-		CW.Test.TestUnitTest.RunnerTestDS.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
-	}
-);
-
-
-
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.RunnerTestD.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDMock;
 	}
 );
@@ -784,7 +709,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGD').m
 
 CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestGDS').methods(
 	function setUp(self) {
-		CW.Test.TestUnitTest.RunnerTestDS.upcall(self, 'setUp', []);
+		self.__class__.upcall(self, 'setUp', []);
 		self.mockModule = CW.Test.GDSMock;
 	}
 );
@@ -911,7 +836,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
-		var d = new CW.Defer.Deferred();
+		var d = new goog.async.Deferred();
 
 		d.addCallback(function() {
 			self.assertIdentical(false, neverRunMeWasRun);
@@ -954,7 +879,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
-		var d = new CW.Defer.Deferred();
+		var d = new goog.async.Deferred();
 
 		d.addCallback(function() {
 			self.assertIdentical(0, neverRunMeWasRun);
