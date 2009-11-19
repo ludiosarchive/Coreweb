@@ -108,9 +108,8 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 CW.UnitTest.SkipTest = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };
-CW.UnitTest.SkipTest.prototype.name = 'CW.UnitTest.SkipTest';
 goog.inherits(CW.UnitTest.SkipTest, CW.Error);
-
+CW.UnitTest.SkipTest.prototype.name = 'CW.UnitTest.SkipTest';
 
 
 CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;

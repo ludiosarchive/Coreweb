@@ -18,8 +18,8 @@ goog.require('goog.async.Deferred');
 CW.Defer.AlreadyCalledError = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };
-CW.Defer.AlreadyCalledError.prototype.name = 'CW.Defer.AlreadyCalledError';
 goog.inherits(CW.Defer.AlreadyCalledError, CW.Error);
+CW.Defer.AlreadyCalledError.prototype.name = 'CW.Defer.AlreadyCalledError';
 
 
 CW.Class.subclass(CW.Defer, 'Failure').methods(
@@ -381,8 +381,8 @@ CW.Defer.FirstError = function(err, index) {
 	this.index = index;
 	CW.Error.call(this);
 };
-CW.Defer.FirstError.prototype.name = 'CW.Defer.FirstError';
 goog.inherits(CW.Defer.FirstError, CW.Error);
+CW.Defer.FirstError.prototype.name = 'CW.Defer.FirstError';
 
 
 /*

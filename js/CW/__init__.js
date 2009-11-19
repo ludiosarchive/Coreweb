@@ -569,9 +569,8 @@ CW.Class.prototype.__init__ = function() {
 CW.Error = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
 };
-CW.Error.prototype.name = 'CW.Error';
 goog.inherits(CW.Error, goog.debug.Error);
-
+CW.Error.prototype.name = 'CW.Error';
 
 
 /**
@@ -581,9 +580,8 @@ goog.inherits(CW.Error, goog.debug.Error);
 CW.IndexError = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };
-CW.IndexError.prototype.name = 'CW.IndexError';
 goog.inherits(CW.IndexError, CW.Error);
-
+CW.IndexError.prototype.name = 'CW.IndexError';
 
 
 /**
@@ -876,9 +874,8 @@ CW.random = function random() {
 CW.AssertionError = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };
-CW.Error.prototype.name = 'CW.AssertionError';
 goog.inherits(CW.AssertionError, CW.Error);
-
+CW.Error.prototype.name = 'CW.AssertionError';
 
 
 //] if _debugMode:
