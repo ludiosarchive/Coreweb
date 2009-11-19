@@ -94,9 +94,7 @@ TestRunnerPage.propsBefore = TestRunnerPage.cloneProperties(window);
 TestRunnerPage.timers.scriptLoadStart = +new Date; /* scripts begin */
 
 
-goog = window.goog || {};
-goog.globals = goog.globals || {};
-goog.globals.CLOSURE_NO_DEPS = true;
+window.CLOSURE_NO_DEPS = true;
 
 // Stopping all script execution if there's an error above is good. We could use just
 // one <script> on this page to achieve that effect, but then we don't get timing
