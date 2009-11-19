@@ -877,7 +877,16 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 		if (errorTypes.length == 0) {
 			throw new Error("Specify at least one error class to assertFailure");
 		}
-		var d = deferred.addCallbacks(
+
+		// Translate goog.async.Deferred to CW.Defer.Deferred, so that below err.check works.
+		if(deferred.chainDeferred) {
+			var newDeferred = new CW.Defer.Deferred();
+			deferred.chainDeferred(newDeferred);
+		} else {
+			var newDeferred = deferred;
+		}
+
+		var d = newDeferred.addCallbacks(
 			function(result) {
 				self.fail("Deferred reached callback; expected an errback.");
 			},
