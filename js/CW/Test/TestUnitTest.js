@@ -154,7 +154,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 				self.result.skips[0][1] instanceof CW.UnitTest.SkipTest,
 				"self.result.skips[0][1] should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
 
-			self.assertIdentical(self.result.errors[0][1].error.getMessage(), "error");
+			self.assertIdentical(self.result.errors[0][1].getMessage(), "error");
 			self.assertArraysEqual(self.result.successes, [good]);
 		});
 		return d;

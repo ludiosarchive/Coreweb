@@ -76,11 +76,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	},
 
 
-
 	/**
 	 * Test assertFailure with immediate error
 	 */
-
 	function test_assertFailureImmediate(self) {
 		var d = new goog.async.Deferred();
 		d.errback(Error("Throwing an Error.")); // right now

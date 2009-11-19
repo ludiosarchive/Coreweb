@@ -272,7 +272,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addError(self, test, error) {
-		//console.log(error);
+		console.log(error);
 		CW.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
@@ -568,6 +568,18 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 
 	/**
+	 * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
+	 *
+	 * @type reason: text
+	 * @param reason: Why the test is being failed.
+	 * @return: L{CW.AssertionError} instance.
+	 */
+	function getFailError(self, reason) {
+		return new CW.AssertionError("[" + self._assertCounter + "] " + reason);
+	},
+
+
+	/**
 	 * Fail the test. Equivalent to an invalid assertion.
 	 *
 	 * @type reason: text
@@ -576,18 +588,6 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
-	},
-
-
-	/**
-	 * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
-	 *
-	 * @type reason: text
-	 * @param reason: Why the test is being failed.
-	 * @throw: CW.AssertionError
-	 */
-	function getFailError(self, reason) {
-		return CW.AssertionError("[" + self._assertCounter + "] " + reason);
 	},
 
 
@@ -852,7 +852,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	},
 
 
-	// assertFailure was copied from Nevow.Athena.Test
+	// assertFailure was copied from Nevow.Athena.Test; heavily modified
 
 	/**
 	 * Add a callback and an errback to the given Deferred which will assert
@@ -869,10 +869,12 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @rtype: L{goog.async.Deferred}
 	 *
-	 * @return: A Deferred which will fire with the error instance with which
-	 * the input Deferred fails if it is one of the types specified in
-	 * C{errorTypes} or which will errback if the input Deferred either
-	 * succeeds or fails with a different error type.
+	 * @return:
+	 *    if the input Deferred fails with one of the types specified in C{errorTypes},
+	 *          a Deferred which will fire callback with a 1 item list: [the error object]
+	 *          with which the input Deferred failed
+	 *    else,
+	 *          a Deferred which will fire errback with a L{CW.AssertionError}.
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
@@ -884,15 +886,13 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				self.fail("Deferred reached callback; expected an errback.");
 			},
 			function(err) {
-				var result;
 				for (var i = 0; i < errorTypes.length; ++i) {
-					if (result === errorTypes[i]) {
-						return result;
+					if (err instanceof errorTypes[i]) {
+						return [err];
 					}
 				}
 				self.fail("Expected " + errorTypes + ", got " + err);
-			},
-			[], []
+			}
 		);
 		// TODO: is this really the best place to increment the counter? maybe it should be in the function(err)?
 		if(_internalCall !== true) {
@@ -959,7 +959,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 		if (result instanceof goog.async.Deferred) {
 			return result;
-		} else if(result instanceof Error || result instanceof CW.Error) {
+		} else if(result instanceof Error || (result && result._isErrorObject)) {
 			return goog.async.Deferred.fail(result);
 		} else {
 			return goog.async.Deferred.succeed(result);
@@ -1068,9 +1068,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				} else {
 					result.addError(self, anError);
 				}
-			},
-
-			[], []
+			}
 
 		);
 
