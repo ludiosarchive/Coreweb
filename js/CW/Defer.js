@@ -42,7 +42,7 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
 		return 'Failure: ' + self.error;
 	},
 
-	// TODO: use the cross-browser stack parser from Qooxdoo
+	// Google Closure and Qooxdoo have better parsers.
 	function parseStack(self) {
 		var
 			stackString = this.error.stack,
@@ -376,17 +376,6 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
  * @ivar index: the index of the Deferred in the DeferredList where it
  * happened.
  */
-//CW.Error.subclass(CW.Defer, 'FirstError').methods(
-//	function __init__(self, err, index) {
-//		CW.Defer.FirstError.upcall(self, '__init__', []);
-//		self.err = err;
-//		self.index = index;
-//	},
-//
-//	function toString(self) {
-//		return '<FirstError @ ' + self.index + ': ' + self.err.toString() + '>';
-//	}
-//);
 CW.Defer.FirstError = function(err, index) {
 	this.err = err;
 	this.index = index;

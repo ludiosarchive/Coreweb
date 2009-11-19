@@ -566,46 +566,6 @@ CW.Class.prototype.__init__ = function() {
 };
 
 
-/**
- * Base class for all error classes.
- *
- * @ivar stack: On Firefox, a string describing the call stack at the time the
- * error was instantiated (/not/ thrown).
- */
-//CW.Class.subclass(CW, "Error").methods(
-//	function __init__(self, /*optional*/ message) {
-//		self._isErrorObject = true;
-//		// Because Opera 10's getter for the 'message' property on any thrown
-//		// object appends either informational garbage or a stack trace, we save
-//		// data to _message instead and provide a getMessage method to get the
-//		// clean message.
-//		self._message = message;
-//		// This stack will contain a few superfluous frames at the bottom,
-//		// because it's being created here, not at the 'throw new SomeError' throw site.
-//		self.stack = Error().stack;
-//	},
-//
-//	/**
-//	 * Get the original error message that the object was instantiated with.
-//	 *
-//	 * @rtype: string
-//	 * @return: The error message, as a string.
-//	 */
-//	function getMessage(self) {
-//		return self._message;
-//	},
-//
-//	/**
-//	 * Represent this error as a string.
-//	 *
-//	 * @rtype: string
-//	 * @return: This error object, as a string.
-//	 */
-//	function toString(self) {
-//		return self.__class__.__name__ + ': ' + self.getMessage();
-//	}
-//);
-
 CW.Error = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
 };
@@ -913,11 +873,6 @@ CW.random = function random() {
  *    CW.assert() (in _debugMode) to stop execution
  *    CW.UnitTest to indicate that a test has failed
  */
-//CW.Error.subclass(CW, "AssertionError").methods(
-//	function toString(self) {
-//		return self.__class__.__name__ + ': ' + self.getMessage();
-//	}
-//);
 CW.AssertionError = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };

@@ -105,11 +105,6 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 /**
  * Raised to indicate that a test is being skipped.
  */
-//CW.Error.subclass(CW.UnitTest, 'SkipTest').methods(
-//	function toString(self) {
-//		return self.__class__.__name__ + ': ' + self.getMessage();
-//	}
-//);
 CW.UnitTest.SkipTest = function(opt_msg) {
 	CW.Error.call(this, opt_msg);
 };
