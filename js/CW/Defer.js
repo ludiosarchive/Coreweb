@@ -348,6 +348,7 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
 	}
 
 	if (result instanceof goog.async.Deferred) {
+		// Translate goog.async.Deferred -> CW.Defer.Deferred; this is important for the test runner.
 		var newD = new CW.Defer.Deferred();
 		result.chainDeferred(newD);
 		return newD;
