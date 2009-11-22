@@ -77,7 +77,7 @@ class TestPage(resource.Resource):
 		# who can visit the test page can download any JavaScript module in JSPATH.
 
 		JSPATH = FilePath(os.environ['JSPATH'])
-		directoryScan = jsimp.DirectoryScan(JSPATH)
+		directoryScan = jsimp.DirectoryScan(JSPATH) # Huh? Should this really be done on every request?
 
 		if request.args.get('only'):
 			theTests = _getTests(request.args['only'][0].split(','), JSPATH, directoryScan)

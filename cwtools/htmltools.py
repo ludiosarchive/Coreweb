@@ -64,7 +64,7 @@ def scriptSrc(script, mountedAt):
 		cacheBreaker)
 
 
-def expandScript(script, basePath=None):
+def expandScript(script, basePath=None, directoryScan=None):
 	if basePath is None:
 		import os
 		if not 'JSPATH' in os.environ:
@@ -72,7 +72,21 @@ def expandScript(script, basePath=None):
 		from twisted.python.filepath import FilePath
 		basePath=FilePath(os.environ['JSPATH'])
 
-	v = jsimp.VirtualScript(script, basePath)
-	deps = jsimp.getDeps(v)
+	v = jsimp.VirtualScript(script, basePath, forcedDeps=None, directoryScan=directoryScan)
+
+	# copied from cwtools/testing.py
+
+	# This try/except/rescan only handles the case where a `provide' could not be found.
+	# If the name being `provide'd moved to another JavaScript file, the state will be
+	# bad and the assembled JavaScript will be wrong. In this case, restarting the
+	# development server is the best option.
+	try:
+		deps = jsimp.getDeps(v)
+	except jsimp.NobodyProvidesThis:
+		if directoryScan is None:
+			raise
+		directoryScan.rescan()
+		deps = jsimp.getDeps(v)
+
 	full = jsimp.megaScript(deps, wrapper=True, dictionary=dict(_debugMode=True))
 	return full

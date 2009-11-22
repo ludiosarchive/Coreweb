@@ -549,7 +549,7 @@ class VirtualScript(_BaseScript):
 	"""
 	_realScriptClass = Script
 
-	def __init__(self, content, basePath=None, forcedDeps=None):
+	def __init__(self, content, basePath=None, forcedDeps=None, directoryScan=None):
 		"""
 		@param content: the script content
 		@type content: unicode
@@ -567,6 +567,7 @@ class VirtualScript(_BaseScript):
 		self._basePath = basePath
 		self._forcedDeps = forcedDeps
 		self._stringCache = None
+		self._directoryScan = directoryScan
 
 
 	def __eq__(self, other):
@@ -601,7 +602,7 @@ class VirtualScript(_BaseScript):
 	def _getScriptWithName(self, name):
 		if self._basePath is None:
 			raise NoBasePathNoImportsError("basePath is None, so I cannot instantiate Scripts")
-		return self._realScriptClass(name, self._basePath)
+		return self._realScriptClass(name, self._basePath, self._directoryScan)
 
 
 	def _underscoreName(self):
