@@ -88,5 +88,5 @@ def expandScript(script, basePath=None, directoryScan=None):
 		directoryScan.rescan()
 		deps = jsimp.getDeps(v)
 
-	full = jsimp.megaScript(deps, wrapper=True, dictionary=dict(_debugMode=True))
+	full = jsimp.megaScript(deps, wrapper=False, dictionary=dict(_debugMode=True))
 	return full
