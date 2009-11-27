@@ -1538,6 +1538,18 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 	var ticket = null;
 
+	// Firefox exhibits strange behavior with our replacement setTimeout. Possibly Firebug-related, maybe not.
+	// Notice how the uncaught error is not logged when the CW-replaced version window.setTimeout is called.
+	// Maybe we should try Google Closure's way of replacing setTimeout?
+	/*
+	>>> setTimeout(function(){throw new Error("heya")}, 0)
+	19
+	heya
+	[Break on this error] XDomainRequest;
+	@tests (line 13102)
+	>>> window.setTimeout(function(){throw new Error("heya")}, 0)
+	20
+	*/
 	if(window.__CW_setTimeout_bak) {
 		ticket = __CW_setTimeout_bak(
 			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable(ticket) },
