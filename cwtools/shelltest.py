@@ -3,9 +3,10 @@
 Run a test suite and output results to stdout.
 """
 
-from cwtools import testing
+from cwtools import jsimp, testing
 from twisted.internet import reactor, error, utils, defer
-from twisted.python import log, filepath
+from twisted.python import log
+from twisted.python.filepath import FilePath
 import tempfile
 import sys
 import os
@@ -13,7 +14,9 @@ log.startLogging(sys.stdout)
 
 
 def makeScriptForNode():
-	theTests = testing._getTests(sys.argv[1:])
+	JSPATH = FilePath(os.environ['JSPATH'])
+	directoryScan = jsimp.DirectoryScan(JSPATH)
+	theTests = testing._getTests(sys.argv[1:], JSPATH, directoryScan)
 	scriptContent = testing._getScriptContent(theTests, 'process') # rargh Node.js
 	moduleString = testing._getModuleListString(theTests)
 	runCode = u"""
