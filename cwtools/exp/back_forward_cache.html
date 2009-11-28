@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<!--
+	https://developer.mozilla.org/en/using_firefox_1.5_caching
+-->
+
+	<title>loadev</title>
+	<style>
+	body, html {
+		background-color: #eee;
+	}
+	</style>
+</head>
+<body>
+
+<div id="info" style="background-color:#f7f7f7">
+
+<pre>
+BFCache exists?
+
+FF2: yes
+FF3: yes
+FF3.5: yes
+IE6: no
+IE7: no
+IE8: no
+Chrome 2: no
+Chrome 3.0.190.4: no
+Chromium 3.0.192.0: no
+Opera 9.64: yes
+Opera 10 beta: yes
+Safari 3.1.2/Win: yes
+Safari 4.0/Win: yes
+</pre>
+
+</div>
+
+<div id="log">
+
+</div>
+
+<script>
+
+function append(msg) {
+	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
+	var br = document.createElement("br");
+	var logd = document.getElementById('log');
+	logd.appendChild(textnode);
+	logd.appendChild(br);
+}
+
+//window.addEventListener("load", function() { append("load"); }, false);
+var events = ["pageshow", "pagehide", "DOMContentLoaded", "DOMWindowClose", "DOMFocusIn", "DOMFocusOut", "focus", "blur"]; // "mouseover", "mouseout"];
+
+if((''+document.location).indexOf('?unload') != -1) {
+	events.push("unload");
+}
+
+/*
+
+setTimeout 0 to work around FF2/???/FF3.5 bug:
+
+<ivan> why is the bfcache for a page not preserved when it it scrollable?
+<ivan> I have a demo page logging pageshow and pagehide events; when it fills up a screen, the next pageview is 'new' (not loaded from bfcache)
+<kbrosnan> no-cache headers or similar is the most likely reason
+<ivan> no no-cache headers at http://ludios.net/temp/loadev.html
+<kbrosnan> ivan: what are you expecting on that page? or do you have you hit back and forward enough times to force a scroll bar?
+<ivan> kbrosnan: yes. sorry that the explanation wasn't on that page.
+<ivan> making the window vertically narrow helps :)
+<ivan> FF2 and FF3.5 do the same thing, so it must be something I'm doing wrong
+<kbrosnan> having the page have an interaction with javascript will result in the page being redrawn which is the likely root of your issue
+<ivan> kbrosnan: thanks, that helped. When I used setTimeout(..., 200) for adding to the DOM, the bfcache is always preserved.
+<ivan> setTimeout(..., 0) too
+<ivan> http://ludios.net/demo/loadev_working.html
+
+On some Firefox 3.5 installs (heavy profile, lots of extensions) it seems that even on a page
+with no scrollbars, the bfcache cache for the page gets nuked if there's a DOM operation during
+re-show.
+
+ */
+
+/* Chromium behavior:
+
+When navigating back, we reload the page.  However, we set a flag to
+indicate that cached content should always be preferred even if it is stale.
+That is consistent with all other major browsers with one
+exception:  some of the other major browsers implement a page cache,
+which holds the DOM of
+recently visited pages in a frozen state so that they can be quickly
+restored when navigating back or forward.  Such browsers behave similarly to
+Chrome when the page you are navigating back to is not found in the page
+cache.
+
+-Darin 
+
+http://groups.google.com/group/chromium-dev/browse_thread/thread/b684efd58890fd61/b19ab1d281d17e98?lnk=gst&q=how+handle+back#b19ab1d281d17e98
+
+ */
+
+/*
+
+http://www.thomasfrank.se/when_onload_fails.html
+
+(ivank has a mirror in Notes)
+
+"My solution to the problem is to take advantage of the fact that the browser pauses setTimeout calls when you leave the page, but continues them when the page is reloaded.
+I've written a small object called checkReload:
+
+   1. Use checkReload.init(function) to make the page run a certain function on reload.
+   2. Place a checkReload.ignore() before any dialogs (alerts, prompts and confirms) in your code."
+
+MY NOTES:
+
+If we can only use the above, we can't tell the difference between bfcached back/forward,
+and computer sleep/wake (or more generally, browser process suspension).
+
+
+ */
+
+var basic_listener = function(obj, evType, fn) {
+	// right now, useCapture always false
+	// this all fails silently
+	// "IE's attachEvent returns either true or false depending on whether or not the operation was successful"
+	if (obj.addEventListener) {
+		obj.addEventListener(evType, fn, false);
+	} else if(obj.attachEvent){
+		//if(obj === document && (evType == 'focus' || evType == 'blur')) {
+		//	// IE doesn't support focus/blur on document
+		//	return;
+		//}
+		obj.attachEvent('on' + evType, fn);
+	}
+};
+
+
+var events_length = events.length;
+
+setTimeout(function() {
+
+	while(events_length--) {
+		var ev = events[events_length];
+		basic_listener(window, ev, (function(ev2) {
+			return (function() {
+				setTimeout(function(){append('window: ' + ev2);}, 0);
+			});
+		})(ev), false);
+		basic_listener(document, ev, (function(ev2) {
+			return (function() {
+				setTimeout(function(){append('document: ' + ev2);}, 0);
+			});
+		})(ev), false);
+		basic_listener(document.body, ev, (function(ev2) {
+			return (function() {
+				setTimeout(function(){append('document.body: ' + ev2);}, 0);
+			});
+		})(ev), false);
+	}
+
+}, 0);
+
+
+////if(window.opera) {
+//	setTimeout(function(){
+//		var events_length = events.length;
+//		while(events_length--) {
+//			var ev = events[events_length];
+//			document.addEventListener(ev, (function(ev2) {
+//				return (function() {
+//					setTimeout(function(){append(ev2);}, 0);
+//				});
+//			})(ev), false);
+//		}
+//	}, 50);
+////}
+
+append("append works");
+
+</script>
+
+</body>
+</html>

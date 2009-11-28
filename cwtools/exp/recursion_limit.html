@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>recurse</title>
+	<style>
+	body, html {
+		background-color: #eee;
+	}
+	</style>
+</head>
+<body>
+
+Stack limit (script in body):
+
+<div id="count1">
+wait...
+</div>
+
+<div id="ex1">
+Caught exception? Not yet.
+</div>
+
+<br><br>
+
+Stack limit (setTimeout):
+
+<div id="count2">
+wait...
+</div>
+
+<div id="ex2">
+Caught exception? Not yet.
+</div>
+
+<script>
+cdiv1 = document.getElementById('count1');
+cdiv2 = document.getElementById('count2');
+
+ex1d = document.getElementById('ex1');
+ex2d = document.getElementById('ex2');
+
+
+n1 = 0;
+
+function a() {
+	n1 += 1;
+	cdiv1.innerHTML = ''+n1
+	try{
+		a();
+	} catch(e) {
+		ex1d.innerHTML = 'Caught the overflow.'
+		// IE raises out of memory error.
+		// If we catch this, it doesn't show the modal dialog box.
+	}
+}
+
+a();
+
+n2 = 0;
+
+function b() {
+	n2 += 1;
+	cdiv2.innerHTML = ''+n2
+	try{
+		b();
+	} catch(e) {
+		ex2d.innerHTML = 'Caught the overflow.'
+		// IE raises out of memory error.
+		// If we catch this, it doesn't show the modal dialog box.
+	}
+}
+
+setTimeout(b, 0);
+
+
+</script>
+
+</body>
+</html>
