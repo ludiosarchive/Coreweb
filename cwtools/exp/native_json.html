@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+	<title>native_json</title>
+</head>
+<body>
+
+<style>
+* { font-family: Verdana, sans-serif }
+</style>
+
+<div style="white-space: pre-wrap">
+The point of this is to determine how a browser's native JSON encoder encodes various characters.
+There are three things a browser does to a character:
+	pass-through (A -> A),
+	short escape (TAB -> \t, \t -> \\t, \ -> \\), or
+	long escape ([U+FFFF] -> \uFFFF in some browsers)
+
+The notation below is:
+	length of JSON.stringify(character) <- inclusive character range
+
+Keep in mind that this includes the "" quotes that JSON.stringify creates.
+
+</div>
+
+<div id="log">
+</div>
+<script>
+function append(msg) {
+	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
+	var br = document.createElement("br");
+	var logd = document.getElementById('log');
+	logd.appendChild(textnode);
+	logd.appendChild(br);
+}
+
+var maxUnicode = 65535;
+
+function checkChars() {
+	var lastLength = null;
+	var rangeStart = 0;
+	for(var i=0; i <= maxUnicode; i++) {
+		var len = JSON.stringify(String.fromCharCode(i)).length;
+		if(len !== lastLength) {
+			if(lastLength !== null) {
+				append(lastLength + ' <- ' + rangeStart + '-' + (i - 1));
+			}
+			rangeStart = i;
+			lastLength = len;
+		} else if(i === maxUnicode) {
+			append(lastLength + ' <- ' + rangeStart + '-' + i);
+		}
+	}
+}
+
+function checkSpecial() {
+	append('encode NaN: ' + JSON.stringify([NaN]));
+	append('encode Infinity: ' + JSON.stringify([Infinity]));
+	append('encode -Infinity: ' + JSON.stringify([-Infinity]));
+	try { append('decode NaN: ' + JSON.parse("[NaN]")[0]); } catch(e) {}
+	try { append('decode Infinity: ' + JSON.parse("[Infinity]")[0]); } catch(e) {}
+	try { append('decode -Infinity: ' + JSON.parse("[-Infinity]")[0]); } catch(e) {}
+}
+
+if(!window.JSON) {
+	append('No window.JSON object');
+	throw Error("boom");
+}
+
+checkChars();
+checkSpecial();
+
+</script>
+
+</body>
+</html>

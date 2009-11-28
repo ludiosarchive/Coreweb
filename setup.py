@@ -9,5 +9,5 @@ setup(
 	version='9.7.13',
 	description="Coreweb",
 	packages=['cwtools', 'cwtools.test', 'twisted.plugins'],
-	package_data={'cwtools': ['*.html', 'testres/*'],},
+	package_data={'cwtools': ['*.html', 'testres/*', 'exp/*'],},
 )

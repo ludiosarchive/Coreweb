@@ -39,10 +39,7 @@ def makeService(config):
 	s = service.MultiService()
 
 	testPackages = config['packages'].split(',')
-
-	root = corewebsite.Index(testPackages)
-
-	site = server.Site(root, clock=reactor)
+	site = corewebsite.makeSite(reactor, testPackages)
 	site.displayTracebacks = not config["notracebacks"]
 
 	if not config['servera']:
