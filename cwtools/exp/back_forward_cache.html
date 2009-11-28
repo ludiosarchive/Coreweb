@@ -2,12 +2,14 @@
 	  "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<!--
-	https://developer.mozilla.org/en/using_firefox_1.5_caching
--->
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
 
 	<title>loadev</title>
 	<style>
+	* {
+		font-family: Verdana, sans-serif;
+		font-size: 13px
+	}
 	body, html {
 		background-color: #eee;
 	}
@@ -15,25 +17,41 @@
 </head>
 <body>
 
+<!--
+	The idea of a back-forward cache was initially described at:
+	https://developer.mozilla.org/en/using_firefox_1.5_caching
+-->
+
 <div id="info" style="background-color:#f7f7f7">
 
-<pre>
+To test the back-forward cache, enter this page by following a link, then navigate Back and Forward using any method.
+If the browser's back-forward cache is working, you will see <code>pageshow</code> and <code>pagehide</code> events in the log below.
+
+<div style="white-space: pre-wrap;">
 BFCache exists?
 
-FF2: yes
-FF3: yes
-FF3.5: yes
-IE6: no
-IE7: no
-IE8: no
+FF 2, 3, 3.5, 3.6b4: yes
+IE6, IE7, IE8: no
 Chrome 2: no
 Chrome 3.0.190.4: no
 Chromium 3.0.192.0: no
-Opera 9.64: yes
-Opera 10 beta: yes
-Safari 3.1.2/Win: yes
-Safari 4.0/Win: yes
-</pre>
+Chromium 4.0.253.0: no
+Opera 9.64: yes - but no pageshow/pagehide events
+Opera 10 beta: yes - but no pageshow/pagehide events
+Opera 10.10: yes - but no pageshow/pagehide events
+Safari 3.1.2/Win: yes (HTTP only) - but no pageshow/pagehide events
+Safari 4.0.0/Win: yes (HTTP only) - but no pageshow/pagehide events
+Safari 4.0.4/Win: yes (HTTP only)
+</div>
+
+<br>
+"One area often focused on is back/forward behavior. Such institutions are – understandably – very picky about the
+	types of data left behind in the browser as a user navigates. As a result, in an effort to err on the side of extreme caution,
+	WebKit has disallowed all HTTPS sites from its Page Cache since the very beginning."<br>
+
+<a href="http://webkit.org/blog/427/webkit-page-cache-i-the-basics/">http://webkit.org/blog/427/webkit-page-cache-i-the-basics/</a><br>
+<a href="https://bugs.webkit.org/show_bug.cgi?id=26777">Page cache should take Cache-control header into account when determining cacheability</a>
+	<br><br>
 
 </div>
 
