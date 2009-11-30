@@ -9,59 +9,76 @@ goog.provide('cw.externalinterface');
 // TODO: optimize - use array join; push to just one array to do everything
 // TODO: closure type annotations
 
-cw.externalinterface.arrayToXML = function(obj) {
-	var s = '<array>';
+cw.externalinterface.arrayToXML = function(buffer, obj) {
+	buffer.push('<array>');
 	for (var i = 0; i < obj.length; i++) {
-		s += '<property id="' + i + '">' + cw.externalinterface.toXML(obj[i]) + '</property>';
+		buffer.push('<property id="', i, '">');
+		cw.externalinterface.toXML(buffer, obj[i]);
+		buffer.push('</property>');
 	}
-	return s + '</array>';
+	buffer.push('</array>');
 }
 
-cw.externalinterface.argumentsToXML = function(obj, index) {
-	var s = '<arguments>';
+cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
+	buffer.push('<arguments>');
 	for (var i = index; i < obj.length; i++) {
-		s += cw.externalinterface.toXML(obj[i]);
+		cw.externalinterface.toXML(buffer, obj[i]);
 	}
-	return s + '</arguments>';
+	buffer.push('</arguments>');
 }
 
-cw.externalinterface.objectToXML = function(obj) {
-	var s = "<object>";
+cw.externalinterface.objectToXML = function(buffer, obj) {
+	buffer.push('<object>');
+	var s = '<object>';
 	for (var prop in obj) {
-		s += '<property id="' + prop + '">' + cw.externalinterface.toXML(obj[prop]) + "</property>";
+		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+			buffer.push('<property id="', prop, '">'); // TODO: needs escaping! Needs tests!
+			cw.externalinterface.toXML(buffer, obj[prop]);
+			buffer.push('</property>');
+		}
 	}
-	return s + '</object>';
+	buffer.push('</object>');
 }
 
 cw.externalinterface.escapeXML = function(s) {
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
-cw.externalinterface.toXML = function(value) {
+cw.externalinterface.toXML = function(buffer, value) {
 	var type = goog.typeOf(value);
 	switch(type) {
 		case 'string':
-			return '<string>' + cw.externalinterface.escapeXML(value) + '</string>';
+			buffer.push('<string>', cw.externalinterface.escapeXML(value), '</string>');
+			break;
 		case 'undefined':
-			return '<undefined/>';
+			buffer.push('<undefined/>');
+			break;
 		case 'number':
-			return '<number>' + value + '</number>';
+			buffer.push('<number>', value, '</number>');
+			break;
 		case 'boolean':
-			return value ? '<true/>' : '<false/>';
+			buffer.push(value ? '<true/>' : '<false/>');
+			break;
 		case 'array':
-			return cw.externalinterface.arrayToXML(value);
+			cw.externalinterface.arrayToXML(buffer, value);
+			break;
 		case 'object':
 			// `getFullYear' check is identical to the one in goog.isDateLike
 			if(typeof value.getFullYear == 'function' && typeof value.getTime == 'function') {
-				return '<date>' + value.getTime() + '</date>';
+				buffer.push('<date>', value.getTime(), '</date>');
 			} else {
-				return cw.externalinterface.objectToXML(value);
+				cw.externalinterface.objectToXML(buffer, value);
 			}
+			break;
 		default: // matches 'null', 'function', and possibly more if goog.typeOf changes.
-			return '<null/>';
+			buffer.push('<null/>');
+			break;
 	}
 }
 
 cw.externalinterface.request = function(name) {
-	return '<invoke name="' + name + '" returntype="javascript">' + cw.externalinterface.argumentsToXML(arguments, 1) + '</invoke>';
+	var buffer = ['<invoke name="', name, '" returntype="javascript">'];
+	cw.externalinterface.argumentsToXML(buffer, arguments, 1)
+	buffer.push('</invoke>');
+	return buffer.join('');
 }
