@@ -5,7 +5,7 @@ import flash.external.ExternalInterface;
 class Experiments {
 	public static var sockets:Hash<String> = new Hash();
 
-	public static function js2flash(anything:Dynamic) {
+	public static function echo_raw(anything:Dynamic) {
 		return anything;
 	}
 
@@ -14,7 +14,7 @@ class Experiments {
 	}
 
 	public static function main() {
-		ExternalInterface.addCallback("js2flash", js2flash);
+		ExternalInterface.addCallback("echo_raw", echo_raw);
 		ExternalInterface.addCallback("overflow", overflow);
 
 		if (flash.Lib.current.loaderInfo.parameters.onloadcallback != null) {
