@@ -25,6 +25,7 @@ goog.require('cw.externalinterface');
 <div style="white-space: pre-wrap">
 Flash ExternalInterface tests, both JS->Flash and Flash->JS
 
+<a href="build_Experiments.log">build log</a>
 </div>
 
 <div id="Experiments">
@@ -41,12 +42,16 @@ function append(msg) {
 	logd.appendChild(br);
 }
 
+append('Flash version: ' + swfobject.ua.pv);
+
 var ob = null;
 
 
 function start() {
 	append(cw.externalinterface.request("echo_raw", "Hello"));
 	append(ob.CallFunction(cw.externalinterface.request("echo_raw", "Hello")));
+	append(cw.externalinterface.request("echo_raw", "Hello\\tWorld"));
+	append(ob.CallFunction(cw.externalinterface.request("echo_raw", "Hello\\tWorld")));
 }
 
 
