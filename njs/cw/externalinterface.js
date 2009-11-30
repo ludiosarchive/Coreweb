@@ -5,9 +5,7 @@ goog.provide('cw.externalinterface');
  * They are now not completely broken, and faster.
  */
 
-// TODO: optimize - don't check .length every time
-// TODO: optimize - use array join; push to just one array to do everything
-// TODO: closure type annotations
+// TODO: add closure type annotations
 
 cw.externalinterface.arrayToXML = function(buffer, obj) {
 	buffer.push('<array>');
@@ -41,6 +39,7 @@ cw.externalinterface.objectToXML = function(buffer, obj) {
 }
 
 cw.externalinterface.escapeXML = function(s) {
+	// TODO: is ' -> apos really needed? If not, we might use goog.string.htmlEscape
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
