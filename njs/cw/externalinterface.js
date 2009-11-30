@@ -2,11 +2,19 @@ goog.provide('cw.externalinterface');
 
 /**
  * These functions were modified from the ones Flash Player injects into the page.
- * They are now not completely broken, and faster.
+ *
+ * Modifications:
+ * 	uses array .join("") to be faster in JScript, where string appends are very slow.
+ * 	detects Arrays and Dates properly, even if they originated in another window.
+ *	(TODO) properly escapes keys in objects
  */
 
 // TODO: add closure type annotations
 
+/**
+ * @param {!Array} buffer Temporary buffer
+ * @param {!Array} obj Array to encode
+ */
 cw.externalinterface.arrayToXML = function(buffer, obj) {
 	buffer.push('<array>');
 	for (var len = obj.length, i = 0; i < len; i++) {
@@ -17,6 +25,11 @@ cw.externalinterface.arrayToXML = function(buffer, obj) {
 	buffer.push('</array>');
 }
 
+/**
+ * @param {!Array} buffer Temporary buffer
+ * @param {!Object} obj Argument pseudo-array to encode
+ * @param {number} index Which argument to start at
+ */
 cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
 	buffer.push('<arguments>');
 	for (var len = obj.length, i = index; i < len; i++) {
@@ -25,6 +38,10 @@ cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
 	buffer.push('</arguments>');
 }
 
+/**
+ * @param {!Array} buffer Temporary buffer
+ * @param {!Object} obj Object to encode
+ */
 cw.externalinterface.objectToXML = function(buffer, obj) {
 	buffer.push('<object>');
 	var s = '<object>';
@@ -43,20 +60,24 @@ cw.externalinterface.escapeXML = function(s) {
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
+/**
+ * @param {!Array} buffer Temporary buffer
+ * @param {*} value Value to encode
+ */
 cw.externalinterface.toXML = function(buffer, value) {
 	var type = goog.typeOf(value);
 	switch(type) {
 		case 'string':
 			buffer.push('<string>', cw.externalinterface.escapeXML(value), '</string>');
 			break;
-		case 'undefined':
-			buffer.push('<undefined/>');
-			break;
 		case 'number':
 			buffer.push('<number>', value, '</number>');
 			break;
 		case 'boolean':
 			buffer.push(value ? '<true/>' : '<false/>');
+			break;
+		case 'undefined':
+			buffer.push('<undefined/>');
 			break;
 		case 'array':
 			cw.externalinterface.arrayToXML(buffer, value);
@@ -75,7 +96,17 @@ cw.externalinterface.toXML = function(buffer, value) {
 	}
 }
 
-cw.externalinterface.request = function(name) {
+/**
+ * Returns the XML string that can be used to call an ExternalInterface-exposed Flash function,
+ * with arguments, on an any embedded Flash applet.
+ *
+ * @param {string} name The name of the function to invoke.
+ * @param {...*} var_args The arguments to the function.
+ * 
+ * @return {string} The XML string that can be used in
+ * 	<code>var result = flashObj.CallFunction(xmlString)</code>.
+ */
+cw.externalinterface.request = function(name, var_args) {
 	var buffer = ['<invoke name="', name, '" returntype="javascript">'];
 	cw.externalinterface.argumentsToXML(buffer, arguments, 1)
 	buffer.push('</invoke>');
