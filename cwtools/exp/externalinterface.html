@@ -6,7 +6,7 @@
 	<style>
 	* {
 		font-family: Verdana, sans-serif;
-		font-size: 13px
+		font-size: 13px;
 	}
 	body, html {
 		background-color: #eee;
@@ -15,9 +15,18 @@
 </head>
 <body>
 
+<script>
+{{ expandScript("""
+goog.require('swfobject');
+""") }}
+</script>
+
 <div style="white-space: pre-wrap">
 Flash ExternalInterface tests, both JS->Flash and Flash->JS
 
+</div>
+
+<div id="Experiments">
 </div>
 
 <div id="log">
@@ -30,6 +39,15 @@ function append(msg) {
 	logd.appendChild(textnode);
 	logd.appendChild(br);
 }
+
+function ready(arg) {
+	append("ready, arg: " + arg + ", this == window: " + (this === window));
+}
+
+
+var flashvars = {'onloadcallback': 'ready'};
+var params = {};
+swfobject.embedSWF("Experiments.swf", "Experiments", "30", "30", "9.0.0", "expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
 
 </script>
 

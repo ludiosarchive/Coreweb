@@ -1,7 +1,9 @@
+import os
+
 from twisted.web import resource, static, server
 from twisted.python.filepath import FilePath
 
-from cwtools import testing
+from cwtools import testing, htmltools, jsimp
 
 
 class CustomTestPage(testing.TestPage):
@@ -20,8 +22,11 @@ class Root(resource.Resource):
 
 		here = FilePath(cwtools.__path__[0])
 
+		JSPATH = FilePath(os.environ['JSPATH'])
+		directoryScan = jsimp.DirectoryScan(JSPATH)
+
 		self.putChild('', static.File(here.child('index.html').path))
-		self.putChild('exp', static.File(here.child('exp').path))
+		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH, directoryScan))
 		self.putChild('@tests', CustomTestPage(testPackages))
 
 		testres_Coreweb = here.child('testres').path

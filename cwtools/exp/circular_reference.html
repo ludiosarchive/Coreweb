@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title>circular_reference</title>
+	<style>
+	* {
+		font-family: Verdana, sans-serif;
+		font-size: 13px
+	}
+	body, html {
+		background-color: #eee;
+	}
+	</style>
+</head>
+<body>
+
+<div style="white-space: pre-wrap">
+Test that the browser's garbage collector collects circularly-referenced objects. This does <b>not</b> test any DOM/COM objects.
+
+Firefox 3.6b4 Win: fluctuates between 187MB - 244MB (~57MB range)
+Safari 4.0.4 Win: stays flat (~0KB range)
+Opera 10.10 Win: stays flat (~24KB range)
+IE6 JScript 5.7 XP SP2 32-bit: stays flat (~0KB range)
+</div>
+
+<div id="log">
+</div>
+<script>
+function append(msg) {
+	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
+	var br = document.createElement("br");
+	var logd = document.getElementById('log');
+	logd.appendChild(textnode);
+	logd.appendChild(br);
+}
+
+var iteration = 0;
+
+function checkMore() {
+	if(iteration > 3000) {
+		append('Stopping.');
+		return;
+	}
+
+	if(iteration % 100 == 0) {
+		append('Iteration ' + iteration);
+	}
+
+	iteration++;
+
+	for(i=0; i < 1000; i++) {
+		var a = ['a'];
+		var b = ['b'];
+		var c = ['c'];
+		b.push(a);
+		c.push(b);
+		a.push(c);
+		// Don't delete, they'll go out of scope anyway.
+	}
+	setTimeout(checkMore, 0)
+}
+
+checkMore();
+
+</script>
+
+</body>
+</html>
