@@ -6,7 +6,7 @@ goog.provide('cw.externalinterface');
  */
 
 // TODO: optimize - don't check .length every time
-// TODO: optimize - use array join
+// TODO: optimize - use array join; push to just one array to do everything
 // TODO: closure type annotations
 
 cw.externalinterface.arrayToXML = function(obj) {
@@ -38,25 +38,27 @@ cw.externalinterface.escapeXML = function(s) {
 }
 
 cw.externalinterface.toXML = function(value) {
-	var type = typeof value;
-	if (type == 'string') {
-		return '<string>' + cw.externalinterface.escapeXML(value) + '</string>';
-	} else if (type == 'undefined') {
-		return '<undefined/>';
-	} else if (type == 'number') {
-		return '<number>' + value + '</number>';
-	} else if (value == null) {
-		return '<null/>';
-	} else if (type == 'boolean') {
-		return value ? '<true/>' : '<false/>';
-	} else if (value instanceof Date) {
-		return '<date>' + value.getTime() + '</date>';
-	} else if (value instanceof Array) {
-		return cw.externalinterface.arrayToXML(value);
-	} else if (type == 'object') {
-		return cw.externalinterface.objectToXML(value);
-	} else {
-		return '<null/>'; //???
+	var type = goog.typeOf(value);
+	switch(type) {
+		case 'string':
+			return '<string>' + cw.externalinterface.escapeXML(value) + '</string>';
+		case 'undefined':
+			return '<undefined/>';
+		case 'number':
+			return '<number>' + value + '</number>';
+		case 'boolean':
+			return value ? '<true/>' : '<false/>';
+		case 'array':
+			return cw.externalinterface.arrayToXML(value);
+		case 'object':
+			// `getFullYear' check is identical to the one in goog.isDateLike
+			if(typeof value.getFullYear == 'function' && typeof value.getTime == 'function') {
+				return '<date>' + value.getTime() + '</date>';
+			} else {
+				return cw.externalinterface.objectToXML(value);
+			}
+		default: // matches 'null', 'function', and possibly more if goog.typeOf changes.
+			return '<null/>';
 	}
 }
 
