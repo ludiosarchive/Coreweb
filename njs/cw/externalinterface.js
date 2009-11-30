@@ -11,7 +11,7 @@ goog.provide('cw.externalinterface');
 
 cw.externalinterface.arrayToXML = function(buffer, obj) {
 	buffer.push('<array>');
-	for (var i = 0; i < obj.length; i++) {
+	for (var len = obj.length, i = 0; i < len; i++) {
 		buffer.push('<property id="', i, '">');
 		cw.externalinterface.toXML(buffer, obj[i]);
 		buffer.push('</property>');
@@ -21,7 +21,7 @@ cw.externalinterface.arrayToXML = function(buffer, obj) {
 
 cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
 	buffer.push('<arguments>');
-	for (var i = index; i < obj.length; i++) {
+	for (var len = obj.length, i = index; i < len; i++) {
 		cw.externalinterface.toXML(buffer, obj[i]);
 	}
 	buffer.push('</arguments>');
