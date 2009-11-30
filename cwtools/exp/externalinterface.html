@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title>externalinterface</title>
+	<style>
+	* {
+		font-family: Verdana, sans-serif;
+		font-size: 13px
+	}
+	body, html {
+		background-color: #eee;
+	}
+	</style>
+</head>
+<body>
+
+<div style="white-space: pre-wrap">
+Flash ExternalInterface tests, both JS->Flash and Flash->JS
+
+</div>
+
+<div id="log">
+</div>
+<script>
+function append(msg) {
+	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
+	var br = document.createElement("br");
+	var logd = document.getElementById('log');
+	logd.appendChild(textnode);
+	logd.appendChild(br);
+}
+
+</script>
+
+</body>
+</html>

@@ -9,8 +9,11 @@ work better when JavaScript is loaded from many files.
 """
 
 import struct
+import jinja2
 from webmagic import uriparse
 from cwtools import jsimp
+from twisted.web import resource, static
+from twisted.python.filepath import FilePath
 
 
 def cacheBreakerForPath(path):
@@ -90,3 +93,65 @@ def expandScript(script, basePath=None, directoryScan=None):
 
 	full = jsimp.megaScript(deps, wrapper=False, dictionary=dict(_debugMode=True))
 	return full
+
+
+# TODO: a test would be nice
+class LiveBoxPage(resource.Resource):
+	"""
+	Treats C{basePath}/C{fileName} as a template.
+	"""
+	def __init__(self, basePath, fileName, JSPATH, directoryScan):
+		resource.Resource.__init__(self)
+		self._basePath = basePath
+		self._fileName = fileName
+		self._JSPATH = JSPATH
+		self._directoryScan = directoryScan
+		self._jinja2Env = jinja2.Environment()
+
+
+	def _render(self, request):
+		name = self._fileName
+
+		def _expandScript(s):
+			return expandScript(s, self._JSPATH, self._directoryScan)
+
+		# This jinja2 stuff is for the html page, not the JavaScript
+		template = self._basePath.child(self._fileName).getContent().decode('utf-8')
+		dictionary = dict(expandScript=_expandScript)
+		rendered = self._jinja2Env.from_string(template).render(dictionary)
+		if not rendered.endswith(u'\n'):
+			rendered += u'\n'
+		return rendered.encode('utf-8')
+
+
+	def render_GET(self, request):
+		return self._render(request)
+
+
+	def render_POST(self, request):
+		return self._render(request)
+
+
+
+class LiveBox(static.File):
+	"""
+	This is a Resource useful for building demos that can import JavaScript.
+	Files that end with .html are treated as jinja2 templates, and can use the function
+	C{expandScript} to import JavaScript from C{JSPATH}. See C{livebox/demo.html}
+	for an example.
+
+	Like L{static.File}, this can serve anything. Non-C{.html} files
+	will be not be processed with jinja2.
+	"""
+	def __init__(self, basePath, JSPATH, directoryScan, *args, **kwargs):
+		static.File.__init__(self, basePath, *args, **kwargs)
+		self._basePath = FilePath(basePath)
+		self._JSPATH = JSPATH
+		self._directoryScan = directoryScan
+
+
+	def getChild(self, name, request):
+		if self._basePath.child(name).isdir() or not name.lower().endswith('.html'):
+			return static.File.getChild(self, name, request)
+		else:
+			return LiveBoxPage(self._basePath, name, self._JSPATH, self._directoryScan)
