@@ -15,11 +15,11 @@ goog.provide('cw.externalinterface');
  * @param {!Array} buffer Temporary buffer
  * @param {!Array} obj Array to encode
  */
-cw.externalinterface.arrayToXML = function(buffer, obj) {
+cw.externalinterface.handleArray_ = function(buffer, obj) {
 	buffer.push('<array>');
 	for (var len = obj.length, i = 0; i < len; i++) {
 		buffer.push('<property id="', i, '">');
-		cw.externalinterface.toXML(buffer, obj[i]);
+		cw.externalinterface.handleAny_(buffer, obj[i]);
 		buffer.push('</property>');
 	}
 	buffer.push('</array>');
@@ -30,10 +30,10 @@ cw.externalinterface.arrayToXML = function(buffer, obj) {
  * @param {!Object} obj Argument pseudo-array to encode
  * @param {number} index Which argument to start at
  */
-cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
+cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
 	buffer.push('<arguments>');
 	for (var len = obj.length, i = index; i < len; i++) {
-		cw.externalinterface.toXML(buffer, obj[i]);
+		cw.externalinterface.handleAny_(buffer, obj[i]);
 	}
 	buffer.push('</arguments>');
 }
@@ -42,20 +42,20 @@ cw.externalinterface.argumentsToXML = function(buffer, obj, index) {
  * @param {!Array} buffer Temporary buffer
  * @param {!Object} obj Object to encode
  */
-cw.externalinterface.objectToXML = function(buffer, obj) {
+cw.externalinterface.handleObject_ = function(buffer, obj) {
 	buffer.push('<object>');
 	var s = '<object>';
 	for (var prop in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
 			buffer.push('<property id="', prop, '">'); // TODO: needs escaping! Needs tests!
-			cw.externalinterface.toXML(buffer, obj[prop]);
+			cw.externalinterface.handleAny_(buffer, obj[prop]);
 			buffer.push('</property>');
 		}
 	}
 	buffer.push('</object>');
 }
 
-cw.externalinterface.escapeXML = function(s) {
+cw.externalinterface.escapeString_ = function(s) {
 	// TODO: is ' -> apos really needed? If not, we might use goog.string.htmlEscape
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
@@ -64,11 +64,11 @@ cw.externalinterface.escapeXML = function(s) {
  * @param {!Array} buffer Temporary buffer
  * @param {*} value Value to encode
  */
-cw.externalinterface.toXML = function(buffer, value) {
+cw.externalinterface.handleAny_ = function(buffer, value) {
 	var type = goog.typeOf(value);
 	switch(type) {
 		case 'string':
-			buffer.push('<string>', cw.externalinterface.escapeXML(value), '</string>');
+			buffer.push('<string>', cw.externalinterface.escapeString_(value), '</string>');
 			break;
 		case 'number':
 			buffer.push('<number>', value, '</number>');
@@ -80,14 +80,14 @@ cw.externalinterface.toXML = function(buffer, value) {
 			buffer.push('<undefined/>');
 			break;
 		case 'array':
-			cw.externalinterface.arrayToXML(buffer, value);
+			cw.externalinterface.handleArray_(buffer, value);
 			break;
 		case 'object':
 			// `getFullYear' check is identical to the one in goog.isDateLike
 			if(typeof value.getFullYear == 'function' && typeof value.getTime == 'function') {
 				buffer.push('<date>', value.getTime(), '</date>');
 			} else {
-				cw.externalinterface.objectToXML(buffer, value);
+				cw.externalinterface.handleObject_(buffer, value);
 			}
 			break;
 		default: // matches 'null', 'function', and possibly more if goog.typeOf changes.
@@ -108,7 +108,7 @@ cw.externalinterface.toXML = function(buffer, value) {
  */
 cw.externalinterface.request = function(name, var_args) {
 	var buffer = ['<invoke name="', name, '" returntype="javascript">'];
-	cw.externalinterface.argumentsToXML(buffer, arguments, 1)
+	cw.externalinterface.handleArguments_(buffer, arguments, 1)
 	buffer.push('</invoke>');
 	return buffer.join('');
 }
