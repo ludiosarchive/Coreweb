@@ -9,8 +9,13 @@ class Experiments {
 		return anything;
 	}
 
+	public static function overflow() {
+		ExternalInterface.call('overflow');
+	}
+
 	public static function main() {
 		ExternalInterface.addCallback("js2flash", js2flash);
+		ExternalInterface.addCallback("overflow", overflow);
 
 		if (flash.Lib.current.loaderInfo.parameters.onloadcallback != null) {
 			ExternalInterface.call(flash.Lib.current.loaderInfo.parameters.onloadcallback);
