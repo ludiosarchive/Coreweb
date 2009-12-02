@@ -1,17 +1,21 @@
 goog.provide('cw.externalinterface');
 
 /**
- * These functions were modified from the ones Flash Player injects into the page.
+ * These functions were modified from the ones Flash Player injects into the page
+ * (the ones named __flash__*)
  *
  * Modifications:
  * 	uses array .join("") to be faster in JScript, where string appends are very slow.
  * 	detects Arrays and Dates properly, even if they originated in another window.
  *	(TODO) properly escapes keys in objects
+ *   uses Closure Compiler type annotations, so hopefully the encoder is inlined into
+ * 		one function.
  */
 
-// TODO: add closure type annotations
 
 /**
+ * Append to `buffer' an XML-serialized version of array `obj'
+ *
  * @param {!Array} buffer Temporary buffer
  * @param {!Array} obj Array to encode
  */
@@ -26,6 +30,9 @@ cw.externalinterface.handleArray_ = function(buffer, obj) {
 }
 
 /**
+ * Append to `buffer' an XML-serialized version of argument array
+ * `obj', ignoring items before `index'.
+ *
  * @param {!Array} buffer Temporary buffer
  * @param {!Object} obj Argument pseudo-array to encode
  * @param {number} index Which argument to start at
@@ -39,6 +46,8 @@ cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
 }
 
 /**
+ * Append to `buffer' an XML-serialized version of object `obj'.
+ *
  * @param {!Array} buffer Temporary buffer
  * @param {!Object} obj Object to encode
  */
@@ -55,12 +64,18 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 	buffer.push('</object>');
 }
 
+/**
+ * @param {string} s String to escape
+ * @return {string} Escaped string
+ */
 cw.externalinterface.escapeString_ = function(s) {
 	// TODO: is ' -> apos really needed? If not, we might use goog.string.htmlEscape
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 /**
+ * Append to `buffer' an XML-serialized version of any value `value'.
+ *
  * @param {!Array} buffer Temporary buffer
  * @param {*} value Value to encode
  */

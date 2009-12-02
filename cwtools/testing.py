@@ -80,7 +80,10 @@ class TestPage(resource.Resource):
 		directoryScan = jsimp.DirectoryScan(JSPATH) # Huh? Should this really be done on every request?
 
 		if request.args.get('only'):
-			theTests = _getTests(request.args['only'][0].split(','), JSPATH, directoryScan)
+			##theTests = _getTests(request.args['only'][0].split(','), JSPATH, directoryScan)
+			theTests = []
+			for package in request.args['only'][0].split(','):
+				theTests.append(jsimp.Script(package, JSPATH, directoryScan))
 		else:
 			theTests = _getTests(self.testPackages, JSPATH, directoryScan)
 
