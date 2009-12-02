@@ -45,16 +45,12 @@ class TestPage(resource.Resource):
 	"""
 	This is a Resource that generates pages that run CW.UnitTest-based tests.
 
-	To use it, subclass it and set testPackages to a list of JS packages with tests.
-
 	For example:
-		
-		class TestPage(testing.TestPage):
-			testPackages = ['CW.Test']
 
-		[...]
+		JSPATH = FilePath(os.environ['JSPATH'])
+		directoryScan = jsimp.DirectoryScan(JSPATH)
 
-		self.putChild('@tests', TestPage())
+		self.putChild('@tests', TestPage(['CW.Test'], directoryScan))
 		testres_Coreweb = FilePath(cwtools.__path__[0]).child('testres').path
 		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))
 
@@ -62,7 +58,11 @@ class TestPage(resource.Resource):
 	isLeaf = True
 
 	# C{testPackages} is a sequence of strings, which represent JavaScript packages or modules.
-	testPackages = None # your subclass should define this
+
+	def __init__(self, testPackages, directoryScan):
+		self.testPackages = testPackages
+		self.directoryScan = directoryScan
+
 
 	def render_GET(self, request):
 		# Comment below is half wrong: client doesn't help ?only= work yet.
@@ -77,15 +77,14 @@ class TestPage(resource.Resource):
 		# who can visit the test page can download any JavaScript module in JSPATH.
 
 		JSPATH = FilePath(os.environ['JSPATH'])
-		directoryScan = jsimp.DirectoryScan(JSPATH) # Huh? Should this really be done on every request?
 
 		if request.args.get('only'):
-			##theTests = _getTests(request.args['only'][0].split(','), JSPATH, directoryScan)
+			##theTests = _getTests(request.args['only'][0].split(','), JSPATH, self.directoryScan)
 			theTests = []
 			for package in request.args['only'][0].split(','):
-				theTests.append(jsimp.Script(package, JSPATH, directoryScan))
+				theTests.append(jsimp.Script(package, JSPATH, self.directoryScan))
 		else:
-			theTests = _getTests(self.testPackages, JSPATH, directoryScan)
+			theTests = _getTests(self.testPackages, JSPATH, self.directoryScan)
 
 
 		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
@@ -99,7 +98,7 @@ class TestPage(resource.Resource):
 		try:
 			scriptContent = _getScriptContent(theTests, 'window')
 		except jsimp.NobodyProvidesThis:
-			directoryScan.rescan()
+			self.directoryScan.rescan()
 			scriptContent = _getScriptContent(theTests, 'window')
 
 		# ...but don't run the tests on the dependency modules
