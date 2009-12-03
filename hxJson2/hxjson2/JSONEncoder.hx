@@ -136,7 +136,7 @@ class JSONEncoder {
 					s += "\\t";						
 				default:	// everything else					
 					// check for a control character and escape as unicode
-					if ( ch < ' ' ) {
+					if ( ch < ' ' || ch.charCodeAt(0) > 127) {
 						// get the hex digit(s) of the character (either 1 or 2 digits)
 						var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));						
 						// ensure that there are 4 digits by adjusting

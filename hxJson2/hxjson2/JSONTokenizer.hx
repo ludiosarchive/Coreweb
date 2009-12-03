@@ -198,7 +198,7 @@ class JSONTokenizer {
 						// save the characters as a string we'll convert to an int
 						var hexValue:String = "";						
 						// try to find 4 hex characters
-						for (i in 0...3) {
+						for (i in 0...4) {
 							// get the next character and determine
 							// if it's a valid hex digit or not
 							if ( !isHexDigit( nextChar() ) ) {
