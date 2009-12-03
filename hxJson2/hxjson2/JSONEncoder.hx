@@ -168,7 +168,7 @@ class JSONEncoder {
 					if (utf8mode)
 						code = Utf8.charCodeAt(str,i);
 					#end
-					if ( ch < ' ' || code > 127) {
+					if ( ch < ' ' || code >= 127) {
 						// get the hex digit(s) of the character (either 1 or 2 digits)
 						#if neko
 						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
