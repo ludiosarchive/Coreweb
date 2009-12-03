@@ -1,24 +1,11 @@
 // import CW.UnitTest
 
+goog.require('goog.userAgent');
 
 /**
  * Test assumptions about JavaScript in each browser.
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
-	/*
-	 * Browser detection from jQuery 1.3.2.
-	 */
-	function setUp(self) {
-		try {
-			var userAgent = window.navigator.userAgent.toLowerCase();
-			self.probablyMSIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
-		} catch(e) {
-			// Some strange environment like Node.js, most likely not MSIE
-			self.probablyMSIE = false;
-		}
-	},
-
-
 	/**
 	 * Test that coercing a Date object returns the equivalent of getTime()
 	 */
@@ -45,20 +32,15 @@ there';
 	 * Confirm that IE can't handle \u0000 very well, and others can.
 	 */
 	function test_nullEval(self) {
-		if(!self.probablyMSIE) {
+		if(!goog.userAgent.IE) {
 			self.assertIdentical('\u0000', eval('"\u0000"'));
 			self.assertIdentical(1, eval('"\u0000"').length);
 			self.assertNotIdentical('', eval('"\u0000"'));
 		} else {
-			// "upgrade" Error with CW.Error so that assertThrows' expectedMessage check works.
 			function doTest() {
-				try {
-					eval('"\u0000"');
-				} catch(e) {
-					throw new CW.Error(e.message);
-				}
+				eval('"\u0000"');
 			}
-			self.assertThrows(CW.Error, doTest, "Unterminated string constant");
+			self.assertThrows(Error, doTest, "Unterminated string constant");
 		}
 
 		// this seems to work everywhere
@@ -85,29 +67,11 @@ there';
 
 
 	/**
-	 * Test \v == 'v' hack, which is used to quick IE6/7/8 detection.
-	 *
-	 * "The first is a very nice application of “JScript Deviations from ES3″ §7.2.
-	 * Quote:
-	 * JScript does not support the \v vertical tab character as a white space character. It treats \v as v."
-	 *
-	 * http://ajaxian.com/archives/ievv
-	 */
-	function test_vv(self) {
-		if(!self.probablyMSIE) {
-			self.assertIdentical('\v', '\u000B');
-		} else {
-			self.assertIdentical('\v', 'v');
-		}
-	},
-
-
-	/**
 	 * Test that conditional compilation code is run by IE6/7/8 and nothing else.
 	 */
 	function test_conditionalCompilation(self) {
 		var ccWasRun = /*@cc_on!@*/!1;
-		if(!self.probablyMSIE) {
+		if(!goog.userAgent.IE) {
 			self.assertIdentical(false, ccWasRun);
 		} else {
 			self.assertIdentical(true, ccWasRun);
@@ -120,7 +84,7 @@ there';
 	 */
 	function test_errorIsBroken(self) {
 		var e;
-		if(!self.probablyMSIE) {
+		if(!goog.userAgent.IE) {
 			e = new Error("4");
 			self.assertIdentical("4", e.message);
 			self.assertIdentical(undefined, e.number);
@@ -137,7 +101,7 @@ there';
 	 */
 	function test_errorIsBrokenBiggerNumbers(self) {
 		var e;
-		if(!self.probablyMSIE) {
+		if(!goog.userAgent.IE) {
 			e = new Error("49458712349712346723");
 			self.assertIdentical("49458712349712346723", e.message);
 			self.assertIdentical(undefined, e.number);

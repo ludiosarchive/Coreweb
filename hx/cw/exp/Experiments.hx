@@ -38,7 +38,7 @@ class Experiments {
 		//String.fromCharCode(8233);
 		for(i in 0...65535) {
 			var s = String.fromCharCode(i);
-			// 8232 - 8233 aren't allowed in eval in FF because they're some kind of newline in some language
+			// 8232 - 8233 aren't allowed in eval in FF because they are \u2028 Line separator and \u2029 Paragraph separator
 			//  55296 - 56319 is 0xD800 - 0xDBFF "High Surrogate Area"
 			//  56320 - 57343 is 0xDC00 - 0xDFFF "Low Surrogate Area"
 			if(s == '\x00' || s == '\n' || s == '\r' || s == '"' || s == "\\" || i == 8232 || i == 8233 || (i >= 55296 && i <= 57343)) {
