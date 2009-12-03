@@ -40,6 +40,12 @@
 
 package hxjson2;
 
+#if neko
+import neko.Utf8;
+#elseif php
+import php.Utf8;
+#end
+
 	//import flash.utils.describeType;
 
 class JSONEncoder {
@@ -118,11 +124,29 @@ class JSONEncoder {
 		// current character in the string we're processing
 		var ch:String;
 		// store the length in a local variable to reduce lookups
-		var len:Int = str.length;		
+		var len:Int = str.length;
+		#if neko
+		var utf8mode = (Utf8.length(str)!=str.length);
+		if (utf8mode)
+			len = Utf8.length(str);
+		#elseif php
+		var utf8mode = (Utf8.length(str)!=str.length);
+		if (utf8mode)
+			len = Utf8.length(str);
+		#end
 		// loop over all of the characters in the string
 		for (i in 0...len) {		
 			// examine the character to determine if we have to escape it
 			ch = str.charAt( i );
+			#if neko
+			if (utf8mode) {
+				ch = Utf8.sub(str,i,1);
+			}
+			#elseif php
+			if (utf8mode) {
+				ch = Utf8.sub(str,i,1);
+			}
+			#end
 			switch ( ch ) {			
 				case '"':	// quotation mark
 					s += "\\\"";					
@@ -136,12 +160,30 @@ class JSONEncoder {
 					s += "\\t";						
 				default:	// everything else					
 					// check for a control character and escape as unicode
-					if ( ch < ' ' || ch.charCodeAt(0) > 127) {
+					var code = ch.charCodeAt(0);
+					#if neko
+					if (utf8mode)
+						code = Utf8.charCodeAt(str,i);
+					#elseif php
+					if (utf8mode)
+						code = Utf8.charCodeAt(str,i);
+					#end
+					if ( ch < ' ' || code > 127) {
 						// get the hex digit(s) of the character (either 1 or 2 digits)
-						var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));						
+						#if neko
+						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
+						#elseif php
+						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
+						#else
+						var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));
+						#end
 						// ensure that there are 4 digits by adjusting
 						// the # of zeros accordingly.
-						var zeroPad:String = hexCode.length == 2 ? "00" : "000";						
+						var zeroPad:String = "";
+						for (j in 0...4 - hexCode.length) {
+							zeroPad += "0" ;
+						}
+						//var zeroPad:String = hexCode.length == 2 ? "00" : "000";						
 						// create the unicode escape sequence with 4 hex digits
 						s += "\\u" + zeroPad + hexCode;
 					} else {					

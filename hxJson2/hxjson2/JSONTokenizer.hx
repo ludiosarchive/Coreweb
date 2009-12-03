@@ -42,6 +42,12 @@ package hxjson2;
 
 import hxjson2.JSONDecoder;
 
+#if neko
+import neko.Utf8;
+#elseif php
+import php.Utf8;
+#end
+
 class JSONTokenizer {	
 	/** The object that will get parsed from the JSON string */
 	private var obj:Dynamic;	
@@ -171,8 +177,9 @@ class JSONTokenizer {
 		// the string to store the string we'll try to read
 		var string:String = "";		
 		// advance past the first "
-		nextChar();		
+		nextChar();
 		while ( ch != '"' && ch != '' ) {							
+			//trace(ch);
 			// unescape the escape sequences in the string
 			if ( ch == '\\' ) {				
 				// get the next character so we know what
@@ -206,12 +213,23 @@ class JSONTokenizer {
 							}
 							// valid, add it to the value
 							hexValue += ch;
-						}						
+						}
 						// convert hexValue to an integer, and use that
 						// integrer value to create a character to add
 						// to our string.
 						//string += String.fromCharCode( Std.parseInt( hexValue)); //, 16 ) );
-						string += String.fromCharCode(hexValToInt(hexValue));				
+						#if neko
+						var utf = new Utf8(1);
+						utf.addChar(hexValToInt(hexValue));
+						string += utf.toString();
+						#elseif php
+						var utf = new Utf8();
+						utf.addChar(hexValToInt(hexValue));
+						string += utf.toString();
+						//trace(string);
+						#else
+						string += String.fromCharCode(hexValToInt(hexValue));
+						#end
 					default:
 						// couldn't unescape the sequence, so just
 						// pass it through
@@ -240,7 +258,7 @@ class JSONTokenizer {
 		return token;
 	}
 	
-	private function hexValToInt(hexVal:String):Int {
+	private inline function hexValToInt(hexVal:String):Int {
 		var ret:Int = 0;
 		for (i in 0...hexVal.length) {
 			ret = ret << 4;
@@ -274,7 +292,6 @@ class JSONTokenizer {
 	 * 		be read.  Throws an error otherwise.
 	 */
 	private function readNumber():JSONToken {
-				
 		// the string to accumulate the number characters
 		// into that we'll convert to a number at the end
 		var input:String = "";		
@@ -481,7 +498,11 @@ class JSONTokenizer {
 	 * @return True if the character passed in is a digit
 	 */
 	private function isDigit( ch:String ):Bool {
+		#if php
+		return (ch >= '0' && ch <= '9' && ch!='');
+		#else
 		return ( ch >= '0' && ch <= '9' );
+		#end
 	}
 	
 	/**
