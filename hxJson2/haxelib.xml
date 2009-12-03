@@ -1,0 +1,5 @@
+<project name="hxJson2" url="http://www.byteanvil.com" license="BSD">
+    <user name="TheHippo"/>
+    <description>hxJson2 is Json decoding and encoding library.</description>
+    <version name="0.8">First release</version>
+</project>
