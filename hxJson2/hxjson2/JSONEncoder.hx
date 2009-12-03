@@ -75,11 +75,18 @@
 		 */
 		private function convertToString( value:Dynamic ):String {
 			
+			if (Std.is(value, List) || Std.is(value,IntHash))
+				value = Lambda.array(value);
+			if (Std.is(value, Hash))
+				value = mapHash(value);
+			
+			
 			// determine what value is and convert it based on it's type
 			if ( Std.is(value,String )) {
 				
 				// escape the string so it's formatted correctly
-				return cast(value, String);
+				
+				return escapeString(cast(value, String));
 				//return escapeString( value as String );
 				
 			} else if ( Std.is(value,Float) ) {
@@ -103,6 +110,13 @@
 				return objectToString( value );
 			}
             return "null";
+		}
+		
+		private function mapHash(value:Hash<Dynamic>):Dynamic{
+			var ret:Dynamic = { };
+			for (i in value.keys())
+				Reflect.setField(ret, i, value.get(i));
+			return ret;
 		}
 		
 		/**
@@ -171,7 +185,8 @@
 		 * @param a The array to convert
 		 * @return The JSON string representation of <code>a</code>
 		 */
-		private function arrayToString( a:Array<Dynamic> ):String {
+		private function arrayToString( a:Array < Dynamic > ):String {
+			//trace("arrayToString");
 			// create a string to store the array's jsonstring value
 			var s:String = "";
 			
@@ -217,6 +232,8 @@
 		 */
 		private function objectToString( o:Dynamic ):String
 		{
+			//trace("objectToString");
+			//trace(o);
 			// create a string to store the object's jsonstring value
 			var s:String = "";
 			
