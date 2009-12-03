@@ -33,7 +33,7 @@ Three solutions to Flash->JS, only #3 is correct
 
 	2) Replace eval with a pass-through function on the host page, and use something like
 		<code>s.slice(1, s.length - 1).replace(/\\"/g, '"');</code> to extract the original pre-mangled string.
-		Wrong: replacing eval doesn't seem to affect anything. Even if it worked, it would not be resilient to changes in Flash or browsers.
+		Wrong: replacing eval doesn't seem to affect anything. Flash probably uses its own hidden-away version of eval. Even if it worked, it would not be resilient to changes in Flash or browsers.
 
 	3) Don't pass any more than one argument to ExternalInterface.call, and encode all data inside the function to be called, like this:
 		<code>ExternalInterface.call('(function(){fromFlash({"post": "eval\\tthis", "array": [null, undefined, true, false, 3.5]})})');</code>
@@ -47,6 +47,7 @@ goog.require('swfobject');
 goog.require('goog.json.Serializer');
 goog.require('cw.externalinterface');
 """) }}
+//function eval(s) {alert(s)};
 </script>
 
 <div style="white-space: pre-wrap">
@@ -76,7 +77,7 @@ function ser(obj) {
 var serializer = new goog.json.Serializer();
 
 function fromFlash(msg) {
-	append('Post-eval ExternalInterface from Flash: ' + ser(msg));
+	append('fromFlash: ' + ser(msg));
 }
 
 append('Flash version: ' + swfobject.ua.pv);
@@ -92,7 +93,10 @@ var samples = [
 	"Hello\tWorld",
 	"Hello\\there",
 	["a", "list", "with", 123, 123.5, null, undefined, true, false, new Date()],
-	{"object": "root", "problematic": "Hello\\there", "if": "thing", "switch": 1, "case": 1, "while": 1, "for": 1, "}": 1}
+//	{"object": "root", "problematic": "Hello\\there", "if": "thing", "switch": 1, "case": 1, "while": 1, "for": 1, "}": 1},
+	"\n",
+	"\ud800", // 55296
+	"\ud835\udc00" // U+1D400 MATHEMATICAL BOLD CAPITAL A
 ];
 function start() {
 	for(var i=0; i < samples.length; i++) {
