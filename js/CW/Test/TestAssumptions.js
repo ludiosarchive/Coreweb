@@ -37,16 +37,42 @@ there';
 			self.assertIdentical(1, eval('"\u0000"').length);
 			self.assertNotIdentical('', eval('"\u0000"'));
 		} else {
-			function doTest() {
-				eval('"\u0000"');
-			}
-			self.assertThrows(Error, doTest, "Unterminated string constant");
+			self.assertThrows(Error, function(){eval('"\u0000"');}, "Unterminated string constant");
 		}
 
 		// this seems to work everywhere
 		self.assertIdentical('\u0000', eval('"\\u0000"'));
 		self.assertIdentical(1, eval('"\\u0000"').length);
 		self.assertNotIdentical('', eval('"\\u0000"'));
+	},
+
+	/**
+	 * Test that eval("\\u0000\\u0001\\u0002...\\uFFFF") results in "\u0000\u0001\u0002...\uFFFF"
+	 */
+	function test_evalRainbow(self) {
+		var expectedBuffer = [];
+		// could use String.fromCharCode.apply(null, [0, 1, 2, 3, ...])
+		for(var i=0; i < 65535 + 1; i++) {
+			expectedBuffer.push(String.fromCharCode(i));
+		}
+		var expected = expectedBuffer.join('');
+
+		var buffer = ['"'];
+		for(var cc=0; cc < 65535 + 1; cc++) {
+			var rv = '\\u';
+			if (cc < 16) {
+				rv += '000';
+			} else if (cc < 256) {
+				rv += '00';
+			} else if (cc < 4096) { // \u1000
+				rv += '0';
+			}
+			buffer.push(rv + cc.toString(16));
+		}
+		buffer.push('"');
+		var bigString = buffer.join('');
+
+		self.assertIdentical(expected, eval(bigString));
 	},
 
 
