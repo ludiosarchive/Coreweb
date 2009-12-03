@@ -46,7 +46,7 @@ import neko.Utf8;
 import php.Utf8;
 #end
 
-	//import flash.utils.describeType;
+//import flash.utils.describeType;
 
 class JSONEncoder {
 
@@ -79,33 +79,33 @@ class JSONEncoder {
 	 *		type (object, number, array, etc)
 	 */
 	private function convertToString(value:Dynamic):String {		
-		if (Std.is(value, List) || Std.is(value,IntHash))
+		if (Std.is(value, List) || Std.is(value, IntHash))
 			value = Lambda.array(value);
 		if (Std.is(value, Hash))
 			value = mapHash(value);		
 		// determine what value is and convert it based on it's type
-		if ( Std.is(value,String )) {			
+		if (Std.is(value, String)) {
 			// escape the string so it's formatted correctly			
 			return escapeString(cast(value, String));
-			//return escapeString( value as String );			
-		} else if ( Std.is(value,Float) ) {			
+			//return escapeString(value as String);
+		} else if (Std.is(value, Float)) {
 			// only encode numbers that finate
 			return Math.isFinite(cast(value,Float)) ? value+"" : "null";
-		} else if ( Std.is(value,Bool) ) {			
+		} else if (Std.is(value, Bool)) {
 			// convert boolean to string easily
 			return value ? "true" : "false";
-		} else if ( Std.is(value,Array)) {
+		} else if (Std.is(value, Array)) {
 			// call the helper method to convert an array
 			return arrayToString(cast(value,Array<Dynamic>));		
-		} else if (Std.is(value,Dynamic) && value != null ) {		
+		} else if (Std.is(value, Dynamic) && value != null) {
 			// call the helper method to convert an object
-			return objectToString( value );
+			return objectToString(value);
 		}
 		return "null";
 	}
 	
-	private function mapHash(value:Hash<Dynamic>):Dynamic{
-		var ret:Dynamic = { };
+	private function mapHash(value:Hash<Dynamic>):Dynamic {
+		var ret:Dynamic = {};
 		for (i in value.keys())
 			Reflect.setField(ret, i, value.get(i));
 		return ret;
@@ -125,11 +125,11 @@ class JSONEncoder {
 		// store the length in a local variable to reduce lookups
 		var len:Int = str.length;
 		#if neko
-		var utf8mode = (Utf8.length(str)!=str.length);
+		var utf8mode = (Utf8.length(str) != str.length);
 		if (utf8mode)
 			len = Utf8.length(str);
 		#elseif php
-		var utf8mode = (Utf8.length(str)!=str.length);
+		var utf8mode = (Utf8.length(str) != str.length);
 		if (utf8mode)
 			len = Utf8.length(str);
 		#end
@@ -137,14 +137,14 @@ class JSONEncoder {
 			ch = str.charAt(i);
 			#if neko
 			if (utf8mode) {
-				ch = Utf8.sub(str,i,1);
+				ch = Utf8.sub(str, i, 1);
 			}
 			#elseif php
 			if (utf8mode) {
-				ch = Utf8.sub(str,i,1);
+				ch = Utf8.sub(str, i, 1);
 			}
 			#end
-			switch ( ch ) {			
+			switch (ch) {
 				case '"':
 					s += "\\\"";					
 				case '\\':
@@ -159,10 +159,10 @@ class JSONEncoder {
 					var code = ch.charCodeAt(0);
 					#if neko
 					if (utf8mode)
-						code = Utf8.charCodeAt(str,i);
+						code = Utf8.charCodeAt(str, i);
 					#elseif php
 					if (utf8mode)
-						code = Utf8.charCodeAt(str,i);
+						code = Utf8.charCodeAt(str, i);
 					#end
 					if (ch < ' ' || code >= 127) {
 						#if neko
@@ -196,7 +196,7 @@ class JSONEncoder {
 			if (s.length > 0) {
 				s += ",";
 			}
-			s += convertToString( a[i] );	
+			s += convertToString(a[i]);	
 		}
 		
 		// KNOWN ISSUE:  In ActionScript, Arrays can also be associative
@@ -216,7 +216,7 @@ class JSONEncoder {
 		// Array instance)
 					
 		// close the array and return it's string value
-		s += ']'
+		s += ']';
 		return s;
 	}
 	
@@ -237,8 +237,8 @@ class JSONEncoder {
 				if (s.length > 0) {
 					s += ",";
 				}
-				s += escapeString(key)
-				s += ":"
+				s += escapeString(key);
+				s += ":";
 				s += convertToString(value);
 			}
 		}
