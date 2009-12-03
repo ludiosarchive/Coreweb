@@ -94,7 +94,7 @@ class JSONEncoder {
 		} else if ( Std.is(value,Bool) ) {			
 			// convert boolean to string easily
 			return value ? "true" : "false";
-		} else if ( Std.is(value,Array)) {		
+		} else if ( Std.is(value,Array)) {
 			// call the helper method to convert an array
 			return arrayToString(cast(value,Array<Dynamic>));		
 		} else if (Std.is(value,Dynamic) && value != null ) {		
@@ -119,8 +119,7 @@ class JSONEncoder {
 	 * 		according to the JSON specification
 	 */
 	private function escapeString( str:String ):String {
-		// create a string to store the string's jsonstring value
-		var s:String = "";
+		var s:String = '"';
 		// current character in the string we're processing
 		var ch:String;
 		// store the length in a local variable to reduce lookups
@@ -134,10 +133,8 @@ class JSONEncoder {
 		if (utf8mode)
 			len = Utf8.length(str);
 		#end
-		// loop over all of the characters in the string
-		for (i in 0...len) {		
-			// examine the character to determine if we have to escape it
-			ch = str.charAt( i );
+		for (i in 0...len) {
+			ch = str.charAt(i);
 			#if neko
 			if (utf8mode) {
 				ch = Utf8.sub(str,i,1);
@@ -148,18 +145,17 @@ class JSONEncoder {
 			}
 			#end
 			switch ( ch ) {			
-				case '"':	// quotation mark
+				case '"':
 					s += "\\\"";					
-				case '\\':	// reverse solidus
+				case '\\':
 					s += "\\\\";
-				case '\n':	// newline
+				case '\n':
 					s += "\\n";
-				case '\r':	// carriage return
+				case '\r':
 					s += "\\r";
-				case '\t':	// horizontal tab
+				case '\t':
 					s += "\\t";						
-				default:	// everything else					
-					// check for a control character and escape as unicode
+				default:
 					var code = ch.charCodeAt(0);
 					#if neko
 					if (utf8mode)
@@ -168,31 +164,24 @@ class JSONEncoder {
 					if (utf8mode)
 						code = Utf8.charCodeAt(str,i);
 					#end
-					if ( ch < ' ' || code >= 127) {
-						// get the hex digit(s) of the character (either 1 or 2 digits)
+					if (ch < ' ' || code >= 127) {
 						#if neko
-						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
+						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str, i), 4);
 						#elseif php
-						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
+						var hexCode:String = StringTools.hex(Utf8.charCodeAt(str, i), 4);
 						#else
-						var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));
+						var hexCode:String = StringTools.hex(ch.charCodeAt(0), 4);
 						#end
-						// ensure that there are 4 digits by adjusting
-						// the # of zeros accordingly.
-						var zeroPad:String = "";
-						for (j in 0...4 - hexCode.length) {
-							zeroPad += "0" ;
-						}
-						//var zeroPad:String = hexCode.length == 2 ? "00" : "000";						
-						// create the unicode escape sequence with 4 hex digits
-						s += "\\u" + zeroPad + hexCode;
+						s += "\\u"
+						s += hexCode;
 					} else {					
-						// no need to do any special encoding, just pass-through
+						// just pass-through
 						s += ch;						
 					}
-			}	// end switch			
-		}	// end for loop					
-		return "\"" + s + "\"";
+			}
+		}
+		s += '"';
+		return s;
 	}
 	
 	/**
@@ -202,19 +191,11 @@ class JSONEncoder {
 	 * @return The JSON string representation of <code>a</code>
 	 */
 	private function arrayToString( a:Array < Dynamic > ):String {
-		//trace("arrayToString");
-		// create a string to store the array's jsonstring value
-		var s:String = "";		
-		// loop over the elements in the array and add their converted
-		// values to the string
+		var s:String = '[';
 		for (i in 0...a.length) {
-			// when the length is 0 we're adding the first element so
-			// no comma is necessary
-			if ( s.length > 0 ) {
-				// we've already added an element, so add the comma separator
+			if (s.length > 0) {
 				s += ",";
-			}			
-			// convert the value to a string
+			}
 			s += convertToString( a[i] );	
 		}
 		
@@ -235,7 +216,8 @@ class JSONEncoder {
 		// Array instance)
 					
 		// close the array and return it's string value
-		return "[" + s + "]";
+		s += ']'
+		return s;
 	}
 	
 	/**
@@ -245,27 +227,22 @@ class JSONEncoder {
 	 * @return The JSON string representation of <code>o</code>
 	 */
 	private function objectToString(o:Dynamic):String {
-		//trace("objectToString");
-		//trace(o);
-		// create a string to store the object's jsonstring value
-		var s:String = "";		
-		var value:Dynamic;		
-		// loop over the keys in the object and add their converted
-		// values to the string
-		for ( key in Reflect.fields(o) ) {
+		var s:String = '{';
+		var value:Dynamic;
+		for (key in Reflect.fields(o)) {
 			// assign value to a variable for quick lookup
-			value = Reflect.field(o,key);			
-			// don't add function's to the JSON string
+			value = Reflect.field(o, key);
+			// don't add functions to the JSON string
 			if (!Reflect.isFunction(value))	{
-				// when the length is 0 we're adding the first item so
-				// no comma is necessary
-				if ( s.length > 0 ) {
-					// we've already added an item, so add the comma separator
+				if (s.length > 0) {
 					s += ",";
 				}
-				s += escapeString( key ) + ":" + convertToString( value );
-			}			
-		}		
-		return "{" + s + "}";
+				s += escapeString(key)
+				s += ":"
+				s += convertToString(value);
+			}
+		}
+		s += '}'
+		return s;
 	}	
 }
