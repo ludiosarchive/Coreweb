@@ -13,8 +13,10 @@ class Experiments {
 	 * TODO: confirm that it's just not just a problem with string literals inside the Flash; construct some strings using charCode or whatever 
 	 */
 	public static function echo_raw(anything:Dynamic) {
-		return anything;
-		//ExternalInterface.call('append', "Hello\\tWorld");
+		ExternalInterface.call('fromFlash', anything);
+		return 'Hello\tthe"re';
+		//return anything;
+		//ExternalInterface.call('fromFlash', "Hello\\tWorld");
 	}
 
 	public static function overflow() {

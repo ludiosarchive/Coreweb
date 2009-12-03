@@ -1,0 +1,57 @@
+<div style="white-space: pre-line">
+It's interesting how eval() in the document scope is 10x slower than inside a function in Firefox 3.6b4.
+
+</div>
+
+<script>
+function nothing() {
+
+}
+
+function runEval() {
+	var times = 100000;
+	var i = times;
+	var s = '"Hello\\tThere \\nhopefully \\uFFFF \\" \\" \\" \\" \\" \\" \\" \\" \\uFFFF \\uFFFF \\uFFFF \\uFFFF \\uFFFF things \\uFFFF are great { } } {A [1]2[3] !@#L \\b \\f \\n"';
+	var start = +new Date;
+	while(i--) {
+		var parsed = eval(s);
+	}
+	document.write('eval: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
+}
+
+function runNothing() {
+	var times = 100000;
+	var i = times;
+	var s = '"Hello\\tThere \\nhopefully \\uFFFF \\" \\" \\" \\" \\" \\" \\" \\" \\uFFFF \\uFFFF \\uFFFF \\uFFFF \\uFFFF things \\uFFFF are great { } } {A [1]2[3] !@#L \\b \\f \\n"';
+	var start = +new Date;
+	while(i--) {
+		var parsed = nothing(s);
+	}
+	document.write('nothing: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
+}
+
+/*
+	Note on Flash->JS:
+
+         ExternalInterface has a bug that simply places the
+         value a string in quotes (except for a " which is escaped) in a JavaScript string literal which
+         is executed by the browser. 
+ */
+function runRemoveQuotes() {
+	var times = 100000;
+	var i = times;
+	var s = '"Hello\\tThere \\nhopefully \\uFFFF \\" \\" \\" \\" \\" \\" \\" \\" \\uFFFF \\uFFFF \\uFFFF \\uFFFF \\uFFFF things \\uFFFF are great { } } {A [1]2[3] !@#L \\b \\f \\n"';
+	var start = +new Date;
+	var re = /\\"/g; // global is okay in this case
+	while(i--) {
+		s = s.slice(1, s.length - 1).replace(re, '"');
+	}
+	document.write('strip quotes and de-backslash: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
+}
+
+
+
+runEval();
+runNothing();
+runRemoveQuotes();
+</script>

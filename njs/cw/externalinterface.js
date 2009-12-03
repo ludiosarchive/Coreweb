@@ -105,7 +105,7 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 				cw.externalinterface.handleObject_(buffer, value);
 			}
 			break;
-		default: // matches 'null', 'function', and possibly more if goog.typeOf changes.
+		default: // matches 'null', 'function', 'unknown', and possibly more if goog.typeOf changes.
 			buffer.push('<null/>');
 			break;
 	}

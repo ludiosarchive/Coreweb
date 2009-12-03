@@ -11,13 +11,34 @@
 	body, html {
 		background-color: #eee;
 	}
+	#log {
+		white-space: pre;
+	}
 	</style>
 </head>
 <body>
 
+<div id="doc" style="white-space: pre-line">
+ExternalInterface problems on the Flash side:
+	Flash drops the string into an eval() without backslashing anything, wreaking havoc on strings.
+	Flash doesn't quote any of the object keys, so an object with key "}" for example would break the Flash->JS call.
+
+Solution:
+	(on the JS->Flash side) use our own serializer
+	(on the Flash->JS side) use our own serializer and send only strings across ExternalInterface Flash->JS
+
+It would be really lame to have Flash->JS call data = eval(somestring) and then eval(data). Can we just skip to eval(data)?
+TODO: time how slow eval("string") is
+	pretty slow sometimes - ~12us/call in IE6/7 on a Core 2 @ 2.7ghz
+
+Possible solution: make eval() pass-through on host page, send only strings Flash->JS and 
+
+</div>
+
 <script>
 {{ expandScript("""
 goog.require('swfobject');
+goog.require('goog.json.Serializer');
 goog.require('cw.externalinterface');
 """) }}
 </script>
@@ -35,11 +56,21 @@ Flash ExternalInterface tests, both JS->Flash and Flash->JS
 </div>
 <script>
 function append(msg) {
-	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
+	var textnode = document.createTextNode('[' + (+new Date/1000) + '] ' + msg);
 	var br = document.createElement("br");
 	var logd = document.getElementById('log');
 	logd.appendChild(textnode);
 	logd.appendChild(br);
+}
+
+function ser(obj) {
+	return serializer.serialize(obj);
+}
+
+var serializer = new goog.json.Serializer();
+
+function fromFlash(msg) {
+	append('Post-eval ExternalInterface from Flash: ' + ser(msg));
 }
 
 append('Flash version: ' + swfobject.ua.pv);
@@ -47,11 +78,23 @@ append('Flash version: ' + swfobject.ua.pv);
 var ob = null;
 
 
+// The return value of CallFunction is always a string that "should" be eval'ed, but of course,
+// it has the same backslashing problem as the Flash->JS calls.
+var samples = [
+	"Hello",
+	"Hello\\tWorld",
+	"Hello\tWorld",
+	"Hello\\there",
+	["a", "list", "with", 123, 123.5, null, undefined, true, false, new Date()],
+	{"object": "root", "problematic": "Hello\\there", "if": "thing", "switch": 1, "case": 1, "while": 1, "for": 1, "}": 1}
+];
 function start() {
-	append(cw.externalinterface.request("echo_raw", "Hello"));
-	append(ob.CallFunction(cw.externalinterface.request("echo_raw", "Hello")));
-	append(cw.externalinterface.request("echo_raw", "Hello\\tWorld"));
-	append(ob.CallFunction(cw.externalinterface.request("echo_raw", "Hello\\tWorld")));
+	for(var i=0; i < samples.length; i++) {
+		var sample = samples[i];
+		append("Now testing: " + ser(sample));
+		append("Serialization (raw): " + cw.externalinterface.request("echo_raw", sample));
+		append("Pre-eval CallFunction return (raw): " + ob.CallFunction(cw.externalinterface.request("echo_raw", sample)));
+	}
 }
 
 
