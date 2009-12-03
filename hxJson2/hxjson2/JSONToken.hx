@@ -38,61 +38,25 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-  package hxjson2;
+package hxjson2;
 
-	class JSONToken {
+import hxjson2.JSONDecoder;
+
+class JSONToken {
 	
-		public var type(gettype, settype):Int;
-		public var value(getvalue, setvalue):Dynamic;
-		private var _type:Int;
-		private var _value:Dynamic;
-		
-		/**
-		 * Creates a new JSONToken with a specific token type and value.
-		 *
-		 * @param type The JSONTokenType of the token
-		 * @param value The value of the token
-		 */
-		public function new( type:Int = -1 /* JSONTokenType.UNKNOWN */, value:Dynamic = null ) {
-			_type = type;
-			_value = value;
-		}
-		
-		/**
-		 * Returns the type of the token.
-		 *
-		 * @see com.adobe.serialization.json.JSONTokenType
-		 */
-		public function gettype():Int {
-			return _type;	
-		}
-		
-		/**
-		 * Sets the type of the token.
-		 *
-		 * @see com.adobe.serialization.json.JSONTokenType
-		 */
-		public function settype( value:Int ):Int {
-			_type = value;	
-			return value;
-		}
-		
-		/**
-		 * Gets the value of the token
-		 *
-		 * @see com.adobe.serialization.json.JSONTokenType
-		 */
-		public function getvalue():Dynamic {
-			return _value;	
-		}
-		
-		/**
-		 * Sets the value of the token
-		 *
-		 * @see com.adobe.serialization.json.JSONTokenType
-		 */
-		public function setvalue ( v:Dynamic ):Void {
-			_value = v;	
-		}
-
+	/** type of the token */
+	public var type:JSONTokenType;
+	/** value of the token */
+	public var value:Dynamic;
+	
+	/**
+	 * Creates a new JSONToken with a specific token type and value.
+	 *
+	 * @param type The JSONTokenType of the token
+	 * @param value The value of the token
+	 */
+	public function new(?type:JSONTokenType,?value:Dynamic = null) {
+		this.type = type==null?UNKNOWN:type;
+		this.value = value;
 	}
+}

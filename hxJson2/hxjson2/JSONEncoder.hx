@@ -38,230 +38,192 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-  package hxjson2;
+package hxjson2;
 
 	//import flash.utils.describeType;
 
-	class JSONEncoder {
+class JSONEncoder {
+
+	/** The string that is going to represent the object we're encoding */
+	private var jsonString:String;
 	
-		/** The string that is going to represent the object we're encoding */
-		private var jsonString:String;
-		
-		/**
-		 * Creates a new JSONEncoder.
-		 *
-		 * @param o The object to encode as a JSON string
-		 */
-		public function new( value:Dynamic ) {
-			jsonString = convertToString( value );
-		
+	/**
+	 * Creates a new JSONEncoder.
+	 *
+	 * @param o The object to encode as a JSON string
+	 */
+	public function new(value:Dynamic) {
+		jsonString = convertToString(value);	
+	}
+	
+	/**
+	 * Gets the JSON string from the encoder.
+	 *
+	 * @return The JSON string representation of the object
+	 * 		that was passed to the constructor
+	 */
+	public function getString():String {
+		return jsonString;
+	}
+	
+	/**
+	 * Converts a value to it's JSON string equivalent.
+	 *
+	 * @param value The value to convert.  Could be any 
+	 *		type (object, number, array, etc)
+	 */
+	private function convertToString(value:Dynamic):String {		
+		if (Std.is(value, List) || Std.is(value,IntHash))
+			value = Lambda.array(value);
+		if (Std.is(value, Hash))
+			value = mapHash(value);		
+		// determine what value is and convert it based on it's type
+		if ( Std.is(value,String )) {			
+			// escape the string so it's formatted correctly			
+			return escapeString(cast(value, String));
+			//return escapeString( value as String );			
+		} else if ( Std.is(value,Float) ) {			
+			// only encode numbers that finate
+			return Math.isFinite(cast(value,Float)) ? value+"" : "null";
+		} else if ( Std.is(value,Bool) ) {			
+			// convert boolean to string easily
+			return value ? "true" : "false";
+		} else if ( Std.is(value,Array)) {		
+			// call the helper method to convert an array
+			return arrayToString(cast(value,Array<Dynamic>));		
+		} else if (Std.is(value,Dynamic) && value != null ) {		
+			// call the helper method to convert an object
+			return objectToString( value );
+		}
+		return "null";
+	}
+	
+	private function mapHash(value:Hash<Dynamic>):Dynamic{
+		var ret:Dynamic = { };
+		for (i in value.keys())
+			Reflect.setField(ret, i, value.get(i));
+		return ret;
+	}
+	
+	/**
+	 * Escapes a string accoding to the JSON specification.
+	 *
+	 * @param str The string to be escaped
+	 * @return The string with escaped special characters
+	 * 		according to the JSON specification
+	 */
+	private function escapeString( str:String ):String {
+		// create a string to store the string's jsonstring value
+		var s:String = "";
+		// current character in the string we're processing
+		var ch:String;
+		// store the length in a local variable to reduce lookups
+		var len:Int = str.length;		
+		// loop over all of the characters in the string
+		for (i in 0...len) {		
+			// examine the character to determine if we have to escape it
+			ch = str.charAt( i );
+			switch ( ch ) {			
+				case '"':	// quotation mark
+					s += "\\\"";					
+				case '\\':	// reverse solidus
+					s += "\\\\";
+				case '\n':	// newline
+					s += "\\n";
+				case '\r':	// carriage return
+					s += "\\r";
+				case '\t':	// horizontal tab
+					s += "\\t";						
+				default:	// everything else					
+					// check for a control character and escape as unicode
+					if ( ch < ' ' ) {
+						// get the hex digit(s) of the character (either 1 or 2 digits)
+						var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));						
+						// ensure that there are 4 digits by adjusting
+						// the # of zeros accordingly.
+						var zeroPad:String = hexCode.length == 2 ? "00" : "000";						
+						// create the unicode escape sequence with 4 hex digits
+						s += "\\u" + zeroPad + hexCode;
+					} else {					
+						// no need to do any special encoding, just pass-through
+						s += ch;						
+					}
+			}	// end switch			
+		}	// end for loop					
+		return "\"" + s + "\"";
+	}
+	
+	/**
+	 * Converts an array to it's JSON string equivalent
+	 *
+	 * @param a The array to convert
+	 * @return The JSON string representation of <code>a</code>
+	 */
+	private function arrayToString( a:Array < Dynamic > ):String {
+		//trace("arrayToString");
+		// create a string to store the array's jsonstring value
+		var s:String = "";		
+		// loop over the elements in the array and add their converted
+		// values to the string
+		for (i in 0...a.length) {
+			// when the length is 0 we're adding the first element so
+			// no comma is necessary
+			if ( s.length > 0 ) {
+				// we've already added an element, so add the comma separator
+				s += ",";
+			}			
+			// convert the value to a string
+			s += convertToString( a[i] );	
 		}
 		
-		/**
-		 * Gets the JSON string from the encoder.
-		 *
-		 * @return The JSON string representation of the object
-		 * 		that was passed to the constructor
-		 */
-		public function getString():String {
-			return jsonString;
-		}
-		
-		/**
-		 * Converts a value to it's JSON string equivalent.
-		 *
-		 * @param value The value to convert.  Could be any 
-		 *		type (object, number, array, etc)
-		 */
-		private function convertToString( value:Dynamic ):String {
-			
-			if (Std.is(value, List) || Std.is(value,IntHash))
-				value = Lambda.array(value);
-			if (Std.is(value, Hash))
-				value = mapHash(value);
-			
-			
-			// determine what value is and convert it based on it's type
-			if ( Std.is(value,String )) {
-				
-				// escape the string so it's formatted correctly
-				
-				return escapeString(cast(value, String));
-				//return escapeString( value as String );
-				
-			} else if ( Std.is(value,Float) ) {
-				
-				// only encode numbers that finate
-				return Math.isFinite(cast(value,Float)) ? value+"" : "null";
-
-			} else if ( Std.is(value,Bool) ) {
-				
-				// convert boolean to string easily
-				return value ? "true" : "false";
-
-			} else if ( Std.is(value,Array)) {
-			
-				// call the helper method to convert an array
-				return arrayToString(cast(value,Array<Dynamic>));
-			
-			} else if (Std.is(value,Dynamic) && value != null ) {
-			
-				// call the helper method to convert an object
-				return objectToString( value );
-			}
-            return "null";
-		}
-		
-		private function mapHash(value:Hash<Dynamic>):Dynamic{
-			var ret:Dynamic = { };
-			for (i in value.keys())
-				Reflect.setField(ret, i, value.get(i));
-			return ret;
-		}
-		
-		/**
-		 * Escapes a string accoding to the JSON specification.
-		 *
-		 * @param str The string to be escaped
-		 * @return The string with escaped special characters
-		 * 		according to the JSON specification
-		 */
-		private function escapeString( str:String ):String {
-			// create a string to store the string's jsonstring value
-			var s:String = "";
-			// current character in the string we're processing
-			var ch:String;
-			// store the length in a local variable to reduce lookups
-			var len:Int = str.length;
-			
-			// loop over all of the characters in the string
-			for (i in new IntIter(0,len)) {
-			//for ( var i:int = 0; i < len; i++ ) {
-			
-				// examine the character to determine if we have to escape it
-				ch = str.charAt( i );
-				switch ( ch ) {
-				
-					case '"':	// quotation mark
-						s += "\\\"";
-						
-					case '\\':	// reverse solidus
-						s += "\\\\";
-					case '\n':	// newline
-						s += "\\n";
-					case '\r':	// carriage return
-						s += "\\r";
-					case '\t':	// horizontal tab
-						s += "\\t";						
-					default:	// everything else
-						
-						// check for a control character and escape as unicode
-						if ( ch < ' ' ) {
-							// get the hex digit(s) of the character (either 1 or 2 digits)
-							var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));
-							
-							// ensure that there are 4 digits by adjusting
-							// the # of zeros accordingly.
-							var zeroPad:String = hexCode.length == 2 ? "00" : "000";
-							
-							// create the unicode escape sequence with 4 hex digits
-							s += "\\u" + zeroPad + hexCode;
-						} else {
-						
-							// no need to do any special encoding, just pass-through
-							s += ch;
-							
-						}
-				}	// end switch
-				
-			}	// end for loop
-						
-			return "\"" + s + "\"";
-		}
-		
-		/**
-		 * Converts an array to it's JSON string equivalent
-		 *
-		 * @param a The array to convert
-		 * @return The JSON string representation of <code>a</code>
-		 */
-		private function arrayToString( a:Array < Dynamic > ):String {
-			//trace("arrayToString");
-			// create a string to store the array's jsonstring value
-			var s:String = "";
-			
-			// loop over the elements in the array and add their converted
-			// values to the string
-			for (i in new IntIter(0,a.length)) {
-				// when the length is 0 we're adding the first element so
+		// KNOWN ISSUE:  In ActionScript, Arrays can also be associative
+		// objects and you can put anything in them, ie:
+		//		myArray["foo"] = "bar";
+		//
+		// These properties aren't picked up in the for loop above because
+		// the properties don't correspond to indexes.  However, we're
+		// sort of out luck because the JSON specification doesn't allow
+		// these types of array properties.
+		//
+		// So, if the array was also used as an associative object, there
+		// may be some values in the array that don't get properly encoded.
+		//
+		// A possible solution is to instead encode the Array as an Object
+		// but then it won't get decoded correctly (and won't be an
+		// Array instance)
+					
+		// close the array and return it's string value
+		return "[" + s + "]";
+	}
+	
+	/**
+	 * Converts an object to it's JSON string equivalent
+	 *
+	 * @param o The object to convert
+	 * @return The JSON string representation of <code>o</code>
+	 */
+	private function objectToString(o:Dynamic):String {
+		//trace("objectToString");
+		//trace(o);
+		// create a string to store the object's jsonstring value
+		var s:String = "";		
+		var value:Dynamic;		
+		// loop over the keys in the object and add their converted
+		// values to the string
+		for ( key in Reflect.fields(o) ) {
+			// assign value to a variable for quick lookup
+			value = Reflect.field(o,key);			
+			// don't add function's to the JSON string
+			if (!Reflect.isFunction(value))	{
+				// when the length is 0 we're adding the first item so
 				// no comma is necessary
 				if ( s.length > 0 ) {
-					// we've already added an element, so add the comma separator
+					// we've already added an item, so add the comma separator
 					s += ",";
 				}
-				
-				// convert the value to a string
-				s += convertToString( a[i] );	
-			}
-			
-			// KNOWN ISSUE:  In ActionScript, Arrays can also be associative
-			// objects and you can put anything in them, ie:
-			//		myArray["foo"] = "bar";
-			//
-			// These properties aren't picked up in the for loop above because
-			// the properties don't correspond to indexes.  However, we're
-			// sort of out luck because the JSON specification doesn't allow
-			// these types of array properties.
-			//
-			// So, if the array was also used as an associative object, there
-			// may be some values in the array that don't get properly encoded.
-			//
-			// A possible solution is to instead encode the Array as an Object
-			// but then it won't get decoded correctly (and won't be an
-			// Array instance)
-						
-			// close the array and return it's string value
-			return "[" + s + "]";
-		}
-		
-		/**
-		 * Converts an object to it's JSON string equivalent
-		 *
-		 * @param o The object to convert
-		 * @return The JSON string representation of <code>o</code>
-		 */
-		private function objectToString( o:Dynamic ):String
-		{
-			//trace("objectToString");
-			//trace(o);
-			// create a string to store the object's jsonstring value
-			var s:String = "";
-			
-			var value:Dynamic;
-			
-			// loop over the keys in the object and add their converted
-			// values to the string
-			for ( key in Reflect.fields(o) )
-			{
-				// assign value to a variable for quick lookup
-				value = Reflect.field(o,key);
-				
-				// don't add function's to the JSON string
-				if (!Reflect.isFunction(value))
-				{
-					// when the length is 0 we're adding the first item so
-					// no comma is necessary
-					if ( s.length > 0 ) {
-						// we've already added an item, so add the comma separator
-						s += ",";
-					}
-					s += escapeString( key ) + ":" + convertToString( value );
-				}
-				
-			}
-			
-			return "{" + s + "}";
-		}
-
-		
-	}
+				s += escapeString( key ) + ":" + convertToString( value );
+			}			
+		}		
+		return "{" + s + "}";
+	}	
+}

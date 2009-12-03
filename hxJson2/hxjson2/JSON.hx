@@ -5,7 +5,7 @@
   
   com.adobe.serialization.JSON
   
-  Original source code by:
+  //Original source code by:
   
   Copyright (c) 2008, Adobe Systems Incorporated
   All rights reserved.
@@ -38,35 +38,28 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-	package hxjson2 ;
+package hxjson2 ;
 
-	class JSON {
+class JSON {
 
-
-		/**
-		 * Encodes a object into a JSON string.
-		 *
-		 * @param o The object to create a JSON string for
-		 * @return the JSON string representing o
-		 */
-		public static function encode( o:Dynamic ):String {
-			
-			var encoder:JSONEncoder = new JSONEncoder( o );
-			return encoder.getString();
-		
-		}
-		
-		/**
-		 * Decodes a JSON string into a native object.
-		 * 
-		 * @param s The JSON string representing the object
-		 * @return A native object as specified by s
-		 */
-		public static function decode( s:String ):Dynamic {
-			
-			var decoder:JSONDecoder = new JSONDecoder( s );
-			return decoder.getValue();
-			
-		}
-
+	/**
+	 * Encodes a object into a JSON string.
+	 *
+	 * @param o The object to create a JSON string for
+	 * @return the JSON string representing o
+	 */
+	public static function encode(o:Dynamic):String {		
+		return new JSONEncoder(o).getString();
 	}
+	
+	/**
+	 * Decodes a JSON string into a native object.
+	 * 
+	 * @param s The JSON string representing the object
+	 * @return A native object as specified by s
+	 */
+	public static function decode(s:String,strict:Bool=true):Dynamic {		
+		return new JSONDecoder(s,strict).getValue();
+	}
+
+}
