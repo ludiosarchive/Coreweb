@@ -13,9 +13,14 @@ class Experiments {
 	 * TODO: confirm that it's just not just a problem with string literals inside the Flash; construct some strings using charCode or whatever 
 	 */
 	public static function echo_raw(anything:Dynamic) {
-		ExternalInterface.call('fromFlash', anything);
-		return 'Hello\tthe"re';
-		//return anything;
+		//ExternalInterface.call('fromFlash', anything);
+
+		// Maybe this will let us completely bypass Flash's backslashing insanity? YES! Just add a JSON parser that distinguishes null/undefined
+		//ExternalInterface.call('(function(){fromFlash({"post": "eval\\tthis", "array": [null, undefined, true, false, 3.5]})})');
+		ExternalInterface.call('fromFlash', "Hello X");
+
+		//return 'Hello\tthe"re';
+		return anything;
 		//ExternalInterface.call('fromFlash', "Hello\\tWorld");
 	}
 

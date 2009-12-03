@@ -1,12 +1,31 @@
 <div style="white-space: pre-line">
 It's interesting how eval() in the document scope is 10x slower than inside a function in Firefox 3.6b4.
 
+"strip quotes and de-backslash" doesn't require doing a bunch of extra object traversal and backslashing in Flash.
+So it is the right thing.
+
 </div>
 
 <script>
 function nothing() {
 
 }
+
+// both seem to work, even though `eval' isn't part of window in the first place
+//window.eval = function(){};
+//function eval(){}
+
+function runEvalSmall() {
+	var times = 100000;
+	var i = times;
+	var s = '"Small"';
+	var start = +new Date;
+	while(i--) {
+		var parsed = eval(s);
+	}
+	document.write('eval small: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
+}
+
 
 function runEval() {
 	var times = 100000;
@@ -50,7 +69,7 @@ function runRemoveQuotes() {
 }
 
 
-
+runEvalSmall();
 runEval();
 runNothing();
 runRemoveQuotes();
