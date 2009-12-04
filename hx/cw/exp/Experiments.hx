@@ -41,6 +41,14 @@ class Experiments {
 			// 8232 - 8233 aren't allowed in eval in FF because they are \u2028 Line separator and \u2029 Paragraph separator
 			//  55296 - 56319 is 0xD800 - 0xDBFF "High Surrogate Area"
 			//  56320 - 57343 is 0xDC00 - 0xDFFF "Low Surrogate Area"
+
+			// Huh? IE doesn't seem to be having problems with the surrogate area. Maybe only Firefox/Safari?
+			// Need to either split the work, or raise Flash limit above 15 seconds to test Chrome and Opera.
+
+			// Firefox 3.6b4 reports: Code is 65534 but got character with code 65533
+			// Safari 4 reports: Code is 65279 but got character with code NaN
+			// 65279 is U+FEFF ZERO WIDTH NO-BREAK SPACE
+
 			if(s == '\x00' || s == '\n' || s == '\r' || s == '"' || s == "\\" || i == 8232 || i == 8233 || (i >= 55296 && i <= 57343)) {
 				continue;
 			} else {

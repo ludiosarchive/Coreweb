@@ -10,6 +10,20 @@ goog.provide('cw.externalinterface');
  *	(TODO) properly escapes keys in objects
  *   uses Closure Compiler type annotations, so hopefully the encoder is inlined into
  * 		one function.
+ *
+ * Note that for Flash->JS calls (ExternalInterface.call), Flash will use its own injected
+ * __flash__toXML function. Flash receives the return value of the JS function,
+ * so it must serialize it. If you want to use the fixed serializer for this, something like
+ * this might work:
+ *
+ * window.__flash__toXML = function(obj) {
+ * 	var buffer = [];
+ * 	cw.externalinterface.handleAny_(buffer, obj);
+ * 	return buffer.join('');
+ * }
+ *
+ * Note that if the JS function raises an Error when called from Flash, Flash will
+ * receive the value null (serialized as <null/>). There is no way to change this.
  */
 
 
