@@ -151,6 +151,12 @@ class JSONEncoder {
 					s += "\\r";
 				case '\t':
 					s += "\\t";
+				case '\x08':
+					s += "\\b";
+				case '\x0C':
+					s += "\\f";
+				case '/': // Match the behavior of goog.json precisely, for HTML safety.
+					s += "\\/";
 				default:
 					var code = ch.charCodeAt(0);
 					#if neko

@@ -154,6 +154,14 @@ E_val: N/A"}]}';
 		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', e);
 	}
 
+	/**
+	 * We backslash slashes because goog.json does it.
+	 */
+	public function testSlashesBackslashed() {
+		var e:String = JSON.encode("hello/there//"); // Last 3 characters are \b, \f, \v
+		assertEquals('"hello\\/there\\/\\/"', e);
+	}
+
 /*
 	public function testObjectEncoding() {
 		//var v = { x : "f", y: 3};
