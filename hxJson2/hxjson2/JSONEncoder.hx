@@ -78,27 +78,22 @@ class JSONEncoder {
 	 * @param value The value to convert.  Could be any 
 	 *		type (object, number, array, etc)
 	 */
-	private function convertToString(value:Dynamic):String {		
+	private function convertToString(value:Dynamic):String {
+		// Convert a List or IntHash into an Array
 		if (Std.is(value, List) || Std.is(value, IntHash))
 			value = Lambda.array(value);
+		// Convert a Hash into an Object
 		if (Std.is(value, Hash))
-			value = mapHash(value);		
-		// determine what value is and convert it based on it's type
+			value = mapHash(value);
 		if (Std.is(value, String)) {
-			// escape the string so it's formatted correctly			
-			return escapeString(cast(value, String));
-			//return escapeString(value as String);
+			return escapeString(Std.string(value));
 		} else if (Std.is(value, Float)) {
-			// only encode numbers that finate
-			return Math.isFinite(cast(value,Float)) ? value+"" : "null";
+			return Math.isFinite(value) ? Std.string(value) : "null";
 		} else if (Std.is(value, Bool)) {
-			// convert boolean to string easily
 			return value ? "true" : "false";
 		} else if (Std.is(value, Array)) {
-			// call the helper method to convert an array
-			return arrayToString(cast(value,Array<Dynamic>));		
+			return arrayToString(cast(value,Array<Dynamic>));
 		} else if (Std.is(value, Dynamic) && value != null) {
-			// call the helper method to convert an object
 			return objectToString(value);
 		}
 		return "null";
@@ -106,8 +101,9 @@ class JSONEncoder {
 	
 	private function mapHash(value:Hash<Dynamic>):Dynamic {
 		var ret:Dynamic = {};
-		for (i in value.keys())
+		for (i in value.keys()) {
 			Reflect.setField(ret, i, value.get(i));
+		}
 		return ret;
 	}
 	
@@ -146,7 +142,7 @@ class JSONEncoder {
 			#end
 			switch (ch) {
 				case '"':
-					s += "\\\"";					
+					s += "\\\"";
 				case '\\':
 					s += "\\\\";
 				case '\n':
@@ -154,7 +150,7 @@ class JSONEncoder {
 				case '\r':
 					s += "\\r";
 				case '\t':
-					s += "\\t";						
+					s += "\\t";	
 				default:
 					var code = ch.charCodeAt(0);
 					#if neko
@@ -174,9 +170,9 @@ class JSONEncoder {
 						#end
 						s += "\\u"
 						s += hexCode;
-					} else {					
+					} else {
 						// just pass-through
-						s += ch;						
+						s += ch;
 					}
 			}
 		}
