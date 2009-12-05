@@ -43,27 +43,27 @@ package hxjson2;
 class JSONParseError {
 
 	/** The location in the string where the error occurred */
-	private var _location:Int;	
+	private var _location:Int;
 	/** The string in which the parse error occurred */
-	private var _text:String;	
-	private var name:String;	
+	private var _text:String;
+	private var name:String;
 	public var text(gettext, null):String;
-	public var location(getlocation, null):Int;	
+	public var location(getlocation, null):Int;
 	private var message:String;
-	
+
 	/**
 	 * Constructs a new JSONParseError.
 	 *
 	 * @param message The error message that occured during parsing
 	 */
-	public function new(message:String = "",location:Int = 0,text:String = "") {
+	public function new(message:String="", location:Int=0, text:String="") {
 		//super( message );
 		name = "JSONParseError";
 		_location = location;
 		_text = text;
 		this.message = message;
 	}
-	
+
 	/**
 	 * Provides read-only access to the location variable.
 	 *
@@ -72,7 +72,7 @@ class JSONParseError {
 	public function getlocation():Int {
 		return _location;
 	}
-	
+
 	/**
 	 * Provides read-only access to the text variable.
 	 *
@@ -81,8 +81,8 @@ class JSONParseError {
 	public function gettext():String {
 		return _text;
 	}
-	
+
 	public function toString():String {
-		return name + ": " + message + " at position: " + _location + " near \"" + _text+"\"";
+		return name + ": " + message + " at position: " + _location + ' near "' + _text + '"';
 	}
 }
