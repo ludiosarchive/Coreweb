@@ -168,7 +168,7 @@ class JSONEncoder {
 						#else
 						var hexCode:String = StringTools.hex(ch.charCodeAt(0), 4);
 						#end
-						s += "\\u"
+						s += "\\u";
 						s += hexCode;
 					} else {
 						// just pass-through
@@ -189,7 +189,7 @@ class JSONEncoder {
 	private function arrayToString( a:Array < Dynamic > ):String {
 		var s:String = '[';
 		for (i in 0...a.length) {
-			if (s.length > 0) {
+			if (s.length > 1) {
 				s += ",";
 			}
 			s += convertToString(a[i]);	
@@ -230,7 +230,7 @@ class JSONEncoder {
 			value = Reflect.field(o, key);
 			// don't add functions to the JSON string
 			if (!Reflect.isFunction(value))	{
-				if (s.length > 0) {
+				if (s.length > 1) {
 					s += ",";
 				}
 				s += escapeString(key);
@@ -238,7 +238,7 @@ class JSONEncoder {
 				s += convertToString(value);
 			}
 		}
-		s += '}'
+		s += '}';
 		return s;
 	}	
 }

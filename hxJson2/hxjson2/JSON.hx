@@ -38,7 +38,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package hxjson2 ;
+package hxjson2;
 
 class JSON {
 
@@ -58,7 +58,7 @@ class JSON {
 	 * @param s The JSON string representing the object
 	 * @return A native object as specified by s
 	 */
-	public static function decode(s:String,strict:Bool=true):Dynamic {		
+	public static function decode(s:String, strict:Bool=true):Dynamic {
 		return new JSONDecoder(s,strict).getValue();
 	}
 
