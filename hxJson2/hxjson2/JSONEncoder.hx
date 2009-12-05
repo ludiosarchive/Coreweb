@@ -59,7 +59,7 @@ class JSONEncoder {
 	 * @param o The object to encode as a JSON string
 	 */
 	public function new(value:Dynamic) {
-		jsonString = convertToString(value);	
+		jsonString = convertToString(value);
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class JSONEncoder {
 				case '\r':
 					s += "\\r";
 				case '\t':
-					s += "\\t";	
+					s += "\\t";
 				default:
 					var code = ch.charCodeAt(0);
 					#if neko
@@ -192,7 +192,7 @@ class JSONEncoder {
 			if (s.length > 1) {
 				s += ",";
 			}
-			s += convertToString(a[i]);	
+			s += convertToString(a[i]);
 		}
 		
 		// KNOWN ISSUE:  In ActionScript, Arrays can also be associative
@@ -210,7 +210,7 @@ class JSONEncoder {
 		// A possible solution is to instead encode the Array as an Object
 		// but then it won't get decoded correctly (and won't be an
 		// Array instance)
-					
+
 		// close the array and return it's string value
 		s += ']';
 		return s;
@@ -240,5 +240,5 @@ class JSONEncoder {
 		}
 		s += '}';
 		return s;
-	}	
+	}
 }
