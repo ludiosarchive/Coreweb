@@ -15,38 +15,38 @@ class X {
 class TestAll extends haxe.unit.TestCase {
 
 	public function testSimple() {
-		var v = {x:"nice",y:"one"};
+		var v = {x:"nice", y:"one"};
 		var e = JSON.encode(v);
-		assertEquals(e,"{\"x\":\"nice\",\"y\":\"one\"}");
+		assertEquals('{"x":"nice","y":"one"}', e);
 		var d = JSON.decode(e);
-		assertEquals(v.y, d.y);
-		assertEquals(v.x, d.x);
+		assertEquals(d.y, v.y);
+		assertEquals(d.x, v.x);
 	}
 
 	public function testNumVal() {
 		var v = {x:2};
 		var e = JSON.encode(v);
 		var d = JSON.decode(e);
-		assertEquals(v.x, d.x);
+		assertEquals(d.x, v.x);
 	}
 
 	public function testStrVal() {
 		var v = {y: "blackdog"};
 		var e = JSON.encode(v);
 		var d = JSON.decode(e);
-		assertEquals(d.y,"blackdog");
+		assertEquals("blackdog", d.y);
 	}
 
 	public function testWords() {
 
 		var p:Dynamic = JSON.decode('{"y":null}');
-		assertEquals(p.y, null);
+		assertEquals(null, p.y);
 
 		 p = JSON.decode('{"y":true}');
-		assertEquals(p.y, true);
+		assertEquals(true, p.y);
 
 		 p = JSON.decode('{"y":false}');
-		assertEquals(p.y, false);
+		assertEquals(false, p.y);
 	}
 
 	public function testStrArray() {
@@ -54,8 +54,8 @@ class TestAll extends haxe.unit.TestCase {
 		var e = JSON.encode(a);
 		var d = JSON.decode(e);
 		var i = 0;
-		while (i <	a.length) {
-			assertEquals(a[i], d[i]);
+		while (i < a.length) {
+			assertEquals(d[i], a[i]);
 			i++;
 		}
 	}
@@ -65,8 +65,8 @@ class TestAll extends haxe.unit.TestCase {
 		var e = JSON.encode(a);
 		var d = JSON.decode(e);
 		var i = 0;
-		while (i <	a.length) {
-			assertEquals(a[i], d[i]);
+		while (i < a.length) {
+			assertEquals(d[i], a[i]);
 			i++;
 		}
 	}
@@ -75,7 +75,7 @@ class TestAll extends haxe.unit.TestCase {
 		var o = {x: {y:1} } ;
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
-		assertEquals(d.x.y, 1);
+		assertEquals(1, d.x.y);
 	}
 
 	public function testObjectArray() {
@@ -84,7 +84,7 @@ class TestAll extends haxe.unit.TestCase {
 		var d = JSON.decode(e);
 		var i = 0;
 		while (i < o.x.length) {
-			assertEquals(o.x[i], d.x[i]);
+			assertEquals(d.x[i], o.x[i]);
 			i++;
 		}
 	}
@@ -93,7 +93,7 @@ class TestAll extends haxe.unit.TestCase {
 		var o = {x:[5,10,{y:4},1.32,1000,0.0001]};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
-		assertEquals(d.x[2].y ,4);
+		assertEquals(4, d.x[2].y);
 	}
 
 
@@ -101,21 +101,21 @@ class TestAll extends haxe.unit.TestCase {
 		var o = {x:[5,10, {y:[0,1,2,3,4]},1.32,1000,0.0001]} ;
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
-		assertEquals(d.x[2].y[3], 3);
+		assertEquals(3, d.x[2].y[3]);
 	}
 
 	public function testQuoted() {
 		var o = {msg:'hello world\"s'};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
-		assertEquals(o.msg, d.msg);
+		assertEquals(d.msg, o.msg);
 	}
 
 	public function testNewLine() {
 		var o = {msg:'hello\nworld\nhola el mundo'};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
-		assertEquals(o.msg, d.msg);
+		assertEquals(d.msg, o.msg);
 	}
 
 	public function testABitMoreComplicated() {
@@ -131,7 +131,7 @@ E_val: N/A"}]}';
 
 		var features = resultset[0].features;
 		var fld2 = Reflect.field(features, "2");
-		assertEquals(fld2[0], 633);
+		assertEquals(633, fld2[0]);
 
 		//trace(resultset[0].annotation);
 		// trace(resultset[0].features);
@@ -146,7 +146,12 @@ E_val: N/A"}]}';
 		//trace("encoded:"+e);
 		var d:Dynamic = JSON.decode(e);
 		//trace("decoded:"+d);
-		assertEquals(o.first().name, d[0].name);
+		assertEquals(d[0].name, o.first().name);
+	}
+
+	public function testShortEscapes() {
+		var e:String = JSON.encode("\n\r\t\x08\x0C\x0B"); // Last 3 characters are \b, \f, \v
+		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', e);
 	}
 
 /*
