@@ -114,7 +114,7 @@ class JSONEncoder {
 	 * @return The string with escaped special characters
 	 * 		according to the JSON specification
 	 */
-	private function escapeString( str:String ):String {
+	private function escapeString(str:String):String {
 		var s:String = '"';
 		// current character in the string we're processing
 		var ch:String;
@@ -192,7 +192,7 @@ class JSONEncoder {
 	 * @param a The array to convert
 	 * @return The JSON string representation of <code>a</code>
 	 */
-	private function arrayToString( a:Array < Dynamic > ):String {
+	private function arrayToString(a:Array<Dynamic>):String {
 		var s:String = '[';
 		for (i in 0...a.length) {
 			if (s.length > 1) {
