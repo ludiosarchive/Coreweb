@@ -3,10 +3,10 @@
   
   Ported from as3corelib (http://code.google.com/p/as3corelib/)
   
-  com.adobe.serialization.JSON
+  com.adobe.serialization.JSONToken
   
-  //Original source code by:
-  
+  Original source code by:
+   
   Copyright (c) 2008, Adobe Systems Incorporated
   All rights reserved.
 
@@ -38,28 +38,25 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package hxjson2;
+package cw.json;
 
-class JSON {
+import cw.json.JSONDecoder;
 
-	/**
-	 * Encodes a object into a JSON string.
-	 *
-	 * @param o The object to create a JSON string for
-	 * @return the JSON string representing o
-	 */
-	public static inline function encode(o:Dynamic):String {
-		return new JSONEncoder(o).getString();
-	}
+class JSONToken {
+	
+	/** type of the token */
+	public var type:JSONTokenType;
+	/** value of the token */
+	public var value:Dynamic;
 	
 	/**
-	 * Decodes a JSON string into a native object.
-	 * 
-	 * @param s The JSON string representing the object
-	 * @return A native object as specified by s
+	 * Creates a new JSONToken with a specific token type and value.
+	 *
+	 * @param type The JSONTokenType of the token
+	 * @param value The value of the token
 	 */
-	public static inline function decode(s:String, strict:Bool=true):Dynamic {
-		return new JSONDecoder(s,strict).getValue();
+	public function new(?type:JSONTokenType, ?value:Dynamic=null) {
+		this.type = type == null?UNKNOWN:type;
+		this.value = value;
 	}
-
 }

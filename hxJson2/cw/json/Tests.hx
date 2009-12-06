@@ -1,6 +1,6 @@
-package hxjson2;
+package cw.json;
 
-import hxjson2.TestAll;
+import cw.json.TestAll;
 
 class Tests {
 	static function main() {

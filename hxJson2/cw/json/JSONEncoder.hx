@@ -38,7 +38,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package hxjson2;
+package cw.json;
 
 #if neko
 import neko.Utf8;

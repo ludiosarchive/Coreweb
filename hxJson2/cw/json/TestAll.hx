@@ -1,6 +1,6 @@
-package hxjson2;
+package cw.json;
 
-import hxjson2.JSON;
+import cw.json.JSON;
 import flash.external.ExternalInterface;
 
 class X {
