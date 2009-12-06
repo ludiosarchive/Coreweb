@@ -40,18 +40,22 @@ class TestAll extends haxe.unit.TestCase {
 	}
 
 	public function testEncodeMiscValues() {
-		var v = [[], {}, 0, -0.5, 0.5, false, true, null];
+		var v = [[], {}, 0, -0.5, 0.5, 2E100, 2E-100, false, true, null];
 		var e = JSON.encode(v);
-		assertEquals('[[],{},0,-0.5,0.5,false,true,null]', e);
+		assertEquals('[[],{},0,-0.5,0.5,2e+100,2e-100,false,true,null]', e);
 		var d:Array<Dynamic> = JSON.decode(e);
 		assertEquals(0, d[0].length);
 		// skip object in d[1]
 		assertEquals(0, d[2]);
 		assertEquals(-0.5, d[3]);
 		assertEquals(0.5, d[4]);
-		assertEquals(false, d[5]);
-		assertEquals(true, d[6]);
-		assertEquals(null, d[7]);
+		// if we do assertEquals(2.0E100, d[5]); or similar, haXe barfs with:
+		// expected '2e+100' but was '2.00000000000000e+100'               // (zeroes might be of incorrect quantity)
+		assertTrue(d[5] > 2E99);
+		assertTrue(d[6] < 2E-99);
+		assertEquals(false, d[7]);
+		assertEquals(true, d[8]);
+		assertEquals(null, d[9]);
 	}
 
 	public function testWords() {
