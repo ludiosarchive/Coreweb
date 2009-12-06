@@ -26,6 +26,7 @@ class TestAll extends haxe.unit.TestCase {
 	public function testNumVal() {
 		var v = {x:2};
 		var e = JSON.encode(v);
+		assertEquals('{"x":2}', e);
 		var d = JSON.decode(e);
 		assertEquals(d.x, v.x);
 	}
@@ -33,8 +34,24 @@ class TestAll extends haxe.unit.TestCase {
 	public function testStrVal() {
 		var v = {y: "blackdog"};
 		var e = JSON.encode(v);
+		assertEquals('{"y":"blackdog"}', e);
 		var d = JSON.decode(e);
 		assertEquals("blackdog", d.y);
+	}
+
+	public function testEncodeMiscValues() {
+		var v = [[], {}, 0, -0.5, 0.5, false, true, null];
+		var e = JSON.encode(v);
+		assertEquals('[[],{},0,-0.5,0.5,false,true,null]', e);
+		var d:Array<Dynamic> = JSON.decode(e);
+		assertEquals(0, d[0].length);
+		// skip object
+		assertEquals(0, d[2]);
+		assertEquals(-0.5, d[3]);
+		assertEquals(0.5, d[4]);
+		assertEquals(false, d[5]);
+		assertEquals(true, d[6]);
+		assertEquals(null, d[7]);
 	}
 
 	public function testWords() {
