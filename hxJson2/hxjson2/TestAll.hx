@@ -169,11 +169,14 @@ E_val: N/A"}]}';
 	}
 
 	/**
-	 * We backslash slashes because goog.json does it.
+	 * We backslash slashes because goog.json does it. Decoder should decode them properly too.
 	 */
 	public function testSlashesBackslashed() {
-		var e:String = JSON.encode("hello/there//");
-		assertEquals('"hello\\/there\\/\\/"', e);
+		var original:String = "hello/there//";
+		var encoded:String = JSON.encode(original);
+		assertEquals('"hello\\/there\\/\\/"', encoded);
+		var decoded:String = JSON.decode(encoded);
+		assertEquals(original, decoded);
 	}
 
 /*
