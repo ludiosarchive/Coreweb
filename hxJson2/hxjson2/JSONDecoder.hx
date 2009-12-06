@@ -75,7 +75,7 @@ class JSONDecoder {
 	 *
 	 * @param s The JSON string to be converted into a native object
 	 */
-	public function new(s:String, strict:Bool) {
+	public inline function new(s:String, strict:Bool) {
 		this.strict = strict;
 		tokenizer = new JSONTokenizer(s,strict);
 		nextToken();

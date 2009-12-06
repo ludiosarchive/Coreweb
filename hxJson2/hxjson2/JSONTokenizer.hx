@@ -67,7 +67,7 @@ class JSONTokenizer {
 	 * @param s The JSON string to be converted
 	 *		into a native object
 	 */
-	public function new(s:String, strict:Bool) {
+	public inline function new(s:String, strict:Bool) {
 		jsonString = s;
 		this.strict = strict;
 		loc = 0;

@@ -56,7 +56,7 @@ class JSONParseError {
 	 *
 	 * @param message The error message that occured during parsing
 	 */
-	public function new(message:String="", location:Int=0, text:String="") {
+	public inline function new(message:String="", location:Int=0, text:String="") {
 		//super( message );
 		name = "JSONParseError";
 		_location = location;
