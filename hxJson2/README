@@ -9,6 +9,15 @@ the local filesystem. You'll need to run a webserver. Twisted makes it easy:
 twistd -n web -p 50000 --path .
 
 
+=== Don't use JSONDecoder or JSON.decode ===
+
+Don't use the JSON decoder. It might have a few leftover bugs,
+and it's probably too slow for use in Flash. If you want to speed it up, see:
+
+http://code.google.com/p/as3corelib/source/detail?r=95
+http://code.google.com/p/as3corelib/issues/detail?id=97
+http://cookbooks.adobe.com/index.cfm?event=showdetails&postId=13226 (copy of this saved in misc/ dir)
+
 === License ===
 
 See LICENSE
