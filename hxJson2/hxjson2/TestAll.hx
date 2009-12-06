@@ -198,9 +198,12 @@ E_val: N/A"}]}';
 
 	public function testPass1() {
 		// From http://json.org/JSON_checker/test/pass1.json
-		// Backslahes were doubled, single quotes were backslashed (because string is contained in a ' ')
+		// Backslashes were doubled, single quotes were backslashed (because string is contained in a ' ')
+		//	...if only haXe had literal strings
+		
 		// Removed         "":  23456789012E666,
 		//	because it was raising exception "Number Infinity [is] not valid"
+		
 		var original:String = '
 [
     "JSON Test Pattern pass1",
@@ -266,19 +269,21 @@ E_val: N/A"}]}';
 		// Check that it can be encoded
 		var encoded:String = JSON.encode(decoded);
 		assertTrue(encoded.length > 200);
-
-//
-//        res = json.loads(JSON)
-//        out = json.dumps(res)
-//        self.assertEquals(res, json.loads(out))
-//        try:
-//            json.dumps(res, allow_nan=False)
-//        except ValueError:
-//            pass
-//        else:
-//            self.fail("23456789012E666 should be out of range")
-
 	}
+
+
+	public function testNesting32() {
+		// json's test2 requires minimum nesting capability of 20, we'll require 32
+		var original:Dynamic = [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["Not too deep"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]];
+		var encoded:String = JSON.encode(original);
+		assertEquals('[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["Not too deep"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]', encoded);
+		var decoded:String = JSON.decode(encoded);
+		assertEquals(original, decoded);
+	}
+
+
+	// TODO: test for all the decoder exceptions, including:
+		// "Number Infinity [is] not valid"
 
 
 /*
