@@ -45,7 +45,7 @@ class TestAll extends haxe.unit.TestCase {
 		assertEquals('[[],{},0,-0.5,0.5,false,true,null]', e);
 		var d:Array<Dynamic> = JSON.decode(e);
 		assertEquals(0, d[0].length);
-		// skip object
+		// skip object in d[1]
 		assertEquals(0, d[2]);
 		assertEquals(-0.5, d[3]);
 		assertEquals(0.5, d[4]);
@@ -195,6 +195,91 @@ E_val: N/A"}]}';
 		var decoded:String = JSON.decode(encoded);
 		assertEquals(original, decoded);
 	}
+
+	public function testPass1() {
+		// From http://json.org/JSON_checker/test/pass1.json
+		// Backslahes were doubled, single quotes were backslashed (because string is contained in a ' ')
+		// Removed         "":  23456789012E666,
+		//	because it was raising exception "Number Infinity [is] not valid"
+		var original:String = '
+[
+    "JSON Test Pattern pass1",
+    {"object with 1 member":["array with 1 element"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "integer": 1234567890,
+        "real": -9876.543210,
+        "e": 0.123456789e-12,
+        "E": 1.234567890E+34,
+        "zero": 0,
+        "one": 1,
+        "space": " ",
+        "quote": "\\"",
+        "backslash": "\\\\",
+        "controls": "\\b\\f\\n\\r\\t",
+        "slash": "/ & \\/",
+        "alpha": "abcdefghijklmnopqrstuvwyz",
+        "ALPHA": "ABCDEFGHIJKLMNOPQRSTUVWYZ",
+        "digit": "0123456789",
+        "special": "`1~!@#$%^&*()_+-={\':[,]}|;.</>?",
+        "hex": "\\u0123\\u4567\\u89AB\\uCDEF\\uabcd\\uef4A",
+        "true": true,
+        "false": false,
+        "null": null,
+        "array":[  ],
+        "object":{  },
+        "address": "50 St. James Street",
+        "url": "http://www.JSON.org/",
+        "comment": "// /* <!-- --",
+        "# -- --> */": " ",
+        " s p a c e d " :[1,2 , 3
+
+,
+
+4 , 5        ,          6           ,7        ],
+        "compact": [1,2,3,4,5,6,7],
+        "jsontext": "{\\"object with 1 member\\":[\\"array with 1 element\\"]}",
+        "quotes": "&#34; \\u0022 %22 0x22 034 &#x22;",
+        "\\/\\\\\\"\\uCAFE\\uBABE\\uAB98\\uFCDE\\ubcda\\uef4A\\b\\f\\n\\r\\t`1~!@#$%^&*()_+-=[]{}|;:\',./<>?"
+: "A key can be any string"
+    },
+    0.5 ,98.6
+,
+99.44
+,
+
+1066
+
+
+,"rosebud"]';
+
+		var decoded:Array<Dynamic> = JSON.decode(original);
+		// Check that something was actually decoded
+		assertEquals("JSON Test Pattern pass1", decoded[0]);
+		assertEquals(-42, decoded[4]);
+
+		// Check that it can be encoded
+		var encoded:String = JSON.encode(decoded);
+		assertTrue(encoded.length > 200);
+
+//
+//        res = json.loads(JSON)
+//        out = json.dumps(res)
+//        self.assertEquals(res, json.loads(out))
+//        try:
+//            json.dumps(res, allow_nan=False)
+//        except ValueError:
+//            pass
+//        else:
+//            self.fail("23456789012E666 should be out of range")
+
+	}
+
 
 /*
 	public function testObjectEncoding() {
