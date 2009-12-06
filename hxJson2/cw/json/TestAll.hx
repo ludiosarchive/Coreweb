@@ -10,6 +10,29 @@ import flash.external.ExternalInterface;
 
 class TestAll extends haxe.unit.TestCase {
 
+	// TODO: should be in haxe.unit.TestCase or our own cw.unit.TestCase
+	function fail(message:String):Void {
+		currentTest.done = true;
+		currentTest.success = false;
+		currentTest.error = message;
+		throw currentTest;
+	}
+
+	public function expectParseError(jsonString:String, strict:Bool=true):Void {
+		var parseError:JSONParseError = null;
+			
+		try {
+			var o:Dynamic = JSON.decode(jsonString, strict);
+			fail("Expecting parse error but one was not thrown");
+		} catch (e:JSONParseError) {
+			parseError = e;
+		} catch (e:Dynamic) {
+			throw e;
+		}
+
+		assertTrue(parseError != null);
+	}
+
 	public function testSimple() {
 		var v = {x:"nice", y:"one"};
 		var e = JSON.encode(v);
@@ -196,6 +219,93 @@ E_val: N/A"}]}';
 		var decoded:String = JSON.decode(encoded);
 		assertEquals(original, decoded);
 	}
+
+	public function testDecodeStringWithInvalidUnicodeEscape():Void {
+		// No characters after the u
+		expectParseError('"\\u"');
+
+		// Not a hex character after the u
+		expectParseError('"\\ut"');
+
+		// Not enough characters after the u
+		expectParseError('"\\u123"');
+
+		// Unicode decodes correctly
+		assertEquals("a", JSON.decode('"\\u0061"'));
+	}
+
+	public function testDecodeZero():Void {
+		var n:Dynamic = JSON.decode("0");
+		assertEquals( n, 0 );
+	}
+		
+	/**
+	 * JSON doesn't allow leading zeroes for numbers.
+	 */
+	public function testLeadingZeroFail():Void {
+		expectParseError("02");
+	}
+
+	public function testDecodePositiveInt():Void {
+		var n:Dynamic = JSON.decode("123871");
+		assertEquals(n, 123871);
+	}
+		
+	public function testDecodeNegativeInt():Void {
+		var n:Dynamic = JSON.decode("-97123");
+		assertEquals(n, -97123);
+	}
+		
+	public function testDecodePositiveFloat():Void {
+		var n:Dynamic = JSON.decode("12.987324");
+		assertEquals(n, 12.987324);
+	}
+		
+	public function testDecodeNegativeFloat():Void {
+		var n:Dynamic = JSON.decode("-1298.7324");
+		assertEquals(n, -1298.7324);
+	}
+		
+	public function testDecodeFloatLeadingZeroError():Void {
+		expectParseError("-.2");
+	}
+		
+	public function testDecodeFloatDecimalMissingError():Void {
+		expectParseError("1.");
+	}
+		
+	public function testDecodeScientificRegularExponent():Void {
+		var n:Dynamic = JSON.decode("6.02e2");
+		assertEquals(n, 602);
+			
+		n = JSON.decode("-2e10");			
+		assertEquals(n, -20000000000);
+		assertEquals(n, -2 * Math.pow(10, 10));
+	}
+		
+	public function testDecodeScientificPositiveExponent():Void {
+		var n:Dynamic = JSON.decode("2E+9");
+		assertEquals(n, 2 * Math.pow(10, 9));
+			
+		n = JSON.decode("-2.2E+23");
+		assertEquals(n, -2.2 * Math.pow(10, 23));
+	}
+		
+	public function testDecodeScientificNegativeExponent():Void {
+		var n:Dynamic = JSON.decode("6.02e-23");
+		assertEquals(n, 6.02 * Math.pow(10, -23));
+			
+		n = JSON.decode("-4e-9");
+		assertEquals(n, -4 * Math.pow(10, -9));
+			
+		n = JSON.decode("0E-2");
+		assertEquals(n, 0);
+	}
+		
+	public function testDecodeScientificExponentError():Void {
+		expectParseError("1e");
+	}
+
 
 	/**
 	 * From http://json.org/JSON_checker/test/pass1.json ; a better version of this test is also in simplejson
