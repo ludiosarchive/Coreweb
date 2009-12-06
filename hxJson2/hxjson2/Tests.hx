@@ -3,7 +3,7 @@ package hxjson2;
 import hxjson2.TestAll;
 
 class Tests {
-	static function main(){
+	static function main() {
 #if (FIREBUG && !neko)
                 if(haxe.Firebug.detect()) {
                         haxe.Firebug.redirectTraces();

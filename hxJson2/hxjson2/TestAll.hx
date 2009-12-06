@@ -1,6 +1,7 @@
 package hxjson2;
 
 import hxjson2.JSON;
+import flash.external.ExternalInterface;
 
 class X {
 	var a : Int;
@@ -40,9 +41,9 @@ class TestAll extends haxe.unit.TestCase {
 	}
 
 	public function testEncodeMiscValues() {
-		var v = [[], {}, 0, -0.5, 0.5, 2E100, 2E-100, false, true, null];
+		var v = [[], {}, 0, -0.5, 0.5, 2E100, 2E-100, false, true, null, ""];
 		var e = JSON.encode(v);
-		assertEquals('[[],{},0,-0.5,0.5,2e+100,2e-100,false,true,null]', e);
+		assertEquals('[[],{},0,-0.5,0.5,2e+100,2e-100,false,true,null,""]', e);
 		var d:Array<Dynamic> = JSON.decode(e);
 		assertEquals(0, d[0].length);
 		// skip object in d[1]
@@ -56,6 +57,7 @@ class TestAll extends haxe.unit.TestCase {
 		assertEquals(false, d[7]);
 		assertEquals(true, d[8]);
 		assertEquals(null, d[9]);
+		assertEquals("", d[10]);
 	}
 
 	public function testWords() {
@@ -92,7 +94,7 @@ class TestAll extends haxe.unit.TestCase {
 	}
 
 	public function testObjectObject() {
-		var o = {x: {y:1} } ;
+		var o = {x: {y: 1}};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
 		assertEquals(1, d.x.y);
@@ -118,21 +120,21 @@ class TestAll extends haxe.unit.TestCase {
 
 
 	public function testObjectArrayObjectArray() {
-		var o = {x:[5,10, {y:[0,1,2,3,4]},1.32,1000,0.0001]} ;
+		var o = {x:[5,10, {y:[0,1,2,3,4]},1.32,1000,0.0001]};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
 		assertEquals(3, d.x[2].y[3]);
 	}
 
 	public function testQuoted() {
-		var o = {msg:'hello world\"s'};
+		var o = {msg: 'hello world\"s'};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
 		assertEquals(d.msg, o.msg);
 	}
 
 	public function testNewLine() {
-		var o = {msg:'hello\nworld\nhola el mundo'};
+		var o = {msg: 'hello\nworld\nhola el mundo'};
 		var e = JSON.encode(o);
 		var d = JSON.decode(e);
 		assertEquals(d.msg, o.msg);
@@ -272,10 +274,18 @@ E_val: N/A"}]}';
 		// Check that something was actually decoded
 		assertEquals("JSON Test Pattern pass1", decoded[0]);
 		assertEquals(-42, decoded[4]);
+		assertEquals(null, decoded[8].null);
 
 		// Check that it can be encoded
 		var encoded:String = JSON.encode(decoded);
-		assertTrue(encoded.length > 200);
+		//dumpToBrowserConsole(encoded);
+
+		// This version is slightly longer than the simplejson-encoded version,
+		// because:
+			// its floatrepresentation is sometimes non-optimal; for example: 1.23456789000000e+34
+			// it backslashes slashes, leading to "wasted" bytes
+
+		assertEquals(954, encoded.length); // Expect 936 from simplejson.dumps with separators=(',', ':')
 	}
 
 
@@ -286,6 +296,11 @@ E_val: N/A"}]}';
 		assertEquals('[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["Not too deep"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]', encoded);
 		var decoded:String = JSON.decode(encoded);
 		assertEquals(original, decoded);
+	}
+
+
+	public function dumpToBrowserConsole(anything:Dynamic) {
+		ExternalInterface.call('(function(){console.log('+JSON.encode(anything)+')})');
 	}
 
 

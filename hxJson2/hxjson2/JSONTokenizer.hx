@@ -173,7 +173,7 @@ class JSONTokenizer {
 	 * @return the JSONToken with the string value if a string could
 	 *		be read.  Throws an error otherwise.
 	 */
-	private function readString():JSONToken {
+	private inline function readString():JSONToken {
 		// the string to store the string we'll try to read
 		var string:String = "";
 		// advance past the first "
@@ -406,7 +406,7 @@ class JSONTokenizer {
 	 * @return The next character in the input string, or
 	 *		null if we've read past the end.
 	 */
-	private function nextChar():String {
+	private inline function nextChar():String {
 		return ch = jsonString.charAt(loc++);
 	}
 	
@@ -414,7 +414,7 @@ class JSONTokenizer {
 	 * Advances the character location past any
 	 * sort of white space and comments
 	 */
-	private function skipIgnored():Void {
+	private inline function skipIgnored():Void {
 		var originalLoc:Int;
 		// keep trying to skip whitespace and comments as long
 		// as we keep advancing past the original location 
@@ -430,7 +430,7 @@ class JSONTokenizer {
 	 * single-line or multi-line.  Advances the character
 	 * to the first position after the end of the comment.
 	 */
-	private function skipComments():Void {
+	private inline function skipComments():Void {
 		if (ch == '/') {
 			// Advance past the first / to find out what type of comment
 			nextChar();
@@ -479,7 +479,7 @@ class JSONTokenizer {
 	 * the character to the first character after any possible
 	 * whitespace.
 	 */
-	private function skipWhite():Void {
+	private inline function skipWhite():Void {
 		// As long as there are spaces in the input 
 		// stream, advance the current location pointer
 		// past them
@@ -494,7 +494,7 @@ class JSONTokenizer {
 	 * @return True if the character passed in is a whitespace
 	 *	character
 	 */
-	private function isWhiteSpace(ch:String):Bool {
+	private inline function isWhiteSpace(ch:String):Bool {
 		return ( ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' );
 	}
 
@@ -503,7 +503,7 @@ class JSONTokenizer {
 	 *
 	 * @return True if the character passed in is a digit
 	 */
-	private function isDigit(ch:String):Bool {
+	private inline function isDigit(ch:String):Bool {
 		#if php
 		return (ch >= '0' && ch <= '9' && ch != '');
 		#else
@@ -512,17 +512,12 @@ class JSONTokenizer {
 	}
 
 	/**
-	 * Determines if a character is a digit [0-9].
+	 * Determines if a character is a digit [0-9A-Fa-f].
 	 *
-	 * @return True if the character passed in is a digit
+	 * @return True if the character passed in is a hex digit
 	 */
-	private function isHexDigit(ch:String):Bool {
-		// get the uppercase value of ch so we only have
-		// to compare the value between 'A' and 'F'
-		var uc:String = ch.toUpperCase();
-		// a hex digit is a digit of A-F, inclusive ( using
-		// our uppercase constraint )
-		return ( isDigit( ch ) || ( uc >= 'A' && uc <= 'F' ) );
+	private inline function isHexDigit(ch:String):Bool {
+		return (isDigit(ch) || ( ch >= 'A' && ch <= 'F' ) || ( ch >= 'a' && ch <= 'f'));
 	}
 
 	/**

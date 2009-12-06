@@ -92,7 +92,7 @@ class JSONDecoder {
 	 * @return The internal object representation of the JSON
 	 * 		string that was passed to the constructor
 	 */
-	public function getValue():Dynamic {
+	public inline function getValue():Dynamic {
 		return value;
 	}
 
@@ -100,7 +100,7 @@ class JSONDecoder {
 	 * Returns the next token from the tokenzier reading
 	 * the JSON string
 	 */
-	private function nextToken():JSONToken {
+	private inline function nextToken():JSONToken {
 		return token = tokenizer.getNextToken();
 	}
 
