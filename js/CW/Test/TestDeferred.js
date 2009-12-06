@@ -1,3 +1,4 @@
+/* {LICENSE:Coreweb,Nevow,Twisted} */
 /**
  * Tests for CW.Defer
  */

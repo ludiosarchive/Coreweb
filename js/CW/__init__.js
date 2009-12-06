@@ -1,4 +1,4 @@
-/* {LICENSE:primary,Nevow} */
+/* {LICENSE:Coreweb,Nevow} */
 
 goog.require('goog.debug.Error');
 
