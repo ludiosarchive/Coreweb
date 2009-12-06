@@ -13,6 +13,10 @@ class X {
 	}
 }
 
+/**
+ * These tests come from caffeine-hx, as3corelib, json.org's Test1 and Test2, and self-written tests.
+ */
+
 class TestAll extends haxe.unit.TestCase {
 
 	public function testSimple() {

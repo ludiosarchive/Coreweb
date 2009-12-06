@@ -18,6 +18,9 @@ http://code.google.com/p/as3corelib/source/detail?r=95
 http://code.google.com/p/as3corelib/issues/detail?id=97
 http://cookbooks.adobe.com/index.cfm?event=showdetails&postId=13226 (copy of this saved in misc/ dir)
 
+More TODO for the decoder:
+accept more types of whitespace? http://code.google.com/p/as3corelib/source/detail?r=93
+
 === License ===
 
 See LICENSE
