@@ -125,7 +125,7 @@ class JSONDecoder {
 				if (token.type == JSONTokenType.RIGHT_BRACKET) {
 					return a;
 				} else {
-					tokenizer.parseError( "Leading commas are not supported.  Expecting ']' but found " + token.value );
+					tokenizer.parseError("Leading commas are not supported.  Expecting ']' but found " + token.value);
 				}
 			}
 		}
@@ -183,7 +183,7 @@ class JSONDecoder {
 				if (token.type == JSONTokenType.RIGHT_BRACE) {
 					return o;
 				} else {
-					tokenizer.parseError( "Leading commas are not supported.  Expecting '}' but found " + token.value );
+					tokenizer.parseError("Leading commas are not supported.  Expecting '}' but found " + token.value);
 				}
 			}
 		}

@@ -159,7 +159,8 @@ class JSONTokenizer {
 				} else {
 					// not sure what was in the input string - it's not
 					// anything we expected
-					parseError( "Unexpected " + ch + " encountered" );
+					parseError("Unexpected " + ch + " encountered") {
+
 				}
 		}
 		return token;
@@ -301,8 +302,9 @@ class JSONTokenizer {
 			nextChar();
 		}
 		// the number must start with a digit
-		if (!isDigit( ch )) {
-			parseError( "Expecting a digit" );
+		if (!isDigit(ch)) {
+			parseError("Expecting a digit") {
+
 		}
 		// 0 can only be the first digit if it
 		// is followed by a decimal point
@@ -311,7 +313,8 @@ class JSONTokenizer {
 			nextChar();
 			// make sure no other digits come after 0
 			if (isDigit( ch )) {
-				parseError( "A digit cannot immediately follow 0" );
+				parseError("A digit cannot immediately follow 0") {
+
 			}
 			// unless we have 0x which starts a hex number, but this
 			// doesn't match JSON spec so check for not strict mode.
@@ -327,7 +330,8 @@ class JSONTokenizer {
 						nextChar();
 					}
 					else {
-						parseError( "Number in hex format require at least one hex digit after \"0x\"" );
+						parseError('Number in hex format require at least one hex digit after "0x"') {
+
 					}
 					// consume all of the hex values
 					while (isHexDigit(ch)) {
@@ -351,7 +355,7 @@ class JSONTokenizer {
 			nextChar();
 			// after the decimal there has to be a digit
 			if ( !isDigit( ch ) ){
-				parseError( "Expecting a digit" );
+				parseError("Expecting a digit") {
 			}
 			// read more numbers to get the decimal value
 			while (isDigit( ch )) {
@@ -360,18 +364,18 @@ class JSONTokenizer {
 			}
 		}
 		// check for scientific notation
-		if ( ch == 'e' || ch == 'E' )	{
+		if (ch == 'e' || ch == 'E') {
 			input += "e";
 			nextChar();
 			// check for sign
-			if ( ch == '+' || ch == '-' ){
+			if ( ch == '+' || ch == '-' ) {
 				input += ch;
 				nextChar();
 			}
 			// require at least one number for the exponent
 			// in this case
 			if ( !isDigit( ch ) ){
-				parseError( "Scientific notation number needs exponent value" );
+				parseError("Scientific notation number needs exponent value") {
 			}
 			// read in the exponent
 			while ( isDigit( ch ) )	{
@@ -381,14 +385,14 @@ class JSONTokenizer {
 		}
 		// convert the string to a number value
 		var num:Float = Std.parseFloat(input);
-		if (Math.isFinite( num ) && !Math.isNaN( num )) {
+		if (Math.isFinite(num) && !Math.isNaN(num)) {
 			// the token for the number we'll try to read
 			var token:JSONToken = new JSONToken();
 			token.type = NUMBER;
 			token.value = num;
 			return token;
 		} else {
-			parseError( "Number " + num + " is not valid!" );
+			parseError("Number " + num + " is not valid!") {
 		}
 		return null;
 	}
@@ -401,14 +405,14 @@ class JSONTokenizer {
 	 *		null if we've read past the end.
 	 */
 	private function nextChar():String {
-		return ch = jsonString.charAt( loc++ );
+		return ch = jsonString.charAt(loc++);
 	}
 	
 	/**
 	 * Advances the character location past any
 	 * sort of white space and comments
 	 */
-	private function skipIgnored():Void	{
+	private function skipIgnored():Void {
 		var originalLoc:Int;
 		// keep trying to skip whitespace and comments as long
 		// as we keep advancing past the original location 
@@ -428,13 +432,13 @@ class JSONTokenizer {
 		if (ch == '/') {
 			// Advance past the first / to find out what type of comment
 			nextChar();
-			switch ( ch ) {
+			switch (ch) {
 				case '/': // single-line comment, read through end of line
 					// Loop over the characters until we find
 					// a newline or until there's no more characters left
 					do {
 						nextChar();
-					} while ( ch != '\n' && ch != '' );
+					} while (ch != '\n' && ch != '');
 					// move past the \n
 					nextChar();
 				case '*': // multi-line comment, read until closing */
@@ -457,12 +461,12 @@ class JSONTokenizer {
 						// when we're here we've read past the end of 
 						// the string without finding a closing */, so error
 						if (ch == '') {
-							parseError( "Multi-line comment not closed" );
+							parseError("Multi-line comment not closed") {
 						}
 					}
 				// Can't match a comment after a /, so it's a parsing error
 				default:
-					parseError( "Unexpected " + ch + " encountered (expecting '/' or '*' )" );
+					parseError("Unexpected " + ch + " encountered (expecting '/' or '*' )") {
 			}
 		}
 	}
@@ -477,7 +481,7 @@ class JSONTokenizer {
 		// As long as there are spaces in the input 
 		// stream, advance the current location pointer
 		// past them
-		while (isWhiteSpace( ch )) {
+		while (isWhiteSpace(ch)) {
 			nextChar();
 		}
 	}
@@ -488,7 +492,7 @@ class JSONTokenizer {
 	 * @return True if the character passed in is a whitespace
 	 *	character
 	 */
-	private function isWhiteSpace( ch:String ):Bool {
+	private function isWhiteSpace(ch:String):Bool {
 		return ( ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' );
 	}
 
@@ -497,11 +501,11 @@ class JSONTokenizer {
 	 *
 	 * @return True if the character passed in is a digit
 	 */
-	private function isDigit( ch:String ):Bool {
+	private function isDigit(ch:String):Bool {
 		#if php
-		return (ch >= '0' && ch <= '9' && ch!='');
+		return (ch >= '0' && ch <= '9' && ch != '');
 		#else
-		return ( ch >= '0' && ch <= '9' );
+		return (ch >= '0' && ch <= '9');
 		#end
 	}
 
@@ -510,7 +514,7 @@ class JSONTokenizer {
 	 *
 	 * @return True if the character passed in is a digit
 	 */
-	private function isHexDigit( ch:String ):Bool {
+	private function isHexDigit(ch:String):Bool {
 		// get the uppercase value of ch so we only have
 		// to compare the value between 'A' and 'F'
 		var uc:String = ch.toUpperCase();
