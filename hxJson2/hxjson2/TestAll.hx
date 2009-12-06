@@ -139,7 +139,7 @@ E_val: N/A"}]}';
 
 	public function testList() {
 		var o = new List<{name:String, age:Int}>() ;
-		o.add({name:"blackdog",age:41});
+		o.add({name:"blackdog", age:41});
 
 		var e:Dynamic = JSON.encode(o);
 		//trace("encoded:"+e);
@@ -149,18 +149,30 @@ E_val: N/A"}]}';
 	}
 
 	public function testShortEscapes() {
-		var original:String = "\n\r\t\x08\x0C\x0B";
-		var encoded:String = JSON.encode(original); // Last 3 characters are \b, \f, \v
+		var original:String = "\n\r\t\x08\x0C\x0B"; // Last 3 characters are \b, \f, \v
+		var encoded:String = JSON.encode(original);
 		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', encoded);
 		var decoded:String = JSON.decode(encoded);
 		assertEquals(original, decoded);
 	}
-	
+
+	public function testLongEscapes() {
+		var original:String = "\x00\x01\x0F\x10\x1F ~\x7F\x80\xFF"; // 0, 1, 15, 16, 31, 32 (space), 126 (~), 127, 128, 255
+		original += String.fromCharCode(256); // 0x100
+		original += String.fromCharCode(4095); // 0x0FFF
+		original += String.fromCharCode(4096); // 0x1000
+		original += String.fromCharCode(65535); // 0xFFFF
+		var encoded:String = JSON.encode(original);
+		assertEquals('"\\u0000\\u0001\\u000F\\u0010\\u001F ~\\u007F\\u0080\\u00FF\\u0100\\u0FFF\\u1000\\uFFFF"', encoded);
+		var decoded:String = JSON.decode(encoded);
+		assertEquals(original, decoded);
+	}
+
 	/**
 	 * We backslash slashes because goog.json does it.
 	 */
 	public function testSlashesBackslashed() {
-		var e:String = JSON.encode("hello/there//"); // Last 3 characters are \b, \f, \v
+		var e:String = JSON.encode("hello/there//");
 		assertEquals('"hello\\/there\\/\\/"', e);
 	}
 

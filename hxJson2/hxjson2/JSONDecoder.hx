@@ -146,7 +146,7 @@ class JSONDecoder {
 				// if the decoder is not in strict mode
 				if (!strict){
 					// Reached ",]" as the end of the array, so return it
-					if (token.type == JSONTokenType.RIGHT_BRACKET){
+					if (token.type == JSONTokenType.RIGHT_BRACKET) {
 						return a;
 					}
 				}
@@ -199,7 +199,7 @@ class JSONDecoder {
 				if (token.type == COLON) {
 					// move past the : and read/assign a value for the key
 					nextToken();
-					Reflect.setField(o,key,parseValue());
+					Reflect.setField(o, key, parseValue());
 					// move past the value to see what's next
 					nextToken();
 					// after the value there's either a } or a ,

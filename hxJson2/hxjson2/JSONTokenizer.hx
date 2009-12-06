@@ -151,7 +151,7 @@ class JSONTokenizer {
 				token = readString();
 			default: 
 				// see if we can read a number
-				if (isDigit( ch ) || ch == '-') {
+				if (isDigit(ch) || ch == '-') {
 					token = readNumber();
 				} else if (ch == '') {
 					// check for reading past the end of the string
@@ -213,7 +213,7 @@ class JSONTokenizer {
 						for (i in 0...4) {
 							// get the next character and determine
 							// if it's a valid hex digit or not
-							if (!isHexDigit( nextChar() )) {
+							if (!isHexDigit(nextChar())) {
 								parseError("Expected a hex digit, but found: " + ch);
 							}
 							// valid, add it to the value
