@@ -16,7 +16,7 @@ and it's probably too slow for use in Flash. If you want to speed it up, see:
 
 http://code.google.com/p/as3corelib/source/detail?r=95
 http://code.google.com/p/as3corelib/issues/detail?id=97
-http://cookbooks.adobe.com/index.cfm?event=showdetails&postId=13226 (copy of this saved in misc/ dir)
+http://cookbooks.adobe.com/index.cfm?event=showdetails&postId=13226 (copy of this saved in sandbox/ dir)
 
 More TODO for the decoder:
 accept more types of whitespace? http://code.google.com/p/as3corelib/source/detail?r=93
