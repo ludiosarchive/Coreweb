@@ -117,7 +117,7 @@ class JSONTokenizer {
 					token.value = true;
 					nextChar();
 				} else {
-					parseError( "Expecting 'true' but found " + possibleTrue );
+					parseError("Expecting 'true' but found " + possibleTrue);
 				}
 			case 'f': // attempt to read false
 				var possibleFalse:String = "f" + nextChar() + nextChar() + nextChar() + nextChar();
@@ -126,7 +126,7 @@ class JSONTokenizer {
 					token.value = false;
 					nextChar();
 				} else {
-					parseError( "Expecting 'false' but found " + possibleFalse );
+					parseError("Expecting 'false' but found " + possibleFalse);
 				}
 			case 'n': // attempt to read null
 				var possibleNull:String = "n" + nextChar() + nextChar() + nextChar();
@@ -135,7 +135,7 @@ class JSONTokenizer {
 					token.value = null;
 					nextChar();
 				} else {
-					parseError( "Expecting 'null' but found " + possibleNull );
+					parseError("Expecting 'null' but found " + possibleNull);
 				}
 			case 'N': //attempt to read NAN
 				var possibleNAN:String = 'N' + nextChar() + nextChar();
@@ -159,8 +159,7 @@ class JSONTokenizer {
 				} else {
 					// not sure what was in the input string - it's not
 					// anything we expected
-					parseError("Unexpected " + ch + " encountered") {
-
+					parseError("Unexpected " + ch + " encountered");
 				}
 		}
 		return token;
@@ -186,7 +185,7 @@ class JSONTokenizer {
 				// get the next character so we know what
 				// to unescape
 				nextChar();
-				switch ( ch ) {
+				switch (ch) {
 					case '"': // quotation mark
 						string += '"';
 					case '/':	// solidus
@@ -303,8 +302,7 @@ class JSONTokenizer {
 		}
 		// the number must start with a digit
 		if (!isDigit(ch)) {
-			parseError("Expecting a digit") {
-
+			parseError("Expecting a digit");
 		}
 		// 0 can only be the first digit if it
 		// is followed by a decimal point
@@ -313,7 +311,7 @@ class JSONTokenizer {
 			nextChar();
 			// make sure no other digits come after 0
 			if (isDigit( ch )) {
-				parseError("A digit cannot immediately follow 0") {
+				parseError("A digit cannot immediately follow 0");
 
 			}
 			// unless we have 0x which starts a hex number, but this
@@ -330,8 +328,7 @@ class JSONTokenizer {
 						nextChar();
 					}
 					else {
-						parseError('Number in hex format require at least one hex digit after "0x"') {
-
+						parseError('Number in hex format require at least one hex digit after "0x"');
 					}
 					// consume all of the hex values
 					while (isHexDigit(ch)) {
@@ -355,7 +352,7 @@ class JSONTokenizer {
 			nextChar();
 			// after the decimal there has to be a digit
 			if ( !isDigit( ch ) ){
-				parseError("Expecting a digit") {
+				parseError("Expecting a digit");
 			}
 			// read more numbers to get the decimal value
 			while (isDigit( ch )) {
@@ -375,7 +372,7 @@ class JSONTokenizer {
 			// require at least one number for the exponent
 			// in this case
 			if ( !isDigit( ch ) ){
-				parseError("Scientific notation number needs exponent value") {
+				parseError("Scientific notation number needs exponent value");
 			}
 			// read in the exponent
 			while ( isDigit( ch ) )	{
@@ -392,7 +389,7 @@ class JSONTokenizer {
 			token.value = num;
 			return token;
 		} else {
-			parseError("Number " + num + " is not valid!") {
+			parseError("Number " + num + " is not valid!");
 		}
 		return null;
 	}
@@ -420,7 +417,7 @@ class JSONTokenizer {
 			originalLoc = loc;
 			skipWhite();
 			skipComments();
-		}while ( originalLoc != loc );
+		} while (originalLoc != loc);
 	}
 	
 	/**
@@ -461,12 +458,12 @@ class JSONTokenizer {
 						// when we're here we've read past the end of 
 						// the string without finding a closing */, so error
 						if (ch == '') {
-							parseError("Multi-line comment not closed") {
+							parseError("Multi-line comment not closed");
 						}
 					}
 				// Can't match a comment after a /, so it's a parsing error
 				default:
-					parseError("Unexpected " + ch + " encountered (expecting '/' or '*' )") {
+					parseError("Unexpected " + ch + " encountered (expecting '/' or '*' )");
 			}
 		}
 	}

@@ -38,7 +38,6 @@ class TestAll extends haxe.unit.TestCase {
 	}
 
 	public function testWords() {
-
 		var p:Dynamic = JSON.decode('{"y":null}');
 		assertEquals(null, p.y);
 
@@ -152,8 +151,10 @@ E_val: N/A"}]}';
 	public function testShortEscapes() {
 		var e:String = JSON.encode("\n\r\t\x08\x0C\x0B"); // Last 3 characters are \b, \f, \v
 		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', e);
+		var decoded:String = JSON.decode(e);
+		assertEquals(e, decoded);
 	}
-
+	
 	/**
 	 * We backslash slashes because goog.json does it.
 	 */
