@@ -198,6 +198,7 @@ class JSONTokenizer {
 						string += '\r';
 					case 't':
 						string += '\t';
+					// Note that if these two cases are removed, the haXe Flash test runner window may become blank.
 					case 'b':
 						string += '\x08';
 					case 'f':
