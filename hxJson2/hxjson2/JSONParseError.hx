@@ -69,7 +69,7 @@ class JSONParseError {
 	 *
 	 * @return The location in the string where the error occurred
 	 */
-	public function getlocation():Int {
+	public inline function getlocation():Int {
 		return _location;
 	}
 
@@ -78,11 +78,11 @@ class JSONParseError {
 	 *
 	 * @return The string in which the error occurred
 	 */
-	public function gettext():String {
+	public inline function gettext():String {
 		return _text;
 	}
 
-	public function toString():String {
+	public inline function toString():String {
 		return name + ": " + message + " at position: " + _location + ' near "' + _text + '"';
 	}
 }

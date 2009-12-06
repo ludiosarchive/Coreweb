@@ -68,7 +68,7 @@ class JSONEncoder {
 	 * @return The JSON string representation of the object
 	 * 		that was passed to the constructor
 	 */
-	public function getString():String {
+	public inline function getString():String {
 		return jsonString;
 	}
 	
@@ -99,7 +99,7 @@ class JSONEncoder {
 		return "null";
 	}
 	
-	private function mapHash(value:Hash<Dynamic>):Dynamic {
+	private inline function mapHash(value:Hash<Dynamic>):Dynamic {
 		var ret:Dynamic = {};
 		for (i in value.keys()) {
 			Reflect.setField(ret, i, value.get(i));
@@ -114,7 +114,7 @@ class JSONEncoder {
 	 * @return The string with escaped special characters
 	 * 		according to the JSON specification
 	 */
-	private function escapeString(str:String):String {
+	private inline function escapeString(str:String):String {
 		var s:String = '"';
 		// current character in the string we're processing
 		var ch:String;
@@ -192,7 +192,7 @@ class JSONEncoder {
 	 * @param a The array to convert
 	 * @return The JSON string representation of <code>a</code>
 	 */
-	private function arrayToString(a:Array<Dynamic>):String {
+	private inline function arrayToString(a:Array<Dynamic>):String {
 		var s:String = '[';
 		for (i in 0...a.length) {
 			if (s.length > 1) {
@@ -228,7 +228,7 @@ class JSONEncoder {
 	 * @param o The object to convert
 	 * @return The JSON string representation of <code>o</code>
 	 */
-	private function objectToString(o:Dynamic):String {
+	private inline function objectToString(o:Dynamic):String {
 		var s:String = '{';
 		var value:Dynamic;
 		for (key in Reflect.fields(o)) {
