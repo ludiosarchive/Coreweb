@@ -1,3 +1,10 @@
+Coreweb license:
+
+All rights reserved.
+
+
+
+hxjson2 license:
 
 hxjson2 by Philipp Klose (philipp.klose@byteanvil.com)
 "License: BSD" from http://lib.haxe.org/p/hxJson2
@@ -41,6 +48,7 @@ as3corelib license, copied from com.adobe.serialization.JSONTokenizer:
 
 
 Caffeine-hx license (applies to Test.hx and TestAll.hx):
+
 /*
  * Copyright (c) 2009, The Caffeine-hx project contributors
  * Original author : Ritchie Turner, Copyright (c) 2007 ritchie@blackdog-haxe.com
