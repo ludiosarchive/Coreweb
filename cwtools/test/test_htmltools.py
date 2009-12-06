@@ -114,8 +114,6 @@ class ExpandScriptTests(unittest.TestCase):
 		c.child('mod1.js').setContent(contents)
 
 		expected = u"""\
-(function(window, undefined) {
-var document = window.document;
 if(typeof p == 'undefined') { p = {} }; p.__name__ = 'p';
 
 if(typeof p.mod1 == 'undefined') { p.mod1 = {} }; p.mod1.__name__ = 'p.mod1';
@@ -123,7 +121,6 @@ x + 3;
 /* VirtualScript */;
 // import p.mod1
 x + 4;
-})(window);
 """
 
 		self.assertEqual(expected, htmltools.expandScript("// import p.mod1\nx + 4;\n", d))
