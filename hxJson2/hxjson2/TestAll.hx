@@ -196,10 +196,13 @@ E_val: N/A"}]}';
 		assertEquals(original, decoded);
 	}
 
+	/**
+	 * From http://json.org/JSON_checker/test/pass1.json ; a better version of this test is also in simplejson
+	 */
 	public function testPass1() {
-		// From http://json.org/JSON_checker/test/pass1.json
-		// Backslashes were doubled, single quotes were backslashed (because string is contained in a ' ')
-		//	...if only haXe had literal strings
+		// After pasting the text from http://json.org/JSON_checker/test/pass1.json ,
+		// backslashes were doubled, and single quotes were backslashed (because this string is contained in a ' ')
+		//	sigh... if only haXe had literal strings
 		
 		// Removed         "":  23456789012E666,
 		//	because it was raising exception "Number Infinity [is] not valid"
