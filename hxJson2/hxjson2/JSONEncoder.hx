@@ -80,11 +80,14 @@ class JSONEncoder {
 	 */
 	private function convertToString(value:Dynamic):String {
 		// Convert a List or IntHash into an Array
-		if (Std.is(value, List) || Std.is(value, IntHash))
+		if (Std.is(value, List) || Std.is(value, IntHash)) {
 			value = Lambda.array(value);
+		}
 		// Convert a Hash into an Object
-		if (Std.is(value, Hash))
+		if (Std.is(value, Hash)) {
 			value = mapHash(value);
+		}
+		
 		if (Std.is(value, String)) {
 			return escapeString(Std.string(value));
 		} else if (Std.is(value, Float)) {
