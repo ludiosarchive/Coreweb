@@ -186,18 +186,22 @@ class JSONTokenizer {
 				// to unescape
 				nextChar();
 				switch (ch) {
-					case '"': // quotation mark
+					case '"':
 						string += '"';
-					case '/':	// solidus
+					case '/':
 						string += "/";
-					case '\\':	// reverse solidus
+					case '\\':
 						string += '\\';
-					case 'n':	// newline
+					case 'n':
 						string += '\n';
-					case 'r':	// carriage return
+					case 'r':
 						string += '\r';
-					case 't':	// horizontal tab
+					case 't':
 						string += '\t';
+					case 'b':
+						string += '\x08';
+					case 'f':
+						string += '\x0C';
 					case 'u':
 						// convert a unicode escape sequence
 						// to it's character value - expecting

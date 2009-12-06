@@ -149,10 +149,11 @@ E_val: N/A"}]}';
 	}
 
 	public function testShortEscapes() {
-		var e:String = JSON.encode("\n\r\t\x08\x0C\x0B"); // Last 3 characters are \b, \f, \v
-		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', e);
-		var decoded:String = JSON.decode(e);
-		assertEquals(e, decoded);
+		var original:String = "\n\r\t\x08\x0C\x0B";
+		var encoded:String = JSON.encode(original); // Last 3 characters are \b, \f, \v
+		assertEquals('"\\n\\r\\t\\b\\f\\u000B"', encoded);
+		var decoded:String = JSON.decode(encoded);
+		assertEquals(original, decoded);
 	}
 	
 	/**
