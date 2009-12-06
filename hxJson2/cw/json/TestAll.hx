@@ -3,15 +3,6 @@ package cw.json;
 import cw.json.JSON;
 import flash.external.ExternalInterface;
 
-class X {
-	var a : Int;
-	var b : String;
-
-	public function new() {
-		a = 42;
-		b = "foobar";
-	}
-}
 
 /**
  * These tests come from caffeine-hx, as3corelib, json.org's Test1 and Test2, and self-written tests.
@@ -311,19 +302,4 @@ E_val: N/A"}]}';
 	// TODO: test for all the decoder exceptions, including:
 		// "Number Infinity [is] not valid"
 
-
-/*
-	public function testObjectEncoding() {
-		//var v = { x : "f", y: 3};
-		var v = new X();
-
-		var encoded_text = JSON.encode(v);
-		trace("Encoded as " + encoded_text);
-
-		var decoded_text : Dynamic = JSON.decode(encoded_text);
-		trace("Decoded as " + decoded_text);
-		trace(Std.string(decoded_text));
-
-	}
-//	*/
 }
