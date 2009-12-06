@@ -59,7 +59,18 @@ class JSONTokenizer {
 	private var ch:String;
 	
 	private var strict:Bool;
-	
+
+	/**
+	 * Reads the next character in the input
+	 * string and advances the character location.
+	 *
+	 * @return The next character in the input string, or
+	 *		null if we've read past the end.
+	 */
+	private inline function nextChar():String {
+		return ch = jsonString.charAt(loc++);
+	}
+
 	/**
 	 * Constructs a new JSONDecoder to parse a JSON string 
 	 * into a native object.
@@ -399,17 +410,6 @@ class JSONTokenizer {
 		return null;
 	}
 
-	/**
-	 * Reads the next character in the input
-	 * string and advances the character location.
-	 *
-	 * @return The next character in the input string, or
-	 *		null if we've read past the end.
-	 */
-	private inline function nextChar():String {
-		return ch = jsonString.charAt(loc++);
-	}
-	
 	/**
 	 * Advances the character location past any
 	 * sort of white space and comments
