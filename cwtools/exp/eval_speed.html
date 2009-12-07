@@ -1,9 +1,6 @@
 <div style="white-space: pre-line">
 It's interesting how eval() in the document scope is 10x slower than inside a function in Firefox 3.6b4.
 
-"strip quotes and de-backslash" doesn't require doing a bunch of extra object traversal and backslashing in Flash.
-So it is the right thing.
-
 </div>
 
 <script>
@@ -50,11 +47,7 @@ function runNothing() {
 }
 
 /*
-	Note on Flash->JS:
-
-         ExternalInterface has a bug that simply places the
-         value a string in quotes (except for a " which is escaped) in a JavaScript string literal which
-         is executed by the browser. 
+	See externalinterface.html solution #2 for why I thought this was a good idea, but no longer.
  */
 function runRemoveQuotes() {
 	var times = 100000;
@@ -65,7 +58,7 @@ function runRemoveQuotes() {
 	while(i--) {
 		s = s.slice(1, s.length - 1).replace(re, '"');
 	}
-	document.write('strip quotes and de-backslash: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
+	document.write('(irrelevant test) strip quotes and de-backslash: ' + (+new Date-start)*(1000 / times) + 'us/call<br><br>');
 }
 
 
