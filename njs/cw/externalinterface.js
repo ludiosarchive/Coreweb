@@ -7,7 +7,6 @@ goog.provide('cw.externalinterface');
  * Modifications:
  * 	uses array .join("") to be faster in JScript, where string appends are very slow.
  * 	detects Arrays and Dates properly, even if they originated in another window.
- *	(TODO) properly escapes keys in objects
  *   uses Closure Compiler type annotations, so hopefully the encoder is inlined into
  * 		one function.
  *
