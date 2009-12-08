@@ -72,6 +72,22 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 		self.assertIdentical(
 			self._func1('<array><property id="0"><true/></property><property id="1"><false/></property></array>'),
 			cw.externalinterface.request('func1', [true, false]));
+	},
+
+
+	function test_object(self) {
+		self.assertIdentical(
+			self._func1('<object><property id="hello"><true/></property><property id="there"><false/></property></object>'),
+			cw.externalinterface.request('func1', {hello:true, there:false}));
+	},
+
+	/**
+	 * Object keys are escaped just like value strings.
+	 */
+	function test_objectKeysAreEscaped(self) {
+		self.assertIdentical(
+			self._func1('<object><property id="&lt;&gt;&amp;&quot;&apos;"><true/></property><property id="there"><string>&gt;</string></property></object>'),
+			cw.externalinterface.request('func1', {"<>&\"'": true, there: ">"}));
 	}
 
 );

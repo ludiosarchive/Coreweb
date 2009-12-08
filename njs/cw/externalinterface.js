@@ -70,7 +70,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 	var s = '<object>';
 	for (var prop in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-			buffer.push('<property id="', prop, '">'); // TODO: needs escaping! Needs tests!
+			buffer.push('<property id="', cw.externalinterface.escapeString_(prop), '">');
 			cw.externalinterface.handleAny_(buffer, obj[prop]);
 			buffer.push('</property>');
 		}
