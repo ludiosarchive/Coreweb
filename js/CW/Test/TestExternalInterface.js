@@ -134,7 +134,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 			"width": "1", "height": "1"});
 		goog.dom.appendChild(document.body, _iframe);
 
-		d.addCallback(function(){
+		d.addCallback(function() {
 			try {
 				iframeNode = goog.dom.getElement("test_objectsFromIframe");
 				var iframe = goog.dom.getFrameContentWindow(iframeNode);
@@ -159,7 +159,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 					self._func1('<date>1000000000</date>'),
 					cw.externalinterface.request('func1', iframe.aDate));
 			} finally {
-				goog.global.__CW_test_objectsFromIframe = undefined;
+				goog.global.__CW_test_objectsFromIframe = undefined; // Not `delete' because IE can't
 				if(iframeNode) {
 					goog.dom.removeNode(iframeNode);
 				}
@@ -231,7 +231,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		return d;
 	},
 
-
+	/**
+	 * Test that JSON-encodable types and some scary-looking strings
+	 * make it through JS->Flash->JS unaltered.
+	 */
 	function test_mirror(self) {
 		var scaryString = "<>\"'&&amp;";
 		var escapedScary = "&lt;&gt;&quot;&apos;&amp;&amp;amp;";
@@ -259,7 +262,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		return self._testRespondCorrectFor(original);
 	},
 
-
+	/**
+	 * Test that a range of integral numbers from -2^53 to 2^53
+	 * make it through JS->Flash->JS unaltered.
+	 */
 	function test_mirrorExtremeNumbers(self) {
 		var numbers = [];
 		for(var i=0; i <= 53; i++) {
@@ -267,14 +273,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 			numbers.push(Math.pow(2, i));
 		}
 		var original = {
-			//numbers: [1E-100, 9E-99, 9E99, 1E100] // these aren't identical when they come back
+			//numbers: [1E-100, 9E-99, 9E99, 1E100] // surprise, these aren't exactly identical when they come back
 			numbers: numbers
 		};
 
 		return self._testRespondCorrectFor(original);
 	},
 
-
+	/**
+	 * Test that a big range of unicode codepoints makes it through JS->Flash->JS unaltered.
+	 */
 	function test_mirrorUnicodeRange(self) {
 		var nums = [];
 		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range. This isn't a maximally-thorough test.
@@ -286,7 +294,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		return self._testRespondCorrectFor(string);
 	},
 
-
+	/**
+	 * Test that nested arrays make it through JS->Flash->JS unaltered.
+	 */
 	function test_mirrorNestedArrays(self) {
 		var a = [];
 		for(var i=0; i < 33; i++) {
@@ -295,8 +305,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		return self._testRespondCorrectFor(a);
 	},
 
-
 	/**
+	 * Test that nested objects make it through JS->Flash->JS unaltered.
+	 *
 	 * There is some really terrible O(N^3) or worse stuff going on in Flash
 	 * with nested objects. Try i < 20 to completely lock it up. TODO:
 	 * Further investigation is needed
