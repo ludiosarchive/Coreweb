@@ -17,9 +17,6 @@ goog.require('cw.externalinterface');
  */
 
 
-// TODO: test XML encoding for objects (array, object, Date) created in another window (use an iframe)
-
-
 CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
 
 	function _func1(self, str) {
@@ -121,7 +118,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 			cw.externalinterface.request('func1', {"<>&\"'": true, there: ">"}));
 	},
 
-
+	/**
+	 * Objects from other frames are not instanceof Date, Array, and so on. But the XML
+	 * serialization must still work correctly.
+	 */
 	function test_objectsFromIframe(self) {
 		var iframeNode = null;
 		var d = new goog.async.Deferred();
