@@ -9,9 +9,12 @@
 // import CW.DOM
 // import CW.Inspect
 
+// TODO: remove or Closure-ize above deps
+
 goog.require('goog.userAgent');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
+goog.require('goog.debug');
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -260,15 +263,16 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addError(self, test, error) {
-		console.log(error);
+		//console.log(error);
 		CW.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
-		CW.DOM.setText(pre, error.toString());
+		pre.innerHTML = goog.debug.exposeException(error);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
+
 	},
 
 

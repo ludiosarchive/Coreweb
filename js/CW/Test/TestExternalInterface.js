@@ -98,8 +98,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 
 	function test_objectWithEmptyStringKey(self) {
 		self.assertIdentical(
-			self._func1('<object><property id=""><string>empty</string></property><property id="0"><string>zero</string></property></object>'),
-			cw.externalinterface.request('func1', {"": "empty", "0": "zero"}));
+			self._func1('<object><property id=""><string>empty</string></property></object>'),
+			cw.externalinterface.request('func1', {"": "empty"}));
 	},
 
 	/**
@@ -127,15 +127,15 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		var timeout = null;
 		window.__CW_TestRealFlash_ready = function() {
 			self._object = goog.dom.getElement("TestExternalInterface");
-			//delete window.__CW_TestRealFlash_ready // maybe do it
+			window.__CW_TestRealFlash_ready = undefined; // Not `delete' because IE can't
 			if(timeout !== null) {
 				goog.global.clearTimeout(timeout);
 			}
 			flashLoaded.callback(null);
 		}
-		timeout = goog.global.setTimeout(function(){
+		timeout = goog.global.setTimeout(function() {
 			flashLoaded.errback(new Error("hit timeout"));
-		}, 4000);
+		}, 8000);
 
 		var flashvars = {
 			'onloadcallback': '__CW_TestRealFlash_ready',
@@ -149,12 +149,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 	},
 
 
+	function tearDown(self) {
+		goog.global.__CW_TestRealFlash_response = undefined; // Not `delete' because IE can't
+	},
+
+
 	function test_mirror(self) {
 		var d = new goog.async.Deferred();
 		var original = [true, false];
-		window.__CW_TestRealFlash_response = function(data) {
+		d.addCallback(function(data){
 			self.assertEqual(original, data);
-			d.callback(null);
+		});
+		window.__CW_TestRealFlash_response = function(data) {
+			d.callback(data);
 		}
 		self._object.CallFunction(cw.externalinterface.request('respond_correct', [true, false]));
 		return d;
