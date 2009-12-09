@@ -1,14 +1,16 @@
 // import CW.UnitTest
+goog.require('goog.dom');
+goog.require('goog.async.Deferred');
 goog.require('cw.externalinterface');
+goog.require('swfobject');
 
 
-// TODO: test objects (array, object, Date) created in another window (use an iframe)
+// TODO: test XML encoding for objects (array, object, Date) created in another window (use an iframe)
 
 // TODO: test big and small numbers JS->Flash->JS. The 'E' notation might ruin things.
 
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
-
 
 	function _func1(self, str) {
 		return '<invoke name="func1" returntype="javascript"><arguments>'+str+'</arguments></invoke>';
@@ -57,6 +59,18 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 	},
 
 
+	function test_functionsEncodedToNull(self) {
+		self.assertIdentical(
+			self._func1('<null/>'),
+			cw.externalinterface.request('func1', function(){}));
+
+		function named_function() {};
+		self.assertIdentical(
+			self._func1('<null/>'),
+			cw.externalinterface.request('func1', named_function));
+	},
+
+
 	function test_date(self) {
 		self.assertIdentical(
 			self._func1('<date>1</date>'),
@@ -81,6 +95,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 			cw.externalinterface.request('func1', {hello:true, there:false}));
 	},
 
+
+	function test_objectWithEmptyStringKey(self) {
+		self.assertIdentical(
+			self._func1('<object><property id=""><string>empty</string></property><property id="0"><string>zero</string></property></object>'),
+			cw.externalinterface.request('func1', {"": "empty", "0": "zero"}));
+	},
+
 	/**
 	 * Object keys are escaped just like value strings.
 	 */
@@ -90,4 +111,52 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 			cw.externalinterface.request('func1', {"<>&\"'": true, there: ">"}));
 	}
 
+);
+
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
+
+	function setUp(self) {
+		if(!swfobject.ua.pv) {
+			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin");
+		}
+		var div = goog.dom.createDom('div', {"id": "TestExternalInterface"});
+		goog.dom.appendChild(document.body, div);
+
+		var flashLoaded = new goog.async.Deferred();
+		var timeout = null;
+		window.__CW_TestRealFlash_ready = function() {
+			self._object = goog.dom.getElement("TestExternalInterface");
+			//delete window.__CW_TestRealFlash_ready // maybe do it
+			if(timeout !== null) {
+				goog.global.clearTimeout(timeout);
+			}
+			flashLoaded.callback(null);
+		}
+		timeout = goog.global.setTimeout(function(){
+			flashLoaded.errback(new Error("hit timeout"));
+		}, 4000);
+
+		var flashvars = {
+			'onloadcallback': '__CW_TestRealFlash_ready',
+			'responsecallback': '__CW_TestRealFlash_response'};
+		var params = {};
+		swfobject.embedSWF(
+			"/@testres_Coreweb/TestExternalInterface.swf", "TestExternalInterface", "30", "30", "9.0.0",
+			"/@testres_Coreweb/expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+
+		return flashLoaded;
+	},
+
+
+	function test_mirror(self) {
+		var d = new goog.async.Deferred();
+		var original = [true, false];
+		window.__CW_TestRealFlash_response = function(data) {
+			self.assertEqual(original, data);
+			d.callback(null);
+		}
+		self._object.CallFunction(cw.externalinterface.request('respond_correct', [true, false]));
+		return d;
+	}
 );

@@ -5,15 +5,21 @@ goog.provide('cw.externalinterface');
  * (the ones named __flash__*)
  *
  * Modifications:
+ * 	escapes object keys properly, so the XML serialization is not corrupted.
  * 	uses array .join("") to be faster in JScript, where string appends are very slow.
  * 	detects Arrays and Dates properly, even if they originated in another window.
  *   uses Closure Compiler type annotations, so hopefully the encoder is inlined into
  * 		one function.
  *
+ * Keep in mind that JS->Flash is slightly more lossy than Flash->JS, because
+ * invalid surrogates, Noncharacters, and unallocated Specials may be U+FFFD'ed.
+ * On the Flash->JS side (with the cw.json encoder), all characters < 32 or >= 127
+ * are escaped, so there should be no lossiness in strings.
+ *
+ *
  * Note that for Flash->JS calls (ExternalInterface.call), Flash will use its own injected
- * __flash__toXML function. Flash receives the return value of the JS function,
- * so it must serialize it. If you want to use the fixed serializer for this, something like
- * this might work:
+ * __flash__toXML function to grab the return value. If you want to use the fixed serializer
+ * for this, something like this might work (completely untested):
  *
  * window.__flash__toXML = function(obj) {
  * 	var buffer = [];
@@ -21,7 +27,7 @@ goog.provide('cw.externalinterface');
  * 	return buffer.join('');
  * }
  *
- * Note that if the JS function raises an Error when called from Flash, Flash will
+ * Note that if the JS function raises when called from Flash, Flash will
  * receive the value null (serialized as <null/>). There is no way to change this.
  */
 
@@ -128,7 +134,8 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
  * Returns the XML string that can be used to call an ExternalInterface-exposed Flash function,
  * with arguments, on an any embedded Flash applet.
  *
- * @param {string} name The name of the function to invoke.
+ * @param {string} name The name of the function to invoke. Must not contain
+ * 							the characters C{<>&"'}.
  * @param {...*} var_args The arguments to the function.
  * 
  * @return {string} The XML string that can be used in

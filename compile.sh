@@ -9,6 +9,12 @@ echo >> $LOG
 haxe -v -swf-version 9 -swf ./cwtools/exp/Experiments.swf -main cw.exp.Experiments >> $LOG
 cp /med/builds/swfobject/swfobject/expressInstall.swf ./cwtools/exp/
 
+LOG="./cwtools/testres/build_TestExternalInterface.log"
+date > $LOG
+echo >> $LOG
+haxe -v -swf-version 9 -swf ./cwtools/testres/TestExternalInterface.swf -main cw.TestExternalInterface >> $LOG
+cp /med/builds/swfobject/swfobject/expressInstall.swf ./cwtools/testres/
+
 LOG="./cwtools/exp/build_cw_json_tests.log"
 date > $LOG
 echo >> $LOG
