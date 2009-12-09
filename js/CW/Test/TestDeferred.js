@@ -246,6 +246,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		self.assertIdentical(2, result[2].length);
 		self.assertIdentical(true, result[2][0]);
 		self.assertIdentical("3", result[2][1]);
+
+		return dl;
 	},
 
 
@@ -260,6 +262,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		});
 		self.assert(result instanceof Array);
 		self.assertIdentical(result.length, 0);
+		return dl;
 	},
 
 
@@ -269,13 +272,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	 */
 	function test_emptyDeferredListErrback(self) {
 		var result;
-		CW.Defer.DeferredList([], false, true).addCallback(
+		var dl = CW.Defer.DeferredList([], false, true).addCallback(
 			function(theResult) {
 				result = theResult;
 			}
 		);
 		self.assert(result instanceof Array);
 		self.assertIdentical(result.length, 0);
+		return dl;
 	},
 
 
@@ -289,6 +293,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		});
 		self.assert(result instanceof Array);
 		self.assertArraysEqual(result, ['success', 1]);
+		return dl;
 	},
 
 
@@ -302,6 +307,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		});
 		self.assert(result instanceof CW.Defer.Failure);
 		self.assert(result.error instanceof CW.Defer.FirstError);
+		return dl;
 	},
 
 
@@ -314,6 +320,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		});
 		self.assert(result instanceof Array);
 		self.assertArraysEqual(result, ['1', '2']);
+		return dl;
 	},
 
 	/* There was a bit of copy/paste going on here. */
@@ -332,6 +339,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.callback(10);
 
 		self.assertArraysEqual(callbackArgs, [10, 20]);
+		return d;
 	},
 
 
@@ -348,6 +356,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallback(callback, 20, 30, 40);
 		d.callback(10);
 		self.assertArraysEqual(callbackArgs, [10, 20, 30, 40]);
+		return d;
 	},
 
 	/* -- */
@@ -366,6 +375,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addErrback(callback, 20);
 		d.errback(new CW.Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20]);
+		return d;
 	},
 
 
@@ -383,6 +393,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addErrback(callback, 20, 30, 40);
 		d.errback(new CW.Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20, 30, 40]);
+		return d;
 	},
 
 	/* -- */
@@ -397,10 +408,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		var callback = function(result, arg1) {
 			callbackArgs.push.apply(callbackArgs, arguments);
 		}
-		d.addBoth(callback, 20);
+		d.addCallback(callback, 20);
 		d.callback(10);
 
 		self.assertArraysEqual(callbackArgs, [10, 20]);
+		return d;
 	},
 
 
@@ -417,6 +429,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addBoth(callback, 20, 30, 40);
 		d.callback(10);
 		self.assertArraysEqual(callbackArgs, [10, 20, 30, 40]);
+		return d;
 	},
 
 
@@ -484,6 +497,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
 		self.assertArraysEqual(errbackArgs2, [20, 30, 40]);
+
+		return d;
 	}
 );
 
@@ -502,7 +517,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		d.addCallbacks(function(s){S.push(s)}, function(err){E.push(err)}, [], []);
 		self.assertEqual(E, []);
 		self.assertEqual(S, [15]);
-		return d
+		return d;
 	},
 
 	/**
@@ -521,7 +536,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		self.assertEqual(S, []);
 		self.assertEqual(E.length, 1);
 		self.assertErrorMessage(saved, "boom");
-		return d
+		return d;
 	},
 
 	/**

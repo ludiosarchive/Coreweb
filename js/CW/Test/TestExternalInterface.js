@@ -117,7 +117,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
-		if(!swfobject.ua.pv) {
+		if(swfobject.ua.pv[0] == 0) {
 			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin");
 		}
 		var div = goog.dom.createDom('div', {"id": "TestExternalInterface"});

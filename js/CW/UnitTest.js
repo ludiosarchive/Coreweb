@@ -15,6 +15,7 @@ goog.require('goog.userAgent');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
+goog.require('goog.string');
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -986,6 +987,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 							var whichProblems = [];
 							for(var pendingType in CW.UnitTest.delayedCalls) {
 								for(var ticket in CW.UnitTest.delayedCalls[pendingType]) {
+									CW.msg(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
 									whichProblems.push(pendingType);
 								}
 							}
