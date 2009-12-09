@@ -33,7 +33,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 
 	function test_string(self) {
 		self.assertIdentical(
-			self._func1('<string>hello&amp;lt;&amp;quot;&lt;&gt;&quot;&apos;there</string>'),
+			self._func1("<string>hello&amp;lt;&amp;quot;&lt;&gt;&quot;'there</string>"),
 			cw.externalinterface.request('func1', 'hello&lt;&quot;<>"\'there'));
 	},
 
@@ -107,7 +107,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 	 */
 	function test_objectKeysAreEscaped(self) {
 		self.assertIdentical(
-			self._func1('<object><property id="&lt;&gt;&amp;&quot;&apos;"><true/></property><property id="there"><string>&gt;</string></property></object>'),
+			self._func1('<object><property id="&lt;&gt;&amp;&quot;\'"><true/></property><property id="there"><string>&gt;</string></property></object>'),
 			cw.externalinterface.request('func1', {"<>&\"'": true, there: ">"}));
 	}
 
@@ -155,15 +155,27 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 
 
 	function test_mirror(self) {
+		var scaryString = "<>\"'&&amp;";
+		var escapedScary = "&lt;&gt;&quot;&apos;&amp;&amp;amp;";
+		var original = [
+			[],
+			{scaryString: scaryString, escapedScary: escapedScary},
+			"", escapedScary, scaryString,
+			"\t\n\r\f\b\x0B\u0001",
+			0,
+			null,
+			true,
+			false
+		];
+
 		var d = new goog.async.Deferred();
-		var original = [true, false];
 		d.addCallback(function(data){
 			self.assertEqual(original, data);
 		});
 		window.__CW_TestRealFlash_response = function(data) {
 			d.callback(data);
 		}
-		self._object.CallFunction(cw.externalinterface.request('respond_correct', [true, false]));
+		self._object.CallFunction(cw.externalinterface.request('respond_correct', original));
 		return d;
 	}
 );

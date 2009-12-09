@@ -1,3 +1,5 @@
+goog.require('goog.string');
+
 goog.provide('cw.externalinterface');
 
 /**
@@ -88,8 +90,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
  * @return {string} Escaped string
  */
 cw.externalinterface.escapeString_ = function(s) {
-	// TODO: is ' -> apos really needed? If not, we might use goog.string.htmlEscape
-	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+	return goog.string.htmlEscape(s, true);
 }
 
 /**
