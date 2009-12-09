@@ -90,7 +90,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
  * @return {string} Escaped string
  */
 cw.externalinterface.escapeString_ = function(s) {
-	return goog.string.htmlEscape(s, true);
+	return goog.string.htmlEscape(s);
 }
 
 /**
