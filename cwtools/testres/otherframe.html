@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+<title>otherframe</title>
+</head>
+<body>
+<pre>
+This iframe has a bunch of types for testing cross-window type detection.
+Note that in IE, cross-iframe and cross-window are not the same thing.
+
+See goog/base.js:
+
+           // In IE all non value types are wrapped as objects across window
+           // boundaries (not iframe though) so we have to do object detection
+           // for this edge case
+</pre>
+<script>
+var anObject = {k: "value"};
+var anEmptyObject = {};
+var anArray = [10];
+var anEmptyArray = [];
+var aDate = new Date(1000000000);
+
+function getQueryVariable(variable) {
+	var query = window.location.search.substring(1);
+	var vars = query.split("&");
+	for (var i=0; i < vars.length; i++) {
+		var pair = vars[i].split("=");
+		if (pair[0] == variable) {
+			return pair[1];
+		}
+	}
+	return null;
+}
+
+var onloadcallback = getQueryVariable("onloadcallback");
+if(onloadcallback) {
+	window.parent[onloadcallback]();
+} else {
+	document.write("No onloadcallback.");
+}
+
+</script>
+</body>
+</html>

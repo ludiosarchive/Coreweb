@@ -1,8 +1,20 @@
 // import CW.UnitTest
+
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
-goog.require('cw.externalinterface');
 goog.require('swfobject');
+
+goog.require('cw.externalinterface');
+
+
+/**
+ * Don't actually rely on high fidelity transfer of objects between JS and Flash
+ * if you can avoid it. Do ASCII-safe JSON encoding in JavaScript and give
+ * Flash the flattest types you can (preferably just call a function with a few
+ * arguments).
+ *
+ * These tests are really pushing the limits of JS<->Flash interaction. 
+ */
 
 
 // TODO: test XML encoding for objects (array, object, Date) created in another window (use an iframe)
@@ -107,6 +119,54 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 		self.assertIdentical(
 			self._func1('<object><property id="&lt;&gt;&amp;&quot;\'"><true/></property><property id="there"><string>&gt;</string></property></object>'),
 			cw.externalinterface.request('func1', {"<>&\"'": true, there: ">"}));
+	},
+
+
+	function test_objectsFromIframe(self) {
+		var iframeNode = null;
+		var d = new goog.async.Deferred();
+		goog.global.__CW_test_objectsFromIframe = function() {
+			d.callback(null);
+		}
+
+		var _iframe = goog.dom.createDom('iframe',
+			{"id": "test_objectsFromIframe", "src": "/@testres_Coreweb/otherframe.html?onloadcallback=__CW_test_objectsFromIframe",
+			"width": "1", "height": "1"});
+		goog.dom.appendChild(document.body, _iframe);
+
+		d.addCallback(function(){
+			try {
+				iframeNode = goog.dom.getElement("test_objectsFromIframe");
+				var iframe = goog.dom.getFrameContentWindow(iframeNode);
+
+				self.assertIdentical(
+					self._func1('<object><property id="k"><string>value</string></property></object>'),
+					cw.externalinterface.request('func1', iframe.anObject));
+
+				self.assertIdentical(
+					self._func1('<object></object>'),
+					cw.externalinterface.request('func1', iframe.anEmptyObject));
+
+				self.assertIdentical(
+					self._func1('<array><property id="0"><number>10</number></property></array>'),
+					cw.externalinterface.request('func1', iframe.anArray));
+
+				self.assertIdentical(
+					self._func1('<array></array>'),
+					cw.externalinterface.request('func1', iframe.anEmptyArray));
+
+				self.assertIdentical(
+					self._func1('<date>1000000000</date>'),
+					cw.externalinterface.request('func1', iframe.aDate));
+			} finally {
+				goog.global.__CW_test_objectsFromIframe = undefined;
+				if(iframeNode) {
+					goog.dom.removeNode(iframeNode);
+				}
+			}
+		});
+
+		return d;
 	}
 
 );
@@ -224,5 +284,29 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		self.assertEqual(55295, string.length); // should really be self.ensure
 
 		return self._testRespondCorrectFor(string);
+	},
+
+
+	function test_mirrorNestedArrays(self) {
+		var a = [];
+		for(var i=0; i < 33; i++) {
+			a = [a];
+		}
+		return self._testRespondCorrectFor(a);
+	},
+
+
+	/**
+	 * There is some really terrible O(N^3) or worse stuff going on in Flash
+	 * with nested objects. Try i < 20 to completely lock it up. TODO:
+	 * Further investigation is needed
+	 */
+	function test_mirrorNestedObjects(self) {
+		var o = {n:1};
+		for(var i=0; i < 8; i++) {
+			o = {n:o};
+		}
+		return self._testRespondCorrectFor(o);
 	}
+
 );

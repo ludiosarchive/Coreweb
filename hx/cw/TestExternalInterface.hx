@@ -13,7 +13,7 @@ class TestExternalInterface {
 		return anything;
 	}
 
-	public static function response_raw(anything:Dynamic) {
+	public static function respond_raw(anything:Dynamic) {
 		ExternalInterface.call(responsecallback, anything);
 	}
 
@@ -27,7 +27,7 @@ class TestExternalInterface {
 
 	public static function main() {
 		ExternalInterface.addCallback("echo_raw", echo_raw);
-		ExternalInterface.addCallback("response_raw", response_raw);
+		ExternalInterface.addCallback("respond_raw", respond_raw);
 		ExternalInterface.addCallback("respond_correct", respond_correct);
 
 		responsecallback = flash.Lib.current.loaderInfo.parameters.responsecallback;
