@@ -7,8 +7,6 @@ goog.require('swfobject');
 
 // TODO: test XML encoding for objects (array, object, Date) created in another window (use an iframe)
 
-// TODO: test big and small numbers JS->Flash->JS. The 'E' notation might ruin things.
-
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
 
@@ -202,7 +200,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 	},
 
 
-	function test_extremeNumbers(self) {
+	function test_mirrorExtremeNumbers(self) {
 		var numbers = [];
 		for(var i=0; i <= 53; i++) {
 			numbers.push(-Math.pow(2, i));
@@ -218,12 +216,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 
 
 	function test_mirrorUnicodeRange(self) {
-		var buffer = [];
-		// could use String.fromCharCode.apply(null, [1, 2, 3, ...])
-		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range
-			buffer.push(String.fromCharCode(i));
+		var nums = [];
+		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range. This isn't a maximally-thorough test.
+			nums.push(i);
 		}
-		var string = buffer.join('');
+		var string = String.fromCharCode.apply(null, nums);
+		self.assertEqual(55295, string.length); // should really be self.ensure
 
 		return self._testRespondCorrectFor(string);
 	}

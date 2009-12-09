@@ -22,11 +22,12 @@ class TestExternalInterface {
 	 * with our own JSON encoder. We cannot `return' if we want to do it right.
 	 */
 	public static function respond_correct(anything:Dynamic) {
-		ExternalInterface.call('(function(){'+responsecallback+'('+JSON.encode(anything)+')})');
+		ExternalInterface.call(responsecallback+'('+JSON.encode(anything)+')');
 	}
 
 	public static function main() {
 		ExternalInterface.addCallback("echo_raw", echo_raw);
+		ExternalInterface.addCallback("response_raw", response_raw);
 		ExternalInterface.addCallback("respond_correct", respond_correct);
 
 		responsecallback = flash.Lib.current.loaderInfo.parameters.responsecallback;

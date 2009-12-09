@@ -405,7 +405,7 @@ E_val: N/A"}]}';
 
 
 	public function dumpToBrowserConsole(anything:Dynamic) {
-		ExternalInterface.call('(function(){console.log('+JSON.encode(anything)+')})');
+		ExternalInterface.call('console.log('+JSON.encode(anything)+')');
 	}
 
 
