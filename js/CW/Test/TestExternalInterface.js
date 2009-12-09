@@ -120,14 +120,21 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 		if(swfobject.ua.pv[0] == 0) {
 			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin");
 		}
+
+		// The .swf applet persists between tests.
+		if(goog.dom.getElement("TestExternalInterface")) {
+			self._object = goog.dom.getElement("TestExternalInterface");
+			return goog.async.Deferred.succeed(null);
+		}
+
 		var div = goog.dom.createDom('div', {"id": "TestExternalInterface"});
 		goog.dom.appendChild(document.body, div);
 
 		var flashLoaded = new goog.async.Deferred();
 		var timeout = null;
-		window.__CW_TestRealFlash_ready = function() {
+		goog.global.__CW_TestRealFlash_ready = function() {
 			self._object = goog.dom.getElement("TestExternalInterface");
-			window.__CW_TestRealFlash_ready = undefined; // Not `delete' because IE can't
+			goog.global.__CW_TestRealFlash_ready = undefined; // Not `delete' because IE can't
 			if(timeout !== null) {
 				goog.global.clearTimeout(timeout);
 			}
@@ -154,28 +161,70 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 	},
 
 
+	function _testRespondCorrectFor(self, original) {
+		var d = new goog.async.Deferred();
+		d.addCallback(function(data){
+			self.assertEqual(original, data);
+		});
+		goog.global.__CW_TestRealFlash_response = function(data) {
+			d.callback(data);
+		}
+		self._object.CallFunction(cw.externalinterface.request('respond_correct', original));
+		return d;
+	},
+
+
 	function test_mirror(self) {
 		var scaryString = "<>\"'&&amp;";
 		var escapedScary = "&lt;&gt;&quot;&apos;&amp;&amp;amp;";
 		var original = [
 			[],
 			{scaryString: scaryString, escapedScary: escapedScary},
-			"", escapedScary, scaryString,
+			"",
+			escapedScary,
+			scaryString,
+			"\\&amp;\"\"\\\"\\\\\\\"\\&amp;\\<\\>\\'&&",
 			"\t\n\r\f\b\x0B\u0001",
 			0,
+			-0.5,
+			0.5,
 			null,
 			true,
 			false
 		];
 
-		var d = new goog.async.Deferred();
-		d.addCallback(function(data){
-			self.assertEqual(original, data);
-		});
-		window.__CW_TestRealFlash_response = function(data) {
-			d.callback(data);
+		// U+0000 isn't checked because it cannot be sent JS->Flash without post-processing
+		// on the Flash side; hopefully this limitation is acceptable.
+		// `Date' objects aren't checked because Flash->JS JSON doesn't do it.
+		// `undefined' isn't checked either for the same reason.
+
+		return self._testRespondCorrectFor(original);
+	},
+
+
+	function test_extremeNumbers(self) {
+		var numbers = [];
+		for(var i=0; i <= 53; i++) {
+			numbers.push(-Math.pow(2, i));
+			numbers.push(Math.pow(2, i));
 		}
-		self._object.CallFunction(cw.externalinterface.request('respond_correct', original));
-		return d;
+		var original = {
+			//numbers: [1E-100, 9E-99, 9E99, 1E100] // these aren't identical when they come back
+			numbers: numbers
+		};
+
+		return self._testRespondCorrectFor(original);
+	},
+
+
+	function test_mirrorUnicodeRange(self) {
+		var buffer = [];
+		// could use String.fromCharCode.apply(null, [1, 2, 3, ...])
+		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range
+			buffer.push(String.fromCharCode(i));
+		}
+		var string = buffer.join('');
+
+		return self._testRespondCorrectFor(string);
 	}
 );
