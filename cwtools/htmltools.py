@@ -15,6 +15,8 @@ from cwtools import jsimp
 from twisted.web import resource, static
 from twisted.python.filepath import FilePath
 
+_postImportVars = vars().keys()
+
 
 def cacheBreakerForPath(path):
 	"""
@@ -155,3 +157,8 @@ class LiveBox(static.File):
 			return static.File.getChild(self, name, request)
 		else:
 			return LiveBoxPage(self._basePath, name, self._JSPATH, self._directoryScan)
+
+
+
+from pypycpyo import optimizer
+optimizer.bind_all_many(vars(), _postImportVars)

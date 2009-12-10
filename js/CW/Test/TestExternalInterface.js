@@ -6,6 +6,9 @@ goog.require('swfobject');
 
 goog.require('cw.externalinterface');
 
+// TODO: test object with keys that are inherited from Object.prototype
+// TODO: same as above, except hasOwnProperty on the object has been deleted
+
 
 /**
  * Don't actually rely on high fidelity transfer of objects between JS and Flash
@@ -207,7 +210,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').me
 			'responsecallback': '__CW_TestRealFlash_response'};
 		var params = {};
 		swfobject.embedSWF(
-			"/@testres_Coreweb/TestExternalInterface.swf", "TestExternalInterface", "30", "30", "9.0.0",
+			"/@testres_Coreweb/TestExternalInterface.swf", "TestExternalInterface", "30", "30", [9, 0, 0],
 			"/@testres_Coreweb/expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
 
 		return flashLoaded;

@@ -32,6 +32,8 @@ import simplejson
 
 ##from twisted.python import log
 
+_postImportVars = vars().keys()
+
 
 def _extractOneArgFromFuncall(line, prefix):
 	"""
@@ -666,3 +668,7 @@ class JavaScriptWriter(object):
 
 
 _theWriter = JavaScriptWriter()
+
+
+from pypycpyo import optimizer
+optimizer.bind_all_many(vars(), _postImportVars)
