@@ -178,8 +178,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
-		if(swfobject.ua.pv[0] == 0) {
-			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin");
+		if(swfobject.ua.pv[0] < 9) {
+			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
 		}
 
 		// The .swf applet persists between tests.

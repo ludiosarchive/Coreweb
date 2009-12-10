@@ -5,7 +5,7 @@ goog.require('goog.userAgent');
 /**
  * Test assumptions about JavaScript in each browser.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'Nulls').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'TestAssumptions').methods(
 	/**
 	 * Test that coercing a Date object returns the equivalent of getTime()
 	 */
@@ -106,7 +106,7 @@ there';
 
 
 	/**
-	 * Confirm that errors objects are broken in IE, and works fine elsewhere.
+	 * Confirm that errors object construction is broken in IE, and works fine elsewhere.
 	 */
 	function test_errorIsBroken(self) {
 		var e;
@@ -152,6 +152,56 @@ there';
 		self.assertIdentical('.', Array(1+1).join('.'));
 		self.assertIdentical('..', Array(2+1).join('.'));
 		self.assertIdentical('....', Array(4+1).join('.'));
+	},
+
+	function _makeStringedArray(self, numItems) {
+		var buffer = [];
+		for(var i=0; i < numItems; i++) {
+			buffer.push('1');
+		}
+		self.assertIdentical(numItems, buffer.length); // should be self.ensure
+
+		var stringedArray = '[' + buffer.join(',') + ']';
+
+		return stringedArray;
+	},
+
+	/**
+	 * All browsers can eval an array with 65535 items.
+	 */
+	function test_arrayEvalBelowLimit(self) {
+		var size = 65535;
+		var stringedArray = self._makeStringedArray(size);
+		var result = eval(stringedArray);
+		
+		self.assertIdentical(1, result[0]);
+		self.assertIdentical(1, result[size-1]);
+		self.assertIdentical(size, result.length);
+	},
+
+	/**
+	 * IE6 and IE7 cannot eval a string array with 65536 or more items; other browsers can
+	 */
+	function test_arrayEvalLimit(self) {
+		var size = 65536;
+		var stringedArray = self._makeStringedArray(size);
+
+		var IE6or7 = goog.userAgent.IE && !goog.userAgent.isVersion('8');
+
+		if(!IE6or7) {
+			var result = eval(stringedArray);
+
+			self.assertIdentical(1, result[0]);
+			self.assertIdentical(1, result[size-1]);
+			self.assertIdentical(size, result.length);
+		} else {
+			try {
+				var result = eval(stringedArray);
+				self.fail("This line should not be reached; eval should have thrown an Error with 'Out of memory' message");
+			} catch(e) {
+				self.assertIdentical("Out of memory", e.message);
+			}
+		}
 	}
 );
 
