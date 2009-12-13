@@ -181,6 +181,8 @@ there';
 
 	/**
 	 * IE6 and IE7 cannot eval a string array with 65536 or more items; other browsers can
+	 *
+	 * TODO: Test IE8 in IE7 compatibility mode.
 	 */
 	function test_arrayEvalLimit(self) {
 		var size = 65536;

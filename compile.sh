@@ -18,4 +18,4 @@ cp /med/builds/swfobject/swfobject/expressInstall.swf ./cwtools/testres/
 LOG="./cwtools/exp/build_cw_json_tests.log"
 date > $LOG
 echo >> $LOG
-haxe -v -swf ./cwtools/exp/cw_json_tests.swf -swf-version 9 -swf-header 800:600:1:F7F7F7 -main cw.json.Tests >> $LOG
+haxe -v -swf-version 9 -swf ./cwtools/exp/cw_json_tests.swf -resource ./hx/cw/json/pass1_modified.json@pass1_modified -swf-header 800:600:1:F7F7F7 -main cw.json.Tests >> $LOG
