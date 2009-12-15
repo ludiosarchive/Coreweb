@@ -1,6 +1,5 @@
 /* {LICENSE:Coreweb,Nevow} */
 
-goog.require('goog.array');
 goog.require('goog.debug.Error');
 goog.require('goog.debug.Console');
 goog.require('goog.debug.HtmlFormatter');
@@ -642,15 +641,6 @@ if(window.node && window.ENV && window.ENV.UNITTEST_LOGFILE) {
 	});
 }
 
-
-
-/**
- * Return C{true} if the two arrays contain identical elements and C{false}
- * otherwise.
- *
- * This assumes that no one has added anything to C{Array.prototype}.
- */
-CW.arraysEqual = goog.array.equals;
 
 
 /**

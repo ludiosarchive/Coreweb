@@ -4,6 +4,8 @@
 
 // import CW.UnitTest
 
+goog.require('goog.array');
+
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	/**
@@ -11,10 +13,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	 * equal.
 	 */
 	function test_arraysEqualPositive(self) {
-		self.assert(CW.arraysEqual([], []));
-		self.assert(CW.arraysEqual([1, 2], [1, 2]));
+		self.assert(goog.array.equals([], []));
+		self.assert(goog.array.equals([1, 2], [1, 2]));
 		var x = {a: 1, b: 2};
-		self.assert(CW.arraysEqual([x, 3], [x, 3]));
+		self.assert(goog.array.equals([x, 3], [x, 3]));
 	},
 
 
@@ -23,10 +25,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	 * considered equal.
 	 */
 	function test_arraysEqualNegative(self) {
-		self.assert(!CW.arraysEqual([], [null]));
-		self.assert(!CW.arraysEqual([1], [2]));
-		self.assert(!CW.arraysEqual({'a': undefined}, {'b': 2}));
-		self.assert(!CW.arraysEqual(
+		self.assert(!goog.array.equals([], [null]));
+		self.assert(!goog.array.equals([1], [2]));
+		self.assert(!goog.array.equals({'a': undefined}, {'b': 2}));
+		self.assert(!goog.array.equals(
 						function() { return 1; },
 						function() { return 2; }));
 	},
@@ -37,7 +39,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	 * considered equal.
 	 */
 	function test_arraysSparseEqualNegative(self) {
-		self.assert(!CW.arraysEqual([1,"2",undefined,10], [1,"2",undefined,11]));
+		self.assert(!goog.array.equals([1,"2",undefined,10], [1,"2",undefined,11]));
 	},
 
 
@@ -51,7 +53,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 
 		var a2 = [1,"2"];
 		a2[3] = 11;
-		self.assert(!CW.arraysEqual(a1, a2));
+		self.assert(!goog.array.equals(a1, a2));
 	},
 
 
@@ -65,7 +67,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 		a[3] = '3';
 		b[3] = '3';
 		b[2] = '2';
-		self.assert(!CW.arraysEqual(a, b));
+		self.assert(!goog.array.equals(a, b));
 	}
 );
 

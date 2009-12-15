@@ -11,6 +11,7 @@
 
 // TODO: remove or Closure-ize above deps
 
+goog.require('goog.array');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
 goog.require('goog.async.Deferred');
@@ -666,7 +667,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 * Uses a shallow comparison of items, strict equality (===).
 	 */
 	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(CW.arraysEqual, '`not array-equal to´', a, b, message, true);
+		self.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
@@ -683,7 +684,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				return !func.apply(this, arguments);
 			};
 		};
-		var arraysNotEqual = invert(CW.arraysEqual);
+		var arraysNotEqual = invert(goog.array.equals);
 		self.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
@@ -774,7 +775,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			self.assertIdentical(a, b, message, true);
 
 		} else if(isArray(a) && isArray(b)) {
-			// This is a deep (recursive) comparison, unlike assertArraysEqual or CW.arraysEqual
+			// This is a deep (recursive) comparison, unlike assertArraysEqual or goog.array.equals
 
 			var i;
 			self.assertIdentical(a.length, b.length, "array length mismatch; original message: " + message, true);
