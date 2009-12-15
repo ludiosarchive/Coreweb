@@ -610,6 +610,8 @@ if(window.node && window.ENV && window.ENV.UNITTEST_LOGFILE) {
 
 /**
  * Return C{true} if L{haystack} starts with L{starter}, else C{false}.
+ *
+ * goog.string.startsWith uses indexOf, which might be faster than this.
  */
 CW.startswith = function(haystack, starter) {
 	 // '==' seems to work the same; unit tests still pass
@@ -623,9 +625,7 @@ CW.startswith = function(haystack, starter) {
  * This does *NOT* implement Python's no-argument s.split()
  */
 CW.split = function split(s, sep, maxsplit) {
-//] if _debugMode:
-	CW.assert(sep !== undefined, "arguments[1] of CW.split must be a separator string");
-//] endif
+	goog.asserts.assert(sep !== undefined, "arguments[1] of CW.split must be a separator string");
 	if(maxsplit === undefined || maxsplit < 0) {
 		return s.split(sep);
 	}
@@ -641,9 +641,8 @@ CW.split = function split(s, sep, maxsplit) {
 
 
 /**
- * Raised by:
- *    CW.assert() (in _debugMode) to stop execution
- *    CW.UnitTest to indicate that a test has failed
+ * Raised by CW.UnitTest to indicate that a test has failed. For your
+ * own asserts, use goog.asserts
  */
 CW.AssertionError = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
