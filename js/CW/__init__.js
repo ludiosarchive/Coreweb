@@ -1,5 +1,6 @@
 /* {LICENSE:Coreweb,Nevow} */
 
+goog.require('goog.array');
 goog.require('goog.debug.Error');
 goog.require('goog.debug.Console');
 goog.require('goog.debug.HtmlFormatter');
@@ -649,26 +650,7 @@ if(window.node && window.ENV && window.ENV.UNITTEST_LOGFILE) {
  *
  * This assumes that no one has added anything to C{Array.prototype}.
  */
-CW.arraysEqual = function arraysEqual(a, b) {
-	var i;
-	if (!(a instanceof Array && b instanceof Array)) {
-		return false;
-	}
-	if (a.length !== b.length) {
-		return false;
-	}
-	for (i in a) {
-		if (!(i in b && a[i] === b[i])) {
-			return false;
-		}
-	}
-	for (i in b) {
-		if (!(i in a)) {
-			return false;
-		}
-	}
-	return true;
-};
+CW.arraysEqual = goog.array.equals;
 
 
 /**
