@@ -1,6 +1,8 @@
 /* {LICENSE:Coreweb,Nevow} */
 
 goog.require('goog.debug.Error');
+goog.require('goog.debug.Console');
+goog.require('goog.debug.HtmlFormatter');
 
 //] if _debugMode:
 
@@ -681,54 +683,34 @@ CW.warn = function warn(message, category) {
 };
 
 /*
- * Set up the Firebug console as a CW log observer.
+ * Set up the Firebug console as a log observer.
  */
-//] if _debugMode:
-if(window.console && window.console.firebug) {
-	// non-firebug use can cause infinite loop in Safari 4 (? Confirm later.)
-	CW.logger.addObserver(function (evt) {
-		if (evt.isError) {
-			console.log(evt.message ? "CW error: " + evt.message : "CW error: (no evt.message)");
-			// Dump the object itself so that you can click and inspect it with Firebug.
-			console.log(evt.error);
-		} else {
-			console.log("CW log: " + evt.message);
-		}
-	});
-	CW.msg('Made the Firebug console a log observer.');
+if (!goog.debug.Console.instance) {
+	goog.debug.Console.instance = new goog.debug.Console();
 }
-//] endif
 
+goog.debug.Console.instance.setCapturing(true);
+
+
+CW._htmlFormatter = new goog.debug.HtmlFormatter();
+
+CW._htmlLogOutput = function(logRecord) {
+	var htmlString = CW._htmlFormatter.formatRecord(logRecord);
+
+	var span = document.createElement("span");
+	span.innerHTML = htmlString;
+	document.getElementById('CW-debug-log').appendChild(span);
+}
 
 /*
- * Set up the <div id="CW-debug-log"></div> as a CW log observer.
+ * Set up the <div id="CW-debug-log"></div> as a log observer.
  */
 if(window.document && document.getElementById('CW-debug-log')) {
-	CW.logger.addObserver(function _CW_debug_log_observer(evt) {
-		var prepend;
-		if (evt.isError) {
-			prepend = "CW error: ";
-		} else {
-			prepend = "CW log: ";
-		}
-
-		function appendLine(prefix, message) {
-			var textnode = document.createTextNode('[' + CW.localTime() + '] ' + prefix + message);
-			var br = document.createElement("br");
-			// TODO: cache br and logd
-			var logd = document.getElementById('CW-debug-log');
-			logd.appendChild(textnode);
-			logd.appendChild(br);
-		}
-
-		appendLine(prepend, evt.message);
-
-		if (evt.isError) {
-			appendLine('', evt.error);
-		}
-	});
+	goog.debug.LogManager.getRoot().addHandler(CW._htmlLogOutput);
 }
 
+
+// TODO: update Node logger to use Closure Library logging. Use Closure's TextFormatter.
 
 // TODO: Log to file? Log to stderr?
 if(window.node && window.ENV && window.ENV.UNITTEST_LOGFILE) {

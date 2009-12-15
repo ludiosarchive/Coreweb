@@ -1414,7 +1414,7 @@ CW.UnitTest.repr = CW.UnitTest._makeUneval();
 CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
 	function traverse(self, visitor, tests) {
 		var deferreds = [];
-		CW.msg("Running " + tests.length + " methods/TestCases.");
+		CW.UnitTest.logger.info("Running " + tests.length + " methods/TestCases.");
 		for (var i = 0; i < tests.length; ++i) {
 			deferreds.push(tests[i].visit(visitor));
 		}
@@ -1430,7 +1430,7 @@ CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
  */
 CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
-//		CW.msg('Using SerialVisitor on ' + tests);
+//		CW.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 		var completionDeferred = new goog.async.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
@@ -1548,7 +1548,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
-//			CW.msg('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
+//			CW.UnitTest.logger.fine('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
 //		}
 
 		// actually run the callable
@@ -1636,12 +1636,12 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
  * This needs to be called before tests are started.
  */
 CW.UnitTest.installMonkeys = function installMonkeys() {
-	//CW.msg('installMonkeys');
+	//CW.UnitTest.logger.fine('installMonkeys');
 
 	var installD = new goog.async.Deferred();
 
 	if(CW.UnitTest.monkeysAreInstalled) {
-		//CW.msg('Monkeys already installed or being installed.');
+		//CW.UnitTest.logger.fine('Monkeys already installed or being installed.');
 		installD.callback(null);
 		return installD;
 	}
@@ -1706,7 +1706,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 		}
 
 		function _IE_finishInstallMonkeys() {
-			CW.msg('_iframeReady triggered.');
+			CW.UnitTest.logger.info('_iframeReady triggered.');
 			execScript('\
 				function setTimeout(callable, when) {\
 					return CW.UnitTest.setTimeoutMonkey(callable, when);\
