@@ -239,12 +239,6 @@ CW.localTime = function localTime() {
 
 
 /**
- * For some background information on why JavaScript fails at classes, see
- * http://hg.mozdev.org/radialcontextmz/file/4ddd4ba2095a/HACKING#l227
- */
-
-
-/**
  * This tracks the number of instances of L{CW.Class} subclasses.
  * This is incremented for each instantiation; never decremented.
  */
