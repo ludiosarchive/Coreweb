@@ -566,35 +566,11 @@ CW.Class.prototype.__init__ = function() {
 };
 
 
-CW.Error = function(opt_msg) {
-	goog.debug.Error.call(this, opt_msg);
-};
-goog.inherits(CW.Error, goog.debug.Error);
-CW.Error.prototype.name = 'CW.Error';
-
-
-/**
- * Sequence container index out of bounds.
- * This is (probably) used only by TestUnitTestAssertions
- */
-CW.IndexError = function(opt_msg) {
-	CW.Error.call(this, opt_msg);
-};
-goog.inherits(CW.IndexError, CW.Error);
-CW.IndexError.prototype.name = 'CW.IndexError';
-
-
 /**
  * Base class for all warning classes.
  */
 CW.Warning = CW.Class.subclass("CW.Warning");
 CW.DeprecationWarning = CW.Warning.subclass("CW.DeprecationWarning");
-
-CW.Class.subclass(CW, 'Module').method(
-	function __init__(self, name) {
-		self.name = name;
-	}
-);
 
 
 CW.Class.subclass(CW, 'Logger').methods(
@@ -675,7 +651,7 @@ CW.err = function() {
 CW.debug = function(kind, msg) {
 //] if _debugMode:
 	if(msg === undefined) {
-		throw new CW.Error("Why is `msg' undefined? Are you misusing the logging functions?");
+		throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
 	}
 //] endif
 
@@ -872,10 +848,10 @@ CW.random = function random() {
  *    CW.UnitTest to indicate that a test has failed
  */
 CW.AssertionError = function(opt_msg) {
-	CW.Error.call(this, opt_msg);
+	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.AssertionError, CW.Error);
-CW.Error.prototype.name = 'CW.AssertionError';
+goog.inherits(CW.AssertionError, goog.debug.Error);
+CW.AssertionError.prototype.name = 'CW.AssertionError';
 
 
 //] if _debugMode:

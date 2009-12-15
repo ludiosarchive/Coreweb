@@ -3,6 +3,7 @@
 _pauseLevel, _continue, _runCallbacks, _callbacks, _called, _result */
 
 goog.require('goog.async.Deferred');
+goog.require('goog.debug.Error');
 
 
 /**
@@ -16,9 +17,9 @@ goog.require('goog.async.Deferred');
  */
 
 CW.Defer.AlreadyCalledError = function(opt_msg) {
-	CW.Error.call(this, opt_msg);
+	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.Defer.AlreadyCalledError, CW.Error);
+goog.inherits(CW.Defer.AlreadyCalledError, goog.debug.Error);
 CW.Defer.AlreadyCalledError.prototype.name = 'CW.Defer.AlreadyCalledError';
 
 
@@ -379,9 +380,9 @@ CW.Defer.maybeDeferred = function maybeDeferred(f, args) {
 CW.Defer.FirstError = function(err, index) {
 	this.err = err;
 	this.index = index;
-	CW.Error.call(this);
+	goog.debug.Error.call(this);
 };
-goog.inherits(CW.Defer.FirstError, CW.Error);
+goog.inherits(CW.Defer.FirstError, goog.debug.Error);
 CW.Defer.FirstError.prototype.name = 'CW.Defer.FirstError';
 
 

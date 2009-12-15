@@ -61,14 +61,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 		var error;
 
 		error = self.assertThrows(
-			CW.Error,
+			Error,
 			function() {
 				return CW.Inspect.methods([]);
 			});
 		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
-			CW.Error,
+			Error,
 			function() {
 				return CW.Inspect.methods({});
 			});
@@ -76,21 +76,21 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
-			CW.Error,
+			Error,
 			function() {
 				return CW.Inspect.methods(0);
 			});
 		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
-			CW.Error,
+			Error,
 			function() {
 				return CW.Inspect.methods("");
 			});
 		self.assertErrorMessage(error, msg);
 
 		error = self.assertThrows(
-			CW.Error,
+			Error,
 			function() {
 				return CW.Inspect.methods(CW.Class());
 			});

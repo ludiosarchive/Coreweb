@@ -144,8 +144,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
 			self.assert(
-				self.result.errors[0][1] instanceof CW.Error,
-				"self.result.errors[0][1] should have been a CW.Error, not a: " + self.result.errors[0][1]);
+				self.result.errors[0][1] instanceof Error,
+				"self.result.errors[0][1] should have been an Error, not a: " + self.result.errors[0][1]);
 
 			// check the skip
 			self.assertIdentical(self.result.skips[0].length, 2);

@@ -321,11 +321,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		logEvents = [];
 
 		var logerr = "(logging system test error) Doom, world.";
-		CW.err(new CW.Error(logerr), logmsg);
+		CW.err(new Error(logerr), logmsg);
 
 		self.assertIdentical(1, logEvents.length);
 		self.assertIdentical(true, logEvents[0].isError);
-		self.assertIdentical(true, logEvents[0].error instanceof CW.Error);
+		self.assertIdentical(true, logEvents[0].error instanceof Error);
 		self.assertErrorMessage(logEvents[0].error, logerr);
 		self.assertIdentical(logmsg, logEvents[0].message);
 
@@ -335,7 +335,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assertIdentical(0, logEvents.length);
 
 		var observererr = "(logging system test error) Observer had a bug.";
-		CW.logger.addObserver(function(event) { throw new CW.Error(observererr); });
+		CW.logger.addObserver(function(event) { throw new Error(observererr); });
 		CW.logger.addObserver(function(event) { logEvents.push(event); });
 
 		CW.msg(logmsg);

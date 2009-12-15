@@ -44,7 +44,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 
 	function test_error(self) {
 		var d = new goog.async.Deferred();
-		d.errback(new CW.Error("error"));
+		d.errback(new Error("error"));
 		return d;
 	},
 
@@ -73,7 +73,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
 
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		d.errback(new CW.Error("failed setup"));
+		d.errback(new Error("failed setup"));
 		return d;
 	},
 

@@ -15,7 +15,14 @@ goog.require('goog.userAgent');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
+goog.require('goog.debug.Logger');
+goog.require('goog.debug.Error');
 goog.require('goog.string');
+
+
+CW.UnitTest.logger = goog.debug.Logger.getLogger('CW.UnitTest');
+CW.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
+
 
 /**
  * Return a suite which contains every test defined in C{testClass}. Assumes
@@ -66,7 +73,7 @@ CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
 	var namePieces = klass.__name__.split('.');
 	var lastPiece = namePieces[namePieces.length - 1];
 	if (lastPiece.substr(0, 1) == '_') {
-		CW.msg('CW.UnitTest.isRunnableTestCaseClass: ' +
+		CW.UnitTest.logger.info('CW.UnitTest.isRunnableTestCaseClass: ' +
 			'assuming ' + klass + ' is not a runnable TestCase class.');
 		return false;
 	}
@@ -110,9 +117,9 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
  * Raised to indicate that a test is being skipped.
  */
 CW.UnitTest.SkipTest = function(opt_msg) {
-	CW.Error.call(this, opt_msg);
+	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.UnitTest.SkipTest, CW.Error);
+goog.inherits(CW.UnitTest.SkipTest, goog.debug.Error);
 CW.UnitTest.SkipTest.prototype.name = 'CW.UnitTest.SkipTest';
 
 
@@ -127,22 +134,27 @@ CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * @ivar testsRun: The number of tests that have been run using this as the
  *				 result.
  *
- * @type failures: Array of [L{TestCase}, L{CW.Error}] pairs
- * @ivar failures: The assertion failures that have occurred in this test run,
- *				 paired with the tests that generated them.
- *
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type errors: Array of [L{TestCase}, L{CW.Error}] pairs
+ * @type failures: Array of [L{TestCase}, L{CW.AssertionError}] pairs
+ * @ivar failures: The assertion failures that have occurred in this test run,
+ *				 paired with the tests that generated them.
+ *
+ * @type errors: Array of [L{TestCase}, L{Error}] pairs
  * @ivar errors: The errors that were raised by tests in this test run, paired
  *			   with the tests that generated them.
+ *
+ * @type skips: Array of [L{TestCase}, L{CW.UnitTest.SkipTest}] pairs
+ * @ivar skips: The SkipTest exceptions that were raised by tests in this test run,
+ * 				paired with the tests that generated them.
+ *
  */
 CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	function __init__(self) {
 		self.testsRun = 0;
-		self.failures = [];
 		self.successes = [];
+		self.failures = [];
 		self.errors = [];
 		self.skips = [];
 		self.timeStarted = null;
@@ -180,7 +192,8 @@ CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param error: The error that occurred.
-	 * @type error: Generally an L{Error} or L{CW.Error} instance.
+	 * @type error: Generally an L{Error} instance, but could be
+	 * 				any throwable object (all of them).
 	 */
 	function addError(self, test, error) {
 		self.errors.push([test, error]);
@@ -824,7 +837,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @param expectedMessage: The message which the error is expected
 	 * to have. If you pass this argument, the C{expectedError}
-	 * must be of type L{CW.Error} or a subclass of it.
+	 * must be of type L{Error} or a subclass of it.
 	 *
 	 * @throw AssertionError: Thrown if the callable doesn't throw
 	 * C{expectedError}. This could be because it threw a different error or
@@ -863,7 +876,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @param deferred: The L{goog.async.Deferred} which is expected to fail.
 	 *
-	 * @param errorTypes: An C{Array} of L{CW.Error} subclasses which are
+	 * @param errorTypes: An C{Array} of L{Error} subclasses which are
 	 * the allowed failure types for the given Deferred.
 	 *
 	 * @throw Error: Thrown if C{errorTypes} has a length of 0.
@@ -934,7 +947,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
-		CW.msg('Starting ' + self + ' ' + self._methodName);
+		CW.UnitTest.logger.info('Starting ' + self + ' ' + self._methodName);
 
 		result.startTest(self);
 
@@ -987,7 +1000,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 							var whichProblems = [];
 							for(var pendingType in CW.UnitTest.delayedCalls) {
 								for(var ticket in CW.UnitTest.delayedCalls[pendingType]) {
-									CW.msg(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
+									CW.UnitTest.logger.severe(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
 									whichProblems.push(pendingType);
 								}
 							}
@@ -996,7 +1009,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 								success = false;
 
 								result.addError(self,
-									new CW.Error(
+									new Error(
 										"Test ended with " + whichProblems.length +
 										" pending call(s): " + whichProblems));
 
@@ -1553,7 +1566,7 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable(ticket) },
 		when);
 	} else {
-		throw new CW.Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
+		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
@@ -1574,7 +1587,7 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 	} else if(window.frames && window.frames[0] && window.frames[0].setInterval) {
 		ticket = window.frames[0].setInterval(callable, when);
 	} else {
-		throw new CW.Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
+		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
 	}
 
 	CW.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
@@ -1593,7 +1606,7 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 	} else if(window.frames && window.frames[0] && window.frames[0].clearTimeout) {
 		output = window.frames[0].clearTimeout(ticket);
 	} else {
-		throw new CW.Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
+		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
@@ -1611,7 +1624,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 	} else if(window.frames && window.frames[0] && window.frames[0].clearInterval) {
 		output = window.frames[0].clearInterval(ticket);
 	} else {
-		throw new CW.Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
+		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
 	}
 
 	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
@@ -1689,7 +1702,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 
 		var numFrames = window.frames.length;
 		if(numFrames != 1) {
-			throw new CW.Error("window.frames.length was " + numFrames);
+			throw new Error("window.frames.length was " + numFrames);
 		}
 
 		function _IE_finishInstallMonkeys() {

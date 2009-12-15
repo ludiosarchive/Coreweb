@@ -20,8 +20,6 @@ def makeScriptForNode():
 	scriptContent = testing._getScriptContent(theTests, 'process') # rargh Node.js
 	moduleString = testing._getModuleListString(theTests)
 	runCode = u"""
-CW.msg('Running tests.');
-
 var modules = %s;
 var suite = CW.UnitTest.loadFromModules(modules);
 

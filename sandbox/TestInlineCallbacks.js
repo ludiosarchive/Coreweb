@@ -96,7 +96,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInlineCallbacks, 'TestIC').methods(
 		}
 		function soonErrback() {
 			var d = new CW.Defer.Deferred();
-			setTimeout(function(){d.errback(new CW.Error());}, 0);
+			setTimeout(function(){d.errback(new Error());}, 0);
 			return d;
 		}
 		var withGenerators = function() {
@@ -108,7 +108,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInlineCallbacks, 'TestIC').methods(
 		var d = wrapped();
 		d.addErrback(function(r) {
 			self.assertIdentical(five, 5);
-			self.assert(r.error instanceof CW.Error);
+			self.assert(r.error instanceof Error);
 		});
 		return d;
 	},
@@ -116,7 +116,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInlineCallbacks, 'TestIC').methods(
 	function test_withSyncExceptionAfterAsyncFailure(self) {
 		function soonErrback() {
 			var d = new CW.Defer.Deferred();
-			setTimeout(function(){d.errback(new CW.Error());}, 0);
+			setTimeout(function(){d.errback(new Error());}, 0);
 			return d;
 		}
 		var withGenerators = function() {
@@ -145,7 +145,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInlineCallbacks, 'TestIC').methods(
 		}
 		function soonErrback() {
 			var d = new CW.Defer.Deferred();
-			setTimeout(function(){d.errback(new CW.Error());}, 0);
+			setTimeout(function(){d.errback(new Error());}, 0);
 			return d;
 		}
 		var withGenerators = function() {

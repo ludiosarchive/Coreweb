@@ -2,6 +2,18 @@
 
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
+goog.require('goog.debug.Error');
+
+
+/**
+ * Just for testing.
+ */
+CW.Test.TestUnitTestAssertions.SpecialError = function(opt_msg) {
+	goog.debug.Error.call(this, opt_msg);
+};
+goog.inherits(CW.Test.TestUnitTestAssertions.SpecialError, goog.debug.Error);
+CW.Test.TestUnitTestAssertions.SpecialError.prototype.name = 'CW.Test.TestUnitTestAssertions.SpecialError';
+
 
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, '_StartsWithUnderscore').methods(
@@ -169,7 +181,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.assertThrows(
 				CW.AssertionError,
-				function() { throw new CW.IndexError(); }
+				function() { throw new CW.Test.TestUnitTestAssertions.SpecialError(); }
 			);
 			raised = false;
 		} catch (e) {
@@ -190,8 +202,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_assertThrowsWrongMessage(self) {
 		var raised = true;
 		try {
-			self.assertThrows(CW.IndexError,
-							  function() { throw new CW.IndexError("correct message"); }, "wrong message");
+			self.assertThrows(CW.Test.TestUnitTestAssertions.SpecialError,
+							  function() { throw new CW.Test.TestUnitTestAssertions.SpecialError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
 			if (!(e instanceof CW.AssertionError)) {

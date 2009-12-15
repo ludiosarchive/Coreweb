@@ -42,7 +42,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 
 	function test_error(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new CW.Error("error")); }, 0);
+		setTimeout(function(){d.errback(new Error("error")); }, 0);
 		return d;
 	},
 
@@ -71,7 +71,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new CW.Error("failed setup"));}, 0);
+		setTimeout(function(){d.errback(new Error("failed setup"));}, 0);
 		return d;
 	},
 

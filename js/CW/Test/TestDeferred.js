@@ -13,7 +13,7 @@ goog.require('goog.async.Deferred');
 CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	function setUp(self) {
 		try {
-			throw new CW.Error("message");
+			throw new Error("message");
 		} catch (e) {
 			self.failure = CW.Defer.Failure(e);
 		}
@@ -118,7 +118,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_failDeferred(self) {
 		var result = null;
 		var error = null;
-		var d = CW.Defer.fail(new CW.Error("failure"));
+		var d = CW.Defer.fail(new Error("failure"));
 		d.addCallback(function(res) {
 			result = res;
 		});
@@ -230,7 +230,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 		// if you pass a number to new Error(stringedNumber),
 		// IE will set e.message = "" and e.number = number
-		var anError = new CW.Error("some error");
+		var anError = new Error("some error");
 		self.assertErrorMessage(anError, "some error");
 		defr2.errback(anError);
 		defr3.callback("3");
@@ -301,7 +301,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		var result = null;
 		var dl = new CW.Defer.DeferredList(
 			[new CW.Defer.Deferred(),
-			 CW.Defer.fail(new CW.Error("failure"))], false, true, false);
+			 CW.Defer.fail(new Error("failure"))], false, true, false);
 		dl.addErrback(function(err) {
 			result = err;
 		});
@@ -373,7 +373,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			callbackArgs.shift();
 		}
 		d.addErrback(callback, 20);
-		d.errback(new CW.Error("boom"));
+		d.errback(new Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20]);
 		return d;
 	},
@@ -391,7 +391,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 			callbackArgs.shift();
 		}
 		d.addErrback(callback, 20, 30, 40);
-		d.errback(new CW.Error("boom"));
+		d.errback(new Error("boom"));
 		self.assertArraysEqual(callbackArgs, [20, 30, 40]);
 		return d;
 	},
@@ -459,7 +459,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(function(){}, errback1, args, args);
 		d.addCallbacks(null, errback2, [], args); // errback and args
 
-		d.errback(new CW.Error("boom"));
+		d.errback(new Error("boom"));
 
 		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
 		// problems begin!
@@ -493,7 +493,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(function(){}, errback1, args, args);
 		d.addCallbacks(null, errback2, [], [20, 30, 40]); // errback and args
 
-		d.errback(new CW.Error("boom"));
+		d.errback(new Error("boom"));
 
 		self.assertArraysEqual(errbackArgs1, [20, 30, 40]);
 		self.assertArraysEqual(errbackArgs2, [20, 30, 40]);
@@ -527,11 +527,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	function test_maybeDeferredSyncError(self) {
 		var S = [], E = [];
 		try {
-			throw new CW.Error("boom");
+			throw new Error("boom");
 		} catch(e) {
 			var saved = e;
 		}
-		var d = CW.Defer.maybeDeferred(function(){throw new CW.Error("boom")});
+		var d = CW.Defer.maybeDeferred(function(){throw new Error("boom")});
 		d.addCallbacks(function(s){S.push(s)}, function(err){E.push(err)}, [], []);
 		self.assertEqual(S, []);
 		self.assertEqual(E.length, 1);
@@ -560,8 +560,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 		
 		var d = CW.Defer.Deferred();
 		var d2 = CW.Defer.maybeDeferred(function() {return d});
-		d.errback(CW.Defer.Failure(new CW.Error()));
-		return self.assertFailure(d2, [CW.Error]);
+		d.errback(CW.Defer.Failure(new Error()));
+		return self.assertFailure(d2, [Error]);
 	}
 
 //	/**

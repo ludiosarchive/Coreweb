@@ -6,25 +6,29 @@
 // JavaScript 1.7 only works inside a
 // <script type="application/javascript;version=1.7">
 
+goog.require('goog.debug.Error');
+
 CW.InlineCallbacks.yTest = function() {
 	yield 4;
 	yield 8;
 };
 
 
-CW.Error.subclass(CW.InlineCallbacks, "_DefGen_Return").methods(
-	function __init__(self, value) {
-		self.value = value;
-		self.message = "If you see this in user code, maybe the function isn't a generator.";
-	}
-);
+/* TODO: untested since CW.Error removal */
+CW.InlineCallbacks._DefGen_Return = function(value) {
+	goog.debug.Error.call(this);
+	this.value = value;
+	this.message = "If you see this in user code, maybe the function isn't a generator.";
+};
+goog.inherits(CW.InlineCallbacks._DefGen_Return, goog.debug.Error);
+CW.InlineCallbacks._DefGen_Return.prototype.name = 'CW.InlineCallbacks._DefGen_Return';
 
 
 /*
 	Return val from a L{inlineCallbacks} generator.
 
 	Note: this is currently implemented by raising an exception
-	derived from CW.Error.  You might need to change 'catch'
+	derived from goog.debug.Error.  You might need to change 'catch'
 	clauses to re-throw _DefGen_Return
 
 	Also: while this function currently will work when called from
