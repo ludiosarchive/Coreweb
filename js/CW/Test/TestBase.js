@@ -146,13 +146,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'SplitTests').methods(
  */
 CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'AssertTests').methods(
 
-	function setUp(self) {
-//] if not _debugMode:
-		throw new CW.UnitTest.SkipTest("CW.assert only exists in _debugMode");
-//] endif
-	},
-
-
 	function test_assertPositive(self) {
 		CW.assert(true);
 		CW.assert(true, "test_assertPositive message");

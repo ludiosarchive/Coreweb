@@ -298,56 +298,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 		self.assert(mct.bar()() === mct);
 		self.assert(mct.quux()() === mct);
 		self.assert(mct.corge()() === mct);
-	},
-
-
-	function test_logger(self) {
-		// calling this now will remove any erroneous log observers, allowing
-		// the test below to behave deterministically.
-		CW.msg('flushing log');
-
-		var logEvents = [];
-
-		var removeObserver = CW.logger.addObserver(
-			function(event) { logEvents.push(event); });
-
-		var logmsg = "(logging system test error) Hello, world";
-		CW.msg(logmsg);
-
-		self.assertIdentical(1, logEvents.length);
-		self.assertIdentical(false, logEvents[0].isError);
-		self.assertIdentical(logmsg, logEvents[0].message);
-
-		logEvents = [];
-
-		var logerr = "(logging system test error) Doom, world.";
-		CW.err(new Error(logerr), logmsg);
-
-		self.assertIdentical(1, logEvents.length);
-		self.assertIdentical(true, logEvents[0].isError);
-		self.assertIdentical(true, logEvents[0].error instanceof Error);
-		self.assertErrorMessage(logEvents[0].error, logerr);
-		self.assertIdentical(logmsg, logEvents[0].message);
-
-		removeObserver();
-		logEvents = [];
-		CW.msg(logmsg);
-		self.assertIdentical(0, logEvents.length);
-
-		var observererr = "(logging system test error) Observer had a bug.";
-		CW.logger.addObserver(function(event) { throw new Error(observererr); });
-		CW.logger.addObserver(function(event) { logEvents.push(event); });
-
-		CW.msg(logmsg);
-		CW.msg(logerr);
-		self.assertIdentical(3, logEvents.length, "Incorrect number of events logged");
-		self.assertIdentical(false, logEvents[0].isError, "First event should not have been an error");
-		self.assertIdentical(logmsg, logEvents[0].message, "First event had wrong message");
-		self.assertIdentical(true, logEvents[1].isError, "Second event should have been an error");
-		self.assertErrorMessage(logEvents[1].error, observererr); // "Second event had wrong message"
-		self.assertIdentical(false, logEvents[2].isError, "Third event should not have been an error");
-		self.assertIdentical(logerr, logEvents[2].message, "Third event had wrong message");
-
 	}
 );
 

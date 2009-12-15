@@ -2,8 +2,10 @@
 /* obfu-vars:
 _pauseLevel, _continue, _runCallbacks, _callbacks, _called, _result */
 
+goog.require('goog.asserts');
 goog.require('goog.async.Deferred');
 goog.require('goog.debug.Error');
+goog.require('goog.debug.Logger');
 
 
 /**
@@ -21,6 +23,10 @@ CW.Defer.AlreadyCalledError = function(opt_msg) {
 };
 goog.inherits(CW.Defer.AlreadyCalledError, goog.debug.Error);
 CW.Defer.AlreadyCalledError.prototype.name = 'CW.Defer.AlreadyCalledError';
+
+
+CW.Defer.logger = goog.debug.Logger.getLogger('CW.Defer');
+CW.Defer.logger.setLevel(goog.debug.Logger.Level.INFO); // Set to FINEST to see all the "no errback to throw error into" messages.
 
 
 CW.Class.subclass(CW.Defer, 'Failure').methods(
@@ -182,9 +188,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 	},
 	
 	'addCallbacks': function(/* callback, errback, callbackArgs, errbackArgs */) {
-//] if _debugMode:
-		CW.assert(arguments.length === 4, "CW.Deferred.addCallbacks takes 4 arguments, not " + arguments.length);
-//] endif
+		goog.asserts.assert(arguments.length === 4, "CW.Deferred.addCallbacks takes 4 arguments, not " + arguments.length);
 
 		// use `arguments' so that JScript doesn't have to create 4 local variables.
 		// TODO: need to verify that this really doesn't have adverse effects
@@ -286,7 +290,7 @@ CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
 			// We have an L{Failure} _result, but do not have an errback attached to send it right now.
 			// Log the error in case an errback is never attached, to prevent the error
 			// from being completely hidden. The log message will usually be spurious.
-			CW.err(this._result.error, "No errback attached yet to send this error into: (usually you can ignore this)");
+			CW.Defer.logger.finest("No errback attached yet to send this error into: (usually you can ignore this)", this._result.error);
 		}
 	},
 

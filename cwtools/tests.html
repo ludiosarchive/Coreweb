@@ -67,12 +67,12 @@ TestRunnerPage.toggleVisibility = function(id) {
 
 TestRunnerPage.logNewProps = function() {
 	var newProps = TestRunnerPage.getNewProperties(TestRunnerPage.propsBefore, window);
-	CW.msg('New window properties: ' + newProps.join(', '));
+	TestRunnerPage.logger.info('New window properties: ' + newProps.join(', '));
 }
 
 
 TestRunnerPage.startTests = function() {
-	CW.msg('Running tests.');
+	TestRunnerPage.logger.info('Running tests.');
 
 	var modules = /***/moduleString//;
 	var suite = CW.UnitTest.loadFromModules(modules);
@@ -116,13 +116,18 @@ if(TestRunnerPage._abortExecution) {
 </script>
 <script>
 
+// This assumes goog.debug.Logger was included in scriptContent. Maybe a bad assumption.
+
+TestRunnerPage.logger = goog.debug.Logger.getLogger('TestRunnerPage');
+TestRunnerPage.logger.setLevel(goog.debug.Logger.Level.ALL);
+
 if(TestRunnerPage._abortExecution) {
 	throw new Error("[1] " + TestRunnerPage._abortMessage);
 }
 
 TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
 
-CW.msg(
+TestRunnerPage.logger.info(
 	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +
 	" ms to load scripts.");
 

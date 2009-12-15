@@ -568,120 +568,6 @@ CW.Class.prototype.__init__ = function() {
 };
 
 
-/**
- * Base class for all warning classes.
- */
-CW.Warning = CW.Class.subclass("CW.Warning");
-CW.DeprecationWarning = CW.Warning.subclass("CW.DeprecationWarning");
-
-
-CW.Class.subclass(CW, 'Logger').methods(
-	function __init__(self) {
-		self.observers = [];
-	},
-
-	function addObserver(self, observer) {
-		self.observers.push(observer);
-		return function() {
-			self._removeObserver(observer);
-		};
-	},
-
-	function _removeObserver(self, observer) {
-		for (var i = 0; i < self.observers.length; ++i) {
-			if (observer === self.observers[i]) {
-				self.observers.splice(i, 1);
-				return;
-			}
-		}
-	},
-
-	function _emit(self, event) {
-		var errors = [];
-		var obs = self.observers.slice();
-		for (var i = 0; i < obs.length; ++i) {
-			try {
-				obs[i](event);
-			} catch (e) {
-				self._removeObserver(obs[i]);
-				errors.push([e, "Log observer caused error, removing."]);
-			}
-		}
-		return errors;
-	},
-
-	function emit(self, event) {
-		var errors = self._emit(event);
-		while (errors.length) {
-			var moreErrors = [];
-			for (var i = 0; i < errors.length; ++i) {
-				var e = self._emit({'isError': true, 'error': errors[i][0], 'message': errors[i][1]});
-				for (var j = 0; j < e.length; ++j) {
-					moreErrors.push(e[j]);
-				}
-			}
-			errors = moreErrors;
-		}
-	},
-
-	function err(self, error, /*optional*/ message) {
-		var event = {'isError': true, 'error': error};
-		if (message !== undefined) {
-			event.message = message;
-		} else {
-			event.message = error.message;
-		}
-		self.emit(event);
-	},
-
-	function msg(self, message) {
-		var event = {'isError': false, 'message': message};
-		self.emit(event);
-	}
-);
-
-
-CW.logger = new CW.Logger();
-CW.msg = function() {
-	return CW.logger.msg.apply(CW.logger, arguments);
-};
-
-CW.err = function() {
-	return CW.logger.err.apply(CW.logger, arguments);
-};
-
-CW.debug = function(kind, msg) {
-//] if _debugMode:
-	if(msg === undefined) {
-		throw new Error("Why is `msg' undefined? Are you misusing the logging functions?");
-	}
-//] endif
-
-	CW.logger.emit({'isError': false,
-			'message': msg, 'debug': true,
-			'channel': kind});
-};
-
-CW.log = CW.debug;
-
-/**
- * Emit a warning log event.  Warning events have four keys::
- *
- *   isError, which is always C{false}.
- *
- *   message, which is a human-readable explanation of the warning.
- *
- *   category, which is a L{CW.Warning} subclass categorizing the warning.
- *
- *   channel, which is always C{'warning'}.
- */
-CW.warn = function warn(message, category) {
-	CW.logger.emit({'isError': false,
-				'message': message,
-				'category': category,
-				'channel': 'warning'});
-};
-
 /*
  * Set up the Firebug console as a log observer.
  */
@@ -836,7 +722,6 @@ goog.inherits(CW.AssertionError, goog.debug.Error);
 CW.AssertionError.prototype.name = 'CW.AssertionError';
 
 
-//] if _debugMode:
 /**
  * Assert that the given value is truthy.
  *
@@ -852,5 +737,4 @@ CW.assert = function assert(value, /* optional */ message) {
 		throw new CW.AssertionError(message);
 	}
 }
-//] endif
 

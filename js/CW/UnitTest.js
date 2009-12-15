@@ -12,6 +12,7 @@
 // TODO: remove or Closure-ize above deps
 
 goog.require('goog.userAgent');
+goog.require('goog.asserts');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
@@ -501,7 +502,8 @@ CW.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 			});
 			return d;
 		});
-		installD.addErrback(CW.err);
+		// Not needed, goog.async.Deferred will throw the error into the window if needed
+		//installD.addErrback(CW.err);
 		return installD;
 	});
 
@@ -1917,9 +1919,7 @@ CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 			var call = self._calls[n];
 			if(call.ticket === ticket) {
 				var ret = self._calls.splice(n, 1);
-//] if _debugMode:
-				CW.assert(ret[0].ticket === ticket, ret[0].ticket + " !== " + ticket);
-//] endif
+				goog.asserts.assert(ret[0].ticket === ticket, ret[0].ticket + " !== " + ticket);
 				break;
 			}
 		}
