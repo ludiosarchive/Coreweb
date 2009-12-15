@@ -1,4 +1,5 @@
 
+// goog.require('goog.string');
 //
 ///**
 // * Test:
@@ -111,7 +112,7 @@
 //			attachEvent("onunload", fOnUnload);
 //		}
 //
-//		xhr.open('POST', self.baseURL + CW.random(), true);
+//		xhr.open('POST', self.baseURL + goog.string.getRandomString(), true);
 //		xhr.onreadystatechange = function(ev) {
 //			var state = 0.0 + xhr.readyState;
 //

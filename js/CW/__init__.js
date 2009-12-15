@@ -640,13 +640,6 @@ CW.split = function split(s, sep, maxsplit) {
 };
 
 
-
-
-CW.random = function random() {
-	return (''+Math.random()).substr(2);
-};
-
-
 /**
  * Raised by:
  *    CW.assert() (in _debugMode) to stop execution
