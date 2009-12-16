@@ -8,7 +8,7 @@
  * "DS" means "Deferred synchronous"
  */
 
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('goog.async.Deferred');
 
@@ -18,7 +18,7 @@ goog.require('goog.async.Deferred');
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DSMock._WasRun.upcall(self, '__init__', [methodName]);
@@ -50,7 +50,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 
 	function test_skip(self) {
 		var d = new goog.async.Deferred();
-		d.errback(new CW.UnitTest.SkipTest("skip"));
+		d.errback(new cw.UnitTest.SkipTest("skip"));
 		return d;
 	},
 
@@ -65,7 +65,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_WasRun').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DSMock._BadSetUp.upcall(self, '__init__', [methodName]);
@@ -95,14 +95,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadSetUp').methods(
 CW.Test.DSMock._BadSetUp.subclass(CW.Test.DSMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		d.errback(new CW.UnitTest.SkipTest("skip in setUp"));
+		d.errback(new cw.UnitTest.SkipTest("skip in setUp"));
 		return d;
 	}
 );
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadTearDown').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DSMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DSMock._BadTearDown.upcall(self, '__init__', [methodName]);

@@ -10,7 +10,7 @@
 // *    and that we get enough discrete 'readyState 3' events in browsers that do XHR streaming.
 // */
 //
-//CW.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'XHR').methods(
+//cw.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'XHR').methods(
 //
 //	function setUp(self) {
 //		self.baseURL = '/test/utf8stream/?';

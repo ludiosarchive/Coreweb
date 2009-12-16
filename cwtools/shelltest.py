@@ -21,9 +21,9 @@ def makeScriptForNode():
 	moduleString = testing._getModuleListString(theTests)
 	runCode = u"""
 var modules = %s;
-var suite = CW.UnitTest.loadFromModules(modules);
+var suite = cw.UnitTest.loadFromModules(modules);
 
-var d = CW.UnitTest.runConsole(suite);
+var d = cw.UnitTest.runConsole(suite);
 d.addCallback(function(){});
 """ % (moduleString,)
 

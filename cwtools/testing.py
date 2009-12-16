@@ -37,7 +37,7 @@ def _getModuleListString(tests):
 
 class TestPage(resource.Resource):
 	"""
-	This is a Resource that generates pages that run CW.UnitTest-based tests.
+	This is a Resource that generates pages that run cw.UnitTest-based tests.
 
 	For example:
 

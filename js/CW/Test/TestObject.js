@@ -3,12 +3,12 @@
  */
 
 
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('cw.Class');
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 	function test_class(self) {
 		var Eater = cw.Class.subclass('Eater');
@@ -305,7 +305,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 	/*
 	 * Verify that method/methods-free classes (prototype. only) work fine.
@@ -338,10 +338,10 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
-			throw new CW.UnitTest.SkipTest("Method-overwrite prevention only works with DEBUG");
+			throw new cw.UnitTest.SkipTest("Method-overwrite prevention only works with DEBUG");
 		}
 	},
 
@@ -449,7 +449,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
 	function tearDown(self) {
 		try {
 			delete CW.__TestClassNoOverwrite_Temporary;
@@ -471,7 +471,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
 CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
-			throw new CW.UnitTest.SkipTest("Class-overwrite prevention only works with DEBUG");
+			throw new cw.UnitTest.SkipTest("Class-overwrite prevention only works with DEBUG");
 		}
 	},
 
@@ -512,7 +512,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverw
 /**
  * Test that displayName property is set for methods (with DEBUG).
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 // TODO
 );
 
@@ -526,7 +526,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
 CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
-			throw new CW.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
+			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
 		}
 	},
 
@@ -562,7 +562,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNam
 CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestPmethodsIsLenient').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
-			throw new CW.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
+			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
 		}
 	},
 

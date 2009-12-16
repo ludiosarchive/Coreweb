@@ -5,7 +5,7 @@
  * This file was copy/pasted from Mock.js, and modified to return L{goog.async.Deferred}s.
  */
 
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('goog.async.Deferred');
 
@@ -15,7 +15,7 @@ goog.require('goog.async.Deferred');
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DMock._WasRun.upcall(self, '__init__', [methodName]);
@@ -48,7 +48,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 
 	function test_skip(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip")); }, 0);
+		setTimeout(function(){d.errback(new cw.UnitTest.SkipTest("skip")); }, 0);
 		return d;
 	},
 
@@ -63,7 +63,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_WasRun').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DMock._BadSetUp.upcall(self, '__init__', [methodName]);
@@ -93,14 +93,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadSetUp').methods(
 CW.Test.DMock._BadSetUp.subclass(CW.Test.DMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new CW.UnitTest.SkipTest("skip in setUp"));}, 0);
+		setTimeout(function(){d.errback(new cw.UnitTest.SkipTest("skip in setUp"));}, 0);
 		return d;
 	}
 );
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.DMock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
 		CW.Test.DMock._BadTearDown.upcall(self, '__init__', [methodName]);

@@ -2,13 +2,13 @@
  * Tests for CW.__init__
  */
 
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('goog.userAgent');
 goog.require('goog.array');
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 	/**
 	 * Check that arrays which contain identical elements are considered
 	 * equal.

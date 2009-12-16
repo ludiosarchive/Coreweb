@@ -5,12 +5,12 @@
 
 
 // import CW.Defer
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('goog.async.Deferred');
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	function setUp(self) {
 		try {
 			throw new Error("message");
@@ -38,8 +38,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 	 * that formats frames using L{Failure.frameToPrettyText}.
 	 */
 	function test_toPrettyText(self) {
-		if(CW.UnitTest.browserAddsCrapToErrorMessages) {
-			throw new CW.UnitTest.SkipTest('Yeah, whatever, Opera.');
+		if(cw.UnitTest.browserAddsCrapToErrorMessages) {
+			throw new cw.UnitTest.SkipTest('Yeah, whatever, Opera.');
 		}
 		var frames = self.failure.parseStack();
 		var text = self.failure.toPrettyText();
@@ -99,7 +99,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 	function test_succeedDeferred(self) {
 		var result = null;
 		var error = null;
@@ -506,7 +506,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 // These tests copied from twisted.test.test_defer
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').methods(
 	/**
 	 * L{maybeDeferred} should retrieve the result of a synchronous
 	 * function and pass it to its resulting L{Deferred}.
@@ -556,7 +556,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').method
 	 * same.
 	 */
 	function test_maybeDeferredAsyncError(self) {
-		throw new CW.UnitTest.SkipTest('No longer works because assertFailure assumes goog.async.Deferred addCallbacks takes 2-3 args, not 4');
+		throw new cw.UnitTest.SkipTest('No longer works because assertFailure assumes goog.async.Deferred addCallbacks takes 2-3 args, not 4');
 		
 		var d = CW.Defer.Deferred();
 		var d2 = CW.Defer.maybeDeferred(function() {return d});

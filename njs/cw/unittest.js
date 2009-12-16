@@ -3,6 +3,9 @@
  *
  * Heavy modified from the Divmod UnitTest.js to add support
  * for Deferreds in test methods, setUp, and tearDown.
+ *
+ * Also modified to track escaped setTimeout/setInterval calls.
+ * This is analogous to making sure the reactor (in Twisted) is clean after the test.
  */
 
 goog.require('cw.Class');
@@ -19,20 +22,22 @@ goog.require('goog.debug.Console'); // needed for TestRunnerPage
 goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
 goog.require('goog.string');
 
+goog.provide('cw.UnitTest');
 
-CW.UnitTest.logger = goog.debug.Logger.getLogger('CW.UnitTest');
-CW.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
+
+cw.UnitTest.logger = goog.debug.Logger.getLogger('cw.UnitTest');
+cw.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
 
 
 /**
- * Raised by CW.UnitTest to indicate that a test has failed. For your
+ * Raised by cw.UnitTest to indicate that a test has failed. For your
  * own asserts, use goog.asserts
  */
-CW.UnitTest.AssertionError = function(opt_msg) {
+cw.UnitTest.AssertionError = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.UnitTest.AssertionError, goog.debug.Error);
-CW.UnitTest.AssertionError.prototype.name = 'CW.UnitTest.AssertionError';
+goog.inherits(cw.UnitTest.AssertionError, goog.debug.Error);
+cw.UnitTest.AssertionError.prototype.name = 'cw.UnitTest.AssertionError';
 
 
 
@@ -40,9 +45,9 @@ CW.UnitTest.AssertionError.prototype.name = 'CW.UnitTest.AssertionError';
  * Return a suite which contains every test defined in C{testClass}. Assumes
  * that if a method name starts with C{test_}, then it is a test.
  */
-CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
+cw.UnitTest.loadFromClass = function loadFromClass(testClass) {
 	var prefix = 'test_';
-	var suite = CW.UnitTest.TestSuite();
+	var suite = cw.UnitTest.TestSuite();
 	var methods = goog.object.getKeys(testClass.prototype).sort();
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
@@ -55,14 +60,14 @@ CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 
 
 /**
- * @return: C{true} if C{klass} is a subclass of L{CW.UnitTest.TestCase}
+ * @return: C{true} if C{klass} is a subclass of L{cw.UnitTest.TestCase}
  * C{false} otherwise.
  */
-CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
+cw.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 	if (klass.subclassOf === undefined) {
 		return false;
 	}
-	if(!klass.subclassOf(CW.UnitTest.TestCase)) {
+	if(!klass.subclassOf(cw.UnitTest.TestCase)) {
 		return false;
 	}
 	return true;
@@ -70,22 +75,22 @@ CW.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 
 
 /**
- * @return: C{true} if C{klass} is a subclass of L{CW.UnitTest.TestCase}
+ * @return: C{true} if C{klass} is a subclass of L{cw.UnitTest.TestCase}
  * and its name does not start with "_", C{false} otherwise.
  */
-CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
-	if(!CW.UnitTest.isTestCaseClass(klass)) {
+cw.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
+	if(!cw.UnitTest.isTestCaseClass(klass)) {
 		return false;
 	}
 	// JavaScript has no multiple inheritance, which makes defining
 	// a "base class" with tests, and then defining a real test case
-	// that subclasses (BaseTestClass, CW.UnitTest.TestCase) impossible.
+	// that subclasses (BaseTestClass, cw.UnitTest.TestCase) impossible.
 	// So, we implement this primitive system that avoids running TestCase
 	// subclasses that start with "_".
 	var namePieces = klass.__name__.split('.');
 	var lastPiece = namePieces[namePieces.length - 1];
 	if (lastPiece.substr(0, 1) == '_') {
-		CW.UnitTest.logger.info('CW.UnitTest.isRunnableTestCaseClass: ' +
+		cw.UnitTest.logger.info('cw.UnitTest.isRunnableTestCaseClass: ' +
 			'assuming ' + klass + ' is not a runnable TestCase class.');
 		return false;
 	}
@@ -96,11 +101,11 @@ CW.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
 /**
  * Return a suite which contains every test defined in C{testModule}.
  */
-CW.UnitTest.loadFromModule = function loadFromModule(testModule) {
-	var suite = CW.UnitTest.TestSuite();
+cw.UnitTest.loadFromModule = function loadFromModule(testModule) {
+	var suite = cw.UnitTest.TestSuite();
 	for (var name in testModule) {
-		if (CW.UnitTest.isRunnableTestCaseClass(testModule[name])) {
-			suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
+		if (cw.UnitTest.isRunnableTestCaseClass(testModule[name])) {
+			suite.addTest(cw.UnitTest.loadFromClass(testModule[name]));
 		}
 	}
 	return suite;
@@ -111,13 +116,13 @@ CW.UnitTest.loadFromModule = function loadFromModule(testModule) {
 /**
  * Return a suite which contains every test in every module in array C{testModules}.
  */
-CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
-	var suite = CW.UnitTest.TestSuite();
+cw.UnitTest.loadFromModules = function loadFromModule(testModules) {
+	var suite = cw.UnitTest.TestSuite();
 	for (var i in testModules) {
 		var testModule = testModules[i];
 		for (var name in testModule) {
-			if (CW.UnitTest.isRunnableTestCaseClass(testModule[name])) {
-				suite.addTest(CW.UnitTest.loadFromClass(testModule[name]));
+			if (cw.UnitTest.isRunnableTestCaseClass(testModule[name])) {
+				suite.addTest(cw.UnitTest.loadFromClass(testModule[name]));
 			}
 		}
 	}
@@ -128,14 +133,14 @@ CW.UnitTest.loadFromModules = function loadFromModule(testModules) {
 /**
  * Raised to indicate that a test is being skipped.
  */
-CW.UnitTest.SkipTest = function(opt_msg) {
+cw.UnitTest.SkipTest = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.UnitTest.SkipTest, goog.debug.Error);
-CW.UnitTest.SkipTest.prototype.name = 'CW.UnitTest.SkipTest';
+goog.inherits(cw.UnitTest.SkipTest, goog.debug.Error);
+cw.UnitTest.SkipTest.prototype.name = 'cw.UnitTest.SkipTest';
 
 
-CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
+cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
 
 
 
@@ -149,7 +154,7 @@ CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type failures: Array of [L{TestCase}, L{CW.UnitTest.AssertionError}] pairs
+ * @type failures: Array of [L{TestCase}, L{cw.UnitTest.AssertionError}] pairs
  * @ivar failures: The assertion failures that have occurred in this test run,
  *				 paired with the tests that generated them.
  *
@@ -157,12 +162,12 @@ CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * @ivar errors: The errors that were raised by tests in this test run, paired
  *			   with the tests that generated them.
  *
- * @type skips: Array of [L{TestCase}, L{CW.UnitTest.SkipTest}] pairs
+ * @type skips: Array of [L{TestCase}, L{cw.UnitTest.SkipTest}] pairs
  * @ivar skips: The SkipTest exceptions that were raised by tests in this test run,
  * 				paired with the tests that generated them.
  *
  */
-cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
+cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	function __init__(self) {
 		self.testsRun = 0;
 		self.successes = [];
@@ -177,7 +182,7 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * Called by C{TestCase.run} at the start of the test.
 	 *
 	 * @param test: The test that just started.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 */
 	function startTest(self, test) {
 		if(self.timeStarted === null) {
@@ -191,7 +196,7 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * Called by C{TestCase.run} at the end of the test run.
 	 *
 	 * @param test: The test that just finished.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 */
 	function stopTest(self, test) {
 	},
@@ -201,7 +206,7 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * Report an error that occurred while running the given test.
 	 *
 	 * @param test: The test that had an error.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 *
 	 * @param error: The error that occurred.
 	 * @type error: Generally an L{Error} instance, but could be
@@ -218,10 +223,10 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * This is unrelated to Failure objects.
 	 *
 	 * @param test: The test with the failed assertion.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.UnitTest.AssertionError} instance.
+	 * @type failure: A L{cw.UnitTest.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -232,10 +237,10 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * Report a skipped test.
 	 *
 	 * @param test: The test that was skipped.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.UnitTest.SkipTest} instance.
+	 * @type failure: A L{cw.UnitTest.SkipTest} instance.
 	 */
 	function addSkip(self, test, skip) {
 		self.skips.push([test, skip]);
@@ -246,7 +251,7 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * Report that the given test succeeded.
 	 *
 	 * @param test: The test that succeeded.
-	 * @type test: L{CW.UnitTest.TestCase}
+	 * @type test: L{cw.UnitTest.TestCase}
 	 */
 	function addSuccess(self, test) {
 		self.successes.push(test);
@@ -274,15 +279,15 @@ cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 /**
  * Adds test results to a div, as they are run.
  */
-CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
+cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 	function __init__(self, div) {
-		CW.UnitTest.DIVTestResult.upcall(self, '__init__', []);
+		cw.UnitTest.DIVTestResult.upcall(self, '__init__', []);
 		self._div = div;
 	},
 
 
 	function startTest(self, test) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'startTest', [test]);
+		cw.UnitTest.DIVTestResult.upcall(self, 'startTest', [test]);
 		var textnode = document.createTextNode(test.id());
 		self._div.appendChild(textnode);
 	},
@@ -290,7 +295,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 	function addError(self, test, error) {
 		//console.log(error);
-		CW.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
+		cw.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
@@ -303,7 +308,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addFailure(self, test, failure) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, failure]);
+		cw.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, failure]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
@@ -316,7 +321,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addSkip(self, test, skip) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
+		cw.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... SKIP: ' + skip.message);
 		self._div.appendChild(textnode);
@@ -326,7 +331,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 
 
 	function addSuccess(self, test) {
-		CW.UnitTest.DIVTestResult.upcall(self, 'addSuccess', [test]);
+		cw.UnitTest.DIVTestResult.upcall(self, 'addSuccess', [test]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... OK');
 		self._div.appendChild(textnode);
@@ -341,41 +346,41 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
  * this in a browser environment, it will repeatedly open the 'print page'
  * dialog.
  */
-CW.UnitTest.TestResult.subclass(CW.UnitTest, 'ConsoleTestResult').methods(
+cw.UnitTest.TestResult.subclass(cw.UnitTest, 'ConsoleTestResult').methods(
 	function __init__(self) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, '__init__', []);
+		cw.UnitTest.ConsoleTestResult.upcall(self, '__init__', []);
 	},
 
 
 	function startTest(self, test) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, 'startTest', [test]);
+		cw.UnitTest.ConsoleTestResult.upcall(self, 'startTest', [test]);
 		print(test.id());
 	},
 
 
 	function addError(self, test, error) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
+		cw.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
 		print('... ERROR\n');
 		print('\n' + error.toString() + '\n\n');
 	},
 
 
 	function addFailure(self, test, failure) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
+		cw.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
 		print('... FAILURE\n');
 		print('\n' + failure.toString() + '\n\n');
 	},
 
 
 	function addSkip(self, test, skip) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
+		cw.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
 		print('... SKIP\n');
 		print('\n' + skip.toString() + '\n\n');
 	},
 
 
 	function addSuccess(self, test) {
-		CW.UnitTest.ConsoleTestResult.upcall(self, 'addSuccess', [test]);
+		cw.UnitTest.ConsoleTestResult.upcall(self, 'addSuccess', [test]);
 		print('... OK\n');
 	}
 );
@@ -385,7 +390,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'ConsoleTestResult').methods(
 
 // no more subunit/spidermonkey
 /*
-CW.UnitTest.TestResult.subclass(CW.UnitTest, 'SubunitTestClient').methods(
+cw.UnitTest.TestResult.subclass(cw.UnitTest, 'SubunitTestClient').methods(
 	function _write(self, string) {
 		print(string);
 	},
@@ -421,7 +426,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'SubunitTestClient').methods(
 /**
  * Represents a collection of tests. Implements the Composite pattern.
  */
-cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
+cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	function __init__(self, /*optional*/ tests) {
 		self.tests = [];
 		if (tests != undefined) {
@@ -434,7 +439,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 * Add the given test to the suite.
 	 *
 	 * @param test: The test to add.
-	 * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
+	 * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
 	 */
 	function addTest(self, test) {
 		self.tests.push(test);
@@ -445,7 +450,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 * Add the given tests to the suite.
 	 *
 	 * @param tests: An array of tests to add.
-	 * @type tests: [L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}]
+	 * @type tests: [L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}]
 	 */
 	function addTests(self, tests) {
 		for (var i = 0; i < tests.length; ++i) {
@@ -463,7 +468,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 		var total = 0;
 		var visitor = function (test) { total += test.countTestCases(); };
 
-		var countVisitor = CW.UnitTest.SynchronousVisitor();
+		var countVisitor = cw.UnitTest.SynchronousVisitor();
 		countVisitor.traverse(visitor, self.tests);
 
 		return total;
@@ -475,7 +480,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 */
 	function visit(self, visitor) {
 		// safari has serious maximum recursion problems
-		var sVisitor = CW.UnitTest.SerialVisitor();
+		var sVisitor = cw.UnitTest.SerialVisitor();
 		return sVisitor.traverse(visitor, self.tests);
 	},
 
@@ -487,7 +492,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 * Useful for counting the # of tests and not much else.
 	 */
 	function visitSync(self, visitor) {
-		var testVisitor = CW.UnitTest.SynchronousVisitor();
+		var testVisitor = cw.UnitTest.SynchronousVisitor();
 		testVisitor.traverse(visitor, self.tests);
 	},
 
@@ -497,7 +502,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 * Run all of the tests in the suite.
 	 */
 	function run(self, result) {
-		var installD = CW.UnitTest.installMonkeys();
+		var installD = cw.UnitTest.installMonkeys();
 
 		installD.addCallback(function _TestSuite_run_visit_cases(){
 			var d = self.visit(function (test) { return test.run(result); });
@@ -523,7 +528,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 /**
  * I represent a single unit test. Subclass me for your own tests.
  *
- * I will be instantiated once per your own test_ method, by L{CW.UnitTest.loadFromClass}.
+ * I will be instantiated once per your own test_ method, by L{cw.UnitTest.loadFromClass}.
  *
  * I know which asserts/compares are "internal" (called by my own logic) because:
  * some browsers don't have tracebacks in JS,
@@ -535,7 +540,7 @@ cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
  */
 
 
-cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
+cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Construct a test.
 	 *
@@ -591,10 +596,10 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @return: L{CW.UnitTest.AssertionError} instance.
+	 * @return: L{cw.UnitTest.AssertionError} instance.
 	 */
 	function getFailError(self, reason) {
-		return new CW.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
+		return new cw.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
 	},
 
 
@@ -603,7 +608,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: CW.UnitTest.AssertionError
+	 * @throw: cw.UnitTest.AssertionError
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -653,12 +658,12 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{CW.UnitTest.AssertionError} if C{predicate} returns
+	 * @raises L{cw.UnitTest.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
 					 /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		if (!predicate(a, b)) {
 			var msg = repr(a) + " " + description + " " + repr(b);
 			if (message != null) {
@@ -825,7 +830,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 	function assertErrorMessage(self, e, expectedMessage, _internalCall /*=false*/) {
 		var errorMessage = e.message;
-		if(!CW.UnitTest.browserAddsCrapToErrorMessages) {
+		if(!cw.UnitTest.browserAddsCrapToErrorMessages) {
 			self.assertIdentical(errorMessage, expectedMessage,
 				"Error was of wrong message: " + errorMessage, true);
 		} else {
@@ -901,7 +906,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *          a Deferred which will fire callback with a 1 item list: [the error object]
 	 *          with which the input Deferred failed
 	 *    else,
-	 *          a Deferred which will fire errback with a L{CW.UnitTest.AssertionError}.
+	 *          a Deferred which will fire errback with a L{cw.UnitTest.AssertionError}.
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
@@ -960,7 +965,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
-		CW.UnitTest.logger.info('Starting ' + self + ' ' + self._methodName);
+		cw.UnitTest.logger.info('Starting ' + self + ' ' + self._methodName);
 
 		result.startTest(self);
 
@@ -979,9 +984,9 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
-					if (anError instanceof CW.UnitTest.AssertionError) {
+					if (anError instanceof cw.UnitTest.AssertionError) {
 						result.addFailure(self, anError);
-					} else if (anError instanceof CW.UnitTest.SkipTest) {
+					} else if (anError instanceof cw.UnitTest.SkipTest) {
 						result.addSkip(self, anError);
 					} else {
 						result.addError(self, anError);
@@ -1011,9 +1016,9 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 					tearDownD.addBoth(function _TestCase_run_tearDownD_finally() {
 						if (success) {
 							var whichProblems = [];
-							for(var pendingType in CW.UnitTest.delayedCalls) {
-								for(var ticket in CW.UnitTest.delayedCalls[pendingType]) {
-									CW.UnitTest.logger.severe(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
+							for(var pendingType in cw.UnitTest.delayedCalls) {
+								for(var ticket in cw.UnitTest.delayedCalls[pendingType]) {
+									cw.UnitTest.logger.severe(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
 									whichProblems.push(pendingType);
 								}
 							}
@@ -1028,7 +1033,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 
 								// Cleanup everything. If we don't do this, test output is impossible
 								// to decipher, because delayed calls "spill over" to future tests.
-								CW.UnitTest.stopTrackingDelayedCalls();
+								cw.UnitTest.stopTrackingDelayedCalls();
 							}
 
 							if(success) {
@@ -1050,7 +1055,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 			/* errback */
 			function _TestCase_run_setUpD_errback(anError){
 				// Assertions are not allowed in C{setUp}, so we'll treat them an error.
-				if (anError instanceof CW.UnitTest.SkipTest) {
+				if (anError instanceof cw.UnitTest.SkipTest) {
 					result.addSkip(self, anError);
 				} else {
 					result.addError(self, anError);
@@ -1087,7 +1092,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof CW.UnitTest.AssertionError) {
+//			if (e instanceof cw.UnitTest.AssertionError) {
 //				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
@@ -1113,7 +1118,7 @@ cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 /**
  * Return a nicely formatted summary from the given L{TestResult}.
  */
-CW.UnitTest.formatSummary = function formatSummary(result) {
+cw.UnitTest.formatSummary = function formatSummary(result) {
 	var summary;
 	if (result.wasSuccessful()) {
 		summary = "PASSED "
@@ -1136,14 +1141,14 @@ CW.UnitTest.formatSummary = function formatSummary(result) {
 
 
 /**
- * Take a L{CW.UnitTest.TestResult} and return a DIV that contains an
+ * Take a L{cw.UnitTest.TestResult} and return a DIV that contains an
  * easily-recognizable image (for automated test systems), along with
  * a number of tests run, errored, and failed.
  * 
- * @param result: a finished L{CW.UnitTest.TestResult}
- * @type result: L{CW.UnitTest.TestResult}
+ * @param result: a finished L{cw.UnitTest.TestResult}
+ * @type result: L{cw.UnitTest.TestResult}
  */
-CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
+cw.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 	var summaryDiv = document.createElement('div');
 
 	var doneImg = document.createElement('img');
@@ -1186,10 +1191,10 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
  * right corner.
  *
  * @param test: The test to run.
- * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
+ * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
  */
-CW.UnitTest.runWeb = function runWeb(test, div) {
-	var result = CW.UnitTest.DIVTestResult(div);
+cw.UnitTest.runWeb = function runWeb(test, div) {
+	var result = cw.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){	
 		var timeTaken = new Date().getTime() - result.timeStarted;
@@ -1197,7 +1202,7 @@ CW.UnitTest.runWeb = function runWeb(test, div) {
 		var span = document.createElement('span');
 		span.style.fontWeight = 'bold';
 		var textnode = document.createTextNode(
-			CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms');
+			cw.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms');
 		span.appendChild(textnode);
 		div.appendChild(span);
 
@@ -1206,7 +1211,7 @@ CW.UnitTest.runWeb = function runWeb(test, div) {
 		var machineNode = document.createTextNode('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|');
 		div.appendChild(machineNode);
 
-		var summaryDiv = CW.UnitTest.makeSummaryDiv(result);
+		var summaryDiv = cw.UnitTest.makeSummaryDiv(result);
 		document.body.appendChild(summaryDiv);
 	});
 	return d;
@@ -1219,15 +1224,15 @@ CW.UnitTest.runWeb = function runWeb(test, div) {
  * to the console, which must have a print statement in the global object.
  *
  * @param test: The test to run.
- * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
+ * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
  */
-CW.UnitTest.runConsole = function runConsole(test) {
-	var result = CW.UnitTest.ConsoleTestResult();
+cw.UnitTest.runConsole = function runConsole(test) {
+	var result = cw.UnitTest.ConsoleTestResult();
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
-		print(CW.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
+		print(cw.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
 		// If you forget the newline at the end of this line, Node.js will drop the line completely.
 		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
 	});
@@ -1239,8 +1244,8 @@ CW.UnitTest.runConsole = function runConsole(test) {
 
 // no more subunit/spidermonkey
 /*
-CW.UnitTest.runRemote = function runRemote(test) {
-	var result = CW.UnitTest.SubunitTestClient();
+cw.UnitTest.runRemote = function runRemote(test) {
+	var result = cw.UnitTest.SubunitTestClient();
 	test.run(result);
 };*/
 
@@ -1265,7 +1270,7 @@ CW.UnitTest.runRemote = function runRemote(test) {
  * Differs from our old repr:
  *    no more superfluous spaces between items in arrays.
  */
-CW.UnitTest._makeUneval = function _makeUneval() {
+cw.UnitTest._makeUneval = function _makeUneval() {
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var protos = [];
 
@@ -1384,7 +1389,7 @@ CW.UnitTest._makeUneval = function _makeUneval() {
 	return uneval;
 }
 
-CW.UnitTest.repr = CW.UnitTest._makeUneval();
+cw.UnitTest.repr = cw.UnitTest._makeUneval();
 
 
 /**
@@ -1392,7 +1397,7 @@ CW.UnitTest.repr = CW.UnitTest._makeUneval();
  *
  * If over 1000, just return 1000.
  */
-CW.UnitTest.calculateStackLimit = function(n) {
+cw.UnitTest.calculateStackLimit = function(n) {
 	if(n === undefined) {
 		n = 0;
 	}
@@ -1402,14 +1407,14 @@ CW.UnitTest.calculateStackLimit = function(n) {
 		return 1000; // In Opera 10.10, it's actually 5000, but return 1000 for consistency.
 	}
 	try {
-		return CW.UnitTest.calculateStackLimit(n+1);
+		return cw.UnitTest.calculateStackLimit(n+1);
 	} catch(e) {
 		return n;
 	}
 }
 
 
-CW.UnitTest.estimatedStackLimit = CW.UnitTest.calculateStackLimit();
+cw.UnitTest.estimatedStackLimit = cw.UnitTest.calculateStackLimit();
 
 
 
@@ -1418,9 +1423,9 @@ CW.UnitTest.estimatedStackLimit = CW.UnitTest.calculateStackLimit();
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
  */
-cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
+cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
-//		CW.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
+//		cw.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 		var completionDeferred = new goog.async.Deferred();
 		self._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
@@ -1435,7 +1440,7 @@ cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 		// TODO: maybe a better estimate that takes into account how many tests there are.
 		// Keep in mind that IE6 x64 claims a stack limit of 129 but it might be lower in practice,
 		// so you'll have to do it right.
-		var syncCallOkay = CW.UnitTest.estimatedStackLimit > 800;
+		var syncCallOkay = cw.UnitTest.estimatedStackLimit > 800;
 
 		if (nowOn < tests.length) {
 			testCase = tests[nowOn];
@@ -1480,7 +1485,7 @@ cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 // * suite, waiting for the Deferred from a visit to fire before proceeding to
 // * the next method.
 // */
-//cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
+//cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
 //		var completionDeferred = new goog.async.Deferred();
@@ -1512,7 +1517,7 @@ cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
  *
  * This is how Divmod UnitTest worked.
  */
-cw.Class.subclass(CW.UnitTest, 'SynchronousVisitor').methods(
+cw.Class.subclass(cw.UnitTest, 'SynchronousVisitor').methods(
 	function traverse(self, visitor, tests) {
 		for (var i = 0; i < tests.length; ++i) {
 			// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
@@ -1527,8 +1532,8 @@ cw.Class.subclass(CW.UnitTest, 'SynchronousVisitor').methods(
  *
  * This is called right before the tests start, and after the teardown of *any test* that ends dirty.
  */
-CW.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
-	CW.UnitTest.delayedCalls = {
+cw.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
+	cw.UnitTest.delayedCalls = {
 		'setTimeout_pending': {},
 		'setInterval_pending': {}
 	};
@@ -1536,19 +1541,19 @@ CW.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
 
 
 // Initialize the objects
-CW.UnitTest.stopTrackingDelayedCalls();
+cw.UnitTest.stopTrackingDelayedCalls();
 
 
 // TODO: maybe generalize Timeout and Interval monkeys? with a monkeyMaker?
 
 
-CW.UnitTest.setTimeoutMonkey = function(callable, when) {
+cw.UnitTest.setTimeoutMonkey = function(callable, when) {
 	function replacementCallable(ticket) {
-		delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+		delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
 		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
 //		if(originalLen !== newLen + 1) {
-//			CW.UnitTest.logger.fine('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
+//			cw.UnitTest.logger.fine('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
 //		}
 
 		// actually run the callable
@@ -1569,14 +1574,14 @@ CW.UnitTest.setTimeoutMonkey = function(callable, when) {
 		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
 	}
 
-	CW.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
+	cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
 
 	return ticket;
 }
 
 
 
-CW.UnitTest.setIntervalMonkey = function(callable, when) {
+cw.UnitTest.setIntervalMonkey = function(callable, when) {
 	// interval callable repeats forever until we clearInterval,
 	// so we don't need any fancy replacementCallable.
 
@@ -1590,14 +1595,14 @@ CW.UnitTest.setIntervalMonkey = function(callable, when) {
 		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
 	}
 
-	CW.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
+	cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
 
 	return ticket;
 }
 
 
 
-CW.UnitTest.clearTimeoutMonkey = function(ticket) {
+cw.UnitTest.clearTimeoutMonkey = function(ticket) {
 
 	var output = null;
 
@@ -1609,13 +1614,13 @@ CW.UnitTest.clearTimeoutMonkey = function(ticket) {
 		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
 	}
 
-	delete CW.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+	delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 	return output;
 }
 
 
 
-CW.UnitTest.clearIntervalMonkey = function(ticket) {
+cw.UnitTest.clearIntervalMonkey = function(ticket) {
 
 	var output = null;
 
@@ -1627,7 +1632,7 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
 	}
 
-	delete CW.UnitTest.delayedCalls['setInterval_pending'][ticket];
+	delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
 	return output;
 }
 
@@ -1635,18 +1640,18 @@ CW.UnitTest.clearIntervalMonkey = function(ticket) {
 /**
  * This needs to be called before tests are started.
  */
-CW.UnitTest.installMonkeys = function installMonkeys() {
-	//CW.UnitTest.logger.fine('installMonkeys');
+cw.UnitTest.installMonkeys = function installMonkeys() {
+	//cw.UnitTest.logger.fine('installMonkeys');
 
 	var installD = new goog.async.Deferred();
 
-	if(CW.UnitTest.monkeysAreInstalled) {
-		//CW.UnitTest.logger.fine('Monkeys already installed or being installed.');
+	if(cw.UnitTest.monkeysAreInstalled) {
+		//cw.UnitTest.logger.fine('Monkeys already installed or being installed.');
 		installD.callback(null);
 		return installD;
 	}
 
-	CW.UnitTest.monkeysAreInstalled = true;
+	cw.UnitTest.monkeysAreInstalled = true;
 
 	// This _bak reference-swapping works for every browser except IE.
 	// We could just do IE global replacement + iframe original function for *all* browsers,
@@ -1660,17 +1665,17 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 		// These "backup" references to the real functions must be properties of window,
 		// at least for Firefox 3.5.
 		window.__CW_setTimeout_bak = window.setTimeout;
-		window.setTimeout = CW.UnitTest.setTimeoutMonkey;
+		window.setTimeout = cw.UnitTest.setTimeoutMonkey;
 		window.__CW_clearTimeout_bak = window.clearTimeout;
-		window.clearTimeout = CW.UnitTest.clearTimeoutMonkey;
+		window.clearTimeout = cw.UnitTest.clearTimeoutMonkey;
 
 		window.__CW_setInterval_bak = window.setInterval;
-		window.setInterval = CW.UnitTest.setIntervalMonkey;
+		window.setInterval = cw.UnitTest.setIntervalMonkey;
 		window.__CW_clearInterval_bak = window.clearInterval;
-		window.clearInterval = CW.UnitTest.clearIntervalMonkey;
+		window.clearInterval = cw.UnitTest.clearIntervalMonkey;
 		installD.callback(null);
 	} else {
-		CW.UnitTest._iframeReady = new goog.async.Deferred();
+		cw.UnitTest._iframeReady = new goog.async.Deferred();
 
 		/*
 		 * This special frame keeps unmodified versions of setTimeout,
@@ -1691,7 +1696,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 		// Setting onload attribute or .onload property doesn't work in IE (6, 7 confirmed),
 		// so attachEvent instead.
 		iframe.attachEvent("onload", function _UnitTest_fire__iframeReady(){
-			CW.UnitTest._iframeReady.callback(null);
+			cw.UnitTest._iframeReady.callback(null);
 		});
 
 		// setAttribute("style", ...  is not working in IE6 or IE7, so use .style instead.
@@ -1706,26 +1711,26 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 		}
 
 		function _IE_finishInstallMonkeys() {
-			CW.UnitTest.logger.info('_iframeReady triggered.');
+			cw.UnitTest.logger.info('_iframeReady triggered.');
 			execScript('\
 				function setTimeout(callable, when) {\
-					return CW.UnitTest.setTimeoutMonkey(callable, when);\
+					return cw.UnitTest.setTimeoutMonkey(callable, when);\
 				}\
 				function clearTimeout(ticket) {\
-					return CW.UnitTest.clearTimeoutMonkey(ticket);\
+					return cw.UnitTest.clearTimeoutMonkey(ticket);\
 				}\
 				function setInterval(callable, when) {\
-					return CW.UnitTest.setIntervalMonkey(callable, when);\
+					return cw.UnitTest.setIntervalMonkey(callable, when);\
 				}\
 				function clearInterval(ticket) {\
-					return CW.UnitTest.clearIntervalMonkey(ticket);\
+					return cw.UnitTest.clearIntervalMonkey(ticket);\
 				}'
 			);
 
 			installD.callback(null);
 		}
 
-		CW.UnitTest._iframeReady.addCallback(_IE_finishInstallMonkeys);
+		cw.UnitTest._iframeReady.addCallback(_IE_finishInstallMonkeys);
 	}
 
 	return installD;
@@ -1745,7 +1750,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
  * @rtype: array object
  * @return: the uniq'ed array.
  */
-CW.UnitTest.uniqArray = function uniqArray(a) {
+cw.UnitTest.uniqArray = function uniqArray(a) {
 	// Because JavaScript's Array.prototype.sort ignores types, it doesn't actually work. Observe:
 	// >>> a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0]
 	// >>> a.sort()
@@ -1770,7 +1775,7 @@ CW.UnitTest.uniqArray = function uniqArray(a) {
 
 
 
-cw.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
+cw.Class.subclass(cw.UnitTest, 'ClockAdvanceError');
 
 
 /**
@@ -1787,7 +1792,7 @@ cw.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
  * named functions into the outer scope, and we really can't deal with that here,
  * because the function names are "setTimeout" and so on.
  */
-cw.Class.subclass(CW.UnitTest, 'Clock').pmethods({
+cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 
 	__init__: function() {
 		var self = this;
@@ -1968,13 +1973,13 @@ cw.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 		var self = this;
 
 		if(amount < 0) {
-			throw new CW.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
+			throw new cw.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
 		}
 
 		self._rightNow += amount;
 
 		for(;;) {
-			//console.log('_calls: ', CW.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
+			//console.log('_calls: ', cw.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
 			if(self._calls.length === 0 || self._calls[0].runAt > self._rightNow) {
 				break;
 			}

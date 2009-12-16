@@ -1,9 +1,9 @@
 /**
- * Tests for CW.UnitTest, the Javascript unit-testing framework.
+ * Tests for cw.UnitTest, the Javascript unit-testing framework.
  * Uses mock test cases provided by CW.Test.*Mock
  */
 
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 // import CW.Test.Mock
 // import CW.Test.DMock
 // import CW.Test.DSMock
@@ -40,9 +40,9 @@ cw.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
 /**
  * Tests for L{TestCase}.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		self.result = cw.UnitTest.TestResult();
 		self.mockModule = CW.Test.Mock;
 	},
 
@@ -122,7 +122,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * succeeded.
 	 */
 	function test_resultAccumulation(self) {
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		var bad = self.mockModule._WasRun('test_bad');
 		var good = self.mockModule._WasRun('test_good');
 		var error = self.mockModule._WasRun('test_error');
@@ -137,8 +137,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(
-				self.result.failures[0][1] instanceof CW.UnitTest.AssertionError,
-				"self.result.failures[0][1] should have been a CW.UnitTest.AssertionError, not a: " + self.result.failures[0][1]);
+				self.result.failures[0][1] instanceof cw.UnitTest.AssertionError,
+				"self.result.failures[0][1] should have been a cw.UnitTest.AssertionError, not a: " + self.result.failures[0][1]);
 			self.assertErrorMessage(self.result.failures[0][1], "[0] fail this test deliberately");
 
 			// check the error
@@ -152,8 +152,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.skips[0].length, 2);
 			self.assertIdentical(self.result.skips[0][0], skip);
 			self.assert(
-				self.result.skips[0][1] instanceof CW.UnitTest.SkipTest,
-				"self.result.skips[0][1] should have been a CW.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
+				self.result.skips[0][1] instanceof cw.UnitTest.SkipTest,
+				"self.result.skips[0][1] should have been a cw.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
 
 			self.assertErrorMessage(self.result.errors[0][1], "error");
 			self.assertArraysEqual(self.result.successes, [good]);
@@ -179,7 +179,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 	/**
 	 * Test that neither L{tearDown} nor the test method is called when
-	 * L{setUp} throws L{CW.UnitTest.SkipTest}.
+	 * L{setUp} throws L{cw.UnitTest.SkipTest}.
 	 */
 	function test_skipTestInSetUp(self) {
 		var test = self.mockModule._SkipTestInSetUp('test_method');
@@ -271,7 +271,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * get the results of all of the tests.
 	 */
 	function test_testSuite(self) {
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		suite.addTest(self.mockModule._WasRun('test_good'));
 		suite.addTest(self.mockModule._WasRun('test_bad'));
 
@@ -290,7 +290,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	 */
 	function test_countTestCases(self) {
 		self.assertIdentical(self.countTestCases(), 1);
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		self.assertIdentical(suite.countTestCases(), 0);
 		suite.addTest(self);
 		self.assertIdentical(suite.countTestCases(), 1);
@@ -342,12 +342,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			// for the async visit() that doesn't natively return a Deferred.
 			return goog.async.Deferred.succeed(null);
 		}
-		var d = CW.UnitTest.TestSuite().visit(visitor);
+		var d = cw.UnitTest.TestSuite().visit(visitor);
 
 		d.addCallback(function(){
 			self.assertArraysEqual(log, []);
 			var tests = [self.mockModule._WasRun('test_good1'), self.mockModule._WasRun('test_good2')];
-			var suite = CW.UnitTest.TestSuite(tests);
+			var suite = cw.UnitTest.TestSuite(tests);
 
 			var d2 = suite.visit(visitor);
 			d2.addCallback(function(){
@@ -369,8 +369,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 		self.assert(
 			self.__class__.subclassOf(self.__class__),
 			"Thing should subclass itself");
-		self.assert(self.__class__.subclassOf(CW.UnitTest.TestCase));
-		self.assert(!CW.UnitTest.TestCase.subclassOf(self.__class__));
+		self.assert(self.__class__.subclassOf(cw.UnitTest.TestCase));
+		self.assert(!cw.UnitTest.TestCase.subclassOf(self.__class__));
 	}
 );
 
@@ -396,7 +396,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS
 
 CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		self.result = cw.UnitTest.TestResult();
 		// Only need to test this with L{Mock}, not DMock or DSMock.
 		self.mockModule = CW.Test.Mock;
 	},
@@ -405,7 +405,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setTimeoutLoose(self) {
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
 
@@ -426,7 +426,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setIntervalLoose(self) {
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		var error = self.mockModule._setIntervalLoose('test_method');
 		suite.addTests([error]);
 
@@ -460,7 +460,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 		// the loose call in this "parent" test
 		setTimeout(function(){}, 60);
 
-		var suite = CW.UnitTest.TestSuite();
+		var suite = cw.UnitTest.TestSuite();
 		// "child" test will have a loose call, too.
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
@@ -475,8 +475,8 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
 
 			// the inner test stopped tracking all the pending calls.
-			for (var k in CW.UnitTest.delayedCalls) {
-				self.assertArraysEqual([], goog.object.getKeys(CW.UnitTest.delayedCalls[k]));
+			for (var k in cw.UnitTest.delayedCalls) {
+				self.assertArraysEqual([], goog.object.getKeys(cw.UnitTest.delayedCalls[k]));
 			}
 		});
 		return d;
@@ -485,7 +485,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 	function setUp(self) {
 		self.mockModule = CW.Test.Mock;
@@ -499,7 +499,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 		var ids = [];
 		var visitor = function (test) { ids.push(test.id()); };
 
-		var v = CW.UnitTest.SynchronousVisitor();
+		var v = cw.UnitTest.SynchronousVisitor();
 		v.traverse(visitor, suite.tests);
 		
 		return ids;
@@ -511,7 +511,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 	 * C{TestCase} subclass that contains no tests.
 	 */
 	function test_loadFromClassEmpty(self) {
-		var suite = CW.UnitTest.loadFromClass(CW.UnitTest.TestCase);
+		var suite = cw.UnitTest.loadFromClass(cw.UnitTest.TestCase);
 		self.assertArraysEqual([], self.getTestIDs(suite));
 	},
 
@@ -521,7 +521,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 	 * test methods in a given C{TestCase} subclass.
 	 */
 	function test_loadFromClass(self) {
-		var suite = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
+		var suite = cw.UnitTest.loadFromClass(self.mockModule._WasRun);
 		self.assertArraysEqual(
 			[
 				self.mockModule.__name__ + '._WasRun.test_bad',
@@ -539,7 +539,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 	 */
 	function test_loadFromModuleEmpty(self) {
 		var module = {};
-		var suite = CW.UnitTest.loadFromModule(module);
+		var suite = cw.UnitTest.loadFromModule(module);
 
 		self.assertIdentical(suite.countTestCases(), 0);
 	},
@@ -551,9 +551,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 	 */
 	function test_loadFromModule(self) {
 		var MockThis = {'__name__': 'MockThis'};
-		MockThis.SomeTestCase = CW.UnitTest.TestCase.subclass('MockThis.SomeTestCase');
+		MockThis.SomeTestCase = cw.UnitTest.TestCase.subclass('MockThis.SomeTestCase');
 		MockThis.SomeTestCase.methods(function test_method(self) {});
-		var suite = CW.UnitTest.loadFromModule(MockThis);
+		var suite = cw.UnitTest.loadFromModule(MockThis);
 		self.assertArraysEqual(self.getTestIDs(suite), ['MockThis.SomeTestCase.test_method']);
 	},
 
@@ -563,7 +563,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 	 */
 	function test_loadFromModulesEmpty(self) {
 		var module1 = {}, module2 = {};
-		var suite = CW.UnitTest.loadFromModules([module1, module2]);
+		var suite = cw.UnitTest.loadFromModules([module1, module2]);
 
 		self.assertIdentical(suite.countTestCases(), 0);
 	}
@@ -591,9 +591,9 @@ CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS')
 
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	function setUp(self) {
-		self.result = CW.UnitTest.TestResult();
+		self.result = cw.UnitTest.TestResult();
 		self.mockModule = CW.Test.Mock;
 	},
 
@@ -604,7 +604,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	 */
 	function test_formatSummaryEmpty(self) {
 		self.assertIdentical(
-			CW.UnitTest.formatSummary(self.result),
+			cw.UnitTest.formatSummary(self.result),
 			"PASSED (tests=0)"
 		);
 	},
@@ -621,7 +621,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertIdentical(
-				CW.UnitTest.formatSummary(self.result),
+				cw.UnitTest.formatSummary(self.result),
 				"PASSED (tests=1)"
 			);
 		});
@@ -638,7 +638,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertIdentical(
-				CW.UnitTest.formatSummary(self.result),
+				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=1, failures=1)"
 			);
 		});
@@ -655,7 +655,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertIdentical(
-				CW.UnitTest.formatSummary(self.result),
+				cw.UnitTest.formatSummary(self.result),
 				"PASSED (tests=1, skips=1)"
 			);
 		});
@@ -671,7 +671,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertIdentical(
-				CW.UnitTest.formatSummary(self.result),
+				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=1, errors=1)"
 			);
 		});
@@ -684,12 +684,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 	 * has both failed and errored tests.
 	 */
 	function test_formatSummaryMultiple(self) {
-		var test = CW.UnitTest.loadFromClass(self.mockModule._WasRun);
+		var test = cw.UnitTest.loadFromClass(self.mockModule._WasRun);
 
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertIdentical(
-				CW.UnitTest.formatSummary(self.result),
+				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=4, errors=1, failures=1, skips=1)"
 			);
 		});
@@ -717,14 +717,14 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').m
 
 
 /**
- * Tests for L{CW.UnitTest.repr}.
+ * Tests for L{cw.UnitTest.repr}.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	/**
 	 * Test that repr(undefined) and repr(null) work.
 	 */
 	function test_undefinedAndNull(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		self.assertIdentical(repr(null), 'null');
 		self.assertIdentical(repr(undefined), 'undefined');
 	},
@@ -733,7 +733,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	 * Test that some simple values have a reasonable repr().
 	 */
 	function test_simpleValues(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		self.assertIdentical(repr(5), '5');
 		self.assertIdentical(repr([5]), '[5]');
 		self.assertIdentical(repr([5, 6]), '[5,6]');
@@ -752,7 +752,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 
 
 	function test_shortEscapes(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		self.assertIdentical(repr('fo\to'), '"fo\\to"');
 		self.assertIdentical(repr('fo\no'), '"fo\\no"');
 		self.assertIdentical(repr('fo\fo'), '"fo\\fo"');
@@ -765,7 +765,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	},
 
 	function test_xAndUEscapes(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		self.assertIdentical(repr('\u0000'), '"\\x00"');
 		self.assertIdentical(repr('\u000B'), '"\\x0B"'); // vertical tab; aka \v in decent browsers
 		self.assertIdentical(repr('\u0010'), '"\\x10"');
@@ -785,7 +785,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	},
 
 	function test_nestedEscaping(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 		// All the escaping still works in nested objects/arrays
 		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\x00","\\x00"]');
 		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\x00","\\x00",{"\\x00":"0"}]');
@@ -793,7 +793,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	},
 
 	function test_miscTypes(self) {
-		var repr = CW.UnitTest.repr;
+		var repr = cw.UnitTest.repr;
 	      self.assertIdentical(repr(new Date(2009, 0, 1)), "(new Date(1230796800000))");
 		self.assertIdentical(repr(/\t/), '/\\t/');
 	}
@@ -804,9 +804,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 
 
 /**
- * Tests for L{CW.UnitTest.setTimeoutMonkey} and L{CW.UnitTest.setIntervalMonkey}.
+ * Tests for L{cw.UnitTest.setTimeoutMonkey} and L{cw.UnitTest.setIntervalMonkey}.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 	/**
 	 * Test that setTimeout and clearTimeout are special actions that save ticket numbers,
 	 * and can be cancelled, and do actually stop when cancelled.
@@ -824,25 +824,25 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		self._ticket1 = setTimeout(neverRunMe, 10);
-		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
+		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 
 		self._ticket2 = setTimeout(pleaseRunMe, 11);
-		self.assertIdentical(2, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
+		self.assertIdentical(2, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
 		clearTimeout(self._ticket1);
 		// ticket2 is *not* cleared. we want to test that setTimeout does work.
-		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
-		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
+		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
 		var d = new goog.async.Deferred();
 
 		d.addCallback(function() {
 			self.assertIdentical(false, neverRunMeWasRun);
 			self.assertIdentical(true, pleaseRunMeWasRun);
-			self.assertIdentical(0, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+			self.assertIdentical(0, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
 		});
 
 		setTimeout(function(){d.callback(null)}, 30);
@@ -867,18 +867,18 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		self._ticket1 = setInterval(neverRunMe, 10);
-		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
+		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 
 		self._ticket2 = setInterval(pleaseRunMe, 10);
-		self.assertIdentical(2, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
+		self.assertIdentical(2, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
 		clearInterval(self._ticket1);
 		// ticket2 is *not* cleared yet. we want to test that setInterval does work.
-		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
-		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
-		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
+		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
+		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
 		var d = new goog.async.Deferred();
 
@@ -886,9 +886,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 			self.assertIdentical(0, neverRunMeWasRun);
 			// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
 			self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
-			self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+			self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
 			clearInterval(self._ticket2);
-			self.assertIdentical(0, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+			self.assertIdentical(0, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
 		});
 
 		setTimeout(function(){d.callback(null)}, 35);
@@ -905,19 +905,19 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 
 
 /**
- * Tests for L{CW.UnitTest.uniqArray}
+ * Tests for L{cw.UnitTest.uniqArray}
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 	function test_returnsArray(self) {
 		var a = [3, 2];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assert(b.length !== undefined);
 	},
 
 	function test_noMutation(self) {
 		var a = [3, 3, 2];
-		CW.UnitTest.uniqArray(a);
+		cw.UnitTest.uniqArray(a);
 		self.assertEqual([3, 3, 2], a);
 	},
 
@@ -925,28 +925,28 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 	function test_numbersDupesAtEnd(self) {
 		var a = [3, 3, 2, 0, -2];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual([-2, 0, 2, 3], b);
 	},
 
 
 	function test_numbersDupesInMiddle(self) {
 		var a = [3, 3, 2, 2, 0, -2];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual([-2, 0, 2, 3], b);
 	},
 
 
 	function test_numbersDupesAtStart(self) {
 		var a = [3, 3, 2, 0, -2, -2, -2];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual([-2, 0, 2, 3], b);
 	},
 
 
 	function test_numbersAndStrings(self) {
 		var a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		// How strings and numbers are mixed in a sorted array varies accross browsers,
 		// so we'll just check the length.
 		self.assertEqual(6, b.length);
@@ -955,21 +955,21 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 	function test_strings(self) {
 		var a = ['2', '2', '2'];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual(['2'], b);
 	},
 
 
 	function test_other(self) {
 		var a = [null, undefined, NaN, Infinity, true, false];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual(6, b.length);
 	},
 
 
 	function test_otherWithDupes(self) {
 		var a = [true, null, undefined, NaN, false, Infinity, undefined, true, false];
-		var b = CW.UnitTest.uniqArray(a);
+		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual(6, b.length);
 	}
 );
@@ -977,16 +977,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 
 /**
- * Tests for L{CW.UnitTest.Clock}
+ * Tests for L{cw.UnitTest.Clock}
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 	/**
 	 * setTimeout and setInterval return tickets from the same pool
 	 * of numbers. None of the ticket numbers are the same.
 	 */
 	function test_setWhateverUseGlobalCounter(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var tickets = [
 			clock.setTimeout(function(){}, 0),
 			clock.setTimeout(function(){}, 0),
@@ -994,14 +994,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 			clock.setInterval(function(){}, 1)
 		];
 
-		self.assertEqual(4, CW.UnitTest.uniqArray(tickets).length);
+		self.assertEqual(4, cw.UnitTest.uniqArray(tickets).length);
 	},
 
 	/**
 	 * clearTimeout
 	 */
 	function test_clearTimeout(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var ticket1 = clock.setTimeout(function(){}, 0);
 		var ticket2 = clock.setTimeout(function(){}, 0);
 		var ticket3 = clock.setTimeout(function(){}, 0);
@@ -1027,14 +1027,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_clearBogusIntervals(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		self.assertEqual(undefined, clock.clearTimeout(-1237897661782631241233143));
 		self.assertEqual(undefined, clock.clearInterval(1237897661782631241233143));
 	},
 
 
 	function test_clearTimeoutCanClearInterval(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var ticket1 = clock.setInterval(function(){}, 1);
 		self.assertEqual(1, clock._countPendingEvents());
 		clock.clearTimeout(ticket1);
@@ -1043,7 +1043,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_advanceTwoTimeoutsSeperately(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = false;
 		var called2 = false;
 		clock.setTimeout(function(){called1 = true}, 3);
@@ -1062,7 +1062,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_advanceTwoTimeoutsAtSameTime(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = false;
 		var called2 = false;
 		clock.setTimeout(function(){called1 = true}, 2);
@@ -1078,7 +1078,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_advanceSlowlyInterval(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
 		clock.setInterval(function(){called1 += 1}, 2);
@@ -1099,7 +1099,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_advanceQuicklyInterval(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
 		clock.setInterval(function(){called1 += 1}, 2);
@@ -1112,7 +1112,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_reentrantAddCalls(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var immediateCall = false;
 		var called2 = 0;
@@ -1139,7 +1139,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 	 * Test that intervals can be cleared from inside a callable.
 	 */
 	function test_clearIntervalInsideCallable(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
 		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
@@ -1165,7 +1165,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 	 * once.
 	 */
 	function test_clearIntervalAppliesImmediately(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
 		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
@@ -1178,7 +1178,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_reentrantAdvance(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var called1 = 0;
 		var called2 = 0;
 		var called3 = 0;
@@ -1202,7 +1202,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 			self.assert(this === window, "this !== window");
 			called = 1;
 		}
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		clock.setTimeout(callable, 1);
 		clock.advance(1);
 		self.assert(called === 1, "callable wasn't even called?");
@@ -1210,14 +1210,14 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
 
 
 	function test_clockAdvanceError(self) {
-		var clock = new CW.UnitTest.Clock();
-		self.assertThrows(CW.UnitTest.ClockAdvanceError, function(){clock.advance(-1);});
-		self.assertThrows(CW.UnitTest.ClockAdvanceError, function(){clock.advance(-0.5);});
+		var clock = new cw.UnitTest.Clock();
+		self.assertThrows(cw.UnitTest.ClockAdvanceError, function(){clock.advance(-1);});
+		self.assertThrows(cw.UnitTest.ClockAdvanceError, function(){clock.advance(-0.5);});
 	},
 
 
 	function test_dateObject(self) {
-		var clock = new CW.UnitTest.Clock();
+		var clock = new cw.UnitTest.Clock();
 		var date = new clock.Date();
 		self.assertEqual(0, date.getTime());
 		clock.advance(1001);

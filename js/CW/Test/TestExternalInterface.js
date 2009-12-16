@@ -1,4 +1,4 @@
-// import CW.UnitTest
+goog.require('cw.UnitTest');
 
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
@@ -20,7 +20,7 @@ goog.require('cw.externalinterface');
  */
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
 
 	function _func1(self, str) {
 		return '<invoke name="func1" returntype="javascript"><arguments>'+str+'</arguments></invoke>';
@@ -175,11 +175,11 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 );
 
 
-CW.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
+cw.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
 		if(swfobject.ua.pv[0] < 9) {
-			throw new CW.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
+			throw new cw.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
 		}
 
 		// The .swf applet persists between tests.
