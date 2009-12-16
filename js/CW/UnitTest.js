@@ -13,6 +13,8 @@ goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.Error');
+goog.require('goog.debug.Console'); // needed for TestRunnerPage
+goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
 goog.require('goog.string');
 
 
@@ -1172,8 +1174,7 @@ CW.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
  * @param test: The test to run.
  * @type test: L{CW.UnitTest.TestCase} or L{CW.UnitTest.TestSuite}
  */
-CW.UnitTest.runWeb = function runWeb(test) {
-	var div = document.getElementById('CW-test-log');
+CW.UnitTest.runWeb = function runWeb(test, div) {
 	var result = CW.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){	

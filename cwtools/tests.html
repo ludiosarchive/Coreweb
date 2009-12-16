@@ -15,10 +15,10 @@ div, p, body {
 }
 </style>
 
-<a href="#" onclick="TestRunnerPage.toggleVisibility('CW-debug-log');return false">Show/hide debug log</a><br>
+<a href="#" onclick="TestRunnerPage.toggleVisibility('TestRunnerPage-log');return false">Show/hide debug log</a><br>
 
-<div id="CW-debug-log" style="background-color:#ddd;display:none"></div>
-<div id="CW-test-log" style="background-color:#ccc"></div>
+<div id="TestRunnerPage-log" style="background-color:#ddd;display:none"></div>
+<div id="TestRunnerPage-results" style="background-color:#ccc"></div>
 
 
 <script>
@@ -77,7 +77,8 @@ TestRunnerPage.startTests = function() {
 	var modules = /***/moduleString//;
 	var suite = CW.UnitTest.loadFromModules(modules);
 
-	var d = CW.UnitTest.runWeb(suite);
+	var outputDiv = document.getElementById('TestRunnerPage-results');
+	var d = CW.UnitTest.runWeb(suite, outputDiv);
 	d.addCallback(TestRunnerPage.logNewProps);
 }
 
@@ -115,6 +116,29 @@ if(TestRunnerPage._abortExecution) {
 
 </script>
 <script>
+
+/*
+ * Set up the Firebug console as a log observer.
+ */
+if (!goog.debug.Console.instance) {
+	goog.debug.Console.instance = new goog.debug.Console();
+}
+
+goog.debug.Console.instance.setCapturing(true);
+
+
+TestRunnerPage._htmlFormatter = new goog.debug.HtmlFormatter();
+
+TestRunnerPage._debugLogDiv = document.getElementById('TestRunnerPage-log')
+TestRunnerPage._htmlLogOutput = function(logRecord) {
+	var htmlString = TestRunnerPage._htmlFormatter.formatRecord(logRecord);
+
+	var span = document.createElement("span");
+	span.innerHTML = htmlString;
+	TestRunnerPage._debugLogDiv.appendChild(span);
+}
+goog.debug.LogManager.getRoot().addHandler(TestRunnerPage._htmlLogOutput);
+
 
 // This assumes goog.debug.Logger was included in scriptContent. Maybe a bad assumption.
 
