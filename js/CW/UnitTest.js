@@ -1371,31 +1371,6 @@ CW.UnitTest._makeUneval = function _makeUneval() {
 
 CW.UnitTest.repr = CW.UnitTest._makeUneval();
 
-//
-//CW.UnitTest.repr = function repr(value) {
-//
-//	var cgiEscape = function(s) {
-//		return value.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
-//	}
-//
-//	// We can't call methods on undefined or null.
-//	if (value === undefined) {
-//		return 'undefined';
-//	} else if (value === null) {
-//		return 'null';
-//	} else if (typeof value === 'string') {
-//		return '"' + cgiEscape(value).replace(/"/g, '\\"') + '"';
-//	} else if (typeof value === 'number') {
-//		return '' + value;
-//	} else if (value.toSource !== undefined) {
-//		return value.toSource();
-//	} else if (value.toString !== undefined) {
-//		return value.toString();
-//	} else {
-//		return '' + value;
-//	}
-//};
-
 
 /* copy pasted from Nevow.Athena.Test.
 *
