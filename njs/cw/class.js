@@ -29,7 +29,7 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 
 	cw._makeExpectedGlobalProperties = function() {
 
-		globalsArray = [];
+		var globalsArray = [];
 
 		// *** From qooxdoo/qooxdoo/tool/pylib/ecmascript/frontend/lang.py ***
 
@@ -160,7 +160,7 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 
 		// Now turn it into an object
 
-		expectedGlobalProperties = {};
+		var expectedGlobalProperties = {};
 		var n = globalsArray.length;
 		while(n--) {
 			expectedGlobalProperties[globalsArray[n]] = true;
