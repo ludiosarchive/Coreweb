@@ -1,0 +1,43 @@
+<!doctype html>
+<body>
+<p>
+
+Does the browser historically run all the setIntervals it should have run,
+after the computer wakes up from sleep?<br><br>
+
+Firefox 3.5/Win: no<br>
+Firefox 4/Win: no<br>
+IE6/Win: no<br>
+
+</p>
+
+<p>This seems like a good design choice for browsers, because many
+webpages use setInterval, and running some function a million times
+after the computer wakes up from sleep could be disastrous.</p>
+
+<pre>
+Copied from goog/timer/timer.js:
+
+    // IMPORTANT!
+    // window.setInterval in FireFox has a bug - it fires based on
+    // absolute time, rather than on relative time. What this means
+    // is that if a computer is sleeping/hibernating for 24 hours
+    // and the timer interval was configured to fire every 1000ms,
+    // then after the PC wakes up the timer will fire, in rapid
+    // succession, 3600*24 times.
+    // This bug is described here and is already fixed, but it will
+    // take time to propagate, so for now I am switching this over
+    // to setTimeout logic.
+    //     https://bugzilla.mozilla.org/show_bug.cgi?id=376643
+    //
+</pre>
+
+<script>
+
+function blah() {
+	document.body.innerHTML += new Date().getTime() + '<br>'
+}
+
+setInterval(blah, 1000);
+
+</script>
