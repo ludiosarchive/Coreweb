@@ -82,3 +82,27 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestString, 'FormatTests').methods(
 	}
 );
 
+
+
+CW.UnitTest.TestCase.subclass(CW.Test.TestString, 'StartsWithAltTests').methods(
+	/**
+	 * Check that startswith works as expected.
+	 */
+	function test_startswith(self) {
+		self.assert(cw.string.startsWithAlt("hello", "h"));
+		self.assert(cw.string.startsWithAlt("hello", ""));
+		self.assert(cw.string.startsWithAlt("hello", "hell"));
+		self.assert(cw.string.startsWithAlt("hello", "hello"));
+		self.assert(!cw.string.startsWithAlt("something else", "not related"));
+		self.assert(!cw.string.startsWithAlt("not related", "something else"));
+		self.assert(!cw.string.startsWithAlt("hello", "hello!"));
+		self.assertThrows(Error, function(){self.assert(!cw.string.startsWithAlt(null, "hello"));});
+		self.assertThrows(Error, function(){self.assert(!cw.string.startsWithAlt("hello", null));});
+		self.assertThrows(Error, function(){self.assert(!cw.string.startsWithAlt(undefined, "hello"));});
+		self.assertThrows(Error, function(){self.assert(!cw.string.startsWithAlt("hello", undefined));});
+		self.assert(!cw.string.startsWithAlt("3he", 3));
+		self.assertThrows(Error, function(){cw.string.startsWithAlt(3, "3");});
+		self.assertThrows(Error, function(){cw.string.startsWithAlt(33, "33");});
+		self.assertThrows(Error, function(){cw.string.startsWithAlt(33, "3");});
+	}
+);

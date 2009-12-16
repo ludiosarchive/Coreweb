@@ -591,18 +591,6 @@ if(window.node && window.ENV && window.ENV.UNITTEST_LOGFILE) {
 }
 
 
-
-/**
- * Return C{true} if L{haystack} starts with L{starter}, else C{false}.
- *
- * goog.string.startsWith uses indexOf, which might be faster than this.
- */
-CW.startswith = function(haystack, starter) {
-	 // '==' seems to work the same; unit tests still pass
-	return !!(haystack.substr(0, starter.length) === starter);
-};
-
-
 /**
  * Raised by CW.UnitTest to indicate that a test has failed. For your
  * own asserts, use goog.asserts

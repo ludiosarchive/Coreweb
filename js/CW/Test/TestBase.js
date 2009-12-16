@@ -73,31 +73,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
 );
 
 
-
-CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'StartsWithTests').methods(
-	/**
-	 * Check that startswith works as expected.
-	 */
-	function test_startswith(self) {
-		self.assert(CW.startswith("hello", "h"));
-		self.assert(CW.startswith("hello", ""));
-		self.assert(CW.startswith("hello", "hell"));
-		self.assert(CW.startswith("hello", "hello"));
-		self.assert(!CW.startswith("something else", "not related"));
-		self.assert(!CW.startswith("not related", "something else"));
-		self.assert(!CW.startswith("hello", "hello!"));
-		self.assertThrows(Error, function(){self.assert(!CW.startswith(null, "hello"));});
-		self.assertThrows(Error, function(){self.assert(!CW.startswith("hello", null));});
-		self.assertThrows(Error, function(){self.assert(!CW.startswith(undefined, "hello"));});
-		self.assertThrows(Error, function(){self.assert(!CW.startswith("hello", undefined));});
-		self.assert(!CW.startswith("3he", 3));
-		self.assertThrows(Error, function(){CW.startswith(3, "3");});
-		self.assertThrows(Error, function(){CW.startswith(33, "33");});
-		self.assertThrows(Error, function(){CW.startswith(33, "3");});
-	}
-);
-
-
 CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestInspect').methods(
 	/**
 	 * Test that L{CW.methods} returns all the methods of a class

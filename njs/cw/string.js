@@ -52,3 +52,20 @@ cw.string.format = function(_string, var_args) { // arguments only for Closure C
 		return values[which];
 	});
 };
+
+
+
+/**
+ * String prefix checker.
+ *
+ * Use this instead of L{goog.string.startsWith} if your C{str}
+ * is big and it is unlikely to start with C{start}
+ *
+ * @param {string} str The string to check.
+ * @param {string} prefix A string to look for at the start of {@code str}.
+ * @return {boolean} True if {@code str} begins with {@code prefix}.
+ */
+cw.string.startsWithAlt = function(str, prefix) {
+	 // '==' works the same as '===' in this case
+	return !!(str.substr(0, prefix.length) == prefix);
+};
