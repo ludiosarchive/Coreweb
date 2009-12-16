@@ -1,11 +1,12 @@
 goog.require('cw.UnitTest');
-
 goog.require('cw.string');
+
+goog.provide('cw.Test.TestString');
 
 /**
  * Check that split works as expected.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestString, 'SplitTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'SplitTests').methods(
 	function test_splitUnlimited(self) {
 		self.assertArraysEqual(["", "ello"], cw.string.split("hello", "h"));
 		self.assertArraysEqual(["", ""], cw.string.split("hello", "hello"));
@@ -50,7 +51,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestString, 'SplitTests').methods(
 /**
  * Check that cw.string.format works.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestString, 'FormatTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'FormatTests').methods(
 
 	function test_format(self) {
 		self.assertEqual("hello", cw.string.format("hell{0}", "o"));
@@ -84,7 +85,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestString, 'FormatTests').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestString, 'StartsWithAltTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'StartsWithAltTests').methods(
 	/**
 	 * Check that startswith works as expected.
 	 */

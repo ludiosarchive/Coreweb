@@ -1,9 +1,10 @@
 goog.require('cw.UnitTest');
-
 goog.require('cw.URI');
 
+goog.provide('cw.Test.TestURI');
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
+
+cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'functionalTests').methods(
 
 	function test_urisplit(self) {
 
@@ -180,7 +181,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 );
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 
 	function test_fullURL(self) {
 		var URL = cw.URI.URL;
@@ -258,7 +259,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').methods(
 
 	function test_fullURLDefaultsUnknownScheme(self) {
 		var URL = cw.URI.URL;

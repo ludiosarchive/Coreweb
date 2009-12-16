@@ -1,23 +1,24 @@
 /**
  * Tests for cw.UnitTest, the Javascript unit-testing framework.
- * Uses mock test cases provided by CW.Test.*Mock
+ * Uses mock test cases provided by cw.Test.*Mock
  */
 
-goog.require('cw.UnitTest');
-// import CW.Test.Mock
-// import CW.Test.DMock
-// import CW.Test.DSMock
-
 goog.require('cw.Class');
+goog.require('cw.UnitTest');
+goog.require('cw.Test.Mock');
+goog.require('cw.Test.DMock');
+goog.require('cw.Test.DSMock');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
+
+goog.provide('cw.Test.TestUnitTest');
 
 
 /**
  * A mock L{TestResult} object that we use to test that L{startTest} and L{stopTest}
  * are called appropriately.
  */
-cw.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
+cw.Class.subclass(cw.Test.TestUnitTest, 'MockResult').methods(
 	function __init__(self) {
 		self.log = '';
 	},
@@ -40,10 +41,10 @@ cw.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
 /**
  * Tests for L{TestCase}.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function setUp(self) {
 		self.result = cw.UnitTest.TestResult();
-		self.mockModule = CW.Test.Mock;
+		self.mockModule = cw.Test.Mock;
 	},
 
 	/**
@@ -255,7 +256,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_startAndStopTest(self) {
 		var test = self.mockModule._WasRun('test_good');
 		var id = test.id();
-		var result = CW.Test.TestUnitTest.MockResult();
+		var result = cw.Test.TestUnitTest.MockResult();
 		var d = test.run(result);
 		d.addCallback(function(){
 			self.assertIdentical(
@@ -376,29 +377,29 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestD').methods(
+cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
+		self.mockModule = cw.Test.DMock;
 	}
 );
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestDS').methods(
+cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
+		self.mockModule = cw.Test.DSMock;
 	}
 );
 
 
 
-CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
+cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
 	function setUp(self) {
 		self.result = cw.UnitTest.TestResult();
 		// Only need to test this with L{Mock}, not DMock or DSMock.
-		self.mockModule = CW.Test.Mock;
+		self.mockModule = cw.Test.Mock;
 	},
 
 	/**
@@ -485,10 +486,10 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest ,'LoaderTests').methods(
 
 	function setUp(self) {
-		self.mockModule = CW.Test.Mock;
+		self.mockModule = cw.Test.Mock;
 	},
 
 
@@ -573,28 +574,28 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest ,'LoaderTests').methods(
 
 
 
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsD').methods(
+cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
+		self.mockModule = cw.Test.DMock;
 	}
 );
 
 
 
-CW.Test.TestUnitTest.LoaderTests.subclass(CW.Test.TestUnitTest, 'LoaderTestsDS').methods(
+cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
+		self.mockModule = cw.Test.DSMock;
 	}
 );
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 	function setUp(self) {
 		self.result = cw.UnitTest.TestResult();
-		self.mockModule = CW.Test.Mock;
+		self.mockModule = cw.Test.Mock;
 	},
 
 
@@ -699,19 +700,19 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'RunnerTest').methods(
 
 
 
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestD').methods(
+cw.Test.TestUnitTest.RunnerTest.subclass(cw.Test.TestUnitTest, 'RunnerTestD').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DMock;
+		self.mockModule = cw.Test.DMock;
 	}
 );
 
 
 
-CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').methods(
+cw.Test.TestUnitTest.RunnerTest.subclass(cw.Test.TestUnitTest, 'RunnerTestDS').methods(
 	function setUp(self) {
 		self.__class__.upcall(self, 'setUp', []);
-		self.mockModule = CW.Test.DSMock;
+		self.mockModule = cw.Test.DSMock;
 	}
 );
 
@@ -719,7 +720,7 @@ CW.Test.TestUnitTest.RunnerTest.subclass(CW.Test.TestUnitTest, 'RunnerTestDS').m
 /**
  * Tests for L{cw.UnitTest.repr}.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ReprTests').methods(
 	/**
 	 * Test that repr(undefined) and repr(null) work.
 	 */
@@ -806,7 +807,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 /**
  * Tests for L{cw.UnitTest.setTimeoutMonkey} and L{cw.UnitTest.setIntervalMonkey}.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 	/**
 	 * Test that setTimeout and clearTimeout are special actions that save ticket numbers,
 	 * and can be cancelled, and do actually stop when cancelled.
@@ -907,7 +908,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 /**
  * Tests for L{cw.UnitTest.uniqArray}
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'UniqArrayTests').methods(
 
 	function test_returnsArray(self) {
 		var a = [3, 2];
@@ -979,7 +980,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'UniqArrayTests').methods(
 /**
  * Tests for L{cw.UnitTest.Clock}
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ClockTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
 
 	/**
 	 * setTimeout and setInterval return tickets from the same pool

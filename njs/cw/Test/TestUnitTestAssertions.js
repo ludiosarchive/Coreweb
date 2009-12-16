@@ -1,29 +1,29 @@
 goog.require('cw.UnitTest');
-
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug.Error');
 
+goog.provide('cw.Test.TestUnitTestAssertions');
 
 /**
  * Just for testing.
  */
-CW.Test.TestUnitTestAssertions.SpecialError = function(opt_msg) {
+cw.Test.TestUnitTestAssertions.SpecialError = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
 };
-goog.inherits(CW.Test.TestUnitTestAssertions.SpecialError, goog.debug.Error);
-CW.Test.TestUnitTestAssertions.SpecialError.prototype.name = 'CW.Test.TestUnitTestAssertions.SpecialError';
+goog.inherits(cw.Test.TestUnitTestAssertions.SpecialError, goog.debug.Error);
+cw.Test.TestUnitTestAssertions.SpecialError.prototype.name = 'cw.Test.TestUnitTestAssertions.SpecialError';
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, '_StartsWithUnderscore').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, '_StartsWithUnderscore').methods(
 	function test_nothing(self) {
 
 	}
 );
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'EndsWithUnderscore_').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'EndsWithUnderscore_').methods(
 	function test_nothing(self) {
 
 	}
@@ -34,7 +34,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'EndsWithUnderscor
 /**
  * Tests for assertions in L{cw.UnitTest.TestCase}.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').methods(
 	/**
 	 * Test that L{assert} raises an exception if its expression is false.
 	 */
@@ -52,10 +52,10 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_isTestCaseClass(self) {
 		self.assertIdentical(
 			true, cw.UnitTest.isTestCaseClass(
-				CW.Test.TestUnitTestAssertions.AssertionTests));
+				cw.Test.TestUnitTestAssertions.AssertionTests));
 		self.assertIdentical(
 			false, cw.UnitTest.isTestCaseClass(
-				CW.Test.TestUnitTestAssertions.AssertionTests()));
+				cw.Test.TestUnitTestAssertions.AssertionTests()));
 		self.assertIdentical(
 			false, cw.UnitTest.isTestCaseClass(
 				1));
@@ -71,20 +71,20 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		// copy/paste from above; changed method name.
 		self.assertIdentical(
 			true, cw.UnitTest.isRunnableTestCaseClass(
-				CW.Test.TestUnitTestAssertions.AssertionTests));
+				cw.Test.TestUnitTestAssertions.AssertionTests));
 		self.assertIdentical(
 			false, cw.UnitTest.isRunnableTestCaseClass(
-				CW.Test.TestUnitTestAssertions.AssertionTests()));
+				cw.Test.TestUnitTestAssertions.AssertionTests()));
 		self.assertIdentical(
 			false, cw.UnitTest.isRunnableTestCaseClass(
 				1));
 
 		self.assertIdentical(
 			false, cw.UnitTest.isRunnableTestCaseClass(
-				CW.Test.TestUnitTestAssertions._StartsWithUnderscore));
+				cw.Test.TestUnitTestAssertions._StartsWithUnderscore));
 		self.assertIdentical(
 			true, cw.UnitTest.isRunnableTestCaseClass(
-				CW.Test.TestUnitTestAssertions.EndsWithUnderscore_));
+				cw.Test.TestUnitTestAssertions.EndsWithUnderscore_));
 	},
 
 
@@ -181,7 +181,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 		try {
 			self.assertThrows(
 				cw.UnitTest.AssertionError,
-				function() { throw new CW.Test.TestUnitTestAssertions.SpecialError(); }
+				function() { throw new cw.Test.TestUnitTestAssertions.SpecialError(); }
 			);
 			raised = false;
 		} catch (e) {
@@ -202,8 +202,8 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_assertThrowsWrongMessage(self) {
 		var raised = true;
 		try {
-			self.assertThrows(CW.Test.TestUnitTestAssertions.SpecialError,
-							  function() { throw new CW.Test.TestUnitTestAssertions.SpecialError("correct message"); }, "wrong message");
+			self.assertThrows(cw.Test.TestUnitTestAssertions.SpecialError,
+							  function() { throw new cw.Test.TestUnitTestAssertions.SpecialError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
 			if (!(e instanceof cw.UnitTest.AssertionError)) {

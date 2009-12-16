@@ -1,10 +1,10 @@
 goog.require('cw.UnitTest');
-
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
 goog.require('swfobject');
-
 goog.require('cw.externalinterface');
+
+goog.provide('cw.Test.TestExternalInterface');
 
 // TODO: test object with keys that are inherited from Object.prototype
 // TODO: same as above, except hasOwnProperty on the object has been deleted
@@ -20,7 +20,7 @@ goog.require('cw.externalinterface');
  */
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').methods(
 
 	function _func1(self, str) {
 		return '<invoke name="func1" returntype="javascript"><arguments>'+str+'</arguments></invoke>';
@@ -175,7 +175,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestSerializer').m
 );
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestExternalInterface, 'TestRealFlash').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
 		if(swfobject.ua.pv[0] < 9) {

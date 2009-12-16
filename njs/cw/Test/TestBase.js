@@ -3,12 +3,13 @@
  */
 
 goog.require('cw.UnitTest');
-
 goog.require('goog.userAgent');
 goog.require('goog.array');
 
+goog.provide('cw.Test.TestBase');
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestBase, 'ArraysEqualTests').methods(
+
+cw.UnitTest.TestCase.subclass(cw.Test.TestBase, 'ArraysEqualTests').methods(
 	/**
 	 * Check that arrays which contain identical elements are considered
 	 * equal.

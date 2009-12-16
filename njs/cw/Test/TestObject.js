@@ -4,11 +4,12 @@
 
 
 goog.require('cw.UnitTest');
-
 goog.require('cw.Class');
 
+goog.provide('cw.Test.TestObject');
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
+
+cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestObject').methods(
 
 	function test_class(self) {
 		var Eater = cw.Class.subclass('Eater');
@@ -75,12 +76,12 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 	 * subclass name to the global namespace.
 	 */
 	function test_twoParamSubclass(self) {
-		var cls = cw.Class.subclass(CW.Test.TestObject, 'InheritTest');
+		var cls = cw.Class.subclass(cw.Test.TestObject, 'InheritTest');
 		try {
-			self.assertIdentical(CW.Test.TestObject.InheritTest, cls);
-			self.assertIdentical(cls.__name__, 'CW.Test.TestObject.InheritTest');
+			self.assertIdentical(cw.Test.TestObject.InheritTest, cls);
+			self.assertIdentical(cls.__name__, 'cw.Test.TestObject.InheritTest');
 		} finally {
-			delete CW.Test.TestObject.InheritTest;
+			delete cw.Test.TestObject.InheritTest;
 		}
 	},
 
@@ -89,8 +90,8 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 	 * Modules have a __name__ attribute which gives their name.
 	 */
 	function test_moduleName(self) {
-		var mod = CW.Test.TestObject;
-		self.assertIdentical(mod.__name__, 'CW.Test.TestObject');
+		var mod = cw.Test.TestObject;
+		self.assertIdentical(mod.__name__, 'cw.Test.TestObject');
 	},
 
 
@@ -165,7 +166,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 
 	/**
-	 * Test that L{CW.__instanceCounter__} is incremented when a class is
+	 * Test that L{cw.Class.__instanceCounter__} is incremented when a class is
 	 * instantiated.
 	 */
 	function test_instanceCounterIncremented(self) {
@@ -234,48 +235,6 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 	},
 
 
-//	function test_namedAny(self) {
-//		self.assert(CW.namedAny('not.a.real.package.or.name') == undefined);
-//		self.assert(CW.namedAny('CW') == CW);
-//		self.assert(CW.namedAny('CW.namedAny') == CW.namedAny);
-//
-//		var path = [];
-//		self.assert(CW.namedAny('CW', path) == CW);
-//		self.assert(path.length == 0);
-//
-//		self.assert(CW.namedAny('CW.namedAny', path) == CW.namedAny);
-//		self.assert(path.length == 1);
-//		self.assert(path[0] == CW);
-//	},
-
-
-//	/**
-//	 * Test that L{CW.objectify} properly zips two lists into an object with
-//	 * properties from the first list bound to the objects from the second.
-//	 */
-//	function test_objectify(self) {
-//		var keys = ["one", "two", "red", "blue"];
-//		var values = [1, 2, [255, 0, 0], [0, 0, 255]];
-//		var obj = CW.objectify(keys, values);
-//		self.assertIdentical(obj.one, 1);
-//		self.assertIdentical(obj.two, 2);
-//		self.assertArraysEqual(obj.red, [255, 0, 0]);
-//		self.assertArraysEqual(obj.blue, [0, 0, 255]);
-//
-//		/*
-//		 * Test that it fails loudly on invalid input, too.
-//		 */
-//		var msg = "Lengths of keys and values must be the same.";
-//		var error;
-//
-//		error = self.assertThrows(Error, function() { CW.objectify([], ["foo"]); });
-//		self.assertIdentical(error.getMessage(), msg);
-//
-//		error = self.assertThrows(Error, function() { CW.objectify(["foo"], []); });
-//		self.assertIdentical(error.getMessage(), msg);
-//	},
-
-
 	function test_method(self) {
 		var MethodClassTest = cw.Class.subclass('MethodClassTest');
 
@@ -305,7 +264,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestObject').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestBareObject').methods(
 
 	/*
 	 * Verify that method/methods-free classes (prototype. only) work fine.
@@ -338,7 +297,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestBareObject').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestMethodNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Method-overwrite prevention only works with DEBUG");
@@ -449,16 +408,16 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestObject, '_WithTemporary').methods(
 	function tearDown(self) {
 		try {
-			delete CW.__TestClassNoOverwrite_Temporary;
+			delete cw.Test.__TestClassNoOverwrite_Temporary;
 		} catch(e) {}
 		try {
-			delete CW.__TestBadMethodNames_Temporary;
+			delete cw.Test.__TestBadMethodNames_Temporary;
 		} catch(e) {}
 		try {
-			delete CW.__TestBadMethodNames2_Temporary;
+			delete cw.Test.__TestBadMethodNames2_Temporary;
 		} catch(e) {}
 	}
 );
@@ -468,7 +427,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, '_WithTemporary').methods(
 /**
  * Test that new-style subclassing doesn't overwrite anything (except undefined).
  */
-CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverwrite').methods(
+cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestClassNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Class-overwrite prevention only works with DEBUG");
@@ -476,10 +435,10 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverw
 	},
 
 	function test_noOverwriteClass(self) {
-		cw.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+		cw.Class.subclass(cw.Test, '__TestClassNoOverwrite_Temporary');
 
 		var makeSameClassName = function() {
-			cw.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			cw.Class.subclass(cw.Test, '__TestClassNoOverwrite_Temporary');
 		}
 
 		self.assertThrows(Error, makeSameClassName);
@@ -487,10 +446,10 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverw
 
 
 	function test_noOverwriteNumber(self) {
-		CW.__TestClassNoOverwrite_Temporary = 4;
+		cw.Test.__TestClassNoOverwrite_Temporary = 4;
 
 		var makeSameClassName = function() {
-			cw.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			cw.Class.subclass(cw.Test, '__TestClassNoOverwrite_Temporary');
 		}
 
 		self.assertThrows(Error, makeSameClassName);
@@ -498,10 +457,10 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverw
 
 
 	function test_noOverwriteNull(self) {
-		CW.__TestClassNoOverwrite_Temporary = null;
+		cw.Test.__TestClassNoOverwrite_Temporary = null;
 
 		var makeSameClassName = function() {
-			cw.Class.subclass(CW, '__TestClassNoOverwrite_Temporary');
+			cw.Class.subclass(cw.Test, '__TestClassNoOverwrite_Temporary');
 		}
 
 		self.assertThrows(Error, makeSameClassName);
@@ -512,7 +471,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestClassNoOverw
 /**
  * Test that displayName property is set for methods (with DEBUG).
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestDisplayNameSet').methods(
 // TODO
 );
 
@@ -523,7 +482,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestObject, 'TestDisplayNameSet').methods(
  *
  * (Test with .methods())
  */
-CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNames').methods(
+cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestBadMethodNames').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
@@ -532,7 +491,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNam
 
 	function test_cannotNameMethodErroneousName(self) {
 		var attachBadMethod1 = function() {
-			cw.Class.subclass(CW, '__TestBadMethodNames_Temporary').methods(
+			cw.Class.subclass(cw.Test, '__TestBadMethodNames_Temporary').methods(
 				function crypto(){
 
 				}
@@ -540,7 +499,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNam
 		}
 
 		var attachBadMethod2 = function() {
-			cw.Class.subclass(CW, '__TestBadMethodNames2_Temporary').methods(
+			cw.Class.subclass(cw.Test, '__TestBadMethodNames2_Temporary').methods(
 				function onbeforeprint(){
 
 				}
@@ -559,7 +518,7 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestBadMethodNam
  *
  * (Test with .pmethods())
  */
-CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestPmethodsIsLenient').methods(
+cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestPmethodsIsLenient').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
@@ -568,14 +527,14 @@ CW.Test.TestObject._WithTemporary.subclass(CW.Test.TestObject, 'TestPmethodsIsLe
 
 	function test_cannotNameMethodErroneousName(self) {
 		var attachBadMethod1 = function() {
-			CW.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
+			cw.Test.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
 		}
 
 		var attachBadMethod2 = function() {
-			CW.__TestBadMethodNames_Temporary.pmethods({cw: function(){}});
+			cw.Test.__TestBadMethodNames_Temporary.pmethods({cw: function(){}});
 		}
 
-		cw.Class.subclass(CW, '__TestBadMethodNames_Temporary');
+		cw.Class.subclass(cw.Test, '__TestBadMethodNames_Temporary');
 
 		attachBadMethod1();
 		attachBadMethod2();

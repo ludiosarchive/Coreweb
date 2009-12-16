@@ -1,11 +1,12 @@
 goog.require('cw.UnitTest');
-
 goog.require('goog.userAgent');
+
+goog.provide('cw.Test.TestAssumptions');
 
 /**
  * Test assumptions about JavaScript in each browser.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'TestAssumptions').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').methods(
 	/**
 	 * Test that coercing a Date object returns the equivalent of getTime()
 	 */

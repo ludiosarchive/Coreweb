@@ -10,7 +10,7 @@
 // *    and that we get enough discrete 'readyState 3' events in browsers that do XHR streaming.
 // */
 //
-//cw.UnitTest.TestCase.subclass(CW.Test.TestAssumptions, 'XHR').methods(
+//cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'XHR').methods(
 //
 //	function setUp(self) {
 //		self.baseURL = '/test/utf8stream/?';
@@ -259,7 +259,7 @@
 // *
 // * The workaround is to never send Latin1 XHR to Firefox 3 < 3.0.7.
 // */
-//CW.Test.TestAssumptions.XHR.subclass(CW.Test.TestAssumptions, 'XHRLatin1').methods(
+//cw.Test.TestAssumptions.XHR.subclass(cw.Test.TestAssumptions, 'XHRLatin1').methods(
 //
 //	function setUp(self) {
 //		self.baseURL = '/test/latin1stream/?';
@@ -291,7 +291,7 @@
 ///**
 // * See above comment to know why it fails in Firefox 3, < 3.0.7.
 // */
-//CW.Test.TestAssumptions.XHR.subclass(CW.Test.TestAssumptions, 'RainbowXHRLatin1').methods(
+//cw.Test.TestAssumptions.XHR.subclass(cw.Test.TestAssumptions, 'RainbowXHRLatin1').methods(
 //
 //	function setUp(self) {
 //		self.baseURL = '/test/rainbow_latin1stream/?';

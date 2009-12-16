@@ -5,16 +5,18 @@
 
 goog.require('cw.UnitTest');
 
+goog.provide('cw.Test.Mock');
+
 /**
  * L{TestCase} subclass that we use as the primary subject of our tests in
  * L{TestCaseTest}.
  *
  * L{_WasRun} mostly just keeps track of which methods were called on it.
  */
-cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_WasRun').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._WasRun.upcall(self, '__init__', [methodName]);
+		cw.Test.Mock._WasRun.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -44,10 +46,10 @@ cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_WasRun').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_BadSetUp').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._BadSetUp.upcall(self, '__init__', [methodName]);
+		cw.Test.Mock._BadSetUp.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -65,7 +67,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadSetUp').methods(
 
 
 
-CW.Test.Mock._BadSetUp.subclass(CW.Test.Mock, '_SkipTestInSetUp').methods(
+cw.Test.Mock._BadSetUp.subclass(cw.Test.Mock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		throw new cw.UnitTest.SkipTest("skip in setUp");
 	}
@@ -73,10 +75,10 @@ CW.Test.Mock._BadSetUp.subclass(CW.Test.Mock, '_SkipTestInSetUp').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadTearDown').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_BadTearDown').methods(
 	function __init__(self, methodName) {
 		self.log = "";
-		CW.Test.Mock._BadTearDown.upcall(self, '__init__', [methodName]);
+		cw.Test.Mock._BadTearDown.upcall(self, '__init__', [methodName]);
 	},
 
 	function setUp(self) {
@@ -94,7 +96,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_BadTearDown').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_setTimeoutLoose').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setTimeoutLoose').methods(
 	function test_method(self) {
 		setTimeout(function(){}, 30); // was 300 before;
 		// old comment:
@@ -104,7 +106,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_setTimeoutLoose').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.Mock, '_setIntervalLoose').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setIntervalLoose').methods(
 	function test_method(self) {
 		self._interval = setInterval(function(){}, 10);
 	}

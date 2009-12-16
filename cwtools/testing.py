@@ -44,7 +44,7 @@ class TestPage(resource.Resource):
 		JSPATH = FilePath(os.environ['JSPATH'])
 		directoryScan = jsimp.DirectoryScan(JSPATH)
 
-		self.putChild('@tests', TestPage(['CW.Test'], directoryScan))
+		self.putChild('@tests', TestPage(['cw.Test'], directoryScan))
 		testres_Coreweb = FilePath(cwtools.__path__[0]).child('testres').path
 		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))
 

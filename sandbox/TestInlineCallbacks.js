@@ -6,7 +6,7 @@
 goog.require('cw.UnitTest');
 // import CW.InlineCallbacks
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestInlineCallbacks, 'TestIC').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestInlineCallbacks, 'TestIC').methods(
 	/**
 	 * Make sure that the browser's yield actually works
 	 */

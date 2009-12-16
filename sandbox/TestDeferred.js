@@ -10,7 +10,7 @@ goog.require('cw.UnitTest');
 goog.require('goog.async.Deferred');
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestFailure').methods(
 	function setUp(self) {
 		try {
 			throw new Error("message");
@@ -99,7 +99,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestFailure').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 	function test_succeedDeferred(self) {
 		var result = null;
 		var error = null;
@@ -506,7 +506,7 @@ cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'TestDeferred').methods(
 
 // These tests copied from twisted.test.test_defer
 
-cw.UnitTest.TestCase.subclass(CW.Test.TestDeferred, 'MaybeDeferredTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').methods(
 	/**
 	 * L{maybeDeferred} should retrieve the result of a synchronous
 	 * function and pass it to its resulting L{Deferred}.
