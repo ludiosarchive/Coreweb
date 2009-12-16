@@ -2,6 +2,8 @@
  * Tests for CW.Inspect
  */
 
+goog.require('goog.userAgent');
+
 // import CW.UnitTest
 // import CW.Inspect
 
@@ -29,9 +31,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 		// as for IE, there may be related info about this bug at:
 		// http://www.nabble.com/IE-and-the-%27toString%27-property---inheritance-issues-td10761491.html
 
-		var isIE='\v'=='v';
-
-		if(!isIE) {
+		if(!goog.userAgent.IE) {
 			self.assertArraysEqual(CW.Inspect.methods(TestClass),
 							   ["__init__", "method", "toString"]);
 		} else {
@@ -42,7 +42,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 		var TestSubclass = TestClass.subclass("test_inspect.test_methods.TestSubclass");
 		TestSubclass.methods(function anotherMethod() {});
 
-		if(!isIE) {
+		if(!goog.userAgent.IE) {
 			self.assertArraysEqual(CW.Inspect.methods(TestSubclass),
 								   ["__init__", "anotherMethod", "method", "toString"]);
 		} else {
@@ -60,40 +60,15 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestInspect, 'TestInspect').methods(
 		var msg = "Only classes have methods.";
 		var error;
 
-		error = self.assertThrows(
-			Error,
-			function() {
-				return CW.Inspect.methods([]);
-			});
-		self.assertErrorMessage(error, msg);
-
-		error = self.assertThrows(
-			Error,
-			function() {
-				return CW.Inspect.methods({});
-			});
-		//alert(error.message.replace('Stacktrace', 'Funtime'));
-		self.assertErrorMessage(error, msg);
-
-		error = self.assertThrows(
-			Error,
-			function() {
-				return CW.Inspect.methods(0);
-			});
-		self.assertErrorMessage(error, msg);
-
-		error = self.assertThrows(
-			Error,
-			function() {
-				return CW.Inspect.methods("");
-			});
-		self.assertErrorMessage(error, msg);
-
-		error = self.assertThrows(
-			Error,
-			function() {
-				return CW.Inspect.methods(CW.Class());
-			});
-		self.assertErrorMessage(error, msg);
+		var invalids=[{}, {}, 0, "", CW.Class()];
+		var n=invalids.length;
+		while(n--) {
+			error = self.assertThrows(
+				Error,
+				function() {
+					return CW.Inspect.methods(invalids[n]);
+				});
+			self.assertErrorMessage(error, msg);
+		}
 	}
 );
