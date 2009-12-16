@@ -3,7 +3,7 @@
 //	,STILL_READING: 2
 //};
 
-CW.Class.subclass(CW.Neptune, "XHRStream").methods(
+cw.Class.subclass(CW.Neptune, "XHRStream").methods(
 
 	function __init__(self) {
 		self.xhr = new XMLHttpRequest();

@@ -29,7 +29,7 @@ CW.Defer.logger = goog.debug.Logger.getLogger('CW.Defer');
 CW.Defer.logger.setLevel(goog.debug.Logger.Level.INFO); // Set to FINEST to see all the "no errback to throw error into" messages.
 
 
-CW.Class.subclass(CW.Defer, 'Failure').methods(
+cw.Class.subclass(CW.Defer, 'Failure').methods(
 	function __init__(self, error) {
 		self.error = error;
 	},
@@ -179,7 +179,7 @@ CW.Class.subclass(CW.Defer, 'Failure').methods(
  *      (in the future, this implementation should not use recursion, and the second
  *       reason will be obsolete)
  */
-CW.Class.subclass(CW.Defer, 'Deferred').pmethods({
+cw.Class.subclass(CW.Defer, 'Deferred').pmethods({
 
 	'__init__': function() {
 		this._callbacks = [];

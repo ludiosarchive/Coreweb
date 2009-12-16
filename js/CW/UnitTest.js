@@ -5,6 +5,7 @@
  * for Deferreds in test methods, setUp, and tearDown.
  */
 
+goog.require('cw.Class');
 goog.require('goog.array');
 goog.require('goog.object');
 goog.require('goog.userAgent');
@@ -21,6 +22,18 @@ goog.require('goog.string');
 
 CW.UnitTest.logger = goog.debug.Logger.getLogger('CW.UnitTest');
 CW.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
+
+
+/**
+ * Raised by CW.UnitTest to indicate that a test has failed. For your
+ * own asserts, use goog.asserts
+ */
+CW.UnitTest.AssertionError = function(opt_msg) {
+	goog.debug.Error.call(this, opt_msg);
+};
+goog.inherits(CW.UnitTest.AssertionError, goog.debug.Error);
+CW.UnitTest.AssertionError.prototype.name = 'CW.UnitTest.AssertionError';
+
 
 
 /**
@@ -136,7 +149,7 @@ CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type failures: Array of [L{TestCase}, L{CW.AssertionError}] pairs
+ * @type failures: Array of [L{TestCase}, L{CW.UnitTest.AssertionError}] pairs
  * @ivar failures: The assertion failures that have occurred in this test run,
  *				 paired with the tests that generated them.
  *
@@ -149,7 +162,7 @@ CW.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * 				paired with the tests that generated them.
  *
  */
-CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
+cw.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	function __init__(self) {
 		self.testsRun = 0;
 		self.successes = [];
@@ -208,7 +221,7 @@ CW.Class.subclass(CW.UnitTest, 'TestResult').methods(
 	 * @type test: L{CW.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{CW.AssertionError} instance.
+	 * @type failure: A L{CW.UnitTest.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -408,7 +421,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'SubunitTestClient').methods(
 /**
  * Represents a collection of tests. Implements the Composite pattern.
  */
-CW.Class.subclass(CW.UnitTest, 'TestSuite').methods(
+cw.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	function __init__(self, /*optional*/ tests) {
 		self.tests = [];
 		if (tests != undefined) {
@@ -522,7 +535,7 @@ CW.Class.subclass(CW.UnitTest, 'TestSuite').methods(
  */
 
 
-CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
+cw.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	/**
 	 * Construct a test.
 	 *
@@ -578,10 +591,10 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @return: L{CW.AssertionError} instance.
+	 * @return: L{CW.UnitTest.AssertionError} instance.
 	 */
 	function getFailError(self, reason) {
-		return new CW.AssertionError("[" + self._assertCounter + "] " + reason);
+		return new CW.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
 	},
 
 
@@ -590,7 +603,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: CW.AssertionError
+	 * @throw: CW.UnitTest.AssertionError
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -640,7 +653,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{CW.AssertionError} if C{predicate} returns
+	 * @raises L{CW.UnitTest.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
@@ -888,7 +901,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 	 *          a Deferred which will fire callback with a 1 item list: [the error object]
 	 *          with which the input Deferred failed
 	 *    else,
-	 *          a Deferred which will fire errback with a L{CW.AssertionError}.
+	 *          a Deferred which will fire errback with a L{CW.UnitTest.AssertionError}.
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
@@ -966,7 +979,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
-					if (anError instanceof CW.AssertionError) {
+					if (anError instanceof CW.UnitTest.AssertionError) {
 						result.addFailure(self, anError);
 					} else if (anError instanceof CW.UnitTest.SkipTest) {
 						result.addSkip(self, anError);
@@ -1074,7 +1087,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof CW.AssertionError) {
+//			if (e instanceof CW.UnitTest.AssertionError) {
 //				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
@@ -1405,7 +1418,7 @@ CW.UnitTest.estimatedStackLimit = CW.UnitTest.calculateStackLimit();
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
  */
-CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
+cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
 //		CW.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 		var completionDeferred = new goog.async.Deferred();
@@ -1467,7 +1480,7 @@ CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 // * suite, waiting for the Deferred from a visit to fire before proceeding to
 // * the next method.
 // */
-//CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
+//cw.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 //	function traverse(self, visitor, tests) {
 //		self.runTestNum = tests.length;
 //		var completionDeferred = new goog.async.Deferred();
@@ -1499,7 +1512,7 @@ CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
  *
  * This is how Divmod UnitTest worked.
  */
-CW.Class.subclass(CW.UnitTest, 'SynchronousVisitor').methods(
+cw.Class.subclass(CW.UnitTest, 'SynchronousVisitor').methods(
 	function traverse(self, visitor, tests) {
 		for (var i = 0; i < tests.length; ++i) {
 			// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
@@ -1757,7 +1770,7 @@ CW.UnitTest.uniqArray = function uniqArray(a) {
 
 
 
-CW.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
+cw.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
 
 
 /**
@@ -1774,7 +1787,7 @@ CW.Class.subclass(CW.UnitTest, 'ClockAdvanceError');
  * named functions into the outer scope, and we really can't deal with that here,
  * because the function names are "setTimeout" and so on.
  */
-CW.Class.subclass(CW.UnitTest, 'Clock').pmethods({
+cw.Class.subclass(CW.UnitTest, 'Clock').pmethods({
 
 	__init__: function() {
 		var self = this;

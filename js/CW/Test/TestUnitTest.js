@@ -8,6 +8,7 @@
 // import CW.Test.DMock
 // import CW.Test.DSMock
 
+goog.require('cw.Class');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 
@@ -16,7 +17,7 @@ goog.require('goog.async.DeferredList');
  * A mock L{TestResult} object that we use to test that L{startTest} and L{stopTest}
  * are called appropriately.
  */
-CW.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
+cw.Class.subclass(CW.Test.TestUnitTest, 'MockResult').methods(
 	function __init__(self) {
 		self.log = '';
 	},
@@ -136,8 +137,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(
-				self.result.failures[0][1] instanceof CW.AssertionError,
-				"self.result.failures[0][1] should have been a CW.AssertionError, not a: " + self.result.failures[0][1]);
+				self.result.failures[0][1] instanceof CW.UnitTest.AssertionError,
+				"self.result.failures[0][1] should have been a CW.UnitTest.AssertionError, not a: " + self.result.failures[0][1]);
 			self.assertErrorMessage(self.result.failures[0][1], "[0] fail this test deliberately");
 
 			// check the error
