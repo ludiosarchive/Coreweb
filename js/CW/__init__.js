@@ -615,23 +615,6 @@ CW.AssertionError.prototype.name = 'CW.AssertionError';
 
 
 /**
- * Assert that the given value is truthy.
- *
- * @type value: boolean
- * @param value: The thing we are asserting.
- *
- * @type message: text
- * @param message: An optional parameter, explaining what the assertion
- * means.
- */
-CW.assert = function assert(value, /* optional */ message) {
-	if (!value) {
-		throw new CW.AssertionError(message);
-	}
-}
-
-
-/**
  * Retrieve an C{Array} of C{String}s naming the methods defined on the given
  * class and its parent classes.
  */

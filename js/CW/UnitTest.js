@@ -30,7 +30,7 @@ CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 	var methods = CW.methods(testClass);
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
-		if (CW.startswith(name, prefix)) {
+		if (goog.string.startsWith(name, prefix)) {
 			suite.addTest(testClass(name));
 		}
 	}
@@ -814,7 +814,7 @@ CW.Class.subclass(CW.UnitTest, 'TestCase').methods(
 				"Error was of wrong message: " + errorMessage, true);
 		} else {
 			self.assert(
-				CW.startswith(errorMessage, expectedMessage),
+				goog.string.startsWith(errorMessage, expectedMessage),
 				"Error started with wrong message: " + errorMessage, true);
 		}
 		if(_internalCall !== true) {

@@ -98,32 +98,6 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'StartsWithTests').methods(
 );
 
 
-/**
- * Check that CW.assert works.
- */
-CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'AssertTests').methods(
-
-	function test_assertPositive(self) {
-		CW.assert(true);
-		CW.assert(true, "test_assertPositive message");
-	},
-
-
-	function test_assertNegative(self) {
-		self.assertThrows(
-			CW.AssertionError,
-			function(){CW.assert(false)}
-		);
-
-		self.assertThrows(
-			CW.AssertionError,
-			function(){CW.assert(false, "test_assertNegative message")},
-			"test_assertNegative message"
-		);
-	}
-);
-
-
 CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'TestInspect').methods(
 	/**
 	 * Test that L{CW.methods} returns all the methods of a class
