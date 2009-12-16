@@ -193,8 +193,6 @@ cw.Class = function() {};
  * @rtype: C{cw.Class}
  */
 cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
-	cw.__classDebugCounter__ += 1;
-
 	/*
 	 * subclass() must always be called on cw.Class or an object returned
 	 * from subclass() - so in this execution context, C{this} is the "class"
