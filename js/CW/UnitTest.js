@@ -1372,12 +1372,6 @@ CW.UnitTest._makeUneval = function _makeUneval() {
 CW.UnitTest.repr = CW.UnitTest._makeUneval();
 
 
-/* copy pasted from Nevow.Athena.Test.
-*
-* By having Deferreds in CW.UnitTest we lose the ability to test Deferreds before using them.
-*/
-
-
 /**
  * A visit-controller which applies a specified visitor to the methods of a
  * suite, waiting for the Deferred from a visit to fire before proceeding to
