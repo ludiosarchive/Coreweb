@@ -459,7 +459,7 @@ CW.Class.subclass(CW.UnitTest, 'TestSuite').methods(
 	 */
 	function visit(self, visitor) {
 		// safari has serious maximum recursion problems
-		var sVisitor = CW.UnitTest.SerialVisitor(); // or ConcurrentVisitor
+		var sVisitor = CW.UnitTest.SerialVisitor();
 		return sVisitor.traverse(visitor, self.tests);
 	},
 
@@ -1376,23 +1376,6 @@ CW.UnitTest.repr = CW.UnitTest._makeUneval();
 *
 * By having Deferreds in CW.UnitTest we lose the ability to test Deferreds before using them.
 */
-
-
-/**
- * A visit-controller which applies a specified visitor to the methods of a
- * suite without waiting for the Deferred from a visit to fire before
- * proceeding to the next method.
- */
-CW.Class.subclass(CW.UnitTest, 'ConcurrentVisitor').methods(
-	function traverse(self, visitor, tests) {
-		var deferreds = [];
-		CW.UnitTest.logger.info("Running " + tests.length + " methods/TestCases.");
-		for (var i = 0; i < tests.length; ++i) {
-			deferreds.push(tests[i].visit(visitor));
-		}
-		return new goog.async.DeferredList(deferreds);
-	}
-);
 
 
 /**
