@@ -1638,7 +1638,7 @@ CW.UnitTest.installMonkeys = function installMonkeys() {
 	// but we don't because it's at higher risk of breaking.
 	// (it is indeed mildly broken in Safari 4 beta [2009-03-07])
 	//    not anymore when https://bugs.webkit.org/show_bug.cgi?id=24453 is Fixed and Safari 4 ships with it.
-	if('\v' !== 'v') { // if not IE
+	if(!goog.userAgent.IE) {
 		// TODO: build a CW.Support module that has
 		// "supportsSetTimeoutReferenceSwap" instead of making all these IE assumptions
 		

@@ -766,7 +766,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'ReprTests').methods(
 	function test_xAndUEscapes(self) {
 		var repr = CW.UnitTest.repr;
 		self.assertIdentical(repr('\u0000'), '"\\x00"');
-		self.assertIdentical(repr('\u000B'), '"\\x0B"'); // vertical tab; note that it's not \v
+		self.assertIdentical(repr('\u000B'), '"\\x0B"'); // vertical tab; aka \v in decent browsers
 		self.assertIdentical(repr('\u0010'), '"\\x10"');
 		self.assertIdentical(repr('\u0015'), '"\\x15"');
 		self.assertIdentical(repr('\u0019'), '"\\x19"');
