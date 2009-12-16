@@ -5,7 +5,7 @@ goog.require('cw.string');
 /**
  * Check that split works as expected.
  */
-CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'SplitTests').methods(
+CW.UnitTest.TestCase.subclass(CW.Test.TestString, 'SplitTests').methods(
 	function test_splitUnlimited(self) {
 		self.assertArraysEqual(["", "ello"], cw.string.split("hello", "h"));
 		self.assertArraysEqual(["", ""], cw.string.split("hello", "hello"));
@@ -45,4 +45,40 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestBase, 'SplitTests').methods(
 	}
 );
 
+
+
+/**
+ * Check that cw.string.format works.
+ */
+CW.UnitTest.TestCase.subclass(CW.Test.TestString, 'FormatTests').methods(
+
+	function test_format(self) {
+		self.assertEqual("hello", cw.string.format("hell{0}", "o"));
+		self.assertEqual("hello world", cw.string.format("hell{0}{1}", "o", " world"));
+	},
+
+
+	function test_formatOutOfOrder(self) {
+		self.assertEqual("hell worldo yay", cw.string.format("hell{1}{0} {2}", "o", " world", "yay", "ignored-param"));
+	},
+
+	/**
+	 * cw.string.format works beyond 10 parameters.
+	 * (at least 2 digits are supported)
+	 */
+	function test_noLimitOf10(self) {
+		self.assertEqual("abcdefghijk",
+			cw.string.format(
+				"{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}",
+				"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"));
+	},
+
+
+	function test_formatNoSubstitutions(self) {
+		self.assertEqual("hello", cw.string.format("hello"));
+		self.assertEqual("hello{}", cw.string.format("hello{}"));
+		self.assertEqual("{}hello", cw.string.format("{}hello"));
+		self.assertEqual("{}hello", cw.string.format("{}hello", "ignored-param"));
+	}
+);
 
