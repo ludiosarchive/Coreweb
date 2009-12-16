@@ -5,11 +5,6 @@
  * for Deferreds in test methods, setUp, and tearDown.
  */
 
-
-// import CW.Inspect
-
-// TODO: remove or Closure-ize above deps
-
 goog.require('goog.array');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
@@ -32,7 +27,7 @@ CW.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
 CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 	var prefix = 'test_';
 	var suite = CW.UnitTest.TestSuite();
-	var methods = CW.Inspect.methods(testClass);
+	var methods = CW.methods(testClass);
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
 		if (CW.startswith(name, prefix)) {
