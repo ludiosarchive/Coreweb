@@ -191,36 +191,17 @@ def getDepsMany(scripts, treeCache=None):
 
 
 
-def megaScript(scripts, wrapper, dictionary={}, globalObjectName=u'window'):
+def megaScript(scripts):
 	"""
 	C{scripts} is an iterable of L{Script} or L{VirtualScript} objects.
 
-	C{wrapper} should be C{True} if you want the wrapper,
-		otherwise C{False}.
-
-	C{dictionary} is a dictionary of key->value to pass into
-		each Script's renderContent(). If C{wrapper} was C{True},
-		C{'_wasWrapped': True} will be added to C{dictionary}.
-
-	Return the contents of many scripts, optionally wrapping
-	it with the anonymous function wrapper (useful for JScript,
-	which thinks named function expressions are declarations.)
+	Return the contents of many scripts.
 	"""
-	# Don't mutate the caller's dictionary. Don't mutate our default arg.
-	dictionary = dictionary.copy()
 	data = ''
-	if wrapper:
-		dictionary['_wasWrapped'] = True
-		data += u'''\
-(function(window, undefined) {
-var document = window.document;
-'''
+
 	for script in scripts:
 		data += script._underscoreName() + u';\n'
-		data += script.renderContent(dictionary)
-
-	if wrapper:
-		data += u'})(%s);\n' % (globalObjectName,)
+		data += script.getContent()
 
 	return data
 
@@ -240,16 +221,6 @@ class _BaseScript(object):
 	"""
 	Base class for both on-disk and in-memory scripts.
 	"""
-	def renderContent(self, dictionary=None):
-		"""
-		Get the post-template-render textual content of this script. Returns unicode.
-
-		C{dictionary} is a dictionary of key->value for the template renderer.
-		"""
-		uni = self.getContent()
-		return _theWriter.render(uni, dictionary)
-
-
 	def _getImportantStrings(self):
 		if self._stringCache is not None:
 			return self._stringCache
@@ -650,16 +621,14 @@ class JavaScriptWriter(object):
 		)
 
 
-	def render(self, template, dictionary=None):
+	def render(self, template, dictionary={}):
 		"""
 		C{template} is the unicode (or str) template.
-		C{dictionary} is a dict of values to help fill the template.
+		C{dictionary} is passed to jinja2 for variables in the template.
 
 		@rtype: unicode
 		@return: the rendered template
 		"""
-		if dictionary is None:
-			dictionary = {}
 		rendered = self.env.from_string(template).render(dictionary)
 		# jinja2 forgets about how many newlines there should be at the end, or something
 		if not rendered.endswith(u'\n'):

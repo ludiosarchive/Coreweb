@@ -929,75 +929,33 @@ def _nameFor(n):
 
 class MegaScriptTests(unittest.TestCase):
 
-	def test_megaScriptNoWrapper(self):
+	def test_megaScript(self):
 		s1 = _DummyContentScript('s1', 'var x={};\n')
 		s2 = _DummyContentScript('s2', 'var y={};\n')
-		result = jsimp.megaScript([s1, s2], wrapper=False)
+		result = jsimp.megaScript([s1, s2])
 		self.assertEqual(u'''\
 %s;
 var x={};
 %s;
 var y={};
 ''' % (_nameFor('s1'), _nameFor('s2')), result)
-
-
-	def test_megaScriptWrapper(self):
-		s1 = _DummyContentScript('s1', 'var x={};\n')
-		s2 = _DummyContentScript('s2', 'var y={};\n')
-		result = jsimp.megaScript([s1, s2], wrapper=True)
-		self.assertEqual(u'''\
-(function(window, undefined) {
-var document = window.document;
-%s;
-var x={};
-%s;
-var y={};
-})(window);
-''' % (_nameFor('s1'), _nameFor('s2')), result)
-
-
-	def test_dictionaryOption(self):
-		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
-		s2 = _DummyContentScript('s2', 'var y=/***/not_passed//;\n', )
-
-		result = jsimp.megaScript([s1, s2], wrapper=False, dictionary=dict(something="hi"))
-
-		self.assertEqual(u'''\
-%s;
-var x=hi;
-%s;
-var y=;
-''' % (_nameFor('s1'), _nameFor('s2')), result)
-
-
-	def test_dictionaryNotMutated(self):
-		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
-
-		# With wrapper
-		d = dict(something='2')
-		dCopy = d.copy()
-		jsimp.megaScript([s1], True, d)
-		self.assertEqual(dCopy, d)
-
-		# No wrapper
-		d2 = dict(something='3')
-		d2Copy = d2.copy()
-		jsimp.megaScript([s1], False, d2)
-		self.assertEqual(d2Copy, d2)
 
 
 	def test_virtualScript(self):
+		"""
+		Note: jinja2 templating is no longer run on the scripts
+		"""
 		s1 = _DummyContentScript('s1', 'var x=/***/something//;\n', )
-		s2 = _DummyContentScript('s2', 'var y=/***/not_passed//;\n', )
+		s2 = _DummyContentScript('s2', 'var y=/***/something2//;\n', )
 		v = jsimp.VirtualScript(u'// import s1\n// import s2\nvar z = 3;\n', basePath=None)
 
-		result = jsimp.megaScript([s1, s2, v], wrapper=False, dictionary=dict(something="hi"))
+		result = jsimp.megaScript([s1, s2, v])
 
 		self.assertEqual(u'''\
 %s;
-var x=hi;
+var x=/***/something//;
 %s;
-var y=;
+var y=/***/something2//;
 /* VirtualScript */;
 // import s1
 // import s2
@@ -1008,7 +966,7 @@ var z = 3;
 	def test_megaScriptClosureStyle(self):
 		s1 = _DummyContentScript('s1', 'var x={};\n')
 		s2 = _DummyContentScript('s2', 'goog.provide("something")\nvar y={};\n')
-		result = jsimp.megaScript([s1, s2], wrapper=False)
+		result = jsimp.megaScript([s1, s2])
 		self.assertEqual(u'''\
 %s;
 var x={};
@@ -1016,68 +974,3 @@ var x={};
 goog.provide("something")
 var y={};
 ''' % (_nameFor('s1'),), result)
-
-
-
-
-class RenderContentOnScriptTests(unittest.TestCase):
-
-	def _makeScript(self, name, content):
-		return _DummyContentScript(name, content)
-
-
-	def test_getNormalContent(self):
-		s1 = self._makeScript('name', 'content\n')
-		self.assertEqual('content\n', s1.renderContent({}))
-
-
-	def test_getTemplatedContent(self):
-		s1 = self._makeScript('name',
-u'''\
-content
-//] if 1 == 1
-x
-//] endif
-''')
-		self.assertEqual(u'content\nx\n', s1.renderContent({}))
-
-
-	def test_getTemplatedVariableContent1(self):
-		s1 = self._makeScript('name',
-u'''\
-content
-//] if _xMode == 1
-x
-//] endif
-''')
-		self.assertEqual(u'content\nx\n', s1.renderContent(dict(_xMode=1)))
-
-
-	def test_getTemplatedVariableContent2(self):
-		s1 = self._makeScript('name',
-u'''\
-content
-//] if _xMode == 1
-x
-//] endif
-''')
-		self.assertEqual(u'content\n', s1.renderContent(dict(_xMode="1")))
-
-
-	def test_dictionaryNotMutated(self):
-		"""
-		Well, L{renderContent} doesn't even need to mutate anything right
-		now, but someone could screw it up and forget to C{dictionary.copy()}.
-		"""
-		s1 = self._makeScript('name', 'content\n')
-		d = dict(something='2')
-		dCopy = d.copy()
-		s1.renderContent(d)
-		self.assertEqual(dCopy, d)
-
-
-
-class RenderContentOnVirtualScriptTests(RenderContentOnScriptTests):
-
-	def _makeScript(self, name, content):
-		return jsimp.VirtualScript(content)

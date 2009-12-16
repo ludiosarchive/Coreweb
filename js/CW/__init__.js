@@ -3,26 +3,16 @@
 //] if _debugMode:
 
 /**
- * In JScript, when named functions are used, they clobber the scope,
- * even if the intended purpose is to use them in an expression.
+ * In JScript, when named function expressions are used, they clobber the scope,
+ * unlike every other browser.
  *
- * We serve an anonymous (function(){})() wrapper to JScript browsers
- * (and possibly other browsers) to prevent this clobbering from actually
- * affecting `window'. The list of globals below helps prevent bugs *within* the
- * anonymous wrapper. For example, it will prevent the addition of a method
- * `function window() {}' or `function print() {}'. If we did not prevent it, the
+ *  The list of globals below helps prevent bugs in the code that uses cw.Class
+ * (which usually implies using named functions).
+ *
+ * For example, it will prevent the addition of a method
+ * `function window() {}' or `function print() {}'. If we would not prevent it, the
  * `print' method would get added, and another method might assume that
  * `print()' actually prints the page (while now it actually does something unrelated).
- *
- * Keep in mind that it can't stop all within-anonymous-wrapper clobbering,
- * but that doesn't matter, as long as we don't use the clobbered identifier
- * ourselves.
- *
- * For example, if an IE browser extension puts window.special on every page,
- * and we have a `function special() {}' within anonymous-wrapper, we'll no longer be
- * able to use the original `special' with `special()'. But this doesn't matter,
- * because we don't need `special' anyway. (and if we did, we would add "special"
- * to the list below and rename our method, or use `window.special' instead.
  */
 
 CW._globalsArray = [];
@@ -151,8 +141,8 @@ CW._globalsArray = CW._globalsArray.concat(
 // *** More IE stuff ***
 CW._globalsArray = CW._globalsArray.concat(['CollectGarbage']);
 
-// *** CW itself ***
-CW._globalsArray = CW._globalsArray.concat(['CW']);
+// *** cw, goog ***
+CW._globalsArray = CW._globalsArray.concat(['cw', 'goog']);
 
 // Now turn it into an object
 
@@ -166,10 +156,6 @@ delete CW._globalsArray;
 
 //] endif
 
-
-//] if _wasWrapped:
-window.CW = CW;
-//] endif
 
 // Should we automatically run the tests with _debugMode = False; too? Probably,
 // that's the only way to make sure they're still passing.

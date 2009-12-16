@@ -37,14 +37,14 @@ def cacheBreakerForPath(path):
 
 
 # TODO: handle higher Mozilla-only JavaScript versions. (1.6-1.8); applies to scriptSrc too
-def scriptContent(script, dictionary=None):
+def scriptContent(script):
 	"""
 	Generate an HTML4/5 <script> tag with the script contents.
 	"""
 
-	template = "<script>%s;\n%s</script>"
+	template = u"<script>%s;\n%s</script>"
 
-	return template % (script._underscoreName(), script.renderContent(dictionary))
+	return template % (script._underscoreName(), script.getContent())
 
 
 def scriptSrc(script, mountedAt):
@@ -93,7 +93,7 @@ def expandScript(script, basePath=None, directoryScan=None):
 		directoryScan.rescan()
 		deps = jsimp.getDeps(v)
 
-	full = jsimp.megaScript(deps, wrapper=False, dictionary=dict(_debugMode=True))
+	full = jsimp.megaScript(deps)
 	return full
 
 

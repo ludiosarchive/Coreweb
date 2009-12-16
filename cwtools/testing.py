@@ -20,14 +20,8 @@ def _getTests(packages, basePath, directoryScan):
 
 
 
-def _getScriptContent(tests, globalObjectName):
-	scriptContent = jsimp.megaScript(
-		jsimp.getDepsMany(tests),
-		# Because we only use CW-style code for test runner pages, we don't care that
-		# the test page gets polluted with sort-of-visible window.* properties.
-		wrapper=False,
-		dictionary=dict(_debugMode=True),
-		globalObjectName=globalObjectName)
+def _getScriptContent(tests):
+	scriptContent = jsimp.megaScript(jsimp.getDepsMany(tests))
 	return scriptContent
 
 
@@ -86,20 +80,15 @@ class TestPage(resource.Resource):
 		else:
 			theTests = _getTests(self.testPackages, JSPATH, self.directoryScan)
 
-
-		# TODO: only serve the wrapper to JScript browsers (or, feature-test for the leaking)
-		# `Node' also needs the wrapper because our code assumes the global object is `window',
-		# and the wrapper fixes that.
-
 		# This try/except/rescan only handles the case where a `provide' could not be found.
 		# If the name being `provide'd moved to another JavaScript file, the state will be
 		# bad and the assembled JavaScript will be wrong. In this case, restarting the
 		# development server is the best option.
 		try:
-			scriptContent = _getScriptContent(theTests, 'window')
+			scriptContent = _getScriptContent(theTests)
 		except jsimp.NobodyProvidesThis:
 			self.directoryScan.rescan()
-			scriptContent = _getScriptContent(theTests, 'window')
+			scriptContent = _getScriptContent(theTests)
 
 		# ...but don't run the tests on the dependency modules
 		moduleString = _getModuleListString(theTests)
