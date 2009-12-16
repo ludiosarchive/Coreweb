@@ -6,6 +6,7 @@
  */
 
 goog.require('goog.array');
+goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
 goog.require('goog.async.Deferred');
@@ -29,7 +30,7 @@ CW.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
 CW.UnitTest.loadFromClass = function loadFromClass(testClass) {
 	var prefix = 'test_';
 	var suite = CW.UnitTest.TestSuite();
-	var methods = CW.methods(testClass);
+	var methods = goog.object.getKeys(testClass.prototype).sort();
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
 		if (goog.string.startsWith(name, prefix)) {

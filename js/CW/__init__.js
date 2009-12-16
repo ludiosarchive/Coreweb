@@ -1,7 +1,5 @@
 /* {LICENSE:Coreweb,Nevow} */
 
-goog.require('goog.object');
-
 //] if _debugMode:
 
 /**
@@ -342,10 +340,10 @@ CW.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	 * C{methodFunction} will be called with its class instance as the first argument,
 	 *    so that you will not have to do: C{var self = this;} in each method.
 	 * Classes with prototypes created with method/methods will be slower than
-	 * those with prototypes created by directly setting C{.prototype}
+	 * those with prototypes created by directly setting C{.prototype} properties
 	 */
 	subClass.method = function(methodFunction) {
-		/* .name is a Mozilla extension to JavaScript */
+		/* .name is a Mozilla extension to JavaScript, also supported in WebKit */
 		var methodName = methodFunction.name;
 
 		if (methodName == undefined) {
@@ -513,16 +511,3 @@ CW.AssertionError = function(opt_msg) {
 };
 goog.inherits(CW.AssertionError, goog.debug.Error);
 CW.AssertionError.prototype.name = 'CW.AssertionError';
-
-
-/**
- * Retrieve an C{Array} of C{String}s naming the methods defined on the given
- * class and its parent classes.
- */
-CW.methods = function(cls) {
-	if (typeof cls != "function") {
-		throw new Error("Only classes have methods.");
-	}
-	var result = [];
-	return result.concat(goog.object.getKeys(cls.prototype)).sort();
-};
