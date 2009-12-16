@@ -6,7 +6,6 @@
  */
 
 
-// import CW.DOM
 // import CW.Inspect
 
 // TODO: remove or Closure-ize above deps
@@ -297,7 +296,7 @@ CW.UnitTest.TestResult.subclass(CW.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
-		CW.DOM.setText(pre, failure.toString());
+		pre.innerHTML = goog.debug.exposeException(failure);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
