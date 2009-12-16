@@ -1373,6 +1373,32 @@ CW.UnitTest.repr = CW.UnitTest._makeUneval();
 
 
 /**
+ * Return the stack limit of the current environment.
+ *
+ * If over 1000, just return 1000.
+ */
+CW.UnitTest.calculateStackLimit = function(n) {
+	if(n === undefined) {
+		n = 0;
+	}
+	// Opera stops executing JavaScript when you blow the stack.
+	// All other known browsers raise an exception.
+	if(goog.userAgent.OPERA || n >= 1000) {
+		return 1000; // In Opera 10.10, it's actually 5000, but return 1000 for consistency.
+	}
+	try {
+		return CW.UnitTest.calculateStackLimit(n+1);
+	} catch(e) {
+		return n;
+	}
+}
+
+
+CW.UnitTest.estimatedStackLimit = CW.UnitTest.calculateStackLimit();
+
+
+
+/**
  * A visit-controller which applies a specified visitor to the methods of a
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
@@ -1387,16 +1413,26 @@ CW.Class.subclass(CW.UnitTest, 'SerialVisitor').methods(
 
 	function _traverse(self, visitor, tests, completionDeferred, nowOn) {
 		var result, testCase;
+
+		// Some browsers (maybe just IE6 x64) have a very low stack limit. If we estimate that
+		// we might blow the stack limit, avoid calling into the next test case synchronously.
+
+		// TODO: maybe a better estimate that takes into account how many tests there are.
+		// Keep in mind that IE6 x64 claims a stack limit of 129 but it might be lower in practice,
+		// so you'll have to do it right.
+		var syncCallOkay = CW.UnitTest.estimatedStackLimit > 800;
+
 		if (nowOn < tests.length) {
-			testCase = tests[nowOn]; // at some point this lacked a +1; this bug took an hour to catch.
+			testCase = tests[nowOn];
 			result = testCase.visit(visitor);
-//			//console.log('for', testCase, 'result is', result);
-//			if(result == undefined) {
-//				//console.log('undefined caused by ', testCase);
-//				debugger;
-//			}
 			result.addCallback(function(ignored) {
-				self._traverse(visitor, tests, completionDeferred, nowOn+1);
+				if(syncCallOkay) {
+					self._traverse(visitor, tests, completionDeferred, nowOn + 1);
+				} else {
+					goog.global.setTimeout(function(){
+						self._traverse(visitor, tests, completionDeferred, nowOn + 1);
+					}, 0);
+				}
 			});
 		} else {
 			// This setTimeout is absolutely necessary (instead of just `completionDeferred.callback(null);`)
