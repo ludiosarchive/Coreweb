@@ -1,5 +1,6 @@
 // import CW.UnitTest
-// import CW.URI
+
+goog.require('cw.URI');
 
 
 CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
@@ -7,91 +8,91 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 	function test_urisplit(self) {
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path?query#fragment"),
 			['scheme', 'authority', '/path', 'query', 'fragment'])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path?query#"),
 			['scheme', 'authority', '/path', 'query', ''])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path?query"),
 			['scheme', 'authority', '/path', 'query', null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path?"),
 			['scheme', 'authority', '/path', '', null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path??"),
 			['scheme', 'authority', '/path', '?', null])
 
 		self.assertEqual(
-			CW.URI.urisplit("scheme://authority/path#?"),
+			cw.URI.urisplit("scheme://authority/path#?"),
 			['scheme', 'authority', '/path', null, '?'])
 
 		self.assertEqual(
-			CW.URI.urisplit("scheme://authority/path#?#"),
+			cw.URI.urisplit("scheme://authority/path#?#"),
 			['scheme', 'authority', '/path', null, '?#'])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/path"),
 			['scheme', 'authority', '/path', null, null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority/"),
 			['scheme', 'authority', '/', null, null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://authority"),
 			['scheme', 'authority', '', null, null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme://"),
 			['scheme', '', '', null, null])
 
 		// No authority is okay, too
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme:path"),
 			['scheme', null, 'path', null, null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"scheme:/path"),
 			['scheme', null, '/path', null, null])
 
 		// L{urisplit} automatically lowercases the scheme:
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"SCHEME://authority"),
 			['scheme', 'authority', '', null, null])
 
 		self.assertEqual(
-			CW.URI.urisplit(
+			cw.URI.urisplit(
 			"sChEmE://authority"),
 			['scheme', 'authority', '', null, null])
 
 		// It is reversable:
 
 		self.assertEqual(
-			CW.URI.uriunsplit.apply(this, CW.URI.urisplit(
+			cw.URI.uriunsplit.apply(this, cw.URI.urisplit(
 			"scheme://authority")),
 			'scheme://authority')
 
 		self.assertEqual(
-			CW.URI.uriunsplit.apply(this, CW.URI.urisplit(
+			cw.URI.uriunsplit.apply(this, cw.URI.urisplit(
 			"scheme://authority/")),
 			'scheme://authority/')
 
@@ -99,82 +100,82 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 
 	function test_uriunsplit(self) {
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', 'query', 'fragment'),
 			'scheme://authority/path?query#fragment');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', null, 'fragment'),
 			'scheme://authority/path#fragment');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', '', 'fragment'),
 			'scheme://authority/path?#fragment');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', '?', '?'),
 			'scheme://authority/path??#?');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', '', null),
 			'scheme://authority/path?');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', 'authority', '/path', '', ''),
 			'scheme://authority/path?#');
 
 		self.assertEqual(
-			CW.URI.uriunsplit(
+			cw.URI.uriunsplit(
 			'scheme', null, 'path', '', ''),
 			'scheme:path?#');
 	},
 
 	function test_split_authority(self) {
 		self.assertEqual(
-			CW.URI.split_authority(
+			cw.URI.split_authority(
 			"user:password@host:1"),
 			['user', 'password', 'host', '1']);
 
 		// No host, but a port? Ugly.
 		self.assertEqual(
-			CW.URI.split_authority(
+			cw.URI.split_authority(
 			"user:password@:1"),
 			['user', 'password', '', '1']);
 
 		self.assertEqual(
-			CW.URI.split_authority(
+			cw.URI.split_authority(
 			"user@host:1"),
 			['user', null, 'host', '1']);
 
 		self.assertEqual(
-			CW.URI.split_authority(
+			cw.URI.split_authority(
 			"user:@host:999"),
 			['user', '', 'host', '999']);
 
 		self.assertEqual(
-			CW.URI.split_authority(
+			cw.URI.split_authority(
 			":@host:1000000"),
 			['', '', 'host', '1000000']);
 	},
 
 	function test_join_authority(self) {
-		self.assertEqual('user:password@host:90', CW.URI.join_authority('user', 'password', 'host', '90'));
-		self.assertEqual('user:@host:90', CW.URI.join_authority('user', '', 'host', '90'));
-		self.assertEqual('user:@:90', CW.URI.join_authority('user', '', '', '90'));
-		self.assertEqual('user:@:', CW.URI.join_authority('user', '', '', ''));
-		self.assertEqual('user@host:90', CW.URI.join_authority('user', null, 'host', '90'));
-		self.assertEqual('host:90', CW.URI.join_authority(null, 'password', 'host', '90'));
-		self.assertEqual(':password@host:90', CW.URI.join_authority('', 'password', 'host', '90'));
-		self.assertEqual(':@host:90', CW.URI.join_authority('', '', 'host', '90'));
-		self.assertEqual(':@host:0', CW.URI.join_authority('', '', 'host', '0'));
-		self.assertEqual(':@host:-2', CW.URI.join_authority('', '', 'host', '-2')); // eh
-		self.assertEqual(':@host', CW.URI.join_authority('', '', 'host', null));
-		self.assertEqual('host', CW.URI.join_authority(null, null, 'host', null));
+		self.assertEqual('user:password@host:90', cw.URI.join_authority('user', 'password', 'host', '90'));
+		self.assertEqual('user:@host:90', cw.URI.join_authority('user', '', 'host', '90'));
+		self.assertEqual('user:@:90', cw.URI.join_authority('user', '', '', '90'));
+		self.assertEqual('user:@:', cw.URI.join_authority('user', '', '', ''));
+		self.assertEqual('user@host:90', cw.URI.join_authority('user', null, 'host', '90'));
+		self.assertEqual('host:90', cw.URI.join_authority(null, 'password', 'host', '90'));
+		self.assertEqual(':password@host:90', cw.URI.join_authority('', 'password', 'host', '90'));
+		self.assertEqual(':@host:90', cw.URI.join_authority('', '', 'host', '90'));
+		self.assertEqual(':@host:0', cw.URI.join_authority('', '', 'host', '0'));
+		self.assertEqual(':@host:-2', cw.URI.join_authority('', '', 'host', '-2')); // eh
+		self.assertEqual(':@host', cw.URI.join_authority('', '', 'host', null));
+		self.assertEqual('host', cw.URI.join_authority(null, null, 'host', null));
 	}
 );
 
@@ -182,8 +183,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'functionalTests').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 
 	function test_fullURL(self) {
-		var URL = CW.URI.URL;
-		var u = URL("scheme://user:password@host:81/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("scheme://user:password@host:81/path?query#fragment");
 
 		self.assertEqual('scheme', u.scheme);
 		self.assertEqual('user', u.user);
@@ -195,13 +196,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 		self.assertEqual('fragment', u.fragment);
 
 		self.assertEqual("scheme://user:password@host:81/path?query#fragment", u.getString());
-		self.assertEqual('CW.URI.URL("scheme://user:password@host:81/path?query#fragment")', u.toString());
+		self.assertEqual('cw.URI.URL("scheme://user:password@host:81/path?query#fragment")', u.toString());
 	},
 
 
 	function test_fullURLDefaults(self) {
-		var URL = CW.URI.URL;
-		var u = URL("https://host");
+		var URL = cw.URI.URL;
+		var u = new URL("https://host");
 
 		self.assertEqual('https', u.scheme);
 		self.assertEqual(null, u.user);
@@ -213,13 +214,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 		self.assertEqual(null, u.fragment);
 
 		self.assertEqual("https://host/", u.getString());
-		self.assertEqual('CW.URI.URL("https://host/")', u.toString());
+		self.assertEqual('cw.URI.URL("https://host/")', u.toString());
 	},
 
 
 	function test_changeEverything(self) {
-		var URL = CW.URI.URL;
-		var u = URL("https://host");
+		var URL = cw.URI.URL;
+		var u = new URL("https://host");
 		self.assertEqual("https://host/", u.getString());
 
 		u.update('scheme', 'http');
@@ -248,8 +249,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 	 * .update calls can be chained
 	 */
 	function test_fluentInterface(self) {
-		var URL = CW.URI.URL;
-		var u = URL("https://host");
+		var URL = cw.URI.URL;
+		var u = new URL("https://host");
 		u.update('host', 'newhost').update('scheme', 'http');
 		self.assertEqual("http://newhost/", u.getString());
 	}
@@ -260,8 +261,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'URLTests').methods(
 CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').methods(
 
 	function test_fullURLDefaultsUnknownScheme(self) {
-		var URL = CW.URI.URL;
-		var u = URL("asdfq://host");
+		var URL = cw.URI.URL;
+		var u = new URL("asdfq://host");
 
 		self.assertEqual('asdfq', u.scheme);
 		self.assertEqual(null, u.user);
@@ -273,13 +274,13 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		self.assertEqual(null, u.fragment);
 
 		self.assertEqual("asdfq://host/", u.getString());
-		self.assertEqual('CW.URI.URL("asdfq://host/")', u.toString());
+		self.assertEqual('cw.URI.URL("asdfq://host/")', u.toString());
 	},
 
 
 	function test_changeSchemeStrangePort(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain:81/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain:81/path?query#fragment");
 		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
 
 		u.update('scheme', 'HTTPS');
@@ -288,8 +289,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 
 
 	function test_changeSchemeExplicitPort1(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
 		u.update('port', 80);
@@ -300,8 +301,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 
 
 	function test_changeSchemeExplicitPort2(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
 		u.update('scheme', 'HTTPS');
@@ -316,12 +317,12 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 	 * set, cloning the URL means it's tainted with the 'explicit port set' bit
 	 */
 	function test_portMeansTaintedForever(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
 		u.update('port', 80);
-		var u2 = URL(u);
+		var u2 = new URL(u);
 		u2.update('scheme', 'https');
 
 		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u2.getString());
@@ -329,8 +330,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 
 
 	function test_changeSchemeDefaultPort(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 		self.assertEqual(80, u.port);
 
@@ -347,16 +348,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 
 
 	function test_changePortForKnownScheme(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain:81/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain:81/path?query#fragment");
 		u.update('port', 80);
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 	},
 
 
 	function test_changePortForUnknownScheme(self) {
-		var URL = CW.URI.URL;
-		var u = URL("asdfq://user:pass@domain/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("asdfq://user:pass@domain/path?query#fragment");
 		self.assertEqual(null, u.port);
 
 		u.update('port', 80);
@@ -381,8 +382,8 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestURI, 'PortSchemeSwitchingTests').metho
 	 * after changing the scheme.
 	 */
 	function test_changeSchemeAfterExplicitPortInStringConstruction(self) {
-		var URL = CW.URI.URL;
-		var u = URL("http://user:pass@domain:80/path?query#fragment");
+		var URL = cw.URI.URL;
+		var u = new URL("http://user:pass@domain:80/path?query#fragment");
 		self.assertEqual(80, u.port);
 
 		u.update('scheme', 'https');
