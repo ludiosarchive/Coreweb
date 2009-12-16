@@ -475,7 +475,7 @@ CW.Test.TestUnitTest.TestCaseTest.subclass(CW.Test.TestUnitTest, 'TestCaseTestLo
 
 			// the inner test stopped tracking all the pending calls.
 			for (var k in CW.UnitTest.delayedCalls) {
-				self.assertArraysEqual([], CW.dir(CW.UnitTest.delayedCalls[k]));
+				self.assertArraysEqual([], goog.object.getKeys(CW.UnitTest.delayedCalls[k]));
 			}
 		});
 		return d;
@@ -823,16 +823,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		self._ticket1 = setTimeout(neverRunMe, 10);
-		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 
 		self._ticket2 = setTimeout(pleaseRunMe, 11);
-		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertIdentical(2, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
 		clearTimeout(self._ticket1);
 		// ticket2 is *not* cleared. we want to test that setTimeout does work.
-		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
@@ -841,7 +841,7 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		d.addCallback(function() {
 			self.assertIdentical(false, neverRunMeWasRun);
 			self.assertIdentical(true, pleaseRunMeWasRun);
-			self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
+			self.assertIdentical(0, goog.object.getKeys(CW.UnitTest.delayedCalls['setTimeout_pending']).length);
 		});
 
 		setTimeout(function(){d.callback(null)}, 30);
@@ -866,16 +866,16 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		self._ticket1 = setInterval(neverRunMe, 10);
-		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 
 		self._ticket2 = setInterval(pleaseRunMe, 10);
-		self.assertIdentical(2, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertIdentical(2, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
 		clearInterval(self._ticket1);
 		// ticket2 is *not* cleared yet. we want to test that setInterval does work.
-		self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+		self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 		self.assertIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, CW.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
@@ -885,9 +885,9 @@ CW.UnitTest.TestCase.subclass(CW.Test.TestUnitTest, 'TestMonkeys').methods(
 			self.assertIdentical(0, neverRunMeWasRun);
 			// it may run 2 or 3 times usually, but less or more sometimes, especially with IE6.
 			self.assertIdentical(true, 1 <= pleaseRunMeWasRun && pleaseRunMeWasRun <= 5);
-			self.assertIdentical(1, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+			self.assertIdentical(1, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 			clearInterval(self._ticket2);
-			self.assertIdentical(0, CW.dir(CW.UnitTest.delayedCalls['setInterval_pending']).length);
+			self.assertIdentical(0, goog.object.getKeys(CW.UnitTest.delayedCalls['setInterval_pending']).length);
 		});
 
 		setTimeout(function(){d.callback(null)}, 35);
