@@ -1,26 +1,34 @@
+/**
+ * These test cases verify assumptions we make about how JavaScript
+ * works in the real world (modern browsers).
+ */
+
 goog.require('cw.UnitTest');
 goog.require('goog.userAgent');
 
 goog.provide('cw.Test.TestAssumptions');
 
-/**
- * Test assumptions about JavaScript in each browser.
- */
+
 cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').methods(
 	/**
-	 * Test that coercing a Date object returns the equivalent of getTime()
+	 * Test that coercing a Date object to Number returns the equivalent of getTime()
 	 */
 	function test_dateShortcut(self) {
 		var normal = new Date().getTime();
 		var shortForm = +new Date;
 
+		// Can't compare normal and shortForm directly because time changes between calls.
+
 		self.assertIdentical((''+normal).length, (''+shortForm).length);
-		self.assertIdentical((''+normal).substr(0,7), (''+shortForm).substr(0,7));
+		self.assertIdentical((''+normal).substr(0, 7), (''+shortForm).substr(0, 7));
 	},
 
 
 	/**
 	 * Test that backslashed strings are supported by the JS parser.
+	 *
+	 * kangax said on twitter that some browsers may insert a space after the \ ,
+	 * but I have found no such browser. -ivank
 	 */
 	function test_backslashedStrings(self) {
 		var backslashed = 'hello\
@@ -30,7 +38,7 @@ there';
 
 
 	/**
-	 * Confirm that IE can't handle \u0000 very well, and others can.
+	 * IE can't eval anything with a U+0000 in it; other browsers can.
 	 */
 	function test_nullEval(self) {
 		if(!goog.userAgent.IE) {
@@ -40,11 +48,6 @@ there';
 		} else {
 			self.assertThrows(Error, function(){eval('"\u0000"');}, "Unterminated string constant");
 		}
-
-		// this seems to work everywhere
-		self.assertIdentical('\u0000', eval('"\\u0000"'));
-		self.assertIdentical(1, eval('"\\u0000"').length);
-		self.assertNotIdentical('', eval('"\\u0000"'));
 	},
 
 	/**
@@ -154,6 +157,7 @@ there';
 		self.assertIdentical('..', Array(2+1).join('.'));
 		self.assertIdentical('....', Array(4+1).join('.'));
 	},
+
 
 	function _makeStringedArray(self, numItems) {
 		var buffer = [];
