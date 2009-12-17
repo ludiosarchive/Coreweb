@@ -1,15 +1,15 @@
 /**
- * Tests for the CW object model.
+ * Tests for cw.Class
  */
 
 
 goog.require('cw.UnitTest');
 goog.require('cw.Class');
 
-goog.provide('cw.Test.TestObject');
+goog.provide('cw.Test.TestClass');
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestObject').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 
 	function test_class(self) {
 		var Eater = cw.Class.subclass('Eater');
@@ -76,12 +76,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestObject').methods(
 	 * subclass name to the global namespace.
 	 */
 	function test_twoParamSubclass(self) {
-		var cls = cw.Class.subclass(cw.Test.TestObject, 'InheritTest');
+		var cls = cw.Class.subclass(cw.Test.TestClass, 'InheritTest');
 		try {
-			self.assertIdentical(cw.Test.TestObject.InheritTest, cls);
-			self.assertIdentical(cls.__name__, 'cw.Test.TestObject.InheritTest');
+			self.assertIdentical(cw.Test.TestClass.InheritTest, cls);
+			self.assertIdentical(cls.__name__, 'cw.Test.TestClass.InheritTest');
 		} finally {
-			delete cw.Test.TestObject.InheritTest;
+			delete cw.Test.TestClass.InheritTest;
 		}
 	},
 
@@ -90,8 +90,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestObject').methods(
 	 * Modules have a __name__ attribute which gives their name.
 	 */
 	function test_moduleName(self) {
-		var mod = cw.Test.TestObject;
-		self.assertIdentical(mod.__name__, 'cw.Test.TestObject');
+		var mod = cw.Test.TestClass;
+		self.assertIdentical(mod.__name__, 'cw.Test.TestClass');
 	},
 
 
@@ -264,10 +264,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestObject').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestBareObject').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestBareObject').methods(
 
 	/*
-	 * Verify that method/methods-free classes (prototype. only) work fine.
+	 * Verify that setting prototype properties works fine (i.e. you do not have
+	 * to use method/methods/pmethods)
 	 */
 	function test_bareClass(self) {
 		var Bare = cw.Class.subclass('Bare');
@@ -297,7 +298,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestBareObject').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestMethodNoOverwrite').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestMethodNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Method-overwrite prevention only works with DEBUG");
@@ -408,7 +409,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestMethodNoOverwrite').metho
 
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestObject, '_WithTemporary').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestClass, '_WithTemporary').methods(
 	function tearDown(self) {
 		try {
 			delete cw.Test.__TestClassNoOverwrite_Temporary;
@@ -427,7 +428,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, '_WithTemporary').methods(
 /**
  * Test that new-style subclassing doesn't overwrite anything (except undefined).
  */
-cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestClassNoOverwrite').methods(
+cw.Test.TestClass._WithTemporary.subclass(cw.Test.TestClass, 'TestClassNoOverwrite').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Class-overwrite prevention only works with DEBUG");
@@ -471,7 +472,7 @@ cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestClassNoOverw
 /**
  * Test that displayName property is set for methods (with DEBUG).
  */
-cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestDisplayNameSet').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestDisplayNameSet').methods(
 // TODO
 );
 
@@ -482,7 +483,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestObject, 'TestDisplayNameSet').methods(
  *
  * (Test with .methods())
  */
-cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestBadMethodNames').methods(
+cw.Test.TestClass._WithTemporary.subclass(cw.Test.TestClass, 'TestBadMethodNames').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
@@ -518,7 +519,7 @@ cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestBadMethodNam
  *
  * (Test with .pmethods())
  */
-cw.Test.TestObject._WithTemporary.subclass(cw.Test.TestObject, 'TestPmethodsIsLenient').methods(
+cw.Test.TestClass._WithTemporary.subclass(cw.Test.TestClass, 'TestPmethodsIsLenient').methods(
 	function setUp(self) {
 		if(!goog.DEBUG) {
 			throw new cw.UnitTest.SkipTest("Preventing the use of erroneous method names only works with DEBUG");
