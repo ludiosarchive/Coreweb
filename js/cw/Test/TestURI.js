@@ -1,3 +1,7 @@
+/**
+ * Tests for cw.URI
+ */
+
 goog.require('cw.UnitTest');
 goog.require('cw.URI');
 

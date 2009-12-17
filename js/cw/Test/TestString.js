@@ -1,3 +1,7 @@
+/**
+ * Tests for cw.string
+ */
+
 goog.require('cw.UnitTest');
 goog.require('cw.string');
 

@@ -98,9 +98,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_BadTearDown').methods(
 
 cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setTimeoutLoose').methods(
 	function test_method(self) {
-		setTimeout(function(){}, 30); // was 300 before;
-		// old comment:
-		// this has to be long enough, or IE will fail. // WTF? why will IE fail?
+		setTimeout(function(){}, 30);
 	}
 );
 

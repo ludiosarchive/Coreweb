@@ -1,6 +1,9 @@
 /**
- * Tests for cw.UnitTest, the Javascript unit-testing framework.
- * Uses mock test cases provided by cw.Test.*Mock
+ * Tests for cw.UnitTest, a really great JavaScript unit-testing framework.
+ * 
+ * Tests for cw.UnitTest's assertion functions are in L{cw.Test.TestUnitTestAssertions}.
+ *
+ * These tests require mock test cases provided by cw.Test.*Mock.
  */
 
 goog.require('cw.Class');

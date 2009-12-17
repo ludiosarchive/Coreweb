@@ -1,3 +1,7 @@
+/**
+ * Tests for cw.UnitTest's assertion functions
+ */
+
 goog.require('cw.UnitTest');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
