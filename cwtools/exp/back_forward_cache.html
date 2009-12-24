@@ -1,19 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-	  "http://www.w3.org/TR/html4/loose.dtd">
+<!doctype html>
 <html>
 <head>
 	<meta http-equiv="charset" content="text/html; charset=utf-8">
-
-	<title>loadev</title>
+	<title></title>
 	<style>
-	* {
-		font-family: Verdana, sans-serif;
-		font-size: 13px
-	}
-	body, html {
-		background-color: #eee;
-	}
+		{{ getTestPageCSS() }}
 	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
 </head>
 <body>
 
@@ -22,7 +18,7 @@
 	https://developer.mozilla.org/en/using_firefox_1.5_caching
 -->
 
-<div id="info" style="background-color:#f7f7f7">
+<div id="doc" style="background-color:#f7f7f7">
 
 To test the back-forward cache, enter this page by following a link, then navigate Back and Forward using any method.
 If the browser's back-forward cache is working, you will see <code>pageshow</code> and <code>pagehide</code> events in the log below.
@@ -55,9 +51,7 @@ Safari 4.0.4/Win: yes (HTTP only)
 
 </div>
 
-<div id="log">
-
-</div>
+<div id="log"></div>
 
 <script>
 
