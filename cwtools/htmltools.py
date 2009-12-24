@@ -144,7 +144,7 @@ class LiveBoxPage(resource.Resource):
 
 		# This jinja2 stuff is for the html page, not the JavaScript
 		template = self._basePath.child(self._fileName).getContent().decode('utf-8')
-		dictionary = dict(expandScript=_expandScript)
+		dictionary = dict(expandScript=_expandScript, getTestPageCSS=getTestPageCSS)
 		rendered = self._jinja2Env.from_string(template).render(dictionary)
 		if not rendered.endswith(u'\n'):
 			rendered += u'\n'
