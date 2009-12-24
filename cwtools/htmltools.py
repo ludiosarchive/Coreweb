@@ -97,6 +97,31 @@ def expandScript(script, basePath=None, directoryScan=None):
 	return full
 
 
+def getTestPageCSS():
+	"""
+	Returns a stylesheet useful for all the test pages we have.
+	"""
+	return u'''
+* {
+	font-family: Verdana, sans-serif;
+	font-size: 13px;
+}
+pre, code {
+	font-family: Consolas, monospace;
+	font-size: 0.8em;
+}
+body, html {
+	background-color: #eee;
+}
+#log {
+	white-space: pre;
+}
+#doc {
+	white-space: pre-line;
+}
+'''
+
+
 # TODO: a test would be nice
 class LiveBoxPage(resource.Resource):
 	"""

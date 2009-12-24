@@ -124,3 +124,16 @@ x + 4;
 """
 
 		self.assertEqual(expected, htmltools.expandScript("// import p.mod1\nx + 4;\n", d))
+
+
+
+class GetTestPageCSSTests(unittest.TestCase):
+	"""
+	Tests for L{htmltools.getTestPageCSS}
+	"""
+	def test_getTestPageCSS(self):
+		output = htmltools.getTestPageCSS()
+		self.assert_(isinstance(output, unicode), type(output))
+
+		self.assertIn('#log', output)
+		self.assertIn('#doc', output)
