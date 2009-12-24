@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-            "http://www.w3.org/TR/html4/loose.dtd">
+<!doctype html>
 <html>
 <head>
 <title>test keepalive POST</title>
@@ -79,7 +78,13 @@ __bp.send_ajax_async = function(url, response_handler, args) {
 
 };
 
+var count = 0;
+
 function again() {
+	count++;
+	if(count > 500) {
+		return; // stop
+	}
 	setTimeout(function(){
 		__bp.send_ajax_async('/', function(){again()}, 'a few bytes');
 	}, 250);

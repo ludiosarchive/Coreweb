@@ -1,21 +1,31 @@
 <!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
 <body>
-<p>
 
+<div id="doc">
 Does the browser historically run all the setIntervals it should have run,
-after the computer wakes up from sleep?<br><br>
+after the computer wakes up from sleep?
 
-Firefox 3.5/Win: no<br>
-Firefox 4/Win: no<br>
-IE6/Win: no<br>
+Firefox 3.5/Win: no
+Firefox 4/Win: no
+IE6/Win: no
+Gecko before 1.8.0.14 / 1.8.1.8: probably (see below)
 
-</p>
-
-<p>This seems like a good design choice for browsers, because many
+This seems like a good design choice for browsers, because many
 webpages use setInterval, and running some function a million times
-after the computer wakes up from sleep could be disastrous.</p>
+after the computer wakes up from sleep could be disastrous.
 
-<pre>
 Copied from goog/timer/timer.js:
 
     // IMPORTANT!
@@ -28,16 +38,42 @@ Copied from goog/timer/timer.js:
     // This bug is described here and is already fixed, but it will
     // take time to propagate, so for now I am switching this over
     // to setTimeout logic.
-    //     https://bugzilla.mozilla.org/show_bug.cgi?id=376643
+    //     <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=376643">https://bugzilla.mozilla.org/show_bug.cgi?id=376643</a>
     //
-</pre>
+
+</div>
+
+
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
 
 <script>
 
 function blah() {
-	document.body.innerHTML += new Date().getTime() + '<br>'
+	logger.info(new Date().getTime());
 }
 
 setInterval(blah, 1000);
 
 </script>
+
+</body>
+</html>
