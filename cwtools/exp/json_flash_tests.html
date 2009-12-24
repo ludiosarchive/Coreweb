@@ -1,10 +1,25 @@
+<!doctype html>
 <html>
-<head><title>cw.json</title></head>
-<body bgcolor="#dddddd">
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc">
 <a href="build_cw_json_tests.log">Build log</a> | If it's not working, or tests are failing, do a Ctrl-shift-reload.
+</div>
+
 <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
-        width="100%"
-	height="100%"
+        width="1024"
+	height="768"
 	id="haxe"
 	align="middle">
 <param name="movie" value="cw_json_tests.swf"/>
@@ -15,8 +30,8 @@
 <param name="bgcolor" value="#ffffff"/>
 <embed src="cw_json_tests.swf"
        bgcolor="#ffffff"
-       width="100%"
-       height="98%"
+       width="1024"
+       height="768"
        name="haxe"
        quality="high"
        align="middle"

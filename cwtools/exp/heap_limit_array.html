@@ -1,36 +1,51 @@
 <!doctype html>
 <html>
 <head>
-<title>
-heap_limits_array
-</title>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
 </head>
 <body>
 
-<div style="white-space: pre-wrap">
-This page tests if the browser has a heap limit that can be exhausted by making many different
-strings and pushing them into an array.
+<div id="doc">
+This page helps you check if the browser has a heap limit that can be exhausted by making
+many different strings and pushing them into an array.
 
 This page will report its progress as it fills the heap. Keep in mind that browsers will use about twice
 as much memory as the numbers report because JS engines usually store strings as UTF-16.
 
 Notation is:
 	strings pushed,total character length of strings
-
 </div>
 
-<div id="log">
-</div>
+<div id="log"></div>
+
 <script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+""") }}
+</script>
 
-function append(msg) {
-	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
-	var br = document.createElement("br");
-	var logd = document.getElementById('log');
-	logd.appendChild(textnode);
-	logd.appendChild(br);
-}
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
 
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
 
 // JS engines will store this as ~64MB because of UTF-16
 var upTo = 32*1024*1024;
@@ -44,12 +59,12 @@ function addMore() {
 	bigThing.push(newString);
 	if(count % 100 == 0) {
 		// Report on progress
-		append([count, byteCount].join(','))
+		logger.info([count, byteCount].join(','))
 	}
 	if(byteCount < upTo) {
 		setTimeout(addMore, 0);
 	} else {
-		append('Done');
+		logger.info('Done');
 	}
 }
 

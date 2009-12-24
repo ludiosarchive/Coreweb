@@ -117,7 +117,7 @@ body, html {
 	white-space: pre;
 }
 #doc {
-	white-space: pre-line;
+	white-space: pre-wrap;
 }
 '''
 

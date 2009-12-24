@@ -1,15 +1,19 @@
 <!doctype html>
 <html>
 <head>
-	<title>native_json</title>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
 </head>
 <body>
 
-<style>
-* { font-family: Verdana, sans-serif }
-</style>
-
-<div style="white-space: pre-wrap">
+<div id="doc">
 The point of this is to determine how a browser's native JSON encoder encodes various characters.
 There are three things a browser does to a character:
 	pass-through (A -> A),
@@ -20,18 +24,32 @@ The notation below is:
 	length of JSON.stringify(character) <- inclusive character range
 
 Keep in mind that this includes the "" quotes that JSON.stringify creates.
-
 </div>
 
-<div id="log">
-</div>
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
 <script>
 function append(msg) {
-	var textnode = document.createTextNode('[' + new Date + '] ' + msg);
-	var br = document.createElement("br");
-	var logd = document.getElementById('log');
-	logd.appendChild(textnode);
-	logd.appendChild(br);
+	logger.info(msg);
 }
 
 var maxUnicode = 65535;
