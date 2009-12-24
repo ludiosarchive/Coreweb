@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title>xmlhttp_creation_benchmark</title>
+	<style>
+	* {
+		font-family: Verdana, sans-serif;
+		font-size: 13px;
+	}
+	body, html {
+		background-color: #eee;
+	}
+	#log {
+		white-space: pre;
+	}
+	</style>
+</head>
+<body>
+
+<script>
+
+var start = +new Date;
+if('\v' != 'v') { // not IE
+	for(var i=0; i < 1000; i++) {
+		var z = new XMLHttpRequest();
+	}
+} else {
+	for(var i=0; i < 1000; i++) {
+		var z = new ActiveXObject('MSXML2.XMLHTTP.3.0');
+	}
+}
+document.write('Time (ms) for object creations: ' + (+new Date-start));
+
+</script>
+
+</body>
+</html>
