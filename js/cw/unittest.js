@@ -1468,7 +1468,7 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 			//// completionDeferred.callback(null);
 
 			// asynchronous version
-			setTimeout(
+			goog.global.setTimeout(
 				function _SerialVisitor_fire_completionDeferred(){
 					completionDeferred.callback(null);
 				},
