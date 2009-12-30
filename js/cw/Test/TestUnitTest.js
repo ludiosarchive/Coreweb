@@ -827,6 +827,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 			pleaseRunMeWasRun = true;
 		};
 
+		// Do NOT change these to window.setTimeout or goog.global.setTimeout, because we need
+		// to know that cw.UnitTest.installMonkeys works for all cases.
+
 		self._ticket1 = setTimeout(neverRunMe, 10);
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
 		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
@@ -869,6 +872,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 		var pleaseRunMe = function() {
 			pleaseRunMeWasRun += 1;
 		};
+
+		// Do NOT change these to window.setInterval or goog.global.setInterval, because we need
+		// to know that cw.UnitTest.installMonkeys works for all cases.
 
 		self._ticket1 = setInterval(neverRunMe, 10);
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);

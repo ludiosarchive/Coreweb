@@ -1659,8 +1659,6 @@ cw.UnitTest.installMonkeys = function installMonkeys() {
 	var originalClearTimeout = window.clearTimeout;
 	var originalClearInterval = window.clearInterval;
 
-	// XXX if it doesn't work, try var ticket = null; at the top of each replacement
-
 	window.setTimeout = function(fn, time) {
 		function replacementCallable(ticket) {
 			delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
@@ -1713,6 +1711,24 @@ cw.UnitTest.installMonkeys = function installMonkeys() {
 
 		delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
 		return output;
+	}
+
+	// In non-IE browsers, the above overrides everything correctly,
+	// and both `setTimeout` and `window.setTimeout` use our special
+	// function. But in IE6-IE8, plain `setTimeout` still calls the original
+	// browser function. So, we do this to override the strange "top-level"
+	// `setTimeout` as well.
+
+	// For some strange reason, this is only needed for setTimeout,
+	// and not setInterval, clearTimeout, or clearInterval.
+
+	if(goog.userAgent.IE) {
+		cw.UnitTest.__window_setTimeout = window.setTimeout;
+
+		execScript("\
+		function setTimeout(fn, callable) {\
+			return cw.UnitTest.__window_setTimeout(fn, callable);\
+		}")
 	}
 
 	installD.callback(null);
