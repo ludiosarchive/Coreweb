@@ -1546,95 +1546,95 @@ cw.UnitTest.stopTrackingDelayedCalls();
 
 // TODO: maybe generalize Timeout and Interval monkeys? with a monkeyMaker?
 
-
-cw.UnitTest.setTimeoutMonkey = function(callable, when) {
-	function replacementCallable(ticket) {
-		delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
-
-		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
-//		if(originalLen !== newLen + 1) {
-//			cw.UnitTest.logger.fine('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
-//		}
-
-		// actually run the callable
-		callable.apply(null, []);
-	}
-
-	var ticket = null;
-
-	if(window.__CW_setTimeout_bak) {
-		ticket = __CW_setTimeout_bak(
-			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable(ticket) },
-		when);
-	} else if(window.frames && window.frames[0] && window.frames[0].setTimeout) {
-		ticket = window.frames[0].setTimeout(
-			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable(ticket) },
-		when);
-	} else {
-		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
-	}
-
-	cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
-
-	return ticket;
-}
-
-
-
-cw.UnitTest.setIntervalMonkey = function(callable, when) {
-	// interval callable repeats forever until we clearInterval,
-	// so we don't need any fancy replacementCallable.
-
-	var ticket = null;
-
-	if(window.__CW_setInterval_bak) {
-		ticket = __CW_setInterval_bak(callable, when);
-	} else if(window.frames && window.frames[0] && window.frames[0].setInterval) {
-		ticket = window.frames[0].setInterval(callable, when);
-	} else {
-		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
-	}
-
-	cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
-
-	return ticket;
-}
-
-
-
-cw.UnitTest.clearTimeoutMonkey = function(ticket) {
-
-	var output = null;
-
-	if(window.__CW_clearTimeout_bak) {
-		output = __CW_clearTimeout_bak(ticket);
-	} else if(window.frames && window.frames[0] && window.frames[0].clearTimeout) {
-		output = window.frames[0].clearTimeout(ticket);
-	} else {
-		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
-	}
-
-	delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
-	return output;
-}
-
-
-
-cw.UnitTest.clearIntervalMonkey = function(ticket) {
-
-	var output = null;
-
-	if(window.__CW_clearInterval_bak) {
-		output = __CW_clearInterval_bak(ticket);
-	} else if(window.frames && window.frames[0] && window.frames[0].clearInterval) {
-		output = window.frames[0].clearInterval(ticket);
-	} else {
-		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
-	}
-
-	delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
-	return output;
-}
+//
+//cw.UnitTest.setTimeoutMonkey = function(callable, when) {
+//	function replacementCallable(ticket) {
+//		delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+//
+//		// not very useful message, because test runner knows exactly which test caused the problem in the first place.
+////		if(originalLen !== newLen + 1) {
+////			cw.UnitTest.logger.fine('{MONKEY} replacementCallable did no cleanup because setTimeout callable ran *after* the test runner already cleaned the delayedCalls.');
+////		}
+//
+//		// actually run the callable
+//		callable.apply(null, []);
+//	}
+//
+//	var ticket = null;
+//
+//	if(window.__CW_setTimeout_bak) {
+//		ticket = __CW_setTimeout_bak(
+//			function _setTimeoutMonkey_replacementCallable_bak(){ replacementCallable(ticket) },
+//		when);
+//	} else if(window.frames && window.frames[0] && window.frames[0].setTimeout) {
+//		ticket = window.frames[0].setTimeout(
+//			function _setTimeoutMonkey_replacementCallable_frame(){ replacementCallable(ticket) },
+//		when);
+//	} else {
+//		throw new Error("neither setTimeout_bak nor window.frames[0].setTimeout was available.");
+//	}
+//
+//	cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
+//
+//	return ticket;
+//}
+//
+//
+//
+//cw.UnitTest.setIntervalMonkey = function(callable, when) {
+//	// interval callable repeats forever until we clearInterval,
+//	// so we don't need any fancy replacementCallable.
+//
+//	var ticket = null;
+//
+//	if(window.__CW_setInterval_bak) {
+//		ticket = __CW_setInterval_bak(callable, when);
+//	} else if(window.frames && window.frames[0] && window.frames[0].setInterval) {
+//		ticket = window.frames[0].setInterval(callable, when);
+//	} else {
+//		throw new Error("neither setInterval_bak nor window.frames[0].setInterval was available.");
+//	}
+//
+//	cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
+//
+//	return ticket;
+//}
+//
+//
+//
+//cw.UnitTest.clearTimeoutMonkey = function(ticket) {
+//
+//	var output = null;
+//
+//	if(window.__CW_clearTimeout_bak) {
+//		output = __CW_clearTimeout_bak(ticket);
+//	} else if(window.frames && window.frames[0] && window.frames[0].clearTimeout) {
+//		output = window.frames[0].clearTimeout(ticket);
+//	} else {
+//		throw new Error("neither clearTimeout_bak nor window.frames[0].clearTimeout was available.");
+//	}
+//
+//	delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+//	return output;
+//}
+//
+//
+//
+//cw.UnitTest.clearIntervalMonkey = function(ticket) {
+//
+//	var output = null;
+//
+//	if(window.__CW_clearInterval_bak) {
+//		output = __CW_clearInterval_bak(ticket);
+//	} else if(window.frames && window.frames[0] && window.frames[0].clearInterval) {
+//		output = window.frames[0].clearInterval(ticket);
+//	} else {
+//		throw new Error("neither __CW_clearInterval_bak nor window.frames[0].clearInterval was available.");
+//	}
+//
+//	delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
+//	return output;
+//}
 
 
 /**
@@ -1643,6 +1643,7 @@ cw.UnitTest.clearIntervalMonkey = function(ticket) {
 cw.UnitTest.installMonkeys = function installMonkeys() {
 	//cw.UnitTest.logger.fine('installMonkeys');
 
+	// Deferred not really needed in this function ever since it was cleaned up
 	var installD = new goog.async.Deferred();
 
 	if(cw.UnitTest.monkeysAreInstalled) {
@@ -1653,86 +1654,68 @@ cw.UnitTest.installMonkeys = function installMonkeys() {
 
 	cw.UnitTest.monkeysAreInstalled = true;
 
-	// This _bak reference-swapping works for every browser except IE.
-	// We could just do IE global replacement + iframe original function for *all* browsers,
-	// but we don't because it's at higher risk of breaking.
-	// (it is indeed mildly broken in Safari 4 beta [2009-03-07])
-	//    not anymore when https://bugs.webkit.org/show_bug.cgi?id=24453 is Fixed and Safari 4 ships with it.
-	if(!goog.userAgent.IE) {
-		// TODO: build a CW.Support module that has
-		// "supportsSetTimeoutReferenceSwap" instead of making all these IE assumptions
-		
-		// These "backup" references to the real functions must be properties of window,
-		// at least for Firefox 3.5.
-		window.__CW_setTimeout_bak = window.setTimeout;
-		window.setTimeout = cw.UnitTest.setTimeoutMonkey;
-		window.__CW_clearTimeout_bak = window.clearTimeout;
-		window.clearTimeout = cw.UnitTest.clearTimeoutMonkey;
+	var originalSetTimeout = window.setTimeout;
+	var originalSetInterval = window.setInterval;
+	var originalClearTimeout = window.clearTimeout;
+	var originalClearInterval = window.clearInterval;
 
-		window.__CW_setInterval_bak = window.setInterval;
-		window.setInterval = cw.UnitTest.setIntervalMonkey;
-		window.__CW_clearInterval_bak = window.clearInterval;
-		window.clearInterval = cw.UnitTest.clearIntervalMonkey;
-		installD.callback(null);
-	} else {
-		cw.UnitTest._iframeReady = new goog.async.Deferred();
+	// XXX if it doesn't work, try var ticket = null; at the top of each replacement
 
-		/*
-		 * This special frame keeps unmodified versions of setTimeout,
-		 * setInterval, clearTimeout, and clearInterval.
-		 *
-		 * The id and name are not used by the JS; this frame
-		 * is accessed with window.frames[0].  Do not make this src=about:blank
-		 * because about:blank is a non-https page,  and will trigger IE6/7/8
-		 * mixed content warnings.
-		 */
+	window.setTimeout = function(fn, time) {
+		function replacementCallable(ticket) {
+			delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
-		var body = document.body;
-		var iframe = document.createElement("iframe");
-		iframe.setAttribute("src", "/@testres_Coreweb/blank.html");
-		iframe.setAttribute("id", "__CW_unittest_blank_iframe");
-		iframe.setAttribute("name", "__CW_unittest_blank_iframe");
-
-		// Setting onload attribute or .onload property doesn't work in IE (6, 7 confirmed),
-		// so attachEvent instead.
-		iframe.attachEvent("onload", function _UnitTest_fire__iframeReady(){
-			cw.UnitTest._iframeReady.callback(null);
-		});
-
-		// setAttribute("style", ...  is not working in IE6 or IE7, so use .style instead.
-		iframe.style.height = '16px';
-		iframe.style.border = '3px';
-
-		body.appendChild(iframe);
-
-		var numFrames = window.frames.length;
-		if(numFrames != 1) {
-			throw new Error("window.frames.length was " + numFrames);
+			// actually run the callable
+			fn.apply(null, []);
 		}
 
-		function _IE_finishInstallMonkeys() {
-			cw.UnitTest.logger.info('_iframeReady triggered.');
-			execScript('\
-				function setTimeout(callable, when) {\
-					return cw.UnitTest.setTimeoutMonkey(callable, when);\
-				}\
-				function clearTimeout(ticket) {\
-					return cw.UnitTest.clearTimeoutMonkey(ticket);\
-				}\
-				function setInterval(callable, when) {\
-					return cw.UnitTest.setIntervalMonkey(callable, when);\
-				}\
-				function clearInterval(ticket) {\
-					return cw.UnitTest.clearIntervalMonkey(ticket);\
-				}'
-			);
-
-			installD.callback(null);
+		if (originalSetTimeout.call) {
+			var ticket = originalSetTimeout.call(this, function(){replacementCallable(ticket)}, time);
+		} else {
+			var ticket = originalSetTimeout(function(){replacementCallable(ticket)}, time);
 		}
 
-		cw.UnitTest._iframeReady.addCallback(_IE_finishInstallMonkeys);
+		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
+
+		return ticket;
 	}
 
+	window.setInterval = function(fn, time) {
+		// interval callable repeats forever until we clearInterval,
+		// so we don't need any fancy replacementCallable.
+
+		if (originalSetInterval.call) {
+			var ticket = originalSetInterval.call(this, fn, time);
+		} else {
+			var ticket = originalSetInterval(fn, time);
+		}
+		cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
+		return ticket;
+	}
+
+	window.clearTimeout = function(ticket) {
+		if (originalClearTimeout.call) {
+			var output = originalClearTimeout.call(this, ticket);
+		} else {
+			var output = originalClearTimeout(ticket);
+		}
+
+		delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
+		return output;
+	}
+
+	window.clearInterval = function(ticket) {
+		if (originalClearInterval.call) {
+			var output = originalClearInterval.call(this, ticket);
+		} else {
+			var output = originalClearInterval(ticket);
+		}
+
+		delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
+		return output;
+	}
+
+	installD.callback(null);
 	return installD;
 }
 
