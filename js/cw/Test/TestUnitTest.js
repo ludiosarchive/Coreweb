@@ -828,7 +828,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		// Do NOT change these to window.setTimeout or goog.global.setTimeout, because we need
-		// to know that cw.UnitTest.installMonkeys works for all cases.
+		// to know that cw.UnitTest.installMonkeys works for the "bare" function call.
 
 		self._ticket1 = setTimeout(neverRunMe, 10);
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
@@ -874,7 +874,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 		};
 
 		// Do NOT change these to window.setInterval or goog.global.setInterval, because we need
-		// to know that cw.UnitTest.installMonkeys works for all cases.
+		// to know that cw.UnitTest.installMonkeys works for the "bare" function call.
 
 		self._ticket1 = setInterval(neverRunMe, 10);
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
