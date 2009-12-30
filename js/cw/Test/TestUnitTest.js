@@ -462,7 +462,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	 */
 	function test_setTimeoutLooseNested(self) {
 		// the loose call in this "parent" test
-		setTimeout(function(){}, 60);
+		var looseTimeout = setTimeout(function(){}, 60);
 
 		var suite = cw.UnitTest.TestSuite();
 		// "child" test will have a loose call, too.
@@ -482,6 +482,8 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 			for (var k in cw.UnitTest.delayedCalls) {
 				self.assertArraysEqual([], goog.object.getKeys(cw.UnitTest.delayedCalls[k]));
 			}
+
+			clearTimeout(looseTimeout); // This should be in an addCleanup above instead
 		});
 		return d;
 	}
