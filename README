@@ -6,6 +6,39 @@ A: The implementation stops reading the file after it doesn't see such a line af
 Move the provide lines closer together.
 
 
+Q: What's the point of all this `jsimp` stuff? Why not use Closure's built-in goog.require(...)
+<script> inserter?
+
+A: jsimp was written before Closure Library was released. It was originally used to assemble
+Divmod-style JS code, that had "// import Another.Module" lines. Today, the advantages
+and disadvantages are:
+
+Advantages of using jsimp over goog.require(...) loading:
+
+-	The output from a jsimp.megaScript lands in one <script> tag instead of many
+	<script> tags, so this more closely resembles production conditions, where
+	there is one <script> tag with compiled JavaScript.
+
+-	Reduced latency when loading a test page; the page will not require a ton
+	of round trips to load all of the required JavaScript files.
+
+-	No need for an inotifywait script to regenerate deps.js all the time
+	(though you will sometimes suffer inconsistent state if goog.provide lines are moved between files)
+
+-	No need to set up your development server to serve JavaScript code
+	from a directory.
+
+Advantages of using goog.require(...) loading over jsimp:
+
+-	Line numbers and filenames in JavaScript tracebacks map correctly to
+	your JavaScript source code files.
+	(with jsimp.megaScript concatenation, you have to View Source on the
+	html page to figure out which line is the problem.)
+
+-	This is what Google and everyone else does, so people will understand
+	what you are doing, and share your problems.
+
+
 === Limited project scope ===
 
 Coreweb should contain JavaScript and Flash (haXe/AS3) files that assist in
