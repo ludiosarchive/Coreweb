@@ -2,7 +2,7 @@
 			"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<title>Talk.</title>
+<title>tabshare_prototype</title>
 
 <style type="text/css">
 #debug {
@@ -17,6 +17,15 @@
 Talk.<br><br>
 
 <a href="/talk/">Self-link. For Testing Opera unload, or testing Chrome's "site" grouping.</a><br><br>
+
+<a href="#" onclick="start_eating();return false">Start eating CPU (helps determine which process this tab is in)</a><br><br>
+
+<a href="#" onclick="stop_eating();return false">Stop eating CPU</a><br><br>
+
+<a href="#" onclick="start_master_eating();return false">Start eating master's CPU</a><br><br>
+
+<a href="#" onclick="stop_master_eating();return false">Stop eating master's CPU</a><br><br>
+
 
 <div id="debug"></div>
 
@@ -227,7 +236,9 @@ var tab_closing = function() {
 		nuke_cookie(tab_id);
 		broadcast_my_death();
 	} else {
-		master_ref.notify_closing(tab_id);
+		if(window.master_ref) {
+			master_ref.notify_closing(tab_id);
+		}
 	}
 };
 
@@ -242,6 +253,70 @@ if(!final_s) {
 } else {
 	connect_to_master(final_s[0]);
 }
+
+
+
+
+
+
+var eat_cpu = function() {
+	for(i=0; i < 100000; i++) {
+		var z = 127387812379812312378/1278918727839091279409173;
+		var y = 178923817647981287932/5980981674098187937910984;
+		var x = 789017649-18793879051/1234789109812387940794871;
+		var s = '' + z + y + x + z + y + x + z + y + x;
+		var a = Array(100).join(s);
+	}
+	return 999;
+}
+
+window.cpuEater = null;
+var	 start_eating = function() {
+	if(window.cpuEater === null) {
+		window.cpuEater = setInterval(eat_cpu, 4);
+	}
+}
+
+
+var stop_eating = function() {
+	if(window.cpuEater !== null) {
+		clearInterval(window.cpuEater);
+		window.cpuEater = null;
+	}
+}
+
+
+
+
+var eat_master_cpu = function() {
+	try {
+		var ret = master_ref.eat_cpu();
+		if(ret != 999) {
+			debug('Got incorrect return value from master: ' + ret);
+			stop_master_eating();
+		}
+	} catch(e) {
+		debug('Got error from master: ' + e + ' ' + e.message);
+		stop_master_eating();
+	}
+}
+
+
+window.masterCpuEater = null;
+var	 start_master_eating = function() {
+	if(window.masterCpuEater === null) {
+		window.masterCpuEater = setInterval(eat_master_cpu, 4);
+	}
+}
+
+
+var stop_master_eating = function() {
+	if(window.masterCpuEater !== null) {
+		clearInterval(window.masterCpuEater);
+		window.masterCpuEater = null;
+	}
+}
+
 
 
 
