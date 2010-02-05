@@ -3,6 +3,7 @@
  */
 
 goog.require('cw.UnitTest');
+goog.require('goog.asserts.AssertionError');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug.Error');
@@ -44,7 +45,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assert(self) {
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() { self.assert(false, "message"); }
 		);
 	},
@@ -122,8 +123,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_assertThrowsPositive(self) {
 		try {
 			self.assertThrows(
-				cw.UnitTest.AssertionError,
-				function() { throw new cw.UnitTest.AssertionError(); }
+				goog.asserts.AssertionError,
+				function() { throw new goog.asserts.AssertionError('', []); }
 			);
 		} catch (e) {
 			self.fail("assertThrows should have passed: " + e.message);
@@ -139,12 +140,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		var raised = true;
 		try {
 			self.assertThrows(
-				cw.UnitTest.AssertionError,
+				goog.asserts.AssertionError,
 				function() {}
 			);
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof cw.UnitTest.AssertionError)) {
+			if (!(e instanceof goog.asserts.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -162,11 +163,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		var raised = true;
 		try {
 			self.assertThrows(
-				cw.UnitTest.AssertionError,
+				goog.asserts.AssertionError,
 				function() {}, "this message will never be cared about");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof cw.UnitTest.AssertionError)) {
+			if (!(e instanceof goog.asserts.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -184,12 +185,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		var raised = true;
 		try {
 			self.assertThrows(
-				cw.UnitTest.AssertionError,
+				goog.asserts.AssertionError,
 				function() { throw new cw.Test.TestUnitTestAssertions.SpecialError(); }
 			);
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof cw.UnitTest.AssertionError)) {
+			if (!(e instanceof goog.asserts.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -210,7 +211,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 							  function() { throw new cw.Test.TestUnitTestAssertions.SpecialError("correct message"); }, "wrong message");
 			raised = false;
 		} catch (e) {
-			if (!(e instanceof cw.UnitTest.AssertionError)) {
+			if (!(e instanceof goog.asserts.AssertionError)) {
 				self.fail("assertThrows should have thrown AssertionError");
 			}
 		}
@@ -234,7 +235,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_compareNegative(self) {
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.compare(
 					function (a, b) { return a === b; },
@@ -278,7 +279,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertIdenticalNegative(self) {
 		var e = self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertIdentical('apple', 'orange');
 			}
@@ -319,7 +320,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_assertIdenticalDifferentTypes(self) {
 		var raised = true;
 		var e = self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertIdentical(1, '1');
 			}
@@ -389,25 +390,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertArraysEqualNegative(self) {
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysEqual([1, 2], [1, 2, 3]);
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysEqual({'foo': 2}, [2]);
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysEqual(1, [1]);
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysEqual(
 					function() { return 1; },
@@ -416,7 +417,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysEqual(
 					function() {},
@@ -433,19 +434,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertArraysNotEqualNegative(self) {
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysNotEqual([1, 2, 3], [1, 2, 3]);
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysNotEqual([2], [2]);
 			}
 		);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertArraysNotEqual([], []);
 			}
@@ -461,7 +462,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		var foo = [1, 2];
 		self.assertIdentical(foo, foo);
 		self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() { self.assertIdentical(foo, [1, 2]); }
 		);
 	},
@@ -481,7 +482,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertInNegative(self) {
 		var e = self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertIn("1", [5]);
 			}
@@ -504,7 +505,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	 */
 	function test_assertNotInNegative(self) {
 		var e = self.assertThrows(
-			cw.UnitTest.AssertionError,
+			goog.asserts.AssertionError,
 			function() {
 				self.assertNotIn("0", [5]);
 			}
@@ -541,7 +542,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 
 	function test_assertEqualNegative(self) {
 		function aT(f) {
-			self.assertThrows(cw.UnitTest.AssertionError, f);
+			self.assertThrows(goog.asserts.AssertionError, f);
 		}
 
 		function a() {}

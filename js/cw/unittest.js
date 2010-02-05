@@ -13,6 +13,7 @@ goog.require('goog.array');
 goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
+goog.require('goog.asserts.AssertionError');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
@@ -27,18 +28,6 @@ goog.provide('cw.UnitTest');
 
 cw.UnitTest.logger = goog.debug.Logger.getLogger('cw.UnitTest');
 cw.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
-
-
-/**
- * Raised by cw.UnitTest to indicate that a test has failed. For your
- * own asserts, use goog.asserts
- */
-cw.UnitTest.AssertionError = function(opt_msg) {
-	goog.debug.Error.call(this, opt_msg);
-};
-goog.inherits(cw.UnitTest.AssertionError, goog.debug.Error);
-cw.UnitTest.AssertionError.prototype.name = 'cw.UnitTest.AssertionError';
-
 
 
 /**
@@ -154,7 +143,7 @@ cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type failures: Array of [L{TestCase}, L{cw.UnitTest.AssertionError}] pairs
+ * @type failures: Array of [L{TestCase}, L{goog.asserts.AssertionError}] pairs
  * @ivar failures: The assertion failures that have occurred in this test run,
  *				 paired with the tests that generated them.
  *
@@ -226,7 +215,7 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @type test: L{cw.UnitTest.TestCase}
 	 *
 	 * @param failure: The failure that occurred.
-	 * @type failure: A L{cw.UnitTest.AssertionError} instance.
+	 * @type failure: A L{goog.asserts.AssertionError} instance.
 	 */
 	function addFailure(self, test, failure) {
 		self.failures.push([test, failure]);
@@ -596,10 +585,10 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @return: L{cw.UnitTest.AssertionError} instance.
+	 * @return: L{goog.asserts.AssertionError} instance.
 	 */
 	function getFailError(self, reason) {
-		return new cw.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason);
+		return new goog.asserts.AssertionError("[" + self._assertCounter + "] " + reason, []);
 	},
 
 
@@ -608,7 +597,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @type reason: text
 	 * @param reason: Why the test is being failed.
-	 * @throw: cw.UnitTest.AssertionError
+	 * @throw: goog.asserts.AssertionError
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -658,7 +647,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{cw.UnitTest.AssertionError} if C{predicate} returns
+	 * @raises L{goog.asserts.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
@@ -906,7 +895,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *          a Deferred which will fire callback with a 1 item list: [the error object]
 	 *          with which the input Deferred failed
 	 *    else,
-	 *          a Deferred which will fire errback with a L{cw.UnitTest.AssertionError}.
+	 *          a Deferred which will fire errback with a L{goog.asserts.AssertionError}.
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
@@ -984,7 +973,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
-					if (anError instanceof cw.UnitTest.AssertionError) {
+					if (anError instanceof goog.asserts.AssertionError) {
 						result.addFailure(self, anError);
 					} else if (anError instanceof cw.UnitTest.SkipTest) {
 						result.addSkip(self, anError);
@@ -1092,7 +1081,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof cw.UnitTest.AssertionError) {
+//			if (e instanceof goog.asserts.AssertionError) {
 //				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
