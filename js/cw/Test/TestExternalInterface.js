@@ -6,6 +6,9 @@ goog.require('cw.externalinterface');
 
 goog.provide('cw.Test.TestExternalInterface');
 
+// anti-clobbering for JScript
+(function(){
+
 // TODO: test object with keys that are inherited from Object.prototype
 // TODO: same as above, except hasOwnProperty on the object has been deleted
 
@@ -324,3 +327,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	}
 
 );
+
+})(); // end anti-clobbering for JScript

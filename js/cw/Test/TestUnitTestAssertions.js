@@ -10,6 +10,9 @@ goog.require('goog.debug.Error');
 
 goog.provide('cw.Test.TestUnitTestAssertions');
 
+// anti-clobbering for JScript
+(function(){
+
 /**
  * Just for testing.
  */
@@ -575,3 +578,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 
 	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE
 );
+
+})(); // end anti-clobbering for JScript

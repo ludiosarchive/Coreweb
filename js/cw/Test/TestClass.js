@@ -8,6 +8,8 @@ goog.require('cw.Class');
 
 goog.provide('cw.Test.TestClass');
 
+// anti-clobbering for JScript
+(function(){
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 
@@ -541,3 +543,5 @@ cw.Test.TestClass._WithTemporary.subclass(cw.Test.TestClass, 'TestPmethodsIsLeni
 		attachBadMethod2();
 	}
 );
+
+})(); // end anti-clobbering for JScript

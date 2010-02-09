@@ -7,6 +7,8 @@ goog.require('cw.URI');
 
 goog.provide('cw.Test.TestURI');
 
+// anti-clobbering for JScript
+(function(){
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'functionalTests').methods(
 
@@ -395,3 +397,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		self.assertEqual(80, u.port);
 	}
 );
+
+})(); // end anti-clobbering for JScript

@@ -25,6 +25,9 @@ goog.require('goog.string');
 
 goog.provide('cw.UnitTest');
 
+// anti-clobbering for JScript
+(function(){
+
 
 cw.UnitTest.logger = goog.debug.Logger.getLogger('cw.UnitTest');
 cw.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
@@ -1912,3 +1915,5 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 
 });
 
+
+})(); // end anti-clobbering for JScript

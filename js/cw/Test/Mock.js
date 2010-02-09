@@ -7,6 +7,9 @@ goog.require('cw.UnitTest');
 
 goog.provide('cw.Test.Mock');
 
+// anti-clobbering for JScript
+(function(){
+
 /**
  * L{TestCase} subclass that we use as the primary subject of our tests in
  * L{TestCaseTest}.
@@ -109,3 +112,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setIntervalLoose').methods(
 		self._interval = setInterval(function(){}, 10);
 	}
 );
+
+})(); // end anti-clobbering for JScript

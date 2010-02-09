@@ -17,6 +17,8 @@ goog.require('goog.async.DeferredList');
 
 goog.provide('cw.Test.TestUnitTest');
 
+// anti-clobbering for JScript
+(function(){
 
 /**
  * A mock L{TestResult} object that we use to test that L{startTest} and L{stopTest}
@@ -1238,3 +1240,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
 	}
 
 );
+
+})(); // end anti-clobbering for JScript

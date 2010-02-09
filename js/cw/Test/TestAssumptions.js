@@ -8,6 +8,8 @@ goog.require('goog.userAgent');
 
 goog.provide('cw.Test.TestAssumptions');
 
+// anti-clobbering for JScript
+(function(){
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').methods(
 	/**
@@ -211,3 +213,5 @@ there';
 		}
 	}
 );
+
+})(); // end anti-clobbering for JScript

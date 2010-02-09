@@ -13,6 +13,9 @@ goog.require('goog.async.Deferred');
 
 goog.provide('cw.Test.DSMock');
 
+// anti-clobbering for JScript
+(function(){
+
 /**
  * L{TestCase} subclass that we use as the primary subject of our tests in
  * L{TestCaseTest}.
@@ -127,3 +130,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.DSMock, '_BadTearDown').methods(
 		return d;
 	}
 );
+
+})(); // end anti-clobbering for JScript

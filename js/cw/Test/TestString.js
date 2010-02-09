@@ -7,6 +7,9 @@ goog.require('cw.string');
 
 goog.provide('cw.Test.TestString');
 
+// anti-clobbering for JScript
+(function(){
+
 /**
  * Check that split works as expected.
  */
@@ -111,3 +114,5 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'StartsWithAltTests').methods(
 		self.assertThrows(Error, function(){cw.string.startsWithAlt(33, "3");});
 	}
 );
+
+})(); // end anti-clobbering for JScript
