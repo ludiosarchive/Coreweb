@@ -2,7 +2,7 @@ package cw.json;
 
 import cw.json.JSON;
 import flash.external.ExternalInterface;
-
+import haxe.unit.TestStatus;
 
 /**
  * These tests come from caffeine-hx, as3corelib, json.org's Test1 and Test2, and self-written tests.
@@ -33,13 +33,25 @@ class TestAll extends haxe.unit.TestCase {
 		assertTrue(parseError != null);
 	}
 
-	public function testSimple() {
+	public function testSimple1() {
 		var v = {x:"nice", y:"one"};
 		var e = JSON.encode(v);
-		assertEquals('{"x":"nice","y":"one"}', e);
+		try {
+			assertEquals('{"x":"nice","y":"one"}', e);
+		} catch (err:Dynamic) { // TODO XXX: better catch
+			assertEquals('{"y":"one","x":"nice"}', e);
+		}
 		var d = JSON.decode(e);
 		assertEquals(d.y, v.y);
 		assertEquals(d.x, v.x);
+	}
+
+	public function testSimple2() {
+		var v = {x:["nice",{}]};
+		var e = JSON.encode(v);
+		assertEquals('{"x":["nice",{}]}', e);
+		var d = JSON.decode(e);
+		assertEquals(d.x[0], v.x[0]);
 	}
 
 	public function testNumVal() {
