@@ -13,32 +13,25 @@
 </head>
 <body>
 
+<script>
+{{ expandScript("""
+goog.require('swfobject');
+""") }}
+
+</script>
+
+
 <div id="doc">
 <a href="build_cw_json_tests.log">Build log</a> | If it's not working, or tests are failing, do a Ctrl-shift-reload.
 </div>
 
-<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
-        width="1024"
-	height="768"
-	id="haxe"
-	align="middle">
-<param name="movie" value="cw_json_tests.swf"/>
-<param name="allowScriptAccess" value="always" />
-<param name="quality" value="high" />
-<param name="scale" value="noscale" />
-<param name="salign" value="lt" />
-<param name="bgcolor" value="#ffffff"/>
-<embed src="cw_json_tests.swf"
-       bgcolor="#ffffff"
-       width="1024"
-       height="768"
-       name="haxe"
-       quality="high"
-       align="middle"
-       allowScriptAccess="always"
-       type="application/x-shockwave-flash"
-       pluginspage="http://www.macromedia.com/go/getflashplayer"
-/>
-</object>
+<div id="swf"></div>
+
+<script>
+flashvars = {}
+params = {}
+swfobject.embedSWF("cw_json_tests.swf", "swf", "1024", "768", [9, 0, 0], "expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+</script>
+
 </body>
 </html>
