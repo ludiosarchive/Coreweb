@@ -2,6 +2,7 @@ package cw.json;
 
 import cw.json.JSON;
 import flash.external.ExternalInterface;
+import flash.system.Capabilities;
 import haxe.unit.TestStatus;
 
 /**
@@ -319,6 +320,47 @@ E_val: N/A"}]}';
 	}
 
 
+	public function getPlayerVersion() {
+		var flashVersion:Dynamic = {};
+
+		// Get a string like "WIN 9,0,0,0". We'll ignore the last number.
+		var versionNumber:String = Capabilities.version;
+		var versionArray:Array<String> = versionNumber.split(",");
+		var osPlusVersion:Array<String> = versionArray[0].split(" ");
+
+		flashVersion.os = osPlusVersion[0];
+		flashVersion.major = Std.parseInt(osPlusVersion[1]);
+		flashVersion.minor = Std.parseInt(versionArray[1]);
+		flashVersion.build = Std.parseInt(versionArray[2]);
+
+		return flashVersion;
+	}
+
+
+	public function testLeadingZeroInPropertyBehavior():Void {
+		/*
+		 * Flash 10.1 b2 (possibly b1 too) has some very special
+		 * ideas about what to do with leading zeroes on properties.
+		 *
+		 * Also, not tested here, but when you iterate over the properties,
+		 * you will find "123" and not "0123".
+		 */
+		var n:Dynamic = JSON.decode('{"0123": "hi"}');
+
+		assertEquals(null, Reflect.field(n, "00123"));
+
+		// Fortunately, this still works in 10.1b2
+		assertEquals("hi", Reflect.field(n, "0123"));
+
+		var flashVersion:Dynamic = getPlayerVersion();
+		if(flashVersion.major >= 10 && flashVersion.minor >= 1) {
+			assertEquals("hi", Reflect.field(n, "123"));
+		} else {
+			assertEquals(null, Reflect.field(n, "123"));
+		}
+	}
+
+
 	/**
 	 * Based on http://json.org/JSON_checker/test/pass1.json ; a better version of this test is also in simplejson
 	 */
@@ -344,7 +386,15 @@ E_val: N/A"}]}';
 		//	- its float representation is sometimes non-optimal; for example: 1.23456789000000e+34
 		//	- it backslashes forward slashes, leading to "wasted" bytes
 
-		assertEquals(990, encoded.length);
+		// In Flash 10.1b2, after a decode->encode cycle, our
+		// "0123456789": digits is corrupted to "123456789": digits
+		// See testLeadingZeroInPropertyBehavior
+		var flashVersion:Dynamic = getPlayerVersion();
+		if(flashVersion.major >= 10 && flashVersion.minor >= 1) {
+			assertEquals(989, encoded.length);
+		} else {
+			assertEquals(990, encoded.length);
+		}
 	}
 
 
