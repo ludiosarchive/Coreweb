@@ -221,7 +221,7 @@ cw.URI.URL = function(urlObjOrString) {
 			self.update_('path', urlObjOrString['path'], true);
 			self.update_('query', urlObjOrString['query'], true);
 			self.update_('fragment', urlObjOrString['fragment'], true);
-			self._explicitPort = urlObjOrString._explicitPort;
+			self.explicitPort_ = urlObjOrString.explicitPort_;
 		} else {
 			self['port'] = null; // scary logic follows
 
@@ -248,17 +248,32 @@ cw.URI.URL = function(urlObjOrString) {
 		}
 	}
 
+	/**
+	 * Whether this URL has an explicit port set (instead of an implied
+	 * 	port based on the scheme).
+	 * @type {boolean}
+	 * @private
+	 */
+	cw.URI.URL.prototype.explicitPort_ = false;
+
+	/**
+	 * The default port for the scheme that this URL currently has.
+	 * @type {number|undefined}
+	 * @private
+	 */
+	cw.URI.URL.prototype.defaultPortForMyScheme_;
+
 	cw.URI.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
 		var self = this;
 		self['scheme'] = self['scheme'].toLowerCase();
 
 		// This might become undefined.
-		self._defaultPortForMyScheme = cw.URI.schemeToDefaultPort[self['scheme']];
+		self.defaultPortForMyScheme_ = cw.URI.schemeToDefaultPort[self['scheme']];
 
-		if(!self._explicitPort) {
-			if(self._defaultPortForMyScheme !== undefined) {
-				// Note how we don't call self.update_('port', ...), because that would set _explicitPort
-				self['port'] = self._defaultPortForMyScheme;
+		if(!self.explicitPort_) {
+			if(self.defaultPortForMyScheme_ !== undefined) {
+				// Note how we don't call self.update_('port', ...), because that would set explicitPort_
+				self['port'] = self.defaultPortForMyScheme_;
 			}
 		}
 	}
@@ -272,7 +287,7 @@ cw.URI.URL = function(urlObjOrString) {
 
 	cw.URI.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
 		var self = this;
-		self._explicitPort = true;
+		self.explicitPort_ = true;
 	}
 
 	/**
@@ -310,7 +325,7 @@ cw.URI.URL = function(urlObjOrString) {
 		 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
 		 */
 		var port;
-		if(!self['port'] || self._defaultPortForMyScheme === self['port']) {
+		if(!self['port'] || self.defaultPortForMyScheme_ === self['port']) {
 			port = null;
 		} else {
 			port = '' + self['port']; // convert to a string for join_authority
