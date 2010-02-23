@@ -230,24 +230,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 		var u = new URL("https://host");
 		self.assertEqual("https://host/", u.getString());
 
-		u.update('scheme', 'http');
-		u.update('host', 'newhost');
-		u.update('port', 1);
-		u.update('user', 'auser')
+		u.update_('scheme', 'http');
+		u.update_('host', 'newhost');
+		u.update_('port', 1);
+		u.update_('user', 'auser')
 		// no password set.
-		u.update('path', '/newpath');
-		u.update('fragment', 'fragment');
-		u.update('query', 'aquery?yes');
+		u.update_('path', '/newpath');
+		u.update_('fragment', 'fragment');
+		u.update_('query', 'aquery?yes');
 		self.assertEqual("http://auser@newhost:1/newpath?aquery?yes#fragment", u.getString());
 
 		// and back...
-		u.update('query', null);
-		u.update('fragment', null);
-		u.update('path', null);
-		u.update('user', null);
-		u.update('port', 443);
-		u.update('host', 'host');
-		u.update('scheme', 'https');
+		u.update_('query', null);
+		u.update_('fragment', null);
+		u.update_('path', null);
+		u.update_('user', null);
+		u.update_('port', 443);
+		u.update_('host', 'host');
+		u.update_('scheme', 'https');
 		self.assertEqual("https://host/", u.getString());
 	},
 
@@ -258,7 +258,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 	function test_fluentInterface(self) {
 		var URL = cw.URI.URL;
 		var u = new URL("https://host");
-		u.update('host', 'newhost').update('scheme', 'http');
+		u.update_('host', 'newhost').update_('scheme', 'http');
 		self.assertEqual("http://newhost/", u.getString());
 	}
 );
@@ -290,7 +290,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain:81/path?query#fragment");
 		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
 
-		u.update('scheme', 'HTTPS');
+		u.update_('scheme', 'HTTPS');
 		self.assertEqual("https://user:pass@domain:81/path?query#fragment", u.getString());
 	},
 
@@ -300,8 +300,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
-		u.update('port', 80);
-		u.update('scheme', 'HTTPS');
+		u.update_('port', 80);
+		u.update_('scheme', 'HTTPS');
 
 		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
 	},
@@ -312,8 +312,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
-		u.update('scheme', 'HTTPS');
-		u.update('port', 80);
+		u.update_('scheme', 'HTTPS');
+		u.update_('port', 80);
 
 		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
 	},
@@ -328,9 +328,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain/path?query#fragment");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
-		u.update('port', 80);
+		u.update_('port', 80);
 		var u2 = new URL(u);
-		u2.update('scheme', 'https');
+		u2.update_('scheme', 'https');
 
 		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u2.getString());
 	},
@@ -343,12 +343,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		self.assertEqual(80, u.port);
 
 		// to https
-		u.update('scheme', "HTTPS");
+		u.update_('scheme', "HTTPS");
 		self.assertEqual("https://user:pass@domain/path?query#fragment", u.getString());
 		self.assertEqual(443, u.port);
 
 		// ...and back to http
-		u.update('scheme', "htTP");
+		u.update_('scheme', "htTP");
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 		self.assertEqual(80, u.port);
 	},
@@ -357,7 +357,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 	function test_changePortForKnownScheme(self) {
 		var URL = cw.URI.URL;
 		var u = new URL("http://user:pass@domain:81/path?query#fragment");
-		u.update('port', 80);
+		u.update_('port', 80);
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 	},
 
@@ -367,17 +367,17 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("asdfq://user:pass@domain/path?query#fragment");
 		self.assertEqual(null, u.port);
 
-		u.update('port', 80);
+		u.update_('port', 80);
 		self.assertEqual(80, u.port);
 		self.assertEqual("asdfq://user:pass@domain:80/path?query#fragment", u.getString());
 
 		// Now go http
-		u.update('scheme', 'http');
+		u.update_('scheme', 'http');
 		self.assertEqual(80, u.port);
 		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
 
 		// Now go https
-		u.update('scheme', 'https');
+		u.update_('scheme', 'https');
 		self.assertEqual(80, u.port);
 		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
 	},
@@ -393,7 +393,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain:80/path?query#fragment");
 		self.assertEqual(80, u.port);
 
-		u.update('scheme', 'https');
+		u.update_('scheme', 'https');
 		self.assertEqual(80, u.port);
 	}
 );

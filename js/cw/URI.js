@@ -178,7 +178,7 @@ cw.URI.join_authority = function(user, password, host, port) {
 
 
 /**
- * Represents a URL. You can modify a L{cw.URI.URL} with C{.update('property', 'value')}
+ * Represents a URL. You can modify a L{cw.URI.URL} with C{.update_('property', 'value')}
  * to change parts of the URL, clone a URL by passing a L{cw.URI.URL} instance
  * into the constructor, and serialize to a string with C{.getString()}.
  *
@@ -213,14 +213,14 @@ cw.URI.URL = function(urlObjOrString) {
 			// ADVANCED_OPTIMIZATIONS.
 
 			// scheme must be set before port.
-			self.update('scheme', urlObjOrString['scheme'], true);
-			self.update('user', urlObjOrString['user'], true);
-			self.update('password', urlObjOrString['password'], true);
-			self.update('host', urlObjOrString['host'], true);
-			self.update('port', urlObjOrString['port'], true);
-			self.update('path', urlObjOrString['path'], true);
-			self.update('query', urlObjOrString['query'], true);
-			self.update('fragment', urlObjOrString['fragment'], true);
+			self.update_('scheme', urlObjOrString['scheme'], true);
+			self.update_('user', urlObjOrString['user'], true);
+			self.update_('password', urlObjOrString['password'], true);
+			self.update_('host', urlObjOrString['host'], true);
+			self.update_('port', urlObjOrString['port'], true);
+			self.update_('path', urlObjOrString['path'], true);
+			self.update_('query', urlObjOrString['query'], true);
+			self.update_('fragment', urlObjOrString['fragment'], true);
 			self._explicitPort = urlObjOrString._explicitPort;
 		} else {
 			self['port'] = null; // scary logic follows
@@ -228,18 +228,18 @@ cw.URI.URL = function(urlObjOrString) {
 			// Parse the (hopefully) string
 			split = cw.URI.urisplit(urlObjOrString);
 			// scheme must be set before port
-			self.update('scheme', split[0], true);
+			self.update_('scheme', split[0], true);
 			authority = split[1];
-			self.update('path', split[2], true); // split[2] could be C{null} XOR C{''}
-			self.update('query', split[3], true);
-			self.update('fragment', split[4], true);
+			self.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
+			self.update_('query', split[3], true);
+			self.update_('fragment', split[4], true);
 
 			split = cw.URI.split_authority(authority);
-			self.update('user', split[0], true);
-			self.update('password', split[1], true);
-			self.update('host', split[2], true);
+			self.update_('user', split[0], true);
+			self.update_('password', split[1], true);
+			self.update_('host', split[2], true);
 			if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
-				self.update('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
+				self.update_('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
 			}
 		}
 
@@ -257,7 +257,7 @@ cw.URI.URL = function(urlObjOrString) {
 
 		if(!self._explicitPort) {
 			if(self._defaultPortForMyScheme !== undefined) {
-				// Note how we don't call self.update('port', ...), because that would set _explicitPort
+				// Note how we don't call self.update_('port', ...), because that would set _explicitPort
 				self['port'] = self._defaultPortForMyScheme;
 			}
 		}
@@ -282,7 +282,7 @@ cw.URI.URL = function(urlObjOrString) {
 	 *
 	 * @return {cw.URI.URL} This URL object.
 	 */
-	cw.URI.URL.prototype.update = function(property, value, _internalCall/*=false*/) {
+	cw.URI.URL.prototype.update_ = function(property, value, _internalCall/*=false*/) {
 		var self = this;
 		self[property] = value;
 
