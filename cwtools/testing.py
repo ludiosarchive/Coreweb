@@ -1,4 +1,6 @@
 import os
+import jinja2
+
 from twisted.python.filepath import FilePath
 from twisted.web import resource
 
@@ -93,11 +95,10 @@ class TestPage(resource.Resource):
 		# ...but don't run the tests on the dependency modules
 		moduleString = _getModuleListString(theTests)
 
-		jsw = jsimp.JavaScriptWriter()
-		testsTemplate = FilePath(__file__).parent().child('tests.html').getContent()
-		return jsw.render(
-			testsTemplate,
-			dict(scriptContent=scriptContent,
-				moduleString=moduleString,
-				pageTitle=','.join(self.testPackages))
-			).encode('utf-8')
+		template = FilePath(__file__).parent().child('tests.html').getContent().decode('utf-8')
+		dictionary = dict(
+			scriptContent=scriptContent,
+			moduleString=moduleString,
+			pageTitle=','.join(self.testPackages))
+		rendered = jinja2.Environment().from_string(template).render(dictionary)
+		return rendered.encode('utf-8')
