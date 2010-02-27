@@ -95,7 +95,7 @@ class TestPage(resource.Resource):
 		# ...but don't run the tests on the dependency modules
 		moduleString = _getModuleListString(theTests)
 
-		template = FilePath(__file__).parent().child('tests.html').getContent().decode('utf-8')
+		template = FilePath(__file__).parent().child('TestRunnerPage.html').getContent().decode('utf-8')
 		dictionary = dict(
 			scriptContent=scriptContent,
 			moduleString=moduleString,
