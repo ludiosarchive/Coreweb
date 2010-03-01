@@ -73,7 +73,24 @@ cw.eventual.SimpleCallQueue = function(clock) {
  */
 cw.eventual.SimpleCallQueue.prototype.timer_ = null;
 
-
+/**
+ * This is the eventual-send operation, used as a plan-coordination
+ * primitive. The callable will be invoked with {@code cb.apply(context, args)}
+ * after control is returned to the environment's event loop. Doing
+ * 'append_(a); append_(b)' guarantees that a will be called before b.
+ *
+ * Any exceptions that occur in the callable will be rethrown to the window,
+ * in a manner similar to {@code goog.async.Deferred}.
+ * If you really want to ignore exceptions, be sure to provide a callable that
+ * catches those exceptions.
+ *
+ * If you care to know when the callable was run, be sure to provide a
+ * callable that notifies somebody.
+ *
+ * @param {!Function} cb The function to be called eventually.
+ * @param {Object} context Object in whose scope to call {@code cb}.
+ * @param {!Array<*>} args The arguments the function will be called with.
+ */
 cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, context, args) {
 	goog.asserts.assert(goog.typeOf(args) == 'array',
 		"args should be an array, not " + goog.typeOf(args));
@@ -143,18 +160,9 @@ cw.eventual.SimpleCallQueue.prototype.flush_ = function() {
 cw.eventual.theSimpleQueue_ = cw.eventual.SimpleCallQueue(goog.global['window']);
 
 /**
- * This is the eventual-send operation, used as a plan-coordination
- * primitive. The callable will be invoked with {@code cb.apply(context, args)}
- * after control is returned to the environment's event loop. Doing
- * 'eventually(a); eventually(b)' guarantees that a will be called before b.
+ * Call {@code append_} on the global SimpleCallQueue.
  *
- * Any exceptions that occur in the callable will be rethrown to the window,
- * in a manner similar to {@code goog.async.Deferred}.
- * If you really want to ignore exceptions, be sure to provide a callable that
- * catches those exceptions.
- *
- * If you care to know when the callable was run, be sure to provide a
- * callable that notifies somebody.
+ * {@see cw.eventual.SimpleCallQueue.prototype.append_}
  *
  * @param {!Function} cb The function to be called eventually.
  * @param {Object} context Object in whose scope to call {@code cb}.
