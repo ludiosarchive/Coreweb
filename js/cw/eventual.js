@@ -46,14 +46,19 @@ goog.require('goog.asserts');
 goog.provide('cw.eventual');
 
 /**
+ * A call queue that supports the eventually operation, for
+ * a specific clock. You should probably have just one CallQueue
+ * for your application. Pass one CallQueue around just like you
+ * would pass a clock around. In fact, you can skip passing a clock
+ * around, because you pass a CallQueue around, and just access
+ * the clock via the {@code clock_} property.
+ *
  * @constructor
- * @private
  */
 cw.eventual.CallQueue = function(clock) {
 	/**
 	 * An object that implements {@code setTimeout}.
 	 * @type {Object}
-	 * @private
 	 */
 	this.clock_ = clock;
 
