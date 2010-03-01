@@ -767,10 +767,6 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 		var k;
 
-		function isArray(obj) {
-			return Object.prototype.toString.apply(obj) === '[object Array]';
-		}
-
 		// If a === b, we don't need to dig through them. But if you somehow find an object
 		// in JavaScriptland that ==='s successfully but isn't identical, you should remove
 		// this short-circuit.
@@ -781,7 +777,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			// we need to catch it early and do a direct === comparison if either C{a} or C{b} are C{null}
 			self.assertIdentical(a, b, message, true);
 
-		} else if(isArray(a) && isArray(b)) {
+		} else if(goog.typeOf(a) === 'array' && goog.typeOf(b) === 'array') {
 			// This is a deep (recursive) comparison, unlike assertArraysEqual or goog.array.equals
 
 			var i;
