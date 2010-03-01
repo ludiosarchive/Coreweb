@@ -1,27 +1,36 @@
 /**
- * This is almost a straight port of {@code foolscap.eventual}.
- *
- * This module is an improvement to sometimes using
- * {@code setTimeout(..., 0)} to "avoid bugs" in browsers.
+ * This module is an improvement to using setTimeout(..., 0)
+ * to "avoid bugs" in browsers.
+ * 
  * Unlike setTimeout, callables scheduled in a SimpleCallQueue
  * are guaranteed to be called in order. Also, callables scheduled
  * from inside a SimpleCallQueue-called callable are called only after
- * control is returned to the environment's event loop.
+ * control is once again returned to the environment's event loop.
  *
- * This is especially useful for client-side code because browsers
+ * SimpleCallQueue is especially useful for client-side code because browsers
  * have a tendency to crash or exhibit undefined behavior when
  * entering user JavaScript code from an event handler. The source
  * of these issues are re-entrancy bugs in nearly every web browser.
+ * When the browser enters user JavaScript code from a queued
+ * setTimeout call, the browser's stack is smaller and in a much better-
+ * tested codepath, and therefore less likely to crash.
+ * 
+ * Inside your non-setTimeout event callbacks, by minimizing the work
+ * you do to a SimpleCallQueue.append_, you reduce the chance of
+ * hitting a re-entrancy bug.
  *
- * This is also very useful when making Flash->JavaScript calls
+ * SimpleCallQueue is also very useful when making Flash->JavaScript calls
  * with ExternalInterface, because Flash catches all Errors and ignores
  * them.
  *
- * In server-side code, you have the opportunity to write extensive
- * unit tests to verify that you have no re-entrancy bugs. You can't
+ * General note: In server-side code, you have the opportunity to write
+ * extensive unit tests to verify that you have no re-entrancy bugs. You can't
  * do this for client-side code because you have no idea what browser
  * the user will arrive with. Every event dispatched by the browser
- * is a disaster waiting to happen. So learn to love {@code cw.eventual}.
+ * is a disaster waiting to happen.
+ *
+ * This is a port of {@code foolscap.eventual}, with less globalness,
+ * because clocks should usually be parameterized.
  *
  * LICENSE: Coreweb, Foolscap
  */
@@ -152,50 +161,26 @@ cw.eventual.SimpleCallQueue.prototype.flush_ = function() {
 	return d;
 }
 
-
 /**
- * @private
- * @type {!cw.eventual.SimpleCallQueue}
- */
-cw.eventual.theSimpleQueue_ = cw.eventual.SimpleCallQueue(goog.global['window']);
-
-/**
- * Calls {@code append_} on the global SimpleCallQueue.
- *
- * {@see cw.eventual.SimpleCallQueue.prototype.append_}
- *
- * @param {!Function} cb The function to be called eventually.
- * @param {Object} context Object in whose scope to call {@code cb}.
- * @param {!Array<*>} args The arguments the function will be called with.
- */
-cw.eventual.eventually = function(cb, context, args) {
-	cw.eventual.theSimpleQueue_.append_(cb, context, args);
-}
-
-
-/**
- * This returns a Deferred that will fire sometime after control has returned
- * to the environment's event loop, after the current call stack has been
- * completed, and after all other deferreds previously scheduled with
- * {@code cw.eventual.eventually()}.
- *
  * @param {*} value The value that the Deferred will callback with. Can
  * 	be anything.
  *
- * @return {!goog.async.Deferred}
+ * @return {!goog.async.Deferred} A Deferred that will fire sometime
+ * after control has returned to the environment's event loop, and after the
+ * current call stack has been completed (including deferreds previously
+ * scheduled with fireEventually).
  */
-cw.eventual.fireEventually = function(value) {
+cw.eventual.SimpleCallQueue.prototype.fireEventually = function(value) {
 	var d = new goog.async.Deferred();
-	cw.eventual.eventually(goog.bind(d.callback, d), value);
+	this.append_(d.callback, d, value);
 	return d;
 }
 
 
+
 /**
- * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
- * when the global call queue is completely empty. This may be useful to wait
- * on as the last step of a test method.
+ * A global {@code SimpleCallQueue} for {@code window}.
+ * 
+ * @type {!cw.eventual.SimpleCallQueue}
  */
-cw.eventual.flushEventualQueue = function() {
-    return cw.eventual.theSimpleQueue_.flush();
-}
+cw.eventual.theSimpleQueue_ = new cw.eventual.SimpleCallQueue(goog.global['window']);
