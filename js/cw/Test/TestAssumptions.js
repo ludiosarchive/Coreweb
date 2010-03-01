@@ -21,8 +21,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').method
 
 		// Can't compare normal and shortForm directly because time changes between calls.
 
-		self.assertIdentical((''+normal).length, (''+shortForm).length);
-		self.assertIdentical((''+normal).substr(0, 7), (''+shortForm).substr(0, 7));
+		self.assertIdentical(String(normal).length, String(shortForm).length);
+		self.assertIdentical(String(normal).substr(0, 7), String(shortForm).substr(0, 7));
 	},
 
 

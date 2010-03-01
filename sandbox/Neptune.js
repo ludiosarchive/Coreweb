@@ -169,7 +169,7 @@ cw.Class.subclass(CW.Neptune, "XHRStream").methods(
 			// responseText could grow in this while loop, and that's OK.
 
 			// this was tried for FF2 but it doesn't seem to fix
-			//var code = (''+self.xhr.responseText).substr(self.uniPosition, 1).charCodeAt(0);
+			//var code = String(self.xhr.responseText).substr(self.uniPosition, 1).charCodeAt(0);
 			var code = self.xhr.responseText.charCodeAt(self.uniPosition);
 
 			//CW.msg('char is' + CW.JSON.stringify(self.xhr.responseText.substr(self.uniPosition, 1)) + 'code is ' + code);
