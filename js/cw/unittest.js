@@ -785,17 +785,20 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			// This is a deep (recursive) comparison, unlike assertArraysEqual or goog.array.equals
 
 			var i;
-			self.assertIdentical(a.length, b.length, "array length mismatch; original message: " + message, true);
+			var failMsg = goog.string.subs("Arrays %s != %s; original message: %s",
+				cw.UnitTest.repr(a), cw.UnitTest.repr(b), message);
+			// TODO: only repr() on error
+
+			self.assertIdentical(a.length, b.length, failMsg, true);
 
 			for (i in a) {
-				self.assertIn(i, b, "array item #"+i+" not in b; original message: " + message, true);
-				self.assertEqual(a[i], b[i],
-					"array item mismatch a["+i+"] `not assertEqual` b["+i+"]; original message: " + message, true);
+				self.assertIn(i, b, failMsg, true);
+				self.assertEqual(a[i], b[i], failMsg, true);
 			}
 			for (i in b) {
 				// We already checked for equality when we iterated over C{a}, so just
 				// check that everything in C{b} is in C{a}
-				self.assertIn(i, a, "array item #"+i+" not in a; original message: " + message, true);
+				self.assertIn(i, a, failMsg, true);
 			}
 		} else if(typeof a == 'object' && typeof b == 'object') {
 			// TODO: could be slightly optimized by comparing __count__ first (available in Firefox)
