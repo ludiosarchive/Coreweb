@@ -1,11 +1,34 @@
 /**
+ * This is almost a straight port of {@code foolscap.eventual}.
+ *
+ * This module is an improvement to sometimes using
+ * {@code setTimeout(..., 0)} to "avoid bugs" in browsers.
+ * Unlike setTimeout, callables scheduled in a SimpleCallQueue
+ * are guaranteed to be called in order. Also, callables scheduled
+ * from inside a SimpleCallQueue-called callable are called only after
+ * control is returned to the environment's event loop.
+ *
+ * This is especially useful for client-side code because browsers
+ * have a tendency to crash or exhibit undefined behavior when
+ * entering user JavaScript code from an event handler. The source
+ * of these issues are re-entrancy bugs in nearly every web browser.
+ *
+ * This is also very useful when making Flash->JavaScript calls
+ * with ExternalInterface, because Flash catches all Errors and ignores
+ * them.
+ *
+ * In server-side code, you have the opportunity to write extensive
+ * unit tests to verify that you have no re-entrancy bugs. You can't
+ * do this for client-side code because you have no idea what browser
+ * the user will arrive with. Every event dispatched by the browser
+ * is a disaster waiting to happen. So learn to love {@code cw.eventual}.
+ *
  * LICENSE: Coreweb, Foolscap
  */
 
 goog.require('goog.async.Deferred');
-goog.require('goog.Timer');
 
-goog.provide('cw.eventual')
+goog.provide('cw.eventual');
 
 /**
  * @constructor
@@ -20,16 +43,25 @@ cw.eventual.SimpleCallQueue = function(clock) {
 	this.clock_ = clock;
 
 	/**
-	 * @type {!Array.<!Array.<!Function, !Array<*>>>}
+	 * Array of callables to eventually call.
+	 * @type {!Array.<!Array.<!Function, Object, !Array<*>>>}
 	 * @private
 	 */
 	this.events_ = [];
 
 	/**
+	 * Array of flush observers; see {@code flushEventualQueue}
 	 * @type {!Array.<!goog.async.Deferred>}
 	 * @private
 	 */
 	this.flushObservers_ = [];
+
+	/**
+	 * Just for optimization: {@code this.turn_} bound to {@code this}.
+	 * @type {!Function}
+	 * @private
+	 */
+	this.boundTurn_ = goog.bind(this.turn_, this);
 }
 
 /**
@@ -41,10 +73,10 @@ cw.eventual.SimpleCallQueue = function(clock) {
 cw.eventual.SimpleCallQueue.prototype.timer_ = null;
 
 
-cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, args) {
-	this.events_.push([cb, args]);
+cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, context, args) {
+	this.events_.push([cb, context, args]);
 	if(this.timer_ == null) {
-		this.timer_ = this.clock_.setTimeout(goog.bind(this.turn_, this), 0);
+		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}
 }
 
@@ -53,7 +85,7 @@ cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, args) {
  */
 cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
 	this.timer_ = null;
-	// flush all the messages that are currently in the queue. If anything
+	// Flush all the messages that are currently in the queue. If anything
 	// gets added to the queue while we're doing this, those events will
 	// be put off until the next call to _turn.
 	var events = this.events_;
@@ -61,9 +93,10 @@ cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
 	for (var i = 0; i < events.length; i++) {
 		var event = events[i];
 		var cb = event[0];
-		var args = event[1];
+		var context = event[1];
+		var args = event[2];
 		try {
-			cb(args);
+			cb.apply(context, args);
 		} catch(e) {
 			this.clock_.setTimeout(function() {
 				// Rethrow the unhandled error after a timeout.
@@ -73,8 +106,8 @@ cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
 			}, 0);
 		}
 	}
-	if(this.events_.length > 0 && this.timer_ == null) {
-		this.timer_ = this.clock_.setTimeout(goog.bind(this.turn_, this), 0);
+	if(this.events_.length && this.timer_ == null) {
+		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}
 	if(this.events_.length == 0) {
 		var observers = this.flushObservers_;
@@ -107,22 +140,24 @@ cw.eventual.theSimpleQueue_ = cw.eventual.SimpleCallQueue(goog.global['window'])
 
 /**
  * This is the eventual-send operation, used as a plan-coordination
- * primitive. The callable will be invoked (with args and kwargs) after
- * control is returned to the environment's event loop. Doing
+ * primitive. The callable will be invoked with {@code cb.apply(context, args)}
+ * after control is returned to the environment's event loop. Doing
  * 'eventually(a); eventually(b)' guarantees that a will be called before b.
  *
- * Any exceptions that occur in the callable will be logged with log.err(). < XXXXXXXXXXXXXXXXX
- * If you really want to ignore them, be sure to provide a callable that
+ * Any exceptions that occur in the callable will be rethrown to the window,
+ * in a manner similar to {@code goog.async.Deferred}.
+ * If you really want to ignore exceptions, be sure to provide a callable that
  * catches those exceptions.
  *
  * If you care to know when the callable was run, be sure to provide a
  * callable that notifies somebody.
  *
  * @param {!Function} cb The function to be called eventually.
+ * @param {Object} context Object in whose scope to call {@code cb}.
  * @param {!Array<*>} args The arguments the function will be called with.
  */
-cw.eventual.eventually = function(cb, args) {
-	cw.eventual.theSimpleQueue_.append_(cb, args);
+cw.eventual.eventually = function(cb, context, args) {
+	cw.eventual.theSimpleQueue_.append_(cb, context, args);
 }
 
 
