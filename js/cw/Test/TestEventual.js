@@ -57,7 +57,32 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * notifyEmpty_ returns a Deferred that fires when the call queue is
 	 * completely empty.
 	 */
-	function test_notifyEmpty(self) {
+	function test_notifyEmptyNotEmptyYet(self) {
+
+	},
+
+	/**
+	 * notifyEmpty_ returns a Deferred that fires right away, if the call
+	 * queue is completely empty.
+	 */
+	function test_notifyEmptyQueueEmpty(self) {
+
+	},
+
+	/**
+	 * If a callback triggered by a notifyEmpty_ Deferred adds a callable
+	 * to the CallQueue and calls notifyEmpty, the Deferred is fired after the
+	 * CallQueue becomes empty again.
+	 */
+	function test_notifyEmptyReentrantNotEmptyYet(self) {
+
+	},
+
+	/**
+	 * If a callback triggered by a notifyEmpty_ Deferred calls notifyEmpty_,
+	 * the Deferred is fired right away.
+	 */
+	function test_notifyEmptyReentrantQueueEmpty(self) {
 
 	},
 
@@ -66,6 +91,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * correct value.
 	 */
 	function test_fireEventually(self) {
+
+	},
+
+	/**
+	 * CallQueue has a publicly-accessible clock_ property.
+	 */
+	function test_publicClock(self) {
 
 	}
 );

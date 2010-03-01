@@ -156,6 +156,8 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 			observers[i].callback(null);
 		}
 	}
+	// Have some faith, there is probably no re-entrancy bug
+	// involving notifyEmpty_ here. Think about it.
 }
 
 /**
