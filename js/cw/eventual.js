@@ -74,8 +74,8 @@ cw.eventual.SimpleCallQueue = function(clock) {
 cw.eventual.SimpleCallQueue.prototype.timer_ = null;
 
 /**
- * This is the eventual-send operation, used as a plan-coordination
- * primitive. The callable will be invoked with {@code cb.apply(context, args)}
+ * Add a callable (with context and arguments) to the call queue.
+ * The callable will be invoked with {@code cb.apply(context, args)}
  * after control is returned to the environment's event loop. Doing
  * 'append_(a); append_(b)' guarantees that a will be called before b.
  *
@@ -140,8 +140,8 @@ cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
 }
 
 /**
- * Return a Deferred that will fire (with {@code null}) when the call queue
- * is completely empty.
+ * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
+ * when the call queue is completely empty.
  */
 cw.eventual.SimpleCallQueue.prototype.flush_ = function() {
 	if(this.events_.length == 0) {
@@ -160,7 +160,7 @@ cw.eventual.SimpleCallQueue.prototype.flush_ = function() {
 cw.eventual.theSimpleQueue_ = cw.eventual.SimpleCallQueue(goog.global['window']);
 
 /**
- * Call {@code append_} on the global SimpleCallQueue.
+ * Calls {@code append_} on the global SimpleCallQueue.
  *
  * {@see cw.eventual.SimpleCallQueue.prototype.append_}
  *
@@ -174,10 +174,10 @@ cw.eventual.eventually = function(cb, context, args) {
 
 
 /**
- * This returns a Deferred which will fire sometime after control has returned
+ * This returns a Deferred that will fire sometime after control has returned
  * to the environment's event loop, after the current call stack has been
  * completed, and after all other deferreds previously scheduled with
- * {@code callEventually()}.
+ * {@code cw.eventual.eventually()}.
  *
  * @param {*} value The value that the Deferred will callback with. Can
  * 	be anything.
@@ -190,12 +190,11 @@ cw.eventual.fireEventually = function(value) {
 	return d;
 }
 
+
 /**
- * This returns a Deferred which fires when the eventual-send queue is
- * finally empty. This is useful to wait upon as the last step of a Trial
- * test method.
- *
- * @return {!goog.async.Deferred}
+ * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
+ * when the global call queue is completely empty. This may be useful to wait
+ * on as the last step of a test method.
  */
 cw.eventual.flushEventualQueue = function() {
     return cw.eventual.theSimpleQueue_.flush();
