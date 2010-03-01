@@ -188,7 +188,9 @@ cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
 
 
 /**
- * A global {@code CallQueue} for {@code window}.
+ * A global {@code CallQueue} for {@code window}. Don't use this if
+ * you want to be able to drive your application with a deterministic clock
+ * (and you probably do).
  * 
  * @type {!cw.eventual.CallQueue}
  */
