@@ -10,14 +10,14 @@ goog.provide('cw.Test.TestEventual');
 // anti-clobbering for JScript
 (function(){
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestSimpleCallQueue').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	/**
-	 * append_ works calls the callable with the correct
+	 * eventually_ works calls the callable with the correct
 	 * context and args.
 	 */
-	function test_append(self) {
+	function test_eventually(self) {
 		var clock = new cw.UnitTest.Clock();
-		var q = new cw.eventual.SimpleCallQueue(clock);
+		var q = new cw.eventual.CallQueue(clock);
 		var calls = [];
 
 		var A = function(){}
@@ -26,23 +26,23 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestSimpleCallQueue').metho
 		}
 		var a = new A();
 
-		q.append_(cb, a, [10, "20"]);
+		q.eventually_(cb, a, [10, "20"]);
 		self.assertEqual([], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"]], calls);
 
 		// And again
-		q.append_(cb, a, ["30", 40]);
+		q.eventually_(cb, a, ["30", 40]);
 		self.assertEqual([[a, 10, "20"]], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"], [a, "30", 40]], calls);
 	},
 
 	/**
-	 * If a callable calls append_, the new call isn't called
+	 * If a callable calls eventually_, the new call isn't called
 	 * until after control returns to the environment.
 	 */
-	function test_appendReentrant(self) {
+	function test_eventuallyReentrant(self) {
 
 	},
 
@@ -54,16 +54,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestSimpleCallQueue').metho
 	},
 
 	/**
-	 * flush_ returns a Deferred that fires when the call queue is
+	 * notifyEmpty_ returns a Deferred that fires when the call queue is
 	 * completely empty.
 	 */
-	function test_flush(self) {
+	function test_notifyEmpty(self) {
+
+	},
+
+	/**
+	 * fireEventually_ returns a Deferred that fires eventually with the
+	 * correct value.
+	 */
+	function test_fireEventually(self) {
 
 	}
 );
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalFunctions').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').methods(
 	function test_x(self) {
 
 	}

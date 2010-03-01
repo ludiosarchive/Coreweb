@@ -2,12 +2,12 @@
  * This module is an improvement to using setTimeout(..., 0)
  * to "avoid bugs" in browsers.
  * 
- * Unlike setTimeout, callables scheduled in a SimpleCallQueue
+ * Unlike setTimeout, callables scheduled in a CallQueue
  * are guaranteed to be called in order. Also, callables scheduled
- * from inside a SimpleCallQueue-called callable are called only after
+ * from inside a CallQueue-called callable are called only after
  * control is once again returned to the environment's event loop.
  *
- * SimpleCallQueue is especially useful for client-side code because browsers
+ * CallQueue is especially useful for client-side code because browsers
  * have a tendency to crash or exhibit undefined behavior when
  * entering user JavaScript code from an event handler. The source
  * of these issues are re-entrancy bugs in nearly every web browser.
@@ -16,10 +16,10 @@
  * tested codepath, and therefore less likely to crash.
  * 
  * Inside your non-setTimeout event callbacks, by minimizing the work
- * you do to a SimpleCallQueue.append_, you reduce the chance of
+ * you do to a CallQueue.eventually_, you reduce the chance of
  * hitting a re-entrancy bug.
  *
- * SimpleCallQueue is also very useful when making Flash->JavaScript calls
+ * CallQueue is also very useful when making Flash->JavaScript calls
  * with ExternalInterface, because Flash catches all Errors and ignores
  * them.
  *
@@ -31,6 +31,11 @@
  *
  * This is a port of {@code foolscap.eventual}, with less globalness,
  * because clocks should usually be parameterized.
+ * The foolscap.eventual->cw.eventual translation guide:
+ * 	use of global queue encouraged -> use discouraged
+ * 	_SimpleCallQueue -> CallQueue
+ * 	flushEventualQueue -> notifyEmpty_
+ * 	_flushObservers -> emptyObservers_
  *
  * LICENSE: Coreweb, Foolscap
  */
@@ -44,7 +49,7 @@ goog.provide('cw.eventual');
  * @constructor
  * @private
  */
-cw.eventual.SimpleCallQueue = function(clock) {
+cw.eventual.CallQueue = function(clock) {
 	/**
 	 * An object that implements {@code setTimeout}.
 	 * @type {Object}
@@ -60,11 +65,11 @@ cw.eventual.SimpleCallQueue = function(clock) {
 	this.events_ = [];
 
 	/**
-	 * Array of flush observers; see {@code flushEventualQueue}
+	 * Array of notifyEmpty observers
 	 * @type {!Array.<!goog.async.Deferred>}
 	 * @private
 	 */
-	this.flushObservers_ = [];
+	this.emptyObservers_ = [];
 
 	/**
 	 * Just for optimization: {@code this.turn_} bound to {@code this}.
@@ -80,13 +85,13 @@ cw.eventual.SimpleCallQueue = function(clock) {
  * @type {?number}
  * @private
  */
-cw.eventual.SimpleCallQueue.prototype.timer_ = null;
+cw.eventual.CallQueue.prototype.timer_ = null;
 
 /**
  * Add a callable (with context and arguments) to the call queue.
  * The callable will be invoked with {@code cb.apply(context, args)}
  * after control is returned to the environment's event loop. Doing
- * 'append_(a); append_(b)' guarantees that a will be called before b.
+ * 'eventually_(a); eventually_(b)' guarantees that a will be called before b.
  *
  * Any exceptions that occur in the callable will be rethrown to the window,
  * in a manner similar to {@code goog.async.Deferred}.
@@ -100,7 +105,7 @@ cw.eventual.SimpleCallQueue.prototype.timer_ = null;
  * @param {Object} context Object in whose scope to call {@code cb}.
  * @param {!Array<*>} args The arguments the function will be called with.
  */
-cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, context, args) {
+cw.eventual.CallQueue.prototype.eventually_ = function(cb, context, args) {
 	goog.asserts.assert(goog.typeOf(args) == 'array',
 		"args should be an array, not " + goog.typeOf(args));
 
@@ -113,7 +118,7 @@ cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, context, args) {
 /**
  * @private
  */
-cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
+cw.eventual.CallQueue.prototype.turn_ = function() {
 	this.timer_ = null;
 	// Flush all the messages that are currently in the queue. If anything
 	// gets added to the queue while we're doing this, those events will
@@ -140,8 +145,8 @@ cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
 		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}
 	if(this.events_.length == 0) {
-		var observers = this.flushObservers_;
-		this.flushObservers_ = [];
+		var observers = this.emptyObservers_;
+		this.emptyObservers_ = [];
 		for (var i = 0; i < observers.length; i++) {
 			observers[i].callback(null);
 		}
@@ -152,35 +157,34 @@ cw.eventual.SimpleCallQueue.prototype.turn_ = function() {
  * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
  * when the call queue is completely empty.
  */
-cw.eventual.SimpleCallQueue.prototype.flush_ = function() {
+cw.eventual.CallQueue.prototype.notifyEmpty_ = function() {
 	if(this.events_.length == 0) {
 		return goog.async.Deferred.succeed(null);
 	}
 	var d = new goog.async.Deferred();
-	this.flushObservers_.push(d);
+	this.emptyObservers_.push(d);
 	return d;
 }
 
 /**
- * @param {*} value The value that the Deferred will callback with. Can
- * 	be anything.
+ * @param {*} value The value that the Deferred will callback with.
  *
  * @return {!goog.async.Deferred} A Deferred that will fire sometime
  * after control has returned to the environment's event loop, and after the
  * current call stack has been completed (including deferreds previously
  * scheduled with fireEventually).
  */
-cw.eventual.SimpleCallQueue.prototype.fireEventually = function(value) {
+cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
 	var d = new goog.async.Deferred();
-	this.append_(d.callback, d, value);
+	this.eventually_(d.callback, d, value);
 	return d;
 }
 
 
 
 /**
- * A global {@code SimpleCallQueue} for {@code window}.
+ * A global {@code CallQueue} for {@code window}.
  * 
- * @type {!cw.eventual.SimpleCallQueue}
+ * @type {!cw.eventual.CallQueue}
  */
-cw.eventual.theSimpleQueue_ = new cw.eventual.SimpleCallQueue(goog.global['window']);
+cw.eventual.theQueue_ = new cw.eventual.CallQueue(goog.global['window']);
