@@ -27,6 +27,7 @@
  */
 
 goog.require('goog.async.Deferred');
+goog.require('goog.asserts');
 
 goog.provide('cw.eventual');
 
@@ -74,6 +75,9 @@ cw.eventual.SimpleCallQueue.prototype.timer_ = null;
 
 
 cw.eventual.SimpleCallQueue.prototype.append_ = function(cb, context, args) {
+	goog.asserts.assert(goog.typeOf(args) == 'array',
+		"args should be an array, not " + goog.typeOf(args));
+
 	this.events_.push([cb, context, args]);
 	if(this.timer_ == null) {
 		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
