@@ -964,7 +964,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'UniqArrayTests').methods(
 		var b = cw.UnitTest.uniqArray(a);
 		// How strings and numbers are mixed in a sorted array varies accross browsers,
 		// so we'll just check the length.
-		self.assertEqual(6, b.length);
+		self.assertEqual(6, b.length, "uniq'ed: " + cw.UnitTest.repr(b));
 	},
 
 
@@ -986,6 +986,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'UniqArrayTests').methods(
 		var a = [true, null, undefined, NaN, false, Infinity, undefined, true, false];
 		var b = cw.UnitTest.uniqArray(a);
 		self.assertEqual(6, b.length);
+	},
+
+	/**
+	 * null, arrays, and Objects are all typeof 'object', but this must not confuse
+	 * the sort function.
+	 */
+	function test_nullArrayAndObject(self) {
+		var a = [null, [], 3, 3, 5, 3, 1000000, null, new Object(), null, new Object(), null, null, new Object(), new Object()];
+		var b = cw.UnitTest.uniqArray(a);
+		self.assertEqual(9, b.length);
 	}
 );
 

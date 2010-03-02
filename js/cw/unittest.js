@@ -1663,7 +1663,7 @@ cw.UnitTest.uniqArray = function uniqArray(a) {
 	// Hopefully jumping through these hoops is better than just going for an O(N^2) uniq.
 
 	var sorted = a.slice(0).sort(function(a, b){
-		return [typeof a, a] < [typeof b, b] ? -1 : 1;
+		return [goog.typeOf(a), a] < [goog.typeOf(b), b] ? -1 : 1;
 	});
 	var newArray = [];
 	for (var i = 0; i < sorted.length; i++) {
