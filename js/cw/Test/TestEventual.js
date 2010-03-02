@@ -13,7 +13,7 @@ goog.provide('cw.Test.TestEventual');
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	/**
 	 * eventually_ works calls the callable with the correct
-	 * context and args.
+	 * scope and args.
 	 */
 	function test_eventually(self) {
 		var clock = new cw.UnitTest.Clock();
@@ -109,4 +109,4 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').metho
 	}
 );
 
-})();
+})(); // end anti-clobbering for JScript

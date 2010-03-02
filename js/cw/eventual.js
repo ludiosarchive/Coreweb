@@ -93,8 +93,8 @@ cw.eventual.CallQueue = function(clock) {
 cw.eventual.CallQueue.prototype.timer_ = null;
 
 /**
- * Add a callable (with context and arguments) to the call queue.
- * The callable will be invoked with {@code cb.apply(context, args)}
+ * Add a callable (with scope and arguments) to the call queue.
+ * The callable will be invoked with {@code cb.apply(scope, args)}
  * after control is returned to the environment's event loop. Doing
  * 'eventually_(a); eventually_(b)' guarantees that a will be called before b.
  *
@@ -107,14 +107,14 @@ cw.eventual.CallQueue.prototype.timer_ = null;
  * callable that notifies somebody.
  *
  * @param {!Function} cb The function to be called eventually.
- * @param {Object} context Object in whose scope to call {@code cb}.
+ * @param {Object} scope The scope to call {@code cb} in.
  * @param {!Array<*>} args The arguments the function will be called with.
  */
-cw.eventual.CallQueue.prototype.eventually_ = function(cb, context, args) {
+cw.eventual.CallQueue.prototype.eventually_ = function(cb, scope, args) {
 	goog.asserts.assert(goog.typeOf(args) == 'array',
 		"args should be an array, not " + goog.typeOf(args));
 
-	this.events_.push([cb, context, args]);
+	this.events_.push([cb, scope, args]);
 	if(this.timer_ == null) {
 		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}
@@ -133,10 +133,10 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 	for (var i = 0; i < events.length; i++) {
 		var event = events[i];
 		var cb = event[0];
-		var context = event[1];
+		var scope = event[1];
 		var args = event[2];
 		try {
-			cb.apply(context, args);
+			cb.apply(scope, args);
 		} catch(e) {
 			this.clock_.setTimeout(function() {
 				// Rethrow the unhandled error after a timeout.
