@@ -124,9 +124,13 @@ cw.UnitTest.loadFromModules = function loadFromModule(testModules) {
 
 /**
  * Raised to indicate that a test is being skipped.
+ *
+ * @param {string} msg Reason why the test is being skipped.
+ * @constructor
+ * @extends {goog.debug.Error}
  */
-cw.UnitTest.SkipTest = function(opt_msg) {
-	goog.debug.Error.call(this, opt_msg);
+cw.UnitTest.SkipTest = function(msg) {
+	goog.debug.Error.call(this, msg);
 };
 goog.inherits(cw.UnitTest.SkipTest, goog.debug.Error);
 cw.UnitTest.SkipTest.prototype.name = 'cw.UnitTest.SkipTest';
@@ -1678,9 +1682,13 @@ cw.UnitTest.uniqArray = function uniqArray(a) {
 /**
  * Raised to indicate that that the cw.UnitTest.Clock cannot be
  * advanced this way.
+ *
+ * @param {string} msg Reason why the clock could not be advanced.
+ * @constructor
+ * @extends {goog.debug.Error}
  */
-cw.UnitTest.ClockAdvanceError = function(opt_msg) {
-	goog.debug.Error.call(this, opt_msg);
+cw.UnitTest.ClockAdvanceError = function(msg) {
+	goog.debug.Error.call(this, msg);
 };
 goog.inherits(cw.UnitTest.ClockAdvanceError, goog.debug.Error);
 cw.UnitTest.ClockAdvanceError.prototype.name = 'cw.UnitTest.ClockAdvanceError';

@@ -15,6 +15,10 @@ goog.provide('cw.Test.TestUnitTestAssertions');
 
 /**
  * Just for testing.
+ *
+ * @param {string=} opt_msg Optional message.
+ * @constructor
+ * @extends {goog.debug.Error}
  */
 cw.Test.TestUnitTestAssertions.SpecialError = function(opt_msg) {
 	goog.debug.Error.call(this, opt_msg);
