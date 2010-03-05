@@ -3,6 +3,7 @@
  */
 
 goog.require('cw.UnitTest');
+goog.require('cw.clock');
 goog.require('cw.eventual');
 
 goog.provide('cw.Test.TestEventual');
@@ -16,7 +17,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * scope and args.
 	 */
 	function test_eventually(self) {
-		var clock = new cw.UnitTest.Clock();
+		var clock = new cw.clock.Clock();
 		var cq = new cw.eventual.CallQueue(clock);
 		var calls = [];
 
@@ -43,7 +44,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * until after control returns to the environment.
 	 */
 	function test_eventuallyReentrant(self) {
-		var clock = new cw.UnitTest.Clock();
+		var clock = new cw.clock.Clock();
 		var cq = new cw.eventual.CallQueue(clock);
 		var calls = [];
 

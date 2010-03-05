@@ -87,4 +87,4 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestArray, 'UniqTests').methods(
 	}
 );
 
-})();
+})(); // end anti-clobbering for JScript
