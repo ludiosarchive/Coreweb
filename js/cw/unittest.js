@@ -1643,37 +1643,41 @@ cw.UnitTest.installMonkeys = function installMonkeys() {
 
 
 /**
- * Return the `uniq' array for C{a}. The returned array will be shorter, or
- * the same size. The returned array will always be sorted.
+ * Return the `uniq' array for {@code a}. The returned array will be shorter,
+ * or the same size. The returned array will always be sorted, though
+ * maybe not in the way you want.
  *
  * This implementation doesn't add the array elements to an object
  * to check uniqueness, so it works with any mixture of types.
  *
- * @type a: array object
- * @param a: array of items to "uniq"
+ * This implementation jumps through a lot of hoops to avoid doing
+ * a naive O(N^2) uniq where every item would be ==='ed to every
+ * other item.
  *
- * @rtype: array object
- * @return: the uniq'ed array.
+ * @param {!Array} a The array object to "uniq"
+ * @return {!Array} the uniq'ed array.
+ * @nosideeffects
  */
 cw.UnitTest.uniqArray = function uniqArray(a) {
-	// Because JavaScript's Array.prototype.sort ignores types, it doesn't actually work. Observe:
+	// Because JavaScript's Array.prototype.sort ignores types, it doesn't
+	// actually work. Observe:
 	// >>> a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0]
 	// >>> a.sort()
 	// [-2, 0, 2, "2", 3, 3, "3", 3, "3", "3", 3, 3, 3, "3", 3, "3", 3, 3, 3]
-
-	// So, we use a custom sort function that compares the 'typeof' value too, and probably
-	// works most of the time. Note that this custom sort function probably might ruin
-	// a default "in-place" sort (though ECMA-262 3rd edition does not guarantee in-place sort.)
-	// Hopefully jumping through these hoops is better than just going for an O(N^2) uniq.
+	//
+	// So, we use a custom sort function that compares the 'goog.typeOf'
+	// value too. This should work most of the time.
 
 	var typeToPrefix = {
 		'number': '1',
 		'string': '2',
 		'boolean': '3',
 		'object': '4',
-		'undefined': '5',
-		'array': '6',
-		'null': '7'
+		'function': '5',
+		'undefined': '6',
+		'array': '7', // from goog.typeOf
+		'null': '8', // from goog.typeOf
+		'unknown': '9' // rare and IE-only
 	};
 
 	// slice to copy
