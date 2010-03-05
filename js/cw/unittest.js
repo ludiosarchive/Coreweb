@@ -1666,9 +1666,27 @@ cw.UnitTest.uniqArray = function uniqArray(a) {
 	// a default "in-place" sort (though ECMA-262 3rd edition does not guarantee in-place sort.)
 	// Hopefully jumping through these hoops is better than just going for an O(N^2) uniq.
 
-	var sorted = a.slice(0).sort(function(a, b){
-		return [goog.typeOf(a), a] < [goog.typeOf(b), b] ? -1 : 1;
+	var typeToPrefix = {
+		'number': '1',
+		'string': '2',
+		'boolean': '3',
+		'object': '4',
+		'undefined': '5',
+		'array': '6',
+		'null': '7'
+	};
+
+	// slice to copy
+	var sorted = a.slice(0).sort(function(a, b) {
+		goog.asserts.assert(typeToPrefix[goog.typeOf(a)] !== undefined, "no typeToPrefix for " + goog.typeOf(a));
+		goog.asserts.assert(typeToPrefix[goog.typeOf(b)] !== undefined, "no typeToPrefix for " + goog.typeOf(b));
+		return (
+			typeToPrefix[goog.typeOf(a)] + a <
+			typeToPrefix[goog.typeOf(b)] + b) ? -1 : 1;
 	});
+
+	// Iterate over the sorted array and push items
+	// that have no identical neighbors into newArray.
 	var newArray = [];
 	for (var i = 0; i < sorted.length; i++) {
 		if (i === 0 || sorted[i - 1] !== sorted[i]) {
