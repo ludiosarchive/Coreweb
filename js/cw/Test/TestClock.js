@@ -27,7 +27,6 @@ cw.Test.TestClock.isTicketInCalls_ = function(calls, ticket) {
  * Tests for {@code cw.clock.Clock}
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
-
 	/**
 	 * setTimeout and setInterval return tickets from the same pool
 	 * of numbers. None of the ticket numbers are the same.
@@ -96,14 +95,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setTimeout(function(){called1 = true}, 3);
 		clock.setTimeout(function(){called2 = true}, 4);
 
-		clock.advance(1);
-		clock.advance(1);
+		clock.advance_(1);
+		clock.advance_(1);
 		self.assertEqual(false, called1);
-		clock.advance(1);
+		clock.advance_(1);
 		self.assertEqual(true, called1);
 		self.assertEqual(false, called2);
 
-		clock.advance(1);
+		clock.advance_(1);
 		self.assertEqual(true, called2);
 	},
 
@@ -118,7 +117,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		self.assertEqual(false, called2);
 
 		// the far future
-		clock.advance(10000);
+		clock.advance_(10000);
 		self.assertEqual(true, called1);
 		self.assertEqual(true, called2);
 	},
@@ -131,15 +130,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setInterval(function(){called1 += 1}, 2);
 		clock.setInterval(function(){called2 += 1}, 3);
 
-		clock.advance(2);
+		clock.advance_(2);
 		self.assertEqual(1, called1);
 		self.assertEqual(0, called2);
 
-		clock.advance(1);
+		clock.advance_(1);
 		self.assertEqual(1, called1);
 		self.assertEqual(1, called2);
 
-		clock.advance(3);
+		clock.advance_(3);
 		self.assertEqual(3, called1);
 		self.assertEqual(2, called2);
 	},
@@ -152,7 +151,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setInterval(function(){called1 += 1}, 2);
 		clock.setInterval(function(){called2 += 1}, 3);
 
-		clock.advance(6);
+		clock.advance_(6);
 		self.assertEqual(3, called1);
 		self.assertEqual(2, called2);
 	},
@@ -175,12 +174,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setTimeout(goodCallable, 1);
 
 		try {
-			clock.advance(0);
+			clock.advance_(0);
 		} catch(e) {
 			errors += 1;
 		}
 
-		clock.advance(1);
+		clock.advance_(1);
 
 		self.assertEqual(1, counter);
 		self.assertEqual(1, errors);
@@ -188,7 +187,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 	/**
 	 * If a callback adds another timeout that should run in 0ms,
-	 * the new timeout isn't called until the next clock advance.
+	 * the new timeout isn't called until the next clock advance_.
 	 */
 	function test_newCallsInsideCallableHappenAtNextAdvance(self) {
 		var clock = new cw.clock.Clock();
@@ -204,11 +203,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		}, 0);
 
 		self.assertEqual([], out);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1], out);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1, 2], out);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1, 2], out);
 	},
 
@@ -228,9 +227,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.getCallsArray_().sort(function(a, b) { return a.ticket_ < b.ticket_ ? -1 : 1; });
 
 		self.assertEqual([], out);
-		clock.advance(0);
-		clock.advance(0);
-		clock.advance(0);
+		clock.advance_(0);
+		clock.advance_(0);
+		clock.advance_(0);
 		self.assertEqual(["ok"], out);
 	},
 
@@ -244,23 +243,23 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
 		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
 
-		clock.advance(2);
+		clock.advance_(2);
 		self.assertEqual(1, called1);
 		self.assertEqual(0, called2);
 
-		clock.advance(1);
+		clock.advance_(1);
 		self.assertEqual(1, called1);
 		self.assertEqual(1, called2);
 		// ticket1 should be cleared at this point.
 
-		clock.advance(6);
+		clock.advance_(6);
 		self.assertEqual(1, called1);
 		self.assertEqual(3, called2);
 	},
 
 
 	/**
-	 * Similar to test_clearIntervalInsideCallable, except we only advance the clock
+	 * Similar to test_clearIntervalInsideCallable, except we only advance_ the clock
 	 * once.
 	 */
 	function test_clearIntervalAppliesImmediately(self) {
@@ -270,7 +269,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
 		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
 
-		clock.advance(9);
+		clock.advance_(9);
 		self.assertEqual(1, called1);
 		self.assertEqual(3, called2);
 	},
@@ -278,7 +277,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	/**
 	 * In a real browser environment, callables have no way of re-entrantly
 	 * pushing the event loop. In Twisted, it is similarly illega to re-entrantly
-	 * advance the reactor.
+	 * advance_ the reactor.
 	 *
 	 * Similarly, with {@code cw.clock.Clock}, it is also illegal.
 	 */
@@ -289,12 +288,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setTimeout(function() {
 			counter += 1;
 			try {
-				clock.advance(1);
+				clock.advance_(1);
 			} catch(e) {
 				err = e;
 			}
 		}, 2);
-		clock.advance(2);
+		clock.advance_(2);
 		self.assertEqual(1, counter);
 		self.assert(err instanceof cw.clock.ClockAdvanceError, err);
 	},
@@ -309,15 +308,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		}
 		var clock = new cw.clock.Clock();
 		clock.setTimeout(callable, 1);
-		clock.advance(1);
+		clock.advance_(1);
 		self.assert(called === 1, "callable wasn't even called?");
 	},
 
 
 	function test_clockAdvanceError(self) {
 		var clock = new cw.clock.Clock();
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance(-1);});
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance(-0.5);});
+		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance_(-1);});
+		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance_(-0.5);});
 	},
 
 
@@ -325,7 +324,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var clock = new cw.clock.Clock();
 		var date = new clock.Date();
 		self.assertEqual(0, date.getTime());
-		clock.advance(1001);
+		clock.advance_(1001);
 		self.assertEqual(1001, date.getTime());
 	}
 

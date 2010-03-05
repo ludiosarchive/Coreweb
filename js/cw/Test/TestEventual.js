@@ -29,13 +29,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 		cq.eventually_(cb, a, [10, "20"]);
 		self.assertEqual([], calls);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([[a, 10, "20"]], calls);
 
 		// And again
 		cq.eventually_(cb, a, ["30", 40]);
 		self.assertEqual([[a, 10, "20"]], calls);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([[a, 10, "20"], [a, "30", 40]], calls);
 	},
 
@@ -58,11 +58,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		cq.eventually_(cb, null, [1]);
 
 		self.assertEqual([], calls);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1], calls);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1, 2], calls);
-		clock.advance(0);
+		clock.advance_(0);
 		self.assertEqual([1, 2], calls);
 	},
 

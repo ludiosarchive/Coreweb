@@ -215,19 +215,15 @@ cw.clock.Clock.prototype.clearInterval = function(ticket) {
  * pending calls should be run.
  *
  * If a callable adds another timeout or interval, it will not be run until
- * the next {@code advance} (even if the timeout was set to 0).
+ * the next {@code advance_} (even if the timeout was set to 0).
  *
  * If a callable throws an error, no more callables will be called. But if you
- * {@code advance} again, they will.
+ * {@code advance_} again, they will.
  *
- * @param {number} amount How many seconds by which to advance
+ * @param {number} amount How many seconds by which to advance_
  * 	this clock's time. Must be positive number; not NaN or Infinity.
  */
-cw.clock.Clock.prototype.advance = function(amount) {
-	// Remember that callables can re-entrantly call advance(...), as
-	// well as add or clear timeouts/intervals. Don't try stupid optimization
-	// tricks.
-
+cw.clock.Clock.prototype.advance_ = function(amount) {
 	if(this.advancing_) {
 		throw new cw.clock.ClockAdvanceError("You cannot re-entrantly advance the Clock.");
 	}
@@ -241,6 +237,10 @@ cw.clock.Clock.prototype.advance = function(amount) {
 	try {
 		this.rightNow_ += amount;
 
+		// Remember that callables can add or clear timeouts/intervals.
+		// New callables won't get called until at least the next advance_,
+		// but cleared timeouts/intervals will be immediately removed, even
+		// while we're inside this loop.
 		for(;;) {
 			//console.log('calls_: ', cw.UnitTest.repr(this.calls_), 'rightNow_: ', this.rightNow_);
 			if(this.calls_.length === 0 || this.calls_[0].runAt_ > this.rightNow_ || this.calls_[0].notNow_) {
@@ -278,12 +278,12 @@ cw.clock.Clock.prototype.advance = function(amount) {
 
 // TODO: maybe implement and test pump, if needed
 
-//	def pump(this, timings):
+//	def pump(self, timings):
 //		"""
 //		Advance incrementally by the given set of times.
 //
 //		@type timings: iterable of C{float}
 //		"""
 //		for amount in timings:
-//			this.advance(amount)
+//			self.advance_(amount)
 
