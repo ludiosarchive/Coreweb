@@ -1675,8 +1675,15 @@ cw.UnitTest.uniqArray = function uniqArray(a) {
 }
 
 
-
-cw.Class.subclass(cw.UnitTest, 'ClockAdvanceError');
+/**
+ * Raised to indicate that that the cw.UnitTest.Clock cannot be
+ * advanced this way.
+ */
+cw.UnitTest.ClockAdvanceError = function(opt_msg) {
+	goog.debug.Error.call(this, opt_msg);
+};
+goog.inherits(cw.UnitTest.ClockAdvanceError, goog.debug.Error);
+cw.UnitTest.ClockAdvanceError.prototype.name = 'cw.UnitTest.ClockAdvanceError';
 
 
 /**
@@ -1699,6 +1706,7 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 		var self = this;
 		self._rightNow = 0.0;
 		self._counter = -1;
+		self._advancing = false;
 		self._calls = [];
 
 		/**
@@ -1732,12 +1740,18 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 
 
 	_sortCalls: function() {
+		// We could sort by (x.notNow, x.runAt, x.ticket) but that would be less
+		// like browsers, where there is no guarantee of order.
 		var self = this;
 		self._calls.sort(function(a, b) {
-			if(a.runAt == b.runAt) {
+			var aPriority = a.runAt + (a.notNow ? 4294967296 : 0);
+			var bPriority = b.runAt + (b.notNow ? 4294967296 : 0);
+			if(aPriority == bPriority) {
+				// Note: Chrome/V8 will not stable sort, see
+				// http://code.google.com/p/v8/issues/detail?id=90
 				return 0;
 			} else {
-				return a.runAt < b.runAt ? -1 : 1;
+				return aPriority < bPriority ? -1 : 1;
 			}
 		});
 	},
@@ -1758,6 +1772,7 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 		self._addCall({
 			ticket: ++self._counter,
 			runAt: self._rightNow + when,
+			notNow: self._advancing,
 			callable: callable,
 			respawn: false
 		});
@@ -1782,6 +1797,7 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 		self._addCall({
 			ticket: ++self._counter,
 			runAt: self._rightNow + interval,
+			nowNow: self._advancing,
 			callable: callable,
 			respawn: true,
 			interval: interval
@@ -1809,6 +1825,18 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 			}
 		}
 		return haveIt;
+	},
+
+
+	// For the unit tests.
+	_getNextTicketNumber: function() {
+		return this._counter + 1;
+	},
+
+
+	// For the unit tests.
+	_getCallsArray: function() {
+		return this._calls;
 	},
 
 
@@ -1859,12 +1887,14 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 	 * Move time on this clock forward by the given amount and run whatever
 	 * pending calls should be run.
 	 *
-	 * If a callable throws an error, no more callables will be called. But if you
-	 * C{advance()} again, they will.
+	 * If a callable adds another timeout or interval, it will not be run until
+	 * the next {@code advance} (even if the timeout was set to 0).
 	 *
-	 * @type amount: C{Number} (positive integer or non-integer, but not
-	 *    NaN or Infinity)
-	 * @param amount: The number of seconds which to advance this clock's time.
+	 * If a callable throws an error, no more callables will be called. But if you
+	 * {@code advance} again, they will.
+	 *
+	 * @param {number} amount How many seconds by which to advance
+	 * 	this clock's time. Must be positive number; not NaN or Infinity.
  	 */
 	advance: function(amount) {
 		// Remember that callables can re-entrantly call advance(...), as
@@ -1873,37 +1903,51 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 
 		var self = this;
 
+		if(self._advancing) {
+			throw new cw.UnitTest.ClockAdvanceError("You cannot re-entrantly advance the Clock.");
+		}
+
 		if(amount < 0) {
 			throw new cw.UnitTest.ClockAdvanceError("amount was "+amount+", should have been > 0");
 		}
 
-		self._rightNow += amount;
+		self._advancing = true;
 
-		for(;;) {
-			//console.log('_calls: ', cw.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
-			if(self._calls.length === 0 || self._calls[0].runAt > self._rightNow) {
-				break;
+		try {
+			self._rightNow += amount;
+
+			for(;;) {
+				//console.log('_calls: ', cw.UnitTest.repr(self._calls), '_rightNow: ', self._rightNow);
+				if(self._calls.length === 0 || self._calls[0].runAt > self._rightNow || self._calls[0].notNow) {
+					break;
+				}
+				var call = self._calls.shift();
+
+				// If it needs to be respawned, do it now, before calling the callable,
+				// because the callable may raise an exception. Also because the
+				// callable may want to clear its own interval.
+				if(call.respawn === true) {
+					call.runAt += call.interval;
+					self._addCall(call);
+				}
+
+				// Make sure `this' is the global object for callable (making `this'
+				// "worthless" like it is when the real setTimeout calls you.) Note that
+				// for callable, `this' becomes `window', not `null'.
+				//call.callable.apply(null, []); // Doesn't work in Opera 10.50
+				call.callable.call(null);
+				// Opera 10.50 has a serious miscompilation issue and strips the
+				// `apply` property on the callable after re-entrant calls happen.
+				// See http://ludios.net/opera_bugs/opera_10_50_reentrant_array.html
+				// The bug was reported to Opera as DSK-285105. `call.callable.call(null);`
+				// still works, so we use that.
 			}
-			var call = self._calls.shift();
+		} finally {
+			self._advancing = false;
 
-			// If it needs to be respawned, do it now, before calling the callable,
-			// because the callable may raise an exception. Also because the
-			// callable may want to clear its own interval.
-			if(call.respawn === true) {
-				call.runAt += call.interval;
-				self._addCall(call);
+			for(var i=0; i < self._calls.length; i++) {
+				self._calls[i].notNow = false;
 			}
-
-			// Make sure `this' is the global object for callable (making `this'
-			// "worthless" like it is when the real setTimeout calls you.) Note that
-			// for callable, `this' becomes `window', not `null'.
-			//call.callable.apply(null, []); // Doesn't work in Opera 10.50
-			call.callable.call(null);
-			// Opera 10.50 has a serious miscompilation issue and strips the
-			// `apply` property on the callable after re-entrant calls happen.
-			// See http://ludios.net/opera_bugs/opera_10_50_reentrant_array.html
-			// The bug was reported to Opera as DSK-285105. `call.callable.call(null);`
-			// still works, so we use that.
 		}
 	}
 

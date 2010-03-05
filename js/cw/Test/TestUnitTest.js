@@ -1135,30 +1135,83 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
 		self.assertEqual(2, called2);
 	},
 
-
-	function test_reentrantAddCalls(self) {
+	/**
+	 * The clock can still be advanced after a callable throws an error.
+	 */
+	function test_canAdvanceAfterError(self) {
 		var clock = new cw.UnitTest.Clock();
-		var called1 = 0;
-		var immediateCall = false;
-		var called2 = 0;
-		clock.setInterval(function(){
-			if(called1 === 0) {
-				clock.setTimeout(function(){immediateCall = true}, 0);
-				clock.setInterval(function(){called2 += 1}, 1);
-			}
-			called1 += 1
-		}, 2);
+		var counter = 0;
+		var errors = 0;
+		var badCallable = function() {
+			throw new Error("hi");
+		}
+		var goodCallable = function() {
+			counter += 1;
+		}
 
-		clock.advance(2);
-		self.assertEqual(1, called1);
-		self.assertEqual(true, immediateCall);
-		self.assertEqual(0, called2);
+		clock.setTimeout(badCallable, 0);
+		clock.setTimeout(goodCallable, 1);
 
-		clock.advance(4);
-		self.assertEqual(3, called1);
-		self.assertEqual(4, called2);
+		try {
+			clock.advance(0);
+		} catch(e) {
+			errors += 1;
+		}
+
+		clock.advance(1);
+
+		self.assertEqual(1, counter);
+		self.assertEqual(1, errors);
 	},
 
+	/**
+	 * If a callback adds another timeout that should run in 0ms,
+	 * the new timeout isn't called until the next clock advance.
+	 */
+	function test_newCallsInsideCallableHappenAtNextAdvance(self) {
+		var clock = new cw.UnitTest.Clock();
+		var out = [];
+		var counter = 0;
+		clock.setTimeout(function() {
+			counter++;
+			out.push(counter);
+			clock.setTimeout(function() {
+				counter++;
+				out.push(counter);
+			}, 0);
+		}, 0);
+
+		self.assertEqual([], out);
+		clock.advance(0);
+		self.assertEqual([1], out);
+		clock.advance(0);
+		self.assertEqual([1, 2], out);
+		clock.advance(0);
+		self.assertEqual([1, 2], out);
+	},
+
+	/**
+	 * A callback can successfully cancel a timeout that is scheduled
+	 * to run right after it in the same clock "turn".
+	 */
+	function test_clearTimeoutSiblingCall(self) {
+		var clock = new cw.UnitTest.Clock();
+		var out = [];
+
+		var nextTicket;
+		clock.setTimeout(function() {out.push("ok"); clock.clearTimeout(nextTicket)}, 0);
+		nextTicket = clock._getNextTicketNumber();
+		clock.setTimeout(function() {out.push("should never get called")}, 0);
+
+		// Make sure the first-added timeout is first
+		clock._getCallsArray().sort(function(a, b) { return a.ticket < b.ticket ? -1 : 1; });
+
+		self.assertEqual([], out);
+		clock.advance(0);
+		clock.advance(0);
+		clock.advance(0);
+		self.assertEqual(["ok"], out);
+	},
 
 	/**
 	 * Test that intervals can be cleared from inside a callable.
@@ -1201,22 +1254,28 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
 		self.assertEqual(3, called2);
 	},
 
-
-	function test_reentrantAdvance(self) {
+	/**
+	 * In a real browser environment, callables have no way of re-entrantly
+	 * pushing the event loop. In Twisted, it is similarly illega to re-entrantly
+	 * advance the reactor.
+	 *
+	 * Similarly, with {@code cw.UnitTest.Clock}, it is also illegal.
+	 */
+	function test_reentrantAdvanceThrowsError(self) {
 		var clock = new cw.UnitTest.Clock();
-		var called1 = 0;
-		var called2 = 0;
-		var called3 = 0;
-		var called4 = 0;
-		clock.setTimeout(function(){called1 += 1; clock.advance(1);}, 2);
-		clock.setTimeout(function(){called2 += 1}, 3);
-		clock.setTimeout(function(){called3 += 1}, 2);
-		clock.setTimeout(function(){called4 += 1}, 4);
+		var counter = 0;
+		var err;
+		clock.setTimeout(function() {
+			counter += 1;
+			try {
+				clock.advance(1);
+			} catch(e) {
+				err = e;
+			}
+		}, 2);
 		clock.advance(2);
-		self.assertEqual(1, called1);
-		self.assertEqual(1, called2);
-		self.assertEqual(1, called3);
-		self.assertEqual(0, called4);
+		self.assertEqual(1, counter);
+		self.assert(err instanceof cw.UnitTest.ClockAdvanceError, err);
 	},
 
 
