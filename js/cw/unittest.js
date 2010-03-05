@@ -1752,10 +1752,12 @@ cw.Class.subclass(cw.UnitTest, 'Clock').pmethods({
 		// like browsers, where there is no guarantee of order.
 		var self = this;
 		self._calls.sort(function(a, b) {
+			// "nowNow" calls are shoved to the end of the array
 			var aPriority = a.runAt + (a.notNow ? 4294967296 : 0);
 			var bPriority = b.runAt + (b.notNow ? 4294967296 : 0);
 			if(aPriority == bPriority) {
-				// Note: Chrome/V8 will not stable sort, see
+				// Note: Stable sort is not guaranteed, and Chrome/V8
+				// will not stable sort; see:
 				// http://code.google.com/p/v8/issues/detail?id=90
 				return 0;
 			} else {
