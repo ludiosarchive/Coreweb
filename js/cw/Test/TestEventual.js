@@ -17,22 +17,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 */
 	function test_eventually(self) {
 		var clock = new cw.UnitTest.Clock();
-		var q = new cw.eventual.CallQueue(clock);
+		var cq = new cw.eventual.CallQueue(clock);
 		var calls = [];
 
-		var A = function(){}
-		var cb = function(arg1, arg2){
+		var A = function() {}
+		var cb = function(arg1, arg2) {
 			calls.push([this, arg1, arg2]);
 		}
 		var a = new A();
 
-		q.eventually_(cb, a, [10, "20"]);
+		cq.eventually_(cb, a, [10, "20"]);
 		self.assertEqual([], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"]], calls);
 
 		// And again
-		q.eventually_(cb, a, ["30", 40]);
+		cq.eventually_(cb, a, ["30", 40]);
 		self.assertEqual([[a, 10, "20"]], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"], [a, "30", 40]], calls);
@@ -43,7 +43,26 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * until after control returns to the environment.
 	 */
 	function test_eventuallyReentrant(self) {
+		var clock = new cw.UnitTest.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var calls = [];
 
+		var cb = function(arg) {
+			calls.push(arg);
+			if(arg === 1) {
+				cq.eventually_(cb, null, [2]);
+			}
+		}
+
+		cq.eventually_(cb, null, [1]);
+
+		self.assertEqual([], calls);
+		clock.advance(0);
+		self.assertEqual([1], calls);
+		clock.advance(0);
+		self.assertEqual([1, 2], calls);
+		clock.advance(0);
+		self.assertEqual([1, 2], calls);
 	},
 
 	/**
