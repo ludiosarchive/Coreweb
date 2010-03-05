@@ -180,7 +180,7 @@ cw.clock.Clock.prototype.getCallsArray_ = function() {
  *
  * @private
  */
-cw.clock.Clock.prototype._clearAnything = function(ticket) {
+cw.clock.Clock.prototype.clearAnything_ = function(ticket) {
 	var n = this.calls_.length;
 	while(n--) {
 		var call = this.calls_[n];
@@ -198,7 +198,7 @@ cw.clock.Clock.prototype._clearAnything = function(ticket) {
  * @param {number} ticket The ticket number of the timeout/interval to clear.
  */
 cw.clock.Clock.prototype.clearTimeout = function(ticket) {
-	this._clearAnything(ticket);
+	this.clearAnything_(ticket);
 }
 
 /**
@@ -207,7 +207,7 @@ cw.clock.Clock.prototype.clearTimeout = function(ticket) {
  * @param {number} ticket The ticket number of the timeout/interval to clear.
  */
 cw.clock.Clock.prototype.clearInterval = function(ticket) {
-	this._clearAnything(ticket);
+	this.clearAnything_(ticket);
 }
 
 /**
