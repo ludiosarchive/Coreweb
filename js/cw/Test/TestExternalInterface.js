@@ -237,7 +237,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		var params = {};
 		swfobject.embedSWF(
 			"/@testres_Coreweb/TestExternalInterface.swf", "TestExternalInterface", "30", "30", [9, 0, 0],
-			"/@testres_Coreweb/expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+			"/@testres_Coreweb/expressInstall.swf", flashvars, params); // no attributes
 
 		return flashLoaded;
 	},
