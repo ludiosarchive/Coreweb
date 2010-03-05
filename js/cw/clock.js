@@ -41,34 +41,33 @@ cw.clock.ClockAdvanceError.prototype.name = 'cw.clock.ClockAdvanceError';
 cw.clock.Clock = function() {
 	/**
 	 * @type {number}
-	 * @private
 	 */
-	this._rightNow = 0.0;
+	this.rightNow_ = 0.0;
 
 	/**
 	 * @type {number}
 	 * @private
 	 */
-	this._counter = -1;
+	this.ticketCounter_ = -1;
 
 	/**
 	 * @type {boolean}
 	 * @private
 	 */
-	this._advancing = false;
+	this.advancing_ = false;
 
 	/**
 	 * @type {!Array.<{
-	 * 		ticket: number,
-	 * 		runAt: number,
-	 * 		notNow: boolean,
-	 * 		callable: !Function,
-	 * 		respawn: boolean,
-	 * 		interval: ?number
+	 * 		ticket_: number,
+	 * 		runAt_: number,
+	 * 		notNow_: boolean,
+	 * 		callable_: !Function,
+	 * 		respawn_: boolean,
+	 * 		interval_: ?number
 	 * 	}>}
 	 * @private
 	 */
-	this._calls = [];
+	this.calls_ = [];
 
 	/**
 	 * A deterministic Date object that works sort of like a standard
@@ -87,32 +86,32 @@ cw.clock.Clock = function() {
 	 * 	the {@code Clock}'s time.
 	 */
 	this.Date.prototype.getTime = function() {
-		return thisClock._rightNow;
+		return thisClock.rightNow_;
 	}
 
 	// TODO: more Date functions, in case anything needs them.
 	// The general strategy to implement `someMethod' would be:
-	//    return new Date(thisClock._rightNow).someMethod();
+	//    return new Date(thisClock.rightNow_).someMethod();
 }
 
 /**
  * @private
  */
-cw.clock.Clock.prototype._addCall = function(call) {
-	this._calls.push(call);
-	this._sortCalls();
+cw.clock.Clock.prototype.addCall_ = function(call) {
+	this.calls_.push(call);
+	this.sortCalls_();
 }
 
 /**
  * @private
  */
-cw.clock.Clock.prototype._sortCalls = function() {
-	// We could sort by (x.notNow, x.runAt, x.ticket) but that would be less
+cw.clock.Clock.prototype.sortCalls_ = function() {
+	// We could sort by (x.notNow_, x.runAt_, x.ticket_) but that would be less
 	// like browsers, where there is no guarantee of order.
-	this._calls.sort(function(a, b) {
+	this.calls_.sort(function(a, b) {
 		// "nowNow" calls are shoved to the end of the array
-		var aPriority = a.runAt + (a.notNow ? 4294967296 : 0);
-		var bPriority = b.runAt + (b.notNow ? 4294967296 : 0);
+		var aPriority = a.runAt_ + (a.notNow_ ? 4294967296 : 0);
+		var bPriority = b.runAt_ + (b.notNow_ ? 4294967296 : 0);
 		if(aPriority == bPriority) {
 			// Note: Stable sort is not guaranteed, and Chrome/V8
 			// will not stable sort; see:
@@ -133,17 +132,16 @@ cw.clock.Clock.prototype._sortCalls = function() {
  * @return {number} The ticket number for the added event.
  */
 cw.clock.Clock.prototype.setTimeout = function(callable, when) {
-	this._addCall({
-		ticket: ++this._counter,
-		runAt: this._rightNow + when,
-		notNow: this._advancing,
-		callable: callable,
-		respawn: false,
-		interval: null
+	this.addCall_({
+		ticket_: ++this.ticketCounter_,
+		runAt_: this.rightNow_ + when,
+		notNow_: this.advancing_,
+		callable_: callable,
+		respawn_: false,
+		interval_: null
 	});
-	return this._counter;
+	return this.ticketCounter_;
 }
-
 
 /**
  * The deterministic version of {@code window.setInterval}.
@@ -155,64 +153,27 @@ cw.clock.Clock.prototype.setTimeout = function(callable, when) {
  * @return {number} The ticket number for the added event.
  */
 cw.clock.Clock.prototype.setInterval = function(callable, interval) {
-	this._addCall({
-		ticket: ++this._counter,
-		runAt: this._rightNow + interval,
-		nowNow: this._advancing,
-		callable: callable,
-		respawn: true,
-		interval: interval
+	this.addCall_({
+		ticket_: ++this.ticketCounter_,
+		runAt_: this.rightNow_ + interval,
+		nowNow_: this.advancing_,
+		callable_: callable,
+		respawn_: true,
+		interval_: interval
 	});
-	return this._counter;
+	return this.ticketCounter_;
 }
 
-
 /**
- * For the unit tests.
+ * For use by unit tests ONLY.
  * @private
  */
-cw.clock.Clock.prototype._countPendingEvents = function() {
-	return this._calls.length;
+cw.clock.Clock.prototype.getCallsArray_ = function() {
+	return this.calls_;
 }
 
-
 /**
- * For the unit tests.
- * @private
- */
-cw.clock.Clock.prototype._isTicketInEvents = function(ticket) {
-	var haveIt = false;
-	var n = this._calls.length;
-	while(n--) {
-		var call = this._calls[n];
-		if(call.ticket === ticket) {
-			haveIt = true;
-		}
-	}
-	return haveIt;
-}
-
-
-/**
- * For the unit tests.
- * @private
- */
-cw.clock.Clock.prototype._getNextTicketNumber = function() {
-	return this._counter + 1;
-}
-
-
-/**
- * For the unit tests.
- * @private
- */
-cw.clock.Clock.prototype._getCallsArray = function() {
-	return this._calls;
-}
-
-
-/**
- * Remove a timeout or interval from _calls, by ticket number.
+ * Remove a timeout or interval from calls_, by ticket number.
  *
  * Notes: in both Firefox 3.5.3 and IE8, you can successfully clearTimeout() an interval,
  * and clearInterval() a timeout, so here we don't check the timeout/interval type.
@@ -220,12 +181,12 @@ cw.clock.Clock.prototype._getCallsArray = function() {
  * @private
  */
 cw.clock.Clock.prototype._clearAnything = function(ticket) {
-	var n = this._calls.length;
+	var n = this.calls_.length;
 	while(n--) {
-		var call = this._calls[n];
-		if(call.ticket === ticket) {
-			var ret = this._calls.splice(n, 1);
-			goog.asserts.assert(ret[0].ticket === ticket, ret[0].ticket + " !== " + ticket);
+		var call = this.calls_[n];
+		if(call.ticket_ === ticket) {
+			var ret = this.calls_.splice(n, 1);
+			goog.asserts.assert(ret[0].ticket_ === ticket, ret[0].ticket_ + " !== " + ticket);
 			break;
 		}
 	}
@@ -240,7 +201,6 @@ cw.clock.Clock.prototype.clearTimeout = function(ticket) {
 	this._clearAnything(ticket);
 }
 
-
 /**
  * The deterministic version of {@code window.clearInterval}.
  *
@@ -249,7 +209,6 @@ cw.clock.Clock.prototype.clearTimeout = function(ticket) {
 cw.clock.Clock.prototype.clearInterval = function(ticket) {
 	this._clearAnything(ticket);
 }
-
 
 /**
  * Move time on this clock forward by the given amount and run whatever
@@ -269,8 +228,7 @@ cw.clock.Clock.prototype.advance = function(amount) {
 	// well as add or clear timeouts/intervals. Don't try stupid optimization
 	// tricks.
 
-
-	if(this._advancing) {
+	if(this.advancing_) {
 		throw new cw.clock.ClockAdvanceError("You cannot re-entrantly advance the Clock.");
 	}
 
@@ -278,31 +236,31 @@ cw.clock.Clock.prototype.advance = function(amount) {
 		throw new cw.clock.ClockAdvanceError("amount was "+amount+", should have been > 0");
 	}
 
-	this._advancing = true;
+	this.advancing_ = true;
 
 	try {
-		this._rightNow += amount;
+		this.rightNow_ += amount;
 
 		for(;;) {
-			//console.log('_calls: ', cw.UnitTest.repr(this._calls), '_rightNow: ', this._rightNow);
-			if(this._calls.length === 0 || this._calls[0].runAt > this._rightNow || this._calls[0].notNow) {
+			//console.log('calls_: ', cw.UnitTest.repr(this.calls_), 'rightNow_: ', this.rightNow_);
+			if(this.calls_.length === 0 || this.calls_[0].runAt_ > this.rightNow_ || this.calls_[0].notNow_) {
 				break;
 			}
-			var call = this._calls.shift();
+			var call = this.calls_.shift();
 
 			// If it needs to be respawned, do it now, before calling the callable,
 			// because the callable may raise an exception. Also because the
 			// callable may want to clear its own interval.
-			if(call.respawn === true) {
-				call.runAt += call.interval;
-				this._addCall(call);
+			if(call.respawn_ === true) {
+				call.runAt_ += call.interval_;
+				this.addCall_(call);
 			}
 
 			// Make sure `this' is the global object for callable (making `this'
 			// "worthless" like it is when the real setTimeout calls you.) Note that
 			// for callable, `this' becomes `window', not `null'.
 			//call.callable.apply(null, []); // Doesn't work in Opera 10.50
-			call.callable.call(null);
+			call.callable_.call(null);
 			// Opera 10.50 has a serious miscompilation issue and strips the
 			// `apply` property on the callable after re-entrant calls happen.
 			// See http://ludios.net/opera_bugs/opera_10_50_reentrant_array.html
@@ -310,10 +268,10 @@ cw.clock.Clock.prototype.advance = function(amount) {
 			// still works, so we use that.
 		}
 	} finally {
-		this._advancing = false;
+		this.advancing_ = false;
 
-		for(var i=0; i < this._calls.length; i++) {
-			this._calls[i].notNow = false;
+		for(var i=0; i < this.calls_.length; i++) {
+			this.calls_[i].notNow_ = false;
 		}
 	}
 }

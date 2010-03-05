@@ -7,6 +7,21 @@ goog.provide('cw.Test.TestClock');
 // anti-clobbering for JScript
 (function(){
 
+/**
+ * @return {boolean} Whether the {@code ticket} is in {@code calls}.
+ */
+cw.Test.TestClock.isTicketInCalls_ = function(calls, ticket) {
+	var haveIt = false;
+	var n = calls.length;
+	while(n--) {
+		var call = calls[n];
+		if(call.ticket_ === ticket) {
+			haveIt = true;
+		}
+	}
+	return haveIt;
+}
+
 
 /**
  * Tests for {@code cw.clock.Clock}
@@ -37,24 +52,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var ticket1 = clock.setTimeout(function(){}, 0);
 		var ticket2 = clock.setTimeout(function(){}, 0);
 		var ticket3 = clock.setTimeout(function(){}, 0);
-		self.assertEqual(3, clock._countPendingEvents());
+		self.assertEqual(3, clock.getCallsArray_().length);
 
 		// "clear" some bogus ticket ID, make sure nothing changed.
 		clock.clearTimeout(-1237897661782631241233143);
-		self.assertEqual(3, clock._countPendingEvents());
+		self.assertEqual(3, clock.getCallsArray_().length);
 
 		// clear the real ticket
 		clock.clearTimeout(ticket2);
-		self.assertEqual(2, clock._countPendingEvents());
+		self.assertEqual(2, clock.getCallsArray_().length);
 
 		// make sure the other tickets are still there
-		self.assert(clock._isTicketInEvents(ticket1));
-		self.assert(clock._isTicketInEvents(ticket3));
+		self.assert(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket1));
+		self.assert(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket3));
 
 		// Check for clearInterval can clear a timeout.
 		clock.clearInterval(ticket1);
 		clock.clearInterval(ticket3);
-		self.assertEqual(0, clock._countPendingEvents());
+		self.assertEqual(0, clock.getCallsArray_().length);
 	},
 
 
@@ -68,9 +83,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	function test_clearTimeoutCanClearInterval(self) {
 		var clock = new cw.clock.Clock();
 		var ticket1 = clock.setInterval(function(){}, 1);
-		self.assertEqual(1, clock._countPendingEvents());
+		self.assertEqual(1, clock.getCallsArray_().length);
 		clock.clearTimeout(ticket1);
-		self.assertEqual(0, clock._countPendingEvents());
+		self.assertEqual(0, clock.getCallsArray_().length);
 	},
 
 
@@ -207,11 +222,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 		var nextTicket;
 		clock.setTimeout(function() {out.push("ok"); clock.clearTimeout(nextTicket)}, 0);
-		nextTicket = clock._getNextTicketNumber();
-		clock.setTimeout(function() {out.push("should never get called")}, 0);
+		nextTicket = clock.setTimeout(function() {out.push("should never get called")}, 0);
 
 		// Make sure the first-added timeout is first
-		clock._getCallsArray().sort(function(a, b) { return a.ticket < b.ticket ? -1 : 1; });
+		clock.getCallsArray_().sort(function(a, b) { return a.ticket_ < b.ticket_ ? -1 : 1; });
 
 		self.assertEqual([], out);
 		clock.advance(0);
