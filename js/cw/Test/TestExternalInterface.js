@@ -1,6 +1,7 @@
 goog.require('cw.UnitTest');
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
+goog.require('goog.userAgent');
 goog.require('swfobject');
 goog.require('cw.externalinterface');
 
@@ -181,6 +182,28 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
+		if(goog.userAgent.GECKO && !goog.userAgent.isVersion('1.8.1.20')) {
+			// Firefox 2.0.0.0 + Flash has a serious issue where, sometime
+			// in TestRealFlash (perhaps when the .swf is loaded or when
+			// ExternalInterface calls are made?), Firefox's error hierarchy
+			// is corrupted.
+
+			// For example, before the corruption, this will alert true, and
+			// after the corruption, it will alert false:
+			// javascript:try{null.hi}catch(e){alert(e instanceof Error)}
+
+			// The problem also affects our own Error classes like cw.UnitTest.SkipTest.
+
+			// Instead of worrying about 3.5 year old browsers, we just don't
+			// intend to use Flash on them. One untested alternative would
+			// be to mitigate this by loading Flash in an iframe.
+
+			// Note: Firefox 2.0.0.20 + Flash 10.0 r32 is known good.
+			// Skip tests if Firefox version is < 2.0.0.20, because we can't
+			// be bothered to test the ancient versions anyway.
+			throw new cw.UnitTest.SkipTest("Flash corrupts Error hierarchy in Firefox 2.0.0.0; tests disabled for < 2.0.0.20");
+		}
+
 		if(swfobject.ua.pv[0] < 9) {
 			throw new cw.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
 		}
