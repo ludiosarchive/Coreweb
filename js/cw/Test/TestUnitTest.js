@@ -11,6 +11,7 @@ goog.require('cw.UnitTest');
 goog.require('cw.Test.Mock');
 goog.require('cw.Test.DMock');
 goog.require('cw.Test.DSMock');
+goog.require('cw.array');
 goog.require('goog.asserts.AssertionError');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
@@ -920,88 +921,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 
 
 /**
- * Tests for L{cw.UnitTest.uniqArray}
- */
-cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'UniqArrayTests').methods(
-
-	function test_returnsArray(self) {
-		var a = [3, 2];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assert(b.length !== undefined);
-	},
-
-	function test_noMutation(self) {
-		var a = [3, 3, 2];
-		cw.UnitTest.uniqArray(a);
-		self.assertEqual([3, 3, 2], a);
-	},
-
-	// "at end", "in middle", "at start" refer to the sorted array.
-
-	function test_numbersDupesAtEnd(self) {
-		var a = [3, 3, 2, 0, -2];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual([-2, 0, 2, 3], b);
-	},
-
-
-	function test_numbersDupesInMiddle(self) {
-		var a = [3, 3, 2, 2, 0, -2];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual([-2, 0, 2, 3], b);
-	},
-
-
-	function test_numbersDupesAtStart(self) {
-		var a = [3, 3, 2, 0, -2, -2, -2];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual([-2, 0, 2, 3], b);
-	},
-
-
-	function test_numbersAndStrings(self) {
-		var a = [3, 3, 2, 0, -2, '2', '3', 3, '3', '3', 3, 3, 3, '3', 3, '3', 3, 3.0, 3.0];
-		var b = cw.UnitTest.uniqArray(a);
-		// How strings and numbers are mixed in a sorted array varies accross browsers,
-		// so we'll just check the length.
-		self.assertEqual(6, b.length, "uniq'ed: " + cw.UnitTest.repr(b));
-	},
-
-
-	function test_strings(self) {
-		var a = ['2', '2', '2'];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual(['2'], b);
-	},
-
-
-	function test_other(self) {
-		var a = [null, undefined, NaN, Infinity, true, false];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual(6, b.length);
-	},
-
-
-	function test_otherWithDupes(self) {
-		var a = [true, null, undefined, NaN, false, Infinity, undefined, true, false];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual(6, b.length);
-	},
-
-	/**
-	 * null, arrays, and Objects are all typeof 'object', but this must not confuse
-	 * the sort function.
-	 */
-	function test_nullArrayAndObject(self) {
-		var a = [null, [], 3, 3, 5, 3, 1000000, null, new Object(), null, new Object(), null, null, new Object(), new Object()];
-		var b = cw.UnitTest.uniqArray(a);
-		self.assertEqual(9, b.length);
-	}
-);
-
-
-
-/**
  * Tests for L{cw.UnitTest.Clock}
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
@@ -1019,7 +938,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ClockTests').methods(
 			clock.setInterval(function(){}, 1)
 		];
 
-		self.assertEqual(4, cw.UnitTest.uniqArray(tickets).length);
+		self.assertEqual(4, cw.array.uniq(tickets).length);
 	},
 
 	/**
