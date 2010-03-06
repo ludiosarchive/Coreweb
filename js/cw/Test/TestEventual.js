@@ -193,13 +193,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	function test_fireEventually(self) {
 		var clock = new cw.clock.Clock();
 		var cq = new cw.eventual.CallQueue(clock);
-		var d = cq.fireEventually_(3);
+		var d = cq.fireEventually_("hi");
 		var called = false;
 		d.addCallback(function(value) { called = [arguments.length, value]; });
 
 		self.assertEqual(false, called);
 		clock.advance_(0);
-		self.assertEqual([1, 3], called);
+		self.assertEqual([1, "hi"], called);
 	},
 
 	/**
@@ -214,8 +214,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').methods(
-	function test_x(self) {
+	/**
+	 * cw.eventual.theQueue_ exists and seems to work.
+	 */
+	function test_theQueue(self) {
+		self.assert(cw.eventual.theQueue_ instanceof cw.eventual.CallQueue);
+		self.assertIdentical(goog.global['window'], cw.eventual.theQueue_.clock_);
 
+		var d = cw.eventual.theQueue_.fireEventually_(null);
+		return d;
 	}
 );
 
