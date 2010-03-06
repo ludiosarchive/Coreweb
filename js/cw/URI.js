@@ -193,14 +193,12 @@ cw.URI.join_authority = function(user, password, host, port) {
  * This is to make it less error-prone to switch between http and https.
  *
  * 
- * C{urlObjOrString} must be
- *          - an instance of L{cw.URI.URL}
- * XOR   - any string, which will be parsed into a URL
+ * @param {!cw.URI.URL|string} urlObjOrString Either a
+ * 	{@code cw.URI.URL} or a string to be parsed into a URL.
  *
  * @constructor
  */
 cw.URI.URL = function(urlObjOrString) {
-	var self = this;
 	var split;
 	var authority;
 
@@ -213,37 +211,37 @@ cw.URI.URL = function(urlObjOrString) {
 		// ADVANCED_OPTIMIZATIONS.
 
 		// scheme must be set before port.
-		self.update_('scheme', urlObjOrString['scheme'], true);
-		self.update_('user', urlObjOrString['user'], true);
-		self.update_('password', urlObjOrString['password'], true);
-		self.update_('host', urlObjOrString['host'], true);
-		self.update_('port', urlObjOrString['port'], true);
-		self.update_('path', urlObjOrString['path'], true);
-		self.update_('query', urlObjOrString['query'], true);
-		self.update_('fragment', urlObjOrString['fragment'], true);
-		self.explicitPort_ = urlObjOrString.explicitPort_;
+		this.update_('scheme', urlObjOrString['scheme'], true);
+		this.update_('user', urlObjOrString['user'], true);
+		this.update_('password', urlObjOrString['password'], true);
+		this.update_('host', urlObjOrString['host'], true);
+		this.update_('port', urlObjOrString['port'], true);
+		this.update_('path', urlObjOrString['path'], true);
+		this.update_('query', urlObjOrString['query'], true);
+		this.update_('fragment', urlObjOrString['fragment'], true);
+		this.explicitPort_ = urlObjOrString.explicitPort_;
 	} else {
-		self['port'] = null; // scary logic follows
+		this['port'] = null; // scary logic follows
 
 		// Parse the (hopefully) string
 		split = cw.URI.urisplit(urlObjOrString);
 		// scheme must be set before port
-		self.update_('scheme', split[0], true);
+		this.update_('scheme', split[0], true);
 		authority = split[1];
-		self.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
-		self.update_('query', split[3], true);
-		self.update_('fragment', split[4], true);
+		this.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
+		this.update_('query', split[3], true);
+		this.update_('fragment', split[4], true);
 
 		split = cw.URI.split_authority(authority);
-		self.update_('user', split[0], true);
-		self.update_('password', split[1], true);
-		self.update_('host', split[2], true);
+		this.update_('user', split[0], true);
+		this.update_('password', split[1], true);
+		this.update_('host', split[2], true);
 		if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
-			self.update_('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
+			this.update_('port', parseInt(split[3], 10), true); // at this point, this.port could be C{null} XOR C{''}
 		}
 	}
 
-	if(!(self['scheme'] && self['host'])) {
+	if(!(this['scheme'] && this['host'])) {
 		throw new Error("URL needs a scheme and a host");
 	}
 }
@@ -264,30 +262,27 @@ cw.URI.URL.prototype.explicitPort_ = false;
 cw.URI.URL.prototype.defaultPortForMyScheme_;
 
 cw.URI.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
-	var self = this;
-	self['scheme'] = self['scheme'].toLowerCase();
+	this['scheme'] = this['scheme'].toLowerCase();
 
 	// This might become undefined.
-	self.defaultPortForMyScheme_ = cw.URI.schemeToDefaultPort[self['scheme']];
+	this.defaultPortForMyScheme_ = cw.URI.schemeToDefaultPort[this['scheme']];
 
-	if(!self.explicitPort_) {
-		if(self.defaultPortForMyScheme_ !== undefined) {
-			// Note how we don't call self.update_('port', ...), because that would set explicitPort_
-			self['port'] = self.defaultPortForMyScheme_;
+	if(!this.explicitPort_) {
+		if(this.defaultPortForMyScheme_ !== undefined) {
+			// Note how we don't call this.update_('port', ...), because that would set explicitPort_
+			this['port'] = this.defaultPortForMyScheme_;
 		}
 	}
 }
 
 cw.URI.URL.prototype._postPropertyUpdate_path = function(_internalCall) {
-	var self = this;
-	if(!self['path']) {
-		self['path'] = '/';
+	if(!this['path']) {
+		this['path'] = '/';
 	}
 }
 
 cw.URI.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
-	var self = this;
-	self.explicitPort_ = true;
+	this.explicitPort_ = true;
 }
 
 /**
@@ -298,17 +293,16 @@ cw.URI.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
  * @return {cw.URI.URL} This URL object.
  */
 cw.URI.URL.prototype.update_ = function(property, value, _internalCall/*=false*/) {
-	var self = this;
-	self[property] = value;
+	this[property] = value;
 
-	// Don't use dynamic self['_postPropertyUpdate_' + property] here,
+	// Don't use dynamic this['_postPropertyUpdate_' + property] here,
 	// to make it easier to rename private property names later.
 	if(property === 'scheme') {
-		self._postPropertyUpdate_scheme(_internalCall);
+		this._postPropertyUpdate_scheme(_internalCall);
 	} else if(property == 'path') {
-		self._postPropertyUpdate_path(_internalCall);
+		this._postPropertyUpdate_path(_internalCall);
 	} else if(property == 'port') {
-		self._postPropertyUpdate_port(_internalCall);
+		this._postPropertyUpdate_port(_internalCall);
 	}
 	return this;
 }
@@ -317,7 +311,6 @@ cw.URI.URL.prototype.update_ = function(property, value, _internalCall/*=false*/
  * Think of this as the __str__, for when you really need it as a string.
  */
 cw.URI.URL.prototype.getString = function() {
-	var self = this;
 	/**
 	 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
 	 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay (but only for getString)
@@ -325,21 +318,20 @@ cw.URI.URL.prototype.getString = function() {
 	 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
 	 */
 	var port;
-	if(!self['port'] || self.defaultPortForMyScheme_ === self['port']) {
+	if(!this['port'] || this.defaultPortForMyScheme_ === this['port']) {
 		port = null;
 	} else {
-		port = '' + self['port']; // convert to a string for join_authority
+		port = '' + this['port']; // convert to a string for join_authority
 	}
 
-	var authority = cw.URI.join_authority(self['user'], self['password'], self['host'], port);
-	return cw.URI.uriunsplit(self['scheme'], authority, self['path'], self['query'], self['fragment']);
+	var authority = cw.URI.join_authority(this['user'], this['password'], this['host'], port);
+	return cw.URI.uriunsplit(this['scheme'], authority, this['path'], this['query'], this['fragment']);
 }
 
 /**
  * Think of this as the __repr__
  */
 cw.URI.URL.prototype.toString = function() {
-	var self = this;
 	// TODO: use a string repr function instead of replacing quotes
-	return 'cw.URI.URL("' + self.getString().replace(/"/, '\\"') + '")';
+	return 'cw.URI.URL("' + this.getString().replace(/"/, '\\"') + '")';
 }
