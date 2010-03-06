@@ -200,146 +200,146 @@ cw.URI.join_authority = function(user, password, host, port) {
  * @constructor
  */
 cw.URI.URL = function(urlObjOrString) {
-		var self = this;
-		var split;
-		var authority;
+	var self = this;
+	var split;
+	var authority;
 
-		if(urlObjOrString instanceof cw.URI.URL) {
-			// Clone it. We don't expect the object to have any crappy values like undefined,
-			// but even if that's the case, there shouldn't be many problems.
+	if(urlObjOrString instanceof cw.URI.URL) {
+		// Clone it. We don't expect the object to have any crappy values like undefined,
+		// but even if that's the case, there shouldn't be many problems.
 
-			// We must use strings here like 'scheme' instead of .scheme,
-			// so that the code is not broken by Closure Compiler's
-			// ADVANCED_OPTIMIZATIONS.
+		// We must use strings here like 'scheme' instead of .scheme,
+		// so that the code is not broken by Closure Compiler's
+		// ADVANCED_OPTIMIZATIONS.
 
-			// scheme must be set before port.
-			self.update_('scheme', urlObjOrString['scheme'], true);
-			self.update_('user', urlObjOrString['user'], true);
-			self.update_('password', urlObjOrString['password'], true);
-			self.update_('host', urlObjOrString['host'], true);
-			self.update_('port', urlObjOrString['port'], true);
-			self.update_('path', urlObjOrString['path'], true);
-			self.update_('query', urlObjOrString['query'], true);
-			self.update_('fragment', urlObjOrString['fragment'], true);
-			self.explicitPort_ = urlObjOrString.explicitPort_;
-		} else {
-			self['port'] = null; // scary logic follows
+		// scheme must be set before port.
+		self.update_('scheme', urlObjOrString['scheme'], true);
+		self.update_('user', urlObjOrString['user'], true);
+		self.update_('password', urlObjOrString['password'], true);
+		self.update_('host', urlObjOrString['host'], true);
+		self.update_('port', urlObjOrString['port'], true);
+		self.update_('path', urlObjOrString['path'], true);
+		self.update_('query', urlObjOrString['query'], true);
+		self.update_('fragment', urlObjOrString['fragment'], true);
+		self.explicitPort_ = urlObjOrString.explicitPort_;
+	} else {
+		self['port'] = null; // scary logic follows
 
-			// Parse the (hopefully) string
-			split = cw.URI.urisplit(urlObjOrString);
-			// scheme must be set before port
-			self.update_('scheme', split[0], true);
-			authority = split[1];
-			self.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
-			self.update_('query', split[3], true);
-			self.update_('fragment', split[4], true);
+		// Parse the (hopefully) string
+		split = cw.URI.urisplit(urlObjOrString);
+		// scheme must be set before port
+		self.update_('scheme', split[0], true);
+		authority = split[1];
+		self.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
+		self.update_('query', split[3], true);
+		self.update_('fragment', split[4], true);
 
-			split = cw.URI.split_authority(authority);
-			self.update_('user', split[0], true);
-			self.update_('password', split[1], true);
-			self.update_('host', split[2], true);
-			if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
-				self.update_('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
-			}
-		}
-
-		if(!(self['scheme'] && self['host'])) {
-			throw new Error("URL needs a scheme and a host");
+		split = cw.URI.split_authority(authority);
+		self.update_('user', split[0], true);
+		self.update_('password', split[1], true);
+		self.update_('host', split[2], true);
+		if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
+			self.update_('port', parseInt(split[3], 10), true); // at this point, self.port could be C{null} XOR C{''}
 		}
 	}
 
+	if(!(self['scheme'] && self['host'])) {
+		throw new Error("URL needs a scheme and a host");
+	}
+}
+
+/**
+ * Whether this URL has an explicit port set (instead of an implied
+ * 	port based on the scheme).
+ * @type {boolean}
+ * @private
+ */
+cw.URI.URL.prototype.explicitPort_ = false;
+
+/**
+ * The default port for the scheme that this URL currently has.
+ * @type {number|undefined}
+ * @private
+ */
+cw.URI.URL.prototype.defaultPortForMyScheme_;
+
+cw.URI.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
+	var self = this;
+	self['scheme'] = self['scheme'].toLowerCase();
+
+	// This might become undefined.
+	self.defaultPortForMyScheme_ = cw.URI.schemeToDefaultPort[self['scheme']];
+
+	if(!self.explicitPort_) {
+		if(self.defaultPortForMyScheme_ !== undefined) {
+			// Note how we don't call self.update_('port', ...), because that would set explicitPort_
+			self['port'] = self.defaultPortForMyScheme_;
+		}
+	}
+}
+
+cw.URI.URL.prototype._postPropertyUpdate_path = function(_internalCall) {
+	var self = this;
+	if(!self['path']) {
+		self['path'] = '/';
+	}
+}
+
+cw.URI.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
+	var self = this;
+	self.explicitPort_ = true;
+}
+
+/**
+ * Set URL C{property} to C{value}.
+ *
+ * Don't give this unknown property names.
+ *
+ * @return {cw.URI.URL} This URL object.
+ */
+cw.URI.URL.prototype.update_ = function(property, value, _internalCall/*=false*/) {
+	var self = this;
+	self[property] = value;
+
+	// Don't use dynamic self['_postPropertyUpdate_' + property] here,
+	// to make it easier to rename private property names later.
+	if(property === 'scheme') {
+		self._postPropertyUpdate_scheme(_internalCall);
+	} else if(property == 'path') {
+		self._postPropertyUpdate_path(_internalCall);
+	} else if(property == 'port') {
+		self._postPropertyUpdate_port(_internalCall);
+	}
+	return this;
+}
+
+/**
+ * Think of this as the __str__, for when you really need it as a string.
+ */
+cw.URI.URL.prototype.getString = function() {
+	var self = this;
 	/**
-	 * Whether this URL has an explicit port set (instead of an implied
-	 * 	port based on the scheme).
-	 * @type {boolean}
-	 * @private
-	 */
-	cw.URI.URL.prototype.explicitPort_ = false;
-
-	/**
-	 * The default port for the scheme that this URL currently has.
-	 * @type {number|undefined}
-	 * @private
-	 */
-	cw.URI.URL.prototype.defaultPortForMyScheme_;
-
-	cw.URI.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
-		var self = this;
-		self['scheme'] = self['scheme'].toLowerCase();
-
-		// This might become undefined.
-		self.defaultPortForMyScheme_ = cw.URI.schemeToDefaultPort[self['scheme']];
-
-		if(!self.explicitPort_) {
-			if(self.defaultPortForMyScheme_ !== undefined) {
-				// Note how we don't call self.update_('port', ...), because that would set explicitPort_
-				self['port'] = self.defaultPortForMyScheme_;
-			}
-		}
-	}
-
-	cw.URI.URL.prototype._postPropertyUpdate_path = function(_internalCall) {
-		var self = this;
-		if(!self['path']) {
-			self['path'] = '/';
-		}
-	}
-
-	cw.URI.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
-		var self = this;
-		self.explicitPort_ = true;
-	}
-
-	/**
-	 * Set URL C{property} to C{value}.
+	 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
+	 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay (but only for getString)
 	 *
-	 * Don't give this unknown property names.
-	 *
-	 * @return {cw.URI.URL} This URL object.
+	 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
 	 */
-	cw.URI.URL.prototype.update_ = function(property, value, _internalCall/*=false*/) {
-		var self = this;
-		self[property] = value;
-
-		// Don't use dynamic self['_postPropertyUpdate_' + property] here,
-		// to make it easier to rename private property names later.
-		if(property === 'scheme') {
-			self._postPropertyUpdate_scheme(_internalCall);
-		} else if(property == 'path') {
-			self._postPropertyUpdate_path(_internalCall);
-		} else if(property == 'port') {
-			self._postPropertyUpdate_port(_internalCall);
-		}
-		return this;
+	var port;
+	if(!self['port'] || self.defaultPortForMyScheme_ === self['port']) {
+		port = null;
+	} else {
+		port = '' + self['port']; // convert to a string for join_authority
 	}
 
-	/**
-	 * Think of this as the __str__, for when you really need it as a string.
-	 */
-	cw.URI.URL.prototype.getString = function() {
-		var self = this;
-		/**
-		 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
-		 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay (but only for getString)
-		 * 
-		 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
-		 */
-		var port;
-		if(!self['port'] || self.defaultPortForMyScheme_ === self['port']) {
-			port = null;
-		} else {
-			port = '' + self['port']; // convert to a string for join_authority
-		}
+	var authority = cw.URI.join_authority(self['user'], self['password'], self['host'], port);
+	return cw.URI.uriunsplit(self['scheme'], authority, self['path'], self['query'], self['fragment']);
+}
 
-		var authority = cw.URI.join_authority(self['user'], self['password'], self['host'], port);
-		return cw.URI.uriunsplit(self['scheme'], authority, self['path'], self['query'], self['fragment']);
-	}
-
-	/**
-	 * Think of this as the __repr__
-	 */
-	cw.URI.URL.prototype.toString = function() {
-		var self = this;
-		// TODO: use a string repr function instead of replacing quotes
-		return 'cw.URI.URL("' + self.getString().replace(/"/, '\\"') + '")';
-	}
+/**
+ * Think of this as the __repr__
+ */
+cw.URI.URL.prototype.toString = function() {
+	var self = this;
+	// TODO: use a string repr function instead of replacing quotes
+	return 'cw.URI.URL("' + self.getString().replace(/"/, '\\"') + '")';
+}
