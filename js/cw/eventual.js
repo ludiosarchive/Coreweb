@@ -183,7 +183,7 @@ cw.eventual.CallQueue.prototype.notifyEmpty_ = function() {
  */
 cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
 	var d = new goog.async.Deferred();
-	this.eventually_(d.callback, d, value);
+	this.eventually_(d.callback, d, [value]);
 	return d;
 }
 

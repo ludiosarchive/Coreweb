@@ -89,7 +89,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		}
 
 		self.assertEqual(true, gotError);
-		clock.advance_(0); // no more errors
+
+		// no more errors
+		clock.advance_(0);
+		clock.advance_(0);
 	},
 
 	/**
@@ -97,7 +100,20 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * completely empty.
 	 */
 	function test_notifyEmptyNotEmptyYet(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var notified = false;
 
+		cq.eventually_(function() {}, this, []);
+		cq.eventually_(function() {}, this, []);
+		cq.eventually_(function() {}, this, []);
+
+		var d = cq.notifyEmpty_();
+		d.addCallback(function() { notified = true; });
+
+		self.assertEqual(false, notified);
+		clock.advance_(0);
+		self.assertEqual(true, notified);
 	},
 
 	/**
@@ -105,7 +121,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * queue is completely empty.
 	 */
 	function test_notifyEmptyQueueEmpty(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var notified = false;
 
+		var d = cq.notifyEmpty_();
+		d.addCallback(function() { notified = true; });
+
+		self.assertEqual(true, notified);
 	},
 
 	/**
@@ -114,7 +137,28 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * CallQueue becomes empty again.
 	 */
 	function test_notifyEmptyReentrantNotEmptyYet(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var notified = false;
+		var notified2 = false;
 
+		cq.eventually_(function() {}, this, []);
+
+		var d = cq.notifyEmpty_();
+		d.addCallback(function() {
+			notified = true;
+			cq.eventually_(function() {}, this, []);
+			cq.notifyEmpty_().addCallback(function(){ notified2 = true; });
+		});
+
+		self.assertEqual(false, notified);
+		self.assertEqual(false, notified2);
+		clock.advance_(0);
+		self.assertEqual(true, notified);
+		self.assertEqual(false, notified2);
+		clock.advance_(0);
+		self.assertEqual(true, notified);
+		self.assertEqual(true, notified2);
 	},
 
 	/**
@@ -122,7 +166,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * the Deferred is fired right away.
 	 */
 	function test_notifyEmptyReentrantQueueEmpty(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var notified = false;
+		var notified2 = false;
 
+		cq.eventually_(function() {}, this, []);
+
+		var d = cq.notifyEmpty_();
+		d.addCallback(function() {
+			notified = true;
+			cq.notifyEmpty_().addCallback(function(){ notified2 = true; });
+		});
+
+		self.assertEqual(false, notified);
+		self.assertEqual(false, notified2);
+		clock.advance_(0);
+		self.assertEqual(true, notified);
+		self.assertEqual(true, notified2);
 	},
 
 	/**
@@ -130,14 +191,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * correct value.
 	 */
 	function test_fireEventually(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		var d = cq.fireEventually_(3);
+		var called = false;
+		d.addCallback(function(value) { called = [arguments.length, value]; });
 
+		self.assertEqual(false, called);
+		clock.advance_(0);
+		self.assertEqual([1, 3], called);
 	},
 
 	/**
 	 * CallQueue has a publicly-accessible clock_ property.
 	 */
 	function test_publicClock(self) {
-
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
+		self.assertIdentical(clock, cq.clock_);
 	}
 );
 
