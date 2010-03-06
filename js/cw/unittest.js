@@ -136,7 +136,7 @@ goog.inherits(cw.UnitTest.SkipTest, goog.debug.Error);
 cw.UnitTest.SkipTest.prototype.name = 'cw.UnitTest.SkipTest';
 
 
-cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA;
+cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA && !goog.userAgent.isVersion('10.50');
 
 
 
@@ -628,6 +628,15 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}
+	},
+
+
+	/**
+	 * Used for marking a line that should never be reached.
+	 * The idea comes from Closure Library's tests.
+	 */
+	function neverHappen(self) {
+		self.fail("This line should never be reached.");
 	},
 
 

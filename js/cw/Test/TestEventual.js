@@ -70,7 +70,26 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	 * If a callable throws an error, the error is rethrown in 0ms.
 	 */
 	function test_callableThrows(self) {
+		var clock = new cw.clock.Clock();
+		var cq = new cw.eventual.CallQueue(clock);
 
+		var throwingCallable = function() {
+			throw new Error("hi");
+		}
+
+		cq.eventually_(throwingCallable, null, []);
+		clock.advance_(0);
+
+		var gotError = false;
+		try {
+			clock.advance_(0);
+		} catch(e) {
+			gotError = true;
+			self.assertErrorMessage(e, "hi");
+		}
+
+		self.assertEqual(true, gotError);
+		clock.advance_(0); // no more errors
 	},
 
 	/**

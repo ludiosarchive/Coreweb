@@ -20,6 +20,52 @@ goog.provide('cw.Test.TestUnitTest');
 // anti-clobbering for JScript
 (function(){
 
+
+cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'IsTestCaseTests').methods(
+	/**
+	 * Verify that L{isTestCaseClass} returns a positive result for L{TestCase}
+	 * subclasses and a negative result for other types of object.
+	 */
+	function test_isTestCaseClass(self) {
+		self.assertIdentical(
+			true, cw.UnitTest.isTestCaseClass(
+				cw.Test.TestUnitTestAssertions.AssertionTests));
+		self.assertIdentical(
+			false, cw.UnitTest.isTestCaseClass(
+				cw.Test.TestUnitTestAssertions.AssertionTests()));
+		self.assertIdentical(
+			false, cw.UnitTest.isTestCaseClass(
+				1));
+	},
+
+
+	/**
+	 * Verify that L{isRunnableTestCaseClass} returns a positive result for
+	 * L{TestCase} subclasses that don't start with "_" and a negative result
+	 * for others.
+	 */
+	function test_isRunnableTestCaseClass(self) {
+		// copy/paste from above; changed method name.
+		self.assertIdentical(
+			true, cw.UnitTest.isRunnableTestCaseClass(
+				cw.Test.TestUnitTestAssertions.AssertionTests));
+		self.assertIdentical(
+			false, cw.UnitTest.isRunnableTestCaseClass(
+				cw.Test.TestUnitTestAssertions.AssertionTests()));
+		self.assertIdentical(
+			false, cw.UnitTest.isRunnableTestCaseClass(
+				1));
+
+		self.assertIdentical(
+			false, cw.UnitTest.isRunnableTestCaseClass(
+				cw.Test.TestUnitTestAssertions._StartsWithUnderscore));
+		self.assertIdentical(
+			true, cw.UnitTest.isRunnableTestCaseClass(
+				cw.Test.TestUnitTestAssertions.EndsWithUnderscore_));
+	}
+);
+
+
 /**
  * A mock L{TestResult} object that we use to test that L{startTest} and L{stopTest}
  * are called appropriately.
@@ -41,7 +87,6 @@ cw.Class.subclass(cw.Test.TestUnitTest, 'MockResult').methods(
 		self.log += ' stopTest ' + test.id();
 	}
 );
-
 
 
 /**

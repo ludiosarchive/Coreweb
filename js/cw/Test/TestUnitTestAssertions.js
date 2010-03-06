@@ -57,46 +57,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		);
 	},
 
-	/**
-	 * Verify that L{isTestCaseClass} returns a positive result for L{TestCase}
-	 * subclasses and a negative result for other types of object.
-	 */
-	function test_isTestCaseClass(self) {
-		self.assertIdentical(
-			true, cw.UnitTest.isTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests));
-		self.assertIdentical(
-			false, cw.UnitTest.isTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests()));
-		self.assertIdentical(
-			false, cw.UnitTest.isTestCaseClass(
-				1));
-	},
-
 
 	/**
-	 * Verify that L{isRunnableTestCaseClass} returns a positive result for
-	 * L{TestCase} subclasses that don't start with "_" and a negative result
-	 * for others.
+	 * Test that L{neverHappen} raises an exception.
 	 */
-	function test_isRunnableTestCaseClass(self) {
-		// copy/paste from above; changed method name.
-		self.assertIdentical(
-			true, cw.UnitTest.isRunnableTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests));
-		self.assertIdentical(
-			false, cw.UnitTest.isRunnableTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests()));
-		self.assertIdentical(
-			false, cw.UnitTest.isRunnableTestCaseClass(
-				1));
-
-		self.assertIdentical(
-			false, cw.UnitTest.isRunnableTestCaseClass(
-				cw.Test.TestUnitTestAssertions._StartsWithUnderscore));
-		self.assertIdentical(
-			true, cw.UnitTest.isRunnableTestCaseClass(
-				cw.Test.TestUnitTestAssertions.EndsWithUnderscore_));
+	function test_neverHappen(self) {
+		self.assertThrows(
+			goog.asserts.AssertionError,
+			function() { self.neverHappen(); }
+		);
 	},
 
 
