@@ -58,7 +58,7 @@ goog.provide('cw.eventual');
 cw.eventual.CallQueue = function(clock) {
 	/**
 	 * An object that implements {@code setTimeout}.
-	 * @type {Object}
+	 * @type { {setTimeout: !Function} }
 	 */
 	this.clock_ = clock;
 

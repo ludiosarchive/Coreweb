@@ -240,7 +240,9 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 		// Remember that callables can add or clear timeouts/intervals.
 		// New callables won't get called until at least the next advance_,
 		// but cleared timeouts/intervals will be immediately removed, even
-		// while we're inside this loop.
+		// while we're inside this loop. Note that callables should not expect
+		// to reliably remove their "sibling" calls, because they run in an
+		// arbitrary order. ("sibling" means happening around the same time). 
 		for(;;) {
 			//console.log('calls_: ', cw.UnitTest.repr(this.calls_), 'rightNow_: ', this.rightNow_);
 			if(this.calls_.length === 0 || this.calls_[0].runAt_ > this.rightNow_ || this.calls_[0].notNow_) {

@@ -34,12 +34,13 @@ cw.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
 
 
 /**
- * Return a suite which contains every test defined in C{testClass}. Assumes
- * that if a method name starts with C{test_}, then it is a test.
+ * @return {!cw.UnitTest.TestSuite} A suite which contains every test
+ * defined in C{testClass}. Assumes that if a method name starts with
+ * C{test_}, then it is a test.
  */
-cw.UnitTest.loadFromClass = function loadFromClass(testClass) {
+cw.UnitTest.loadFromClass = function(testClass) {
 	var prefix = 'test_';
-	var suite = cw.UnitTest.TestSuite();
+	var suite = new cw.UnitTest.TestSuite();
 	var methods = goog.object.getKeys(testClass.prototype).sort();
 	for (var i = 0; i < methods.length; ++i) {
 		var name = methods[i];
@@ -52,10 +53,12 @@ cw.UnitTest.loadFromClass = function loadFromClass(testClass) {
 
 
 /**
- * @return: C{true} if C{klass} is a subclass of L{cw.UnitTest.TestCase}
- * C{false} otherwise.
+ * @param {!Object} klass
+ *
+ * @return {boolean} Whether {@code klass} is a subclass of
+ * {@code cw.UnitTest.TestCase}.
  */
-cw.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
+cw.UnitTest.isTestCaseClass = function(klass) {
 	if (klass.subclassOf === undefined) {
 		return false;
 	}
@@ -67,10 +70,13 @@ cw.UnitTest.isTestCaseClass = function isTestCaseClass(klass) {
 
 
 /**
- * @return: C{true} if C{klass} is a subclass of L{cw.UnitTest.TestCase}
- * and its name does not start with "_", C{false} otherwise.
+ * @param {!Object} klass
+ *
+ * @return {boolean} Whether {@code klass} is a subclass of
+ * {@code cw.UnitTest.TestCase} and its name does not start
+ * with "_".
  */
-cw.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
+cw.UnitTest.isRunnableTestCaseClass = function(klass) {
 	if(!cw.UnitTest.isTestCaseClass(klass)) {
 		return false;
 	}
@@ -91,10 +97,13 @@ cw.UnitTest.isRunnableTestCaseClass = function isRunnableTestCaseClass(klass) {
 
 
 /**
- * Return a suite which contains every test defined in C{testModule}.
+ * @param {!Object} testModule
+ *
+ * @return {!cw.UnitTest.TestSuite} a suite which contains every test
+ * 	defined in {@code testModule}.
  */
-cw.UnitTest.loadFromModule = function loadFromModule(testModule) {
-	var suite = cw.UnitTest.TestSuite();
+cw.UnitTest.loadFromModule = function(testModule) {
+	var suite = new cw.UnitTest.TestSuite();
 	for (var name in testModule) {
 		if (cw.UnitTest.isRunnableTestCaseClass(testModule[name])) {
 			suite.addTest(cw.UnitTest.loadFromClass(testModule[name]));
@@ -106,10 +115,13 @@ cw.UnitTest.loadFromModule = function loadFromModule(testModule) {
 
 
 /**
- * Return a suite which contains every test in every module in array C{testModules}.
+ * @param {!Array.<!Object>} testModules
+ *
+ * @return {!cw.UnitTest.TestSuite} a suite which contains every test
+ * 	in every module in array {@code testModules}
  */
-cw.UnitTest.loadFromModules = function loadFromModule(testModules) {
-	var suite = cw.UnitTest.TestSuite();
+cw.UnitTest.loadFromModules = function(testModules) {
+	var suite = new cw.UnitTest.TestSuite();
 	for (var i in testModules) {
 		var testModule = testModules[i];
 		for (var name in testModule) {
@@ -136,7 +148,8 @@ goog.inherits(cw.UnitTest.SkipTest, goog.debug.Error);
 cw.UnitTest.SkipTest.prototype.name = 'cw.UnitTest.SkipTest';
 
 
-cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA && !goog.userAgent.isVersion('10.50');
+cw.UnitTest.browserAddsCrapToErrorMessages = (
+	goog.userAgent.OPERA && !goog.userAgent.isVersion('10.50'));
 
 
 
@@ -162,6 +175,7 @@ cw.UnitTest.browserAddsCrapToErrorMessages = goog.userAgent.OPERA && !goog.userA
  * @ivar skips: The SkipTest exceptions that were raised by tests in this test run,
  * 				paired with the tests that generated them.
  *
+ * @constructor
  */
 cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	function __init__(self) {
@@ -274,6 +288,8 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 
 /**
  * Adds test results to a div, as they are run.
+ *
+ * @constructor
  */
 cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 	function __init__(self, div) {
@@ -341,6 +357,8 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
  * Print tests results to the console, as they are run. If you try to use
  * this in a browser environment, it will repeatedly open the 'print page'
  * dialog.
+ *
+ * @constructor
  */
 cw.UnitTest.TestResult.subclass(cw.UnitTest, 'ConsoleTestResult').methods(
 	function __init__(self) {
@@ -421,6 +439,8 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'SubunitTestClient').methods(
 
 /**
  * Represents a collection of tests. Implements the Composite pattern.
+ *
+ * @constructor
  */
 cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	function __init__(self, /*optional*/ tests) {
@@ -533,9 +553,9 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
  * To do this tracking, I assert the statement,
  * then increment the counter if the assert came directly
  * from the user's test_ method (and not of my own methods).
+ *
+ * @constructor
  */
-
-
 cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Construct a test.
@@ -590,9 +610,8 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
 	 *
-	 * @type reason: text
-	 * @param reason: Why the test is being failed.
-	 * @return: L{goog.asserts.AssertionError} instance.
+	 * @param {string} reason Why the test is being failed.
+	 * @return {goog.asserts.AssertionError}
 	 */
 	function getFailError(self, reason) {
 		return new goog.asserts.AssertionError("[" + self._assertCounter + "] " + reason, []);
@@ -602,9 +621,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Fail the test. Equivalent to an invalid assertion.
 	 *
-	 * @type reason: text
-	 * @param reason: Why the test is being failed.
-	 * @throw: goog.asserts.AssertionError
+	 * @param {string} reason Why the test is being failed.
 	 */
 	function fail(self, reason) {
 		throw self.getFailError(reason);
@@ -614,15 +631,11 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Assert that the given value is truthy.
 	 *
-	 * @type value: boolean
-	 * @param value: The thing we are asserting.
-	 *
-	 * @type message: text
-	 * @param message: An optional parameter, explaining what the assertion
-	 * means.
+	 * @param {boolean} ok Whether the assertion was true (successful).
+	 * @param {string=} message An error message for the AssertionError.
 	 */
-	function assert(self, value, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		if (!value) {
+	function assert(self, ok, message, _internalCall /*=false*/) {
+		if (!ok) {
 			self.fail(message);
 		}
 		if(_internalCall !== true) {
@@ -1120,9 +1133,11 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 
 /**
- * Return a nicely formatted summary from the given L{TestResult}.
+ * @param {!cw.UnitTest.TestResult} result A finished {@code TestResult}.
+ *
+ * @return {string} A nicely formatted summary for the given {@code TestResult}.
  */
-cw.UnitTest.formatSummary = function formatSummary(result) {
+cw.UnitTest.formatSummary = function(result) {
 	var summary;
 	if (result.wasSuccessful()) {
 		summary = "PASSED "
@@ -1145,14 +1160,13 @@ cw.UnitTest.formatSummary = function formatSummary(result) {
 
 
 /**
- * Take a L{cw.UnitTest.TestResult} and return a DIV that contains an
- * easily-recognizable image (for automated test systems), along with
- * a number of tests run, errored, and failed.
- * 
- * @param result: a finished L{cw.UnitTest.TestResult}
- * @type result: L{cw.UnitTest.TestResult}
+ * @param {!cw.UnitTest.TestResult} result A finished {@code TestResult}.
+ *
+ * @return {!Element} A DIV that contains an easily-recognizable image
+ * 	(for humans and automated test systems), along with text describing
+ * 	the number of tests run, errored, and failed.
  */
-cw.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
+cw.UnitTest.makeSummaryDiv = function(result) {
 	var summaryDiv = document.createElement('div');
 
 	var doneImg = document.createElement('img');
@@ -1191,13 +1205,16 @@ cw.UnitTest.makeSummaryDiv = function makeSummaryDiv(result) {
 
 /**
  * Run the given test, printing the summary of results and any errors
- * to a DIV with id 'CW-test-log', then display an summary in the top-
+ * to div {@code div}. After test completion, display a summary in the top-
  * right corner.
  *
- * @param test: The test to run.
- * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
+ * @param {!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)} test The TestCase or
+ * 	TestSuite to run.
+ *
+ * @return {!goog.async.Deferred} Deferred that fires after the summary
+ * 	information is displayed.
  */
-cw.UnitTest.runWeb = function runWeb(test, div) {
+cw.UnitTest.runWeb = function(test, div) {
 	var result = cw.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){	
@@ -1227,10 +1244,13 @@ cw.UnitTest.runWeb = function runWeb(test, div) {
  * Run the given test, printing the summary of results and any errors
  * to the console, which must have a print statement in the global object.
  *
- * @param test: The test to run.
- * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
+ * @param {!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)} test The TestCase or
+ * 	TestSuite to run.
+ *
+ * @return {!goog.async.Deferred} Deferred that fires after the summary
+ * 	information is displayed.
  */
-cw.UnitTest.runConsole = function runConsole(test) {
+cw.UnitTest.runConsole = function(test) {
 	var result = cw.UnitTest.ConsoleTestResult();
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){
@@ -1273,8 +1293,10 @@ cw.UnitTest.runRemote = function runRemote(test) {
  * 
  * Differs from our old repr:
  *    no more superfluous spaces between items in arrays.
+ *
+ * @private
  */
-cw.UnitTest._makeUneval = function _makeUneval() {
+cw.UnitTest.makeUneval_ = function() {
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var protos = [];
 
@@ -1393,13 +1415,12 @@ cw.UnitTest._makeUneval = function _makeUneval() {
 	return uneval;
 }
 
-cw.UnitTest.repr = cw.UnitTest._makeUneval();
+cw.UnitTest.repr = cw.UnitTest.makeUneval_();
 
 
 /**
- * Return the stack limit of the current environment.
- *
- * If over 1000, just return 1000.
+ * @return {number} The stack limit of the current environment.
+ * 	If over 1000, just return 1000.
  */
 cw.UnitTest.calculateStackLimit = function(n) {
 	if(n === undefined) {
@@ -1426,6 +1447,8 @@ cw.UnitTest.estimatedStackLimit = cw.UnitTest.calculateStackLimit();
  * A visit-controller which applies a specified visitor to the methods of a
  * suite, waiting for the Deferred from a visit to fire before proceeding to
  * the next method.
+ *
+ * @constructor
  */
 cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 	function traverse(self, visitor, tests) {
@@ -1520,6 +1543,8 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
  * Ignore Deferreds. Access something one by one. Useful for getting test counts.
  *
  * This is how Divmod UnitTest worked.
+ *
+ * @constructor
  */
 cw.Class.subclass(cw.UnitTest, 'SynchronousVisitor').methods(
 	function traverse(self, visitor, tests) {
@@ -1536,7 +1561,7 @@ cw.Class.subclass(cw.UnitTest, 'SynchronousVisitor').methods(
  *
  * This is called right before the tests start, and after the teardown of *any test* that ends dirty.
  */
-cw.UnitTest.stopTrackingDelayedCalls = function stopTrackingDelayedCalls() {
+cw.UnitTest.stopTrackingDelayedCalls = function() {
 	cw.UnitTest.delayedCalls = {
 		'setTimeout_pending': {},
 		'setInterval_pending': {}
@@ -1549,9 +1574,18 @@ cw.UnitTest.stopTrackingDelayedCalls();
 
 
 /**
+ * Install replacements for setTimeout, setInterval, clearTimeout,
+ * and clearInterval. The replacements track any window-global
+ * setTimeout/setInterval calls, and help you find if any scheduled calls
+ * survived past the end of a test.
+ *
  * This needs to be called before tests are started.
+ *
+ * Note: Closure Library also installs setTimeout/setInterval replacements,
+ * 	mostly to catch and log errors. TODO: Investigate if our replacements
+ * 	and Closure Library's replacements interfere with each other.
  */
-cw.UnitTest.installMonkeys = function installMonkeys() {
+cw.UnitTest.installMonkeys = function() {
 	//cw.UnitTest.logger.fine('installMonkeys');
 
 	// Deferred not really needed in this function ever since it was cleaned up
