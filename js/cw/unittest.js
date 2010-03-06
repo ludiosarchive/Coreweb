@@ -781,7 +781,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			// we need to catch it early and do a direct === comparison if either C{a} or C{b} are C{null}
 			self.assertIdentical(a, b, message, true);
 
-		} else if(goog.typeOf(a) === 'array' && goog.typeOf(b) === 'array') {
+		} else if(goog.isArray(a) && goog.isArray(b)) {
 			// This is a deep (recursive) comparison, unlike assertArraysEqual or goog.array.equals
 
 			var i;

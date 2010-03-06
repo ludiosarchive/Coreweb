@@ -111,7 +111,7 @@ cw.eventual.CallQueue.prototype.timer_ = null;
  * @param {!Array<*>} args The arguments the function will be called with.
  */
 cw.eventual.CallQueue.prototype.eventually_ = function(cb, scope, args) {
-	goog.asserts.assert(goog.typeOf(args) == 'array',
+	goog.asserts.assert(goog.isArray(args),
 		"args should be an array, not " + goog.typeOf(args));
 
 	this.events_.push([cb, scope, args]);
