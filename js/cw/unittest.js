@@ -1664,11 +1664,11 @@ cw.UnitTest.installMonkeys = function() {
 
 	// In non-IE browsers, the above overrides everything correctly,
 	// and both `setTimeout` and `window.setTimeout` use our special
-	// function. But in IE6-IE8, plain `setTimeout` still calls the original
-	// browser function. So, we do this to override the strange "top-level"
+	// function. But in IE6-IE8, just `setTimeout` still calls the original
+	// browser function. So, we use execScript to override the "top-level"
 	// `setTimeout` as well.
 
-	// For some strange reason, this is only needed for setTimeout,
+	// For unknown reasons, this is only needed for setTimeout,
 	// and not setInterval, clearTimeout, or clearInterval.
 
 	if(goog.userAgent.IE) {
