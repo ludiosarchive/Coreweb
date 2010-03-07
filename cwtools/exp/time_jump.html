@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc">
+Adjust your system clock forward or backwards and see what
+happens. Load this page with ?setInterval to use setInterval
+instead of setTimeout. Experimental results on 2010-03-07:
+
+<table border=1><tr>
+	<td>Browser/OS</td>
+	<td>setTimeout (jump &lt;-)</td>
+	<td>setTimeout (jump -&gt;)</td>
+	<td>setInterval (jump &lt;-)</td>
+	<td>setInterval (jump -&gt;)</td>
+</tr><tr>
+	<td>IE 8.0.6001.18702 in IE8 mode @ XP SP3 32-bit</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+</tr><tr>
+	<td>IE 8.0.6001.18702 in IE7 mode @ XP SP3 32-bit</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+	<td>Timer OK, getTime jumps</td>
+</tr><tr>
+	<td>IE 6. @ XP SP3 32-bit</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr><tr>
+	<td>Chrome 4.1.249.1025 beta (40600) @ XP SP3 32-bit</td>
+	<td>Timer PROBLEMATIC, getTime appears consistent</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr><tr>
+	<td>Chrome 5.0.342.2 dev @ XP SP2 64-bit unpatched</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr></table>
+
+Chrome note: See chromium/base/time_win.cc. If you jump the clock foward, Chrome 
+</div>
+
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
+
+var method;
+if(String(window.location).indexOf('?setInterval') != -1) {
+	method = 'setInterval'
+} else {
+	method = 'setTimeout';
+}
+
+logger.info('Using method ' + method);
+
+var count = 0;
+var max = 2 * 3600; // stop after "2 hours" 
+function next() {
+	count += 1;
+	logger.info(+new Date);
+	if(count < max) {
+		if(method == 'setTimeout') {
+			setTimeout(next, 1000);
+		}
+	} else {
+		logger.info('Done');
+	}
+}
+
+if(method == 'setTimeout') {
+	setTimeout(next, 1000);
+} else {
+	setInterval(next, 1000);
+}
+
+</script>
+</body>
+</html>

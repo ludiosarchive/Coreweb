@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc">
+This page reads the 'readwrite' cookie or sessionStorage key.
+This helps you verify that the value can actually be read accross
+processes. This pages accompanies cookie_read_write.html.
+</div>
+
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+goog.require('goog.net.cookies');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
+
+var method;
+if(String(window.location).indexOf('?sessionStorage') != -1) {
+	// Note: sessionStorage doesn't seem to get shared across tabs
+	// in Chrome 5 dev or Firefox 3.6.
+	method = 'sessionStorage';
+} else if(String(window.location).indexOf('?localStorage') != -1) {
+	method = 'localStorage';
+} else {
+	method = 'cookie';
+}
+
+if(method == 'sessionStorage' && !goog.isDef(window.sessionStorage)) {
+	logger.severe('You wanted storage method ' + method + ' but this environment is missing window.sessionStorage');
+}
+
+if(method == 'localStorage' && !goog.isDef(window.localStorage)) {
+	logger.severe('You wanted storage method ' + method + ' but this environment is missing window.localStorage');
+}
+
+logger.info('Using storage method ' + method);
+
+var count = 0;
+// How many times the cookie changed on us
+var inconsistentReads = 0;
+var max = 1e3;
+function read() {
+	count++;
+	if(method == 'sessionStorage') {
+		var stored = sessionStorage.getItem('readwrite');
+	} else if(method == 'localStorage') {
+		var stored = localStorage.getItem('readwrite');
+	} else {
+		var stored = goog.net.cookies.get('readwrite');
+	}
+	logger.info('I saw value: ' + stored);
+	if(count < max) {
+		setTimeout(read, 1000);
+	} else {
+		logger.info('Done');
+	}
+}
+
+setTimeout(read, 0);
+
+</script>
+</body>
+</html>
