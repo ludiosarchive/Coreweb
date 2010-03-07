@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc">
+This page verifies that the value you write to a cookie may be changed by
+other processes writing to the cookie at the same time.
+
+As of 2010-03-07, this is applicable to Chrome/Chromium and IE8. It may
+apply to Firefox 4.0 if it implements multi-process tabs.
+
+If you open this page in two tabs in Opera 9.64 on Windows, you will see
+some incredibly strange behavior. The tab that is *not* focused will *always*
+(or almost?) get an inconsistent read. It's as if Opera is lying to it about
+storing the cookie.
+</div>
+
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+goog.require('goog.net.cookies');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
+
+var count = 0;
+// How many times the cookie changed on us
+var inconsistentReads = 0;
+var max = 1e6;
+function writeAndRead() {
+	if(count % 1000 == 0) {
+		logger.fine('Finished '+count+' iterations.');
+	}
+	count += 1;
+	var rand = goog.string.getRandomString();
+	document.cookie = 'readwrite=' + rand;
+	var stored = goog.net.cookies.get('readwrite');
+	if (stored != rand) {
+		inconsistentReads += 1;
+		logger.info(goog.string.subs('Wrote %s but got %s; %s of %s reads were bad.', rand, stored, inconsistentReads, count));
+	}
+	if(count < max) {
+		setTimeout(writeAndRead, 0);
+	} else {
+		logger.info('Done');
+	}
+}
+
+setTimeout(writeAndRead, 0);
+
+</script>
+</body>
+</html>
