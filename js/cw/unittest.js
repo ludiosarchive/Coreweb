@@ -1692,7 +1692,7 @@ cw.UnitTest.installMonkeys = function() {
 		execScript("\
 		function setTimeout(fn, callable) {\
 			return cw.UnitTest.__window_setTimeout(fn, callable);\
-		}")
+		}", 'JavaScript');
 	}
 
 	installD.callback(null);
