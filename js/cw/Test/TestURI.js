@@ -1,11 +1,12 @@
 /**
- * Tests for cw.uri
+ * @fileoverview Tests for cw.uri
  */
+
+goog.provide('cw.Test.TestURI');
 
 goog.require('cw.UnitTest');
 goog.require('cw.uri');
 
-goog.provide('cw.Test.TestURI');
 
 // anti-clobbering for JScript
 (function(){

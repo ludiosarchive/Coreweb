@@ -1,12 +1,28 @@
 /**
- * JavaScript unit testing framework, modeled on xUnit.
+ * @fileoverview JavaScript unit testing framework with Deferred support,
+ * 	inspired by Twisted Trial.
  *
- * Heavy modified from the Divmod UnitTest.js to add support
- * for Deferreds in test methods, setUp, and tearDown.
+ * This is based on Divmod UnitTest.js. It was heavily modified to:
  *
- * Also modified to track escaped setTimeout/setInterval calls.
- * This is analogous to making sure the reactor (in Twisted) is clean after the test.
+ * 	- support in-browser testing, rather than just SpiderMonkey/subunit.
+ *
+ * 	- add support for Deferreds in test methods, setUp, and tearDown.
+ * 		After a returned Deferred fires, the test runner resumes testing.
+ * 		This works just as in Trial.
+ *
+ * 	- track setTimeout/setInterval calls and blow up if they outlive a test.
+ * 		This is analogous to making sure the reactor (in Twisted) is clean after the test.
+ *
+ *	- a counter to track which assertion is being run, to make it easy to find
+ * 		the failing assertion when the environment does not provide the line
+ * 		number.
+ *
+ *	- many more assertions, including assertEqual and assertFailure.
+ *
+ * 	- general Closure-ization
  */
+
+goog.provide('cw.UnitTest');
 
 goog.require('cw.Class');
 goog.require('goog.array');
@@ -23,7 +39,6 @@ goog.require('goog.debug.Console'); // needed for TestRunnerPage
 goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
 goog.require('goog.string');
 
-goog.provide('cw.UnitTest');
 
 // anti-clobbering for JScript
 (function(){

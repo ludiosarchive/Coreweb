@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Tests for cw.externalinterface
+ */
+
+goog.provide('cw.Test.TestExternalInterface');
+
 goog.require('cw.UnitTest');
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
@@ -5,7 +11,6 @@ goog.require('goog.userAgent');
 goog.require('swfobject');
 goog.require('cw.externalinterface');
 
-goog.provide('cw.Test.TestExternalInterface');
 
 // anti-clobbering for JScript
 (function(){

@@ -1,12 +1,12 @@
 /**
- * Tests for cw.Class
+ * @fileoverview Tests for cw.Class
  */
 
+goog.provide('cw.Test.TestClass');
 
 goog.require('cw.UnitTest');
 goog.require('cw.Class');
 
-goog.provide('cw.Test.TestClass');
 
 // anti-clobbering for JScript
 (function(){

@@ -1,12 +1,12 @@
 /**
- * This module is based on webmagic.uriparse, which is loosely
+ * @fileoverview Module based on webmagic.uriparse, which is loosely
  * based on a patch attached to http://bugs.python.org/issue1462525
  */
 
+goog.provide('cw.uri');
+
 goog.require('goog.string');
 goog.require('cw.string');
-
-goog.provide('cw.uri');
 
 
 // For reasons on why you shouldn't use regexes, see
@@ -16,6 +16,10 @@ goog.provide('cw.uri');
 // Alternate parser that may or may not differentiate no query/fragment and blank query/fragment:
 // http://blog.stevenlevithan.com/archives/parseuri
 // http://stevenlevithan.com/demo/parseuri/js/
+
+// Note: Closure Library's URI parser uses NPCGs (as of 2010-03-06), and
+// therefore suffers from the blank string / null mixup in IE6-IE8 (9+ untested).
+
 
 cw.uri.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
 

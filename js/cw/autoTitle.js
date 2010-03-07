@@ -1,5 +1,6 @@
 /**
- * Automatically set the page's <title> to a reasonably-descriptive title.
+ * @fileoverview Automatically set the page's <title> to a
+ * 	reasonably-descriptive title.
  */
 
 (function(){

@@ -1,6 +1,12 @@
-goog.require('goog.string');
+/**
+ * @fileoverview A JS->Flash ExternalInterface that is fast and not broken
+ * 	(unlike what Flash Player injects into the page.)
+ */
 
 goog.provide('cw.externalinterface');
+
+goog.require('goog.string');
+
 
 /**
  * These functions were modified from the ones Flash Player injects into the page
@@ -74,7 +80,6 @@ cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
  */
 cw.externalinterface.handleObject_ = function(buffer, obj) {
 	buffer.push('<object>');
-	var s = '<object>';
 	for (var prop in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
 			buffer.push('<property id="', cw.externalinterface.escapeString_(prop), '">');
@@ -87,6 +92,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 
 /**
  * @param {string} s String to escape
+ *
  * @return {string} Escaped string
  */
 cw.externalinterface.escapeString_ = function(s) {

@@ -1,5 +1,5 @@
 /**
- * These are some mock L{TestCase}s that are used by L{TestUnitTest}
+ * @fileoverview Some mock TestCases that are used by TestUnitTest
  * in order to test the unit testing framework.
  *
  * This file was copy/pasted from DMock.js, and modified to fire Deferreds
@@ -8,10 +8,11 @@
  * "DS" means "Deferred synchronous"
  */
 
+goog.provide('cw.Test.DSMock');
+
 goog.require('cw.UnitTest');
 goog.require('goog.async.Deferred');
 
-goog.provide('cw.Test.DSMock');
 
 // anti-clobbering for JScript
 (function(){

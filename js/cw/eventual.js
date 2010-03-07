@@ -1,6 +1,6 @@
 /**
- * This module is an improvement to using setTimeout(..., 0)
- * to "avoid bugs" in browsers.
+ * @fileoverview This module is an improvement to using setTimeout(..., 0)
+ * 	to "avoid bugs" in browsers.
  * 
  * Unlike setTimeout, callables scheduled in a CallQueue
  * are guaranteed to be called in order. Also, callables scheduled
@@ -40,10 +40,11 @@
  * LICENSE: Coreweb, Foolscap
  */
 
+goog.provide('cw.eventual');
+
 goog.require('goog.async.Deferred');
 goog.require('goog.asserts');
 
-goog.provide('cw.eventual');
 
 /**
  * A call queue that supports the eventually operation, for

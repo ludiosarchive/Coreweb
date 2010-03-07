@@ -1,12 +1,13 @@
 /**
- * Tests for cw.eventual
+ * @fileoverview Tests for cw.eventual
  */
+
+goog.provide('cw.Test.TestEventual');
 
 goog.require('cw.UnitTest');
 goog.require('cw.clock');
 goog.require('cw.eventual');
 
-goog.provide('cw.Test.TestEventual');
 
 // anti-clobbering for JScript
 (function(){

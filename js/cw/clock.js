@@ -1,11 +1,12 @@
 /**
- * Deterministic clock and helpers
+ * @fileoverview Deterministic clock and helpers
  */
+
+goog.provide('cw.clock');
 
 goog.require('goog.asserts');
 goog.require('goog.debug.Error');
 
-goog.provide('cw.clock');
 
 /**
  * Raised to indicate that that the cw.clock.Clock cannot be

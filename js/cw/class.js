@@ -1,15 +1,15 @@
 /**
- * cw.Class allows you to make classes without typing `prototype`
- * and the class name all the time.
+ * @fileoverview cw.Class allows you to make classes
+ * 	without typing `prototype` and the class name all the time.
  *
  * It works almost exactly like Divmod JS's Divmod.Class.
  *
  * For examples, see all of Coreweb's Test* files.
  */
 
-goog.provide('cw._makeExpectedGlobalProperties');
-goog.provide('cw.expectedGlobalProperties');
 goog.provide('cw.Class');
+goog.provide('cw.makeExpectedGlobalProperties_');
+goog.provide('cw.expectedGlobalProperties');
 
 
 if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
@@ -25,9 +25,10 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 	 * `function window() {}' or `function print() {}'. If we would not prevent it, the
 	 * `print' method would get added, and another method might assume that
 	 * `print()' actually prints the page (while now it actually does something unrelated).
+	 *
+	 * @private
 	 */
-
-	cw._makeExpectedGlobalProperties = function() {
+	cw.makeExpectedGlobalProperties_ = function() {
 
 		var globalsArray = [];
 
@@ -169,7 +170,7 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 		return expectedGlobalProperties;
 	}
 
-	cw.expectedGlobalProperties = cw._makeExpectedGlobalProperties();
+	cw.expectedGlobalProperties = cw.makeExpectedGlobalProperties_();
 }
 
 

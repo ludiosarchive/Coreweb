@@ -1,8 +1,13 @@
+/**
+ * @fileoverview Tests for cw.clock
+ */
+
+goog.provide('cw.Test.TestClock');
+
 goog.require('cw.UnitTest');
 goog.require('cw.array');
 goog.require('cw.clock');
 
-goog.provide('cw.Test.TestClock');
 
 // anti-clobbering for JScript
 (function(){

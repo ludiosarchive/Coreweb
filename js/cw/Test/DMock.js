@@ -1,14 +1,16 @@
 /**
- * These are some mock L{TestCase}s that are used by L{TestUnitTest}
+ * @fileoverview Some mock TestCases that are used by TestUnitTest
  * in order to test the unit testing framework.
  *
- * This file was copy/pasted from Mock.js, and modified to return L{goog.async.Deferred}s.
+ * This file was copy/pasted from Mock.js, and modified to return
+ * 	{@code goog.async.Deferred}s.
  */
+
+goog.provide('cw.Test.DMock');
 
 goog.require('cw.UnitTest');
 goog.require('goog.async.Deferred');
 
-goog.provide('cw.Test.DMock');
 
 // anti-clobbering for JScript
 (function(){

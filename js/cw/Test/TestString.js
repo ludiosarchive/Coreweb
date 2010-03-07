@@ -1,11 +1,12 @@
 /**
- * Tests for cw.string
+ * @fileoverview Tests for cw.string
  */
+
+goog.provide('cw.Test.TestString');
 
 goog.require('cw.UnitTest');
 goog.require('cw.string');
 
-goog.provide('cw.Test.TestString');
 
 // anti-clobbering for JScript
 (function(){

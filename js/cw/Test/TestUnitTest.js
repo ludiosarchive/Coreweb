@@ -1,10 +1,11 @@
 /**
- * Tests for cw.UnitTest, a really great JavaScript unit-testing framework.
+ * @fileoverview Tests for cw.UnitTest
  * 
- * Tests for cw.UnitTest's assertion functions are in L{cw.Test.TestUnitTestAssertions}.
- *
- * These tests require mock test cases provided by cw.Test.*Mock.
+ * Tests for cw.UnitTest's assertion functions are not here; they are in
+ * 	{@code cw.Test.TestUnitTestAssertions}.
  */
+
+goog.provide('cw.Test.TestUnitTest');
 
 goog.require('cw.Class');
 goog.require('cw.UnitTest');
@@ -15,7 +16,6 @@ goog.require('goog.asserts.AssertionError');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 
-goog.provide('cw.Test.TestUnitTest');
 
 // anti-clobbering for JScript
 (function(){

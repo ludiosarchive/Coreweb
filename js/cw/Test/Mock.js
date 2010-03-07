@@ -1,11 +1,12 @@
 /**
- * These are some mock L{TestCase}s that are used by L{TestUnitTest}
- * in order to test the unit testing framework.
+ * @fileoverview Some mock TestCass that are used by TestUnitTest
+ * 	in order to test the unit testing framework.
  */
+
+goog.provide('cw.Test.Mock');
 
 goog.require('cw.UnitTest');
 
-goog.provide('cw.Test.Mock');
 
 // anti-clobbering for JScript
 (function(){

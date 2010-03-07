@@ -1,10 +1,11 @@
 /**
- * More array utilities
+ * @fileoverview More array utilities
  */
+
+goog.provide('cw.array');
 
 goog.require('goog.asserts');
 
-goog.provide('cw.array');
 
 /**
  * Return the `uniq' array for {@code a}. The returned array will be shorter,

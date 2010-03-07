@@ -1,12 +1,13 @@
 /**
- * These test cases verify assumptions we make about how JavaScript
- * works in the real world (modern browsers).
+ * @fileoverview Test cases to verify assumptions we make about
+ * 	how JavaScript works in the real world (modern browsers).
  */
+
+goog.provide('cw.Test.TestAssumptions');
 
 goog.require('cw.UnitTest');
 goog.require('goog.userAgent');
 
-goog.provide('cw.Test.TestAssumptions');
 
 // anti-clobbering for JScript
 (function(){

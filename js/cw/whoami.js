@@ -1,6 +1,7 @@
+goog.provide('cw.whoami');
+
 goog.require('goog.net.cookies');
 
-goog.provide('cw.whoami');
 
 /**
  * Get the uaId from the cookie. If not set, returns undefined.

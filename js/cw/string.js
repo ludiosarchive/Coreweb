@@ -1,6 +1,10 @@
-goog.require('goog.asserts');
+/**
+ * @fileoverview More string utilities
+ */
 
 goog.provide('cw.string');
+
+goog.require('goog.asserts');
 
 
 /**
@@ -11,10 +15,10 @@ goog.provide('cw.string');
  * @param {string} sep The separator to split by.
  * @param {number} maxsplit Maximum number of times to split.
  *
- * @return {Array<string>} The splitted string, as an array.
+ * @return {Array.<string>} The splitted string, as an array.
  */
 cw.string.split = function(s, sep, maxsplit) {
-	goog.asserts.assert(sep !== undefined, "arguments[1] of CW.split must be a separator string");
+	goog.asserts.assert(goog.isDef(sep), "arguments[1] of CW.split must be a separator string");
 	if(maxsplit === undefined || maxsplit < 0) {
 		return s.split(sep);
 	}
@@ -38,10 +42,10 @@ cw.string.split = function(s, sep, maxsplit) {
  * 	var url = cw.string.format("{0}{1}.{2}/index.html", arg1, arg2, arg3);
  * 	var yx = cw.string.format("{1}{0}", "x", "y");
  *
- * See also L{goog.string.subs}, which uses %s'es
+ * See also {@code goog.string.subs}, which uses %s'es
  *
  * @param {string} _string The string containing the pattern.
- * @param {*} var_args The items to substitute into the pattern.
+ * @param {...string} var_args The items to substitute into the pattern.
  *
  * @return {string} The string with substitutions made.
  */
@@ -58,11 +62,12 @@ cw.string.format = function(_string, var_args) { // arguments only for Closure C
 /**
  * String prefix checker.
  *
- * Use this instead of L{goog.string.startsWith} if your C{str}
- * is big and it is unlikely to start with C{start}
+ * Use this instead of {@code goog.string.startsWith} if your {@code str}
+ * is big and it is unlikely to start with {@code start}
  *
  * @param {string} str The string to check.
  * @param {string} prefix A string to look for at the start of {@code str}.
+ *
  * @return {boolean} True if {@code str} begins with {@code prefix}.
  */
 cw.string.startsWithAlt = function(str, prefix) {

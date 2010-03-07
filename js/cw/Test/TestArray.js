@@ -1,11 +1,14 @@
+/**
+ * @fileoverview Tests for cw.array
+ */
+goog.provide('cw.Test.TestArray');
+
 goog.require('cw.UnitTest');
 goog.require('cw.array');
 
-goog.provide('cw.Test.TestArray');
 
 // anti-clobbering for JScript
 (function(){
-
 
 /**
  * Tests for L{cw.array.uniq}

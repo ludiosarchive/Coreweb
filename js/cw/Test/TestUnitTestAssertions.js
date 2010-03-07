@@ -1,6 +1,8 @@
 /**
- * Tests for cw.UnitTest's assertion functions
+ * @fileoverview Tests for cw.UnitTest's assertion functions
  */
+
+goog.provide('cw.Test.TestUnitTestAssertions');
 
 goog.require('cw.UnitTest');
 goog.require('goog.asserts.AssertionError');
@@ -8,7 +10,6 @@ goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug.Error');
 
-goog.provide('cw.Test.TestUnitTestAssertions');
 
 // anti-clobbering for JScript
 (function(){
