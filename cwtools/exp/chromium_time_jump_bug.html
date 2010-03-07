@@ -25,7 +25,6 @@
 </head>
 <body>
 
-<button style="float:right" value="Force printout" onclick="forcePrintout()"></button>
 <div id="doc">
 Chromium doesn't seem to handle backwards time jumps very well, but the behavior is especially strange on Windows.
 
@@ -33,56 +32,51 @@ Steps to reproduce on Windows:
 	1. Open this page, observe normal behavior.
 	2. Move the Windows system clock back 2 minutes.
 	3. Observe:
-		1. The timers print normally for another 40-50 seconds.
-		2. The timers stop for 1-3 minutes.
-		3. The timers resume again.
+		For the next 40-50 seconds, timers fire in 1 second.
+		Then, a timer is (surprise) delayed by 1-3 minutes.
+		After it fires, timers resume firing in 1 second.
 
-I reproduced this Chromium/Windows bug on:
+I saw this behavior on:
 	Chrome 4.0.249.89 (38071) on Windows Server 2008 R2 on bare metal, Core 2 Q6600
 	Chrome 4.1.249.1025 beta (40600) on XP SP3 32-bit on VMWare Workstation 7.0.1
 	Chrome 5.0.342.2 dev on XP SP2 64-bit on VMWare Workstation 7.0.1
 
-On 2008 R2, I even see a really strange time correction like:
-[57.023s] 1267991372772
-[58.023s] 1267991373772
---- no timers fired for 2 minutes here ---
-[180.433s] 1267991496182
-[60.023s] 1267991375772
-[61.024s] 1267991376773
-
 
 Steps to reproduce on Ubuntu or OS X:
-	1. Same as above, but observe:
-		1. The timers stop for however many minutes you moved the clock back.
-		2. The timers resume again.
+	(1) and (2) same as above; 3. Observe:
+		A timer is delayed by 2 minutes.
+		After it fires, timers resume firing in 1 second.
 
-I reproduced this Chromium/(Linux|Mac) bug on:
-	Ubuntu 9.10 32-bit in VMWare Workstation 7.0.1
-	Mac OS X 10.6.2
+I saw this behavior on:
+	Chrome 5.0.307.11 beta on Ubuntu 9.10 32-bit on VMWare Workstation 7.0.1
+	Chrome 5.0.307.11 beta on Mac OS X 10.6.2
 
 
-Note: On Windows, IE8, Firefox 3.6, Firefox 2.0.0.20, and Opera 10.50 appear to schedule timers
+More behavior observed on Windows: IE8, Firefox 3.6, Firefox 2.0.0.20, and Opera 10.50 appear to schedule timers
 with a monotonic clock, and do not attempt to conceal a backwards time jump when calling
-<code>Date.getTime()</code>. Safari 4.0.4 and 3.1.2 on Windows does not appear to schedule timers with
+<code>Date.getTime()</code>. Safari 4.0.4 and 3.1.2 on Windows do not appear to schedule timers with
 a monotonic clock, so they stop just like Chromium on Linux/Mac.
 
 </div>
 
 <div id="log"></div>
 
+<button style="float:right" onclick="printout()"><b>Print current time</b></button>
+
 <script>
 var startTime = new Date().getTime();
 function append(msg) {
 	var now = new Date().getTime();
-	var textnode = document.createTextNode('[' + (now - startTime)/1000 + 's] ' + now + ' ' + msg);
+	var textnode = document.createTextNode(
+		'[' + (now - startTime)/1000 + 's] ' + now + ' ' + new Date(now).toUTCString() + ' ' + msg);
 	var br = document.createElement("br");
 	var logd = document.getElementById('log');
 	logd.appendChild(textnode);
 	logd.appendChild(br);
 }
 
-function forcePrintout() {
-	append('forced');
+function printout() {
+	append('you clicked');
 }
 
 append('Logger works.');
