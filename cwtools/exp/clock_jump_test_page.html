@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="charset" content="text/html; charset=utf-8">
-	<title>Chromium backwards time jump</title>
+	<title>Clock jump test page</title>
 	<style>
 		* {
 			font-family: Tahoma, Verdana, sans-serif;
@@ -10,7 +10,6 @@
 		}
 		pre, code {
 			font-family: Consolas, monospace;
-			font-size: 0.8em;
 		}
 		body, html {
 			background-color: #eee;
@@ -18,23 +17,21 @@
 		#log {
 			white-space: pre;
 		}
-		#doc, .info {
-			white-space: pre-wrap;
-		}
-		table {
+		.results table {
 			border: 1px solid #aaa;
 			border-collapse: collapse;
 		}
 	</style>
 </head>
 <body>
-<div id="results">
-	<b>Results from manual testing on 2010-03-08:</b>
+Browsers do different things to scheduled calls when the system clock jumps. See instructions below.
+Results from manual testing on 2010-03-08:
+<div class="results">
 	<table border=1><tr>
 		<td>Browser</td>
-		<td>OS; VW means<br>VMware Workstation 7.0.1</td>
-		<td>setTimeout/setInterval<br>(backward clock jump)</td>
-		<td>setTimeout/setTimeout<br>(forward clock jump)</td>
+		<td>OS. "VW" means<br>VMware Workstation 7.0.1</td>
+		<td>setTimeout/setInterval<br>(backwards clock jump)</td>
+		<td>setTimeout/setTimeout<br>(forwards clock jump)</td>
 	</tr><tr>
 		<td>IE 8.0.6001.18702 in IE8 mode</td>
 		<td>XP SP3 32-bit (VW)</td>
@@ -143,49 +140,73 @@
 	</tr>
 </table>
 <div class="info">
-<b>Instructions:</b> Adjust your system clock forward or backwards and see what
-happens. Scroll down to see if the timer is firing. Click the button to print the time if
-the timer is failing to fire. Append ?setInterval to this page URL use setInterval
+<p>
+<b>Instructions:</b> Adjust your system clock forwards or backwards and see what
+happens. Scroll down to see if the timer is firing. If you want to, click the button to print the
+time manually. Append <code>?setInterval</code> to this page URL use setInterval
 instead of setTimeout. <b>VMWare note:</b> Since you are manually adjusting the
 clock, you want to disable 'Time synchronization between the virtual machine' (click the
-VMWare Tools icon).
+VMWare Tools icon in your VMWare guest).
+</p>
 
-For backward time jumps, <b>OK</b> means that timers appear to be completely
+<p>
+<b>getTime jumps</b> means that <code>new Date.getTime()</code> gives you
+the system time as-is, even if it jumped back.
+</p>
+
+<p>
+For backwards clock jumps, <b>OK</b> means that timers appear to be completely
 unaffected by the system time.
+</p>
 
-For foward time jumps, <b>OK</b> means that the timers still fired. (I did not test
+<p>
+For fowards clock jumps, <b>OK</b> means that the timers still fired. (I did not test
 whether they fired too early.)
+</p>
 
+<p>
 The <b>DELAYED</b> browsers appear to schedule timers exactly by the system time.
-If you move the clock back, then forward again into the timer firing zone, they will fire
-the timer. Sometimes, you'll need to click on the browser to get the timer to fire after moving the clock forward.
+If you move the clock back by N seconds, the timers will be delayed by N seconds. If you then
+jump the clock forwards into the timer firing zone, the browsers fire the timer.
+Sometimes, you'll need to click on the browser to get the timer to fire after moving the clock forward.
 This is probably because the browser's event loop is sleeping (this happened in Firefox 3.6 on Mac).
+</p>
 
-As the table shows, Opera is the only browser that is <b>OK</b> on Windows/Mac/Linux.
+</p>
+<b>PROBLEMATIC(#1)</b> Chromium/Windows is strange. If you move the clock back 2 minutes, this happens:
+<ul>
+	<li>For the next 40-50 seconds, timers fire in 1 second.
+	<li>Then, a timer is delayed by 1-3 minutes.
+	<li>After it fires, timers resume firing in 1 second.
+</ul>
+</p>
 
-(#1) Chromium/Windows is strange. If you move the clock back 2 minutes, this happens:
-	For the next 40-50 seconds, timers fire in 1 second.
-	Then, a timer is delayed by 1-3 minutes.
-	After it fires, timers resume firing in 1 second.
-
-(#2) Safari 4.0.4/3.1.2: Safari *sometimes* appears to keep timers firing when the
-clock jumps back, but often they don't. I don't know why this happens. After moving it
+<p>
+<b>PROBLEMATIC(#2)</b> Safari 4.0.4/3.1.2: Safari <em>sometimes</em> appears to keep timers firing when the
+clock jumps backwards, but often they don't. I don't know why this happens. After moving it
 back, moving the clock forward usually doesn't help the timers to fire. Sometimes, when
 the clock moves back, a timer fires but the next one scheduled is delayed for a while:
+</p>
 
+<pre>
 [4.038s] 1268059008103 Mon, 08 Mar 2010 14:36:48 GMT
 [5.04s] 1268059009105 Mon, 08 Mar 2010 14:36:49 GMT
 [-55.581s] 1268058948484 Mon, 08 Mar 2010 14:35:48 GMT
 --- no activity for a while ---
 [7.078s] 1268059011143 Mon, 08 Mar 2010 14:36:51 GMT
 [8.095s] 1268059012160 Mon, 08 Mar 2010 14:36:52 GMT
+</pre>
 
-On Mac OS X, it doesn't seem to correct timers automatically, so the behavior
-looks almost like DELAYED (but it isn't).
+<p>
+Safari on Mac OS X almost looks like DELAYED, but it probably isn't. The behavior appears
+subtly different from Safari/Windows, too.
+</p>
 
-(#3) Firefox/Windows: setTimeout works good, but setIntervals are scheduled way
-too far in the future after the clock jumps back. There's possibly some sort
-of overflow in the Firefox internals.
+<p>
+<b>PROBLEMATIC(#3)</b> Firefox/Windows: setTimeout works well, but setIntervals are
+not properly scheduled after the clock jumps backwards. Maybe there's some sort of
+numerical overflow?
+</p>
 
 </div>
 </div>
