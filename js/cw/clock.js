@@ -78,7 +78,7 @@ cw.clock.Clock = function() {
 	 */
 	this.Date = function() {}
 
-	var thisClock = this;
+	var that = this;
 
 	/**
 	 * The deterministic version of {@code Date.getTime}.
@@ -87,12 +87,24 @@ cw.clock.Clock = function() {
 	 * 	the {@code Clock}'s time.
 	 */
 	this.Date.prototype.getTime = function() {
-		return thisClock.rightNow_;
+		return that.getTime();
 	}
 
 	// TODO: more Date functions, in case anything needs them.
 	// The general strategy to implement `someMethod' would be:
 	//    return new Date(thisClock.rightNow_).someMethod();
+}
+
+/**
+ * The deterministic version of {@code Date.getTime}.
+ *
+ * @return {number} "Milliseconds since epoch", but really just
+ * 	the {@code Clock}'s time.
+ *
+ * Our modified version of goog.Timer expects this to be implemented.
+ */
+cw.clock.Clock.prototype.getTime = function() {
+	return this.rightNow_;
 }
 
 /**
