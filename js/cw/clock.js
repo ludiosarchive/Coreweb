@@ -1,5 +1,5 @@
 /**
- * @fileoverview Deterministic clock and helpers
+ * @fileoverview Deterministic clock; jump-detecting clock
  */
 
 goog.provide('cw.clock');
@@ -289,4 +289,61 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 //		"""
 //		for amount in timings:
 //			self.advance_(amount)
+
+
+/**
+ * If the system time jumps back, are scheduled timeouts and intervals
+ * delayed?
+ *
+ * @type {boolean}
+ */
+cw.clock.backwardsTimeJumpImpliesDelayedTimers_ = false;
+
+
+/**
+ * Constant for JumpDetector's event type
+ * @type {string}
+ */
+cw.clock.TIME_JUMP = 'time_jump';
+
+/**
+ * This detects fowards and backwards time jumps in a clock
+ * for any browser. This may be unable to detect a backwards
+ * jump in Chromium on Windows, because it conceals backwards
+ * time jumps. See http://code.google.com/p/chromium/issues/detail?id=37638
+ *
+ * To detect backwards time jumps in some browsers, you will have to call
+ * {@code prod_} when non-time-related events happen (for example,
+ * keyboard or mouse clicks, focus events, network activity.)
+ *
+ * This is an EventTarget the dispatches {@code cw.clock.TIME_JUMP}
+ *
+ * @constructor
+ */
+cw.clock.JumpDetector = function() {
+
+}
+/**
+ * Disposes of the object.
+ */
+cw.clock.JumpDetector.prototype.disposeInternal = function() {
+	goog.dom.ViewportSizeMonitor.superClass_.disposeInternal.call(this);
+
+	if (this.listenerKey_) {
+		goog.events.unlistenByKey(this.listenerKey_);
+		this.listenerKey_ = null;
+	}
+
+	if (this.windowSizePollInterval_) {
+		window.clearInterval(this.windowSizePollInterval_);
+		this.windowSizePollInterval_ = null;
+	}
+
+	this.window_ = null;
+	this.size_ = null;
+
+	// elsewhere
+	//this.dispatchEvent({type: evt.type, target: image});
+};
+
 

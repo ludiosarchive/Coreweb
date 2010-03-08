@@ -14,47 +14,6 @@
 <body>
 
 <div id="doc">
-Adjust your system clock forward or backwards and see what
-happens. Load this page with ?setInterval to use setInterval
-instead of setTimeout. Experimental results on 2010-03-07:
-
-<table border=1><tr>
-	<td>Browser/OS</td>
-	<td>setTimeout (jump &lt;-)</td>
-	<td>setTimeout (jump -&gt;)</td>
-	<td>setInterval (jump &lt;-)</td>
-	<td>setInterval (jump -&gt;)</td>
-</tr><tr>
-	<td>IE 8.0.6001.18702 in IE8 mode @ XP SP3 32-bit</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-</tr><tr>
-	<td>IE 8.0.6001.18702 in IE7 mode @ XP SP3 32-bit</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-	<td>Timer OK, getTime jumps</td>
-</tr><tr>
-	<td>IE 6. @ XP SP3 32-bit</td>
-	<td></td>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr><tr>
-	<td>Chrome 4.1.249.1025 beta (40600) @ XP SP3 32-bit</td>
-	<td>Timer PROBLEMATIC, getTime appears consistent</td>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr><tr>
-	<td>Chrome 5.0.342.2 dev @ XP SP2 64-bit unpatched</td>
-	<td></td>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr></table>
 
 Chrome note: See chromium/base/time_win.cc. If you jump the clock foward, Chrome 
 </div>
@@ -79,9 +38,13 @@ logger.setLevel(goog.debug.Logger.Level.ALL);
 
 logger.info('Logger works.');
 
-</script>
 
-<script>
+
+function printout() {
+	logger.info('you clicked');
+}
+
+
 
 var method;
 if(String(window.location).indexOf('?setInterval') != -1) {
