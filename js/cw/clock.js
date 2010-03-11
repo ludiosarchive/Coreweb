@@ -5,7 +5,9 @@
 goog.provide('cw.clock');
 
 goog.require('goog.asserts');
+goog.require('goog.events');
 goog.require('goog.debug.Error');
+goog.require('goog.Timer');
 
 
 /**
@@ -228,10 +230,10 @@ cw.clock.Clock.prototype.clearInterval = function(ticket) {
  * pending calls should be run.
  *
  * If a callable adds another timeout or interval, it will not be run until
- * the next {@code advance_} (even if the timeout was set to 0).
+ * the next {@link advance_} (even if the timeout was set to 0).
  *
  * If a callable throws an error, no more callables will be called. But if you
- * {@code advance_} again, they will.
+ * {@link advance_} again, they will.
  *
  * @param {number} amount How many seconds by which to advance_
  * 	this clock's time. Must be positive number; not NaN or Infinity.
@@ -291,6 +293,17 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 	}
 }
 
+/**
+ * Set the time on this clock to {@code time}. You may use this to move
+ * the clock backwards. This will not call any scheduled calls, even if you move
+ * it fowards.
+ *
+ * @param {number} time The new time for the clock.
+ */
+cw.clock.Clock.prototype.setTime_ = function(time) {
+	this.rightNow_ = time;
+}
+
 // TODO: maybe implement and test pump, if needed
 
 //	def pump(self, timings):
@@ -303,6 +316,8 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 //			self.advance_(amount)
 
 
+/*-----------------------------------------------------------------------------*/
+
 /**
  * If the system time jumps back, are scheduled timeouts and intervals
  * delayed?
@@ -313,46 +328,114 @@ cw.clock.backwardsTimeJumpImpliesDelayedTimers_ = false;
 
 
 /**
- * Constant for JumpDetector's event type
- * @type {string}
+ * JumpDetector's event types
+ * @enum {string}
  */
-cw.clock.TIME_JUMP = 'time_jump';
+cw.clock.EventType = {
+	TIME_JUMP: 'time_jump',
+	LACK_OF_FIRING: 'lack_of_firing'
+}
 
 /**
- * This detects fowards and backwards time jumps in a clock
- * for any browser. This may be unable to detect a backwards
- * jump in Chromium on Windows, because it conceals backwards
- * time jumps. See http://code.google.com/p/chromium/issues/detail?id=37638
+ * This detects fowards and backwards clock jumps for any browser, regardless
+ * of how it schedules timers (either system time or monotonic clock or insane
+ * hybrid are all fine). This may be unable to detect a backwards clock jump in
+ * Chromium on Windows, because it conceals backwards time jumps. See [1]
  *
- * To detect backwards time jumps in some browsers, you will have to call
- * {@code prod_} when non-time-related events happen (for example,
- * keyboard or mouse clicks, focus events, network activity.)
+ * If a clock jump is detected, this will dispatch {@link TIME_JUMP}. If a clock
+ * jump did not happen but timers are failing to fire, this will dispatch
+ * {@link LACK_OF_FIRING}. This is likely to happen in Chromium/Windows [1]
+ * and possibly Safari/Windows.  This can also happen in browsers that schedule
+ * timers with a monotonic clock, because monotonic clocks may freeze or go
+ * backwards in some environments [2].
  *
- * This is an EventTarget the dispatches {@code cw.clock.TIME_JUMP}
+ * To detect backwards time jumps and lack of firing, your application code must
+ * call {@link prod_} often. See its JSDoc.
  *
+ * Note: if the browser freezes for a few seconds, this will dispatch a forwards
+ * time jump.
+ *
+ * [1] {@link http://ludios.net/browser_bugs/clock_jump_test_page.html}
+ * [2] {@link http://bugs.mysql.com/bug.php?id=44276}
+ * 	also search for "backwards QueryPerformanceCounter"
+ *
+ * @param {!Object} clock An object that implements setTimeout and
+ *	clearTimeout (eg Window). If it is !== goog.Timer.defaultTimerObject,
+ * 	it must implement getTime as well.
+ * @param {number} pollInterval Interval to poll at, in milliseconds.
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
-cw.clock.JumpDetector = function() {
+cw.clock.JumpDetector = function(clock, pollInterval) {
+	goog.events.EventTarget.call(this);
+	
+	/**
+	 * @type {!Object}
+	 */
+	this.clock_ = clock;
+
+	/**
+	 * @type {!Function}
+	 * @private
+	 */
+	this.boundPoll_ = goog.bind(this.poll_, this);
+
+	/**
+	 * @type {number}
+	 * @private
+	 */
+	this.pollInterval_ = pollInterval;
+
+	/**
+	 * @type {?number}
+	 * @private
+	 */
+	this.pollerTicket_ = null;
+
+	this.poll_();
 
 }
+goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
+
+
+cw.clock.JumpDetector.prototype.poll_ = function() {
+	try {
+
+	} finally {
+		// We use a repeated setTimeout because setInterval is more likely
+		// to be buggy. Proof of setInterval being buggy:
+		// 1) https://bugzilla.mozilla.org/show_bug.cgi?id=376643
+		//	The above is the bug that goog.Timer works around by using setTimeout
+		// 2) http://ludios.net/browser_bugs/clock_jump_test_page.html
+		//	See PROBLEMATIC(#3), which was confirmed in Firefox 2 through 3.6.
+		this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+	}
+}
+
+
+/**
+ * Your application code must call this when non-time-related events happen
+ * (for example, key strokes or mouse clicks, focus events, network activity.)
+ * If you don't make arrangements to call this, a backwards TIME_JUMP or
+ * LACK_OF_FIRING might not be detected.
+ */
+cw.clock.JumpDetector.prototype.prod_ = function() {
+	//
+	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+}
+
+
 /**
  * Disposes of the object.
  */
 cw.clock.JumpDetector.prototype.disposeInternal = function() {
-	goog.dom.ViewportSizeMonitor.superClass_.disposeInternal.call(this);
+	cw.clock.JumpDetector.superClass_.disposeInternal.call(this);
 
-	if (this.listenerKey_) {
-		goog.events.unlistenByKey(this.listenerKey_);
-		this.listenerKey_ = null;
+	if (this.pollerTicket_ != null) {
+		this.clock_.clearTimeout(this.pollerTicket_);
 	}
 
-	if (this.windowSizePollInterval_) {
-		window.clearInterval(this.windowSizePollInterval_);
-		this.windowSizePollInterval_ = null;
-	}
-
-	this.window_ = null;
-	this.size_ = null;
+	this.clock_ = this.boundPoll_ = this.pollerTicket_ = null;
 
 	// elsewhere
 	//this.dispatchEvent({type: evt.type, target: image});

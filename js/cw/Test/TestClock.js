@@ -29,7 +29,7 @@ cw.Test.TestClock.isTicketInCalls_ = function(calls, ticket) {
 
 
 /**
- * Tests for {@code cw.clock.Clock}
+ * Tests for {@link cw.clock.Clock}
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	/**
@@ -284,7 +284,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	 * pushing the event loop. In Twisted, it is similarly illega to re-entrantly
 	 * advance_ the reactor.
 	 *
-	 * Similarly, with {@code cw.clock.Clock}, it is also illegal.
+	 * Similarly, with {@link cw.clock.Clock}, it is also illegal.
 	 */
 	function test_reentrantAdvanceThrowsError(self) {
 		var clock = new cw.clock.Clock();
@@ -324,15 +324,54 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance_(-0.5);});
 	},
 
+	/**
+	 * clock.getTime exists and returns the clock's time
+	 */
+	function test_getTime(self) {
+		var clock = new cw.clock.Clock();
+		self.assertEqual(0, clock.getTime());
+		clock.advance_(1001);
+		self.assertEqual(1001, clock.getTime());
+	},
 
+	/**
+	 * clock.Date is a constructor that returns a pseudo-Date object,
+	 * on which {@code getTime} can be called and returns the clock's time.
+	 */
 	function test_dateObject(self) {
 		var clock = new cw.clock.Clock();
 		var date = new clock.Date();
 		self.assertEqual(0, date.getTime());
 		clock.advance_(1001);
 		self.assertEqual(1001, date.getTime());
-	}
+	},
 
+	/**
+	 * clock.setTime_ can be used the change the Clock's time.
+	 */
+	function test_setTime(self) {
+		var clock = new cw.clock.Clock();
+		var called = false;
+		clock.setTimeout(function() { called = true; }, 2000);
+		clock.advance_(1001);
+		self.assertEqual(1001, clock.getTime());
+		clock.setTime_(50);
+		self.assertEqual(50, clock.getTime());
+		clock.setTime_(3000);
+		self.assertEqual(3000, clock.getTime());
+
+		// setTime_ is not like advance; it will not call scheduled calls.
+		self.assertEqual(false, called);
+	}
+);
+
+
+/**
+ * Tests for {@link cw.clock.JumpDetector}
+ */
+cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
+	function test_detectBackwardsJump(self) {
+	}
 );
 
 })(); // end anti-clobbering for JScript
