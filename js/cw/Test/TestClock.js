@@ -371,6 +371,65 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_detectBackwardsJump(self) {
+	},
+
+	/**
+	 * getNewTimes returns everything in timeCollection_ and flushes
+	 * timeCollection_.
+	 */
+	function test_getNewTimes(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3, 5);
+		self.assertEqual([0], jd.getNewTimes_());
+		clock.advance_(2.9);
+		self.assertEqual([], jd.getNewTimes_());
+		clock.advance_(0.1);
+		clock.advance_(4);
+		self.assertEqual([3, 7], jd.getNewTimes_());
+		self.assertEqual([], jd.getNewTimes_());
+	},
+
+	/**
+	 * TIME_COLLECTION_OVERFLOW is dispatched when timeCollection_
+	 * overflows. The event includes the property `collection` with all
+	 * times collected (except the last one).
+	 */
+	function test_timeCollectionOverflow(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3, 5);
+		var called = false;
+		function callback(ev) {
+			called = ev;
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
+		clock.advance_(3);
+		clock.advance_(3);
+		clock.advance_(3);
+		clock.advance_(3.5);
+		// At this point, timeCollection_ has 5 entries, but hasn't overflowed yet.
+		self.assertEqual(false, called);
+		clock.advance_(10);
+		self.assertEqual([0, 3, 6, 9, 12.5], called.collection);
+	},
+
+	/**
+	 * If an event callback for TIME_COLLECTION_OVERFLOW calls
+	 * getNewTimes_, it gets an empty array.
+	 */
+	function test_timeCollectionOverflowReentrantGetNewTimes(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3, 2);
+		var results;
+		function callback(ev) {
+			results = jd.getNewTimes_();
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
+		clock.advance_(3);
+		self.assertEqual(undefined, results);
+		clock.advance_(3);
+		self.assertEqual([], results);
 	}
 );
 

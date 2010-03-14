@@ -331,9 +331,10 @@ cw.clock.backwardsTimeJumpImpliesDelayedTimers_ = false;
  * JumpDetector's event types
  * @enum {string}
  */
-cw.clock.EventType = {
+cw.clock.EventType = { // TODO: maybe obfuscate these names
 	TIME_JUMP: 'time_jump',
-	LACK_OF_FIRING: 'lack_of_firing'
+	LACK_OF_FIRING: 'lack_of_firing',
+	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
 }
 
 /**
@@ -355,6 +356,12 @@ cw.clock.EventType = {
  * Note: if the browser freezes for a few seconds, this will dispatch a forwards
  * time jump.
  *
+ * This also collects the time with {@code new Date.getTime()} every
+ * {@code pollInterval} ms. You can retreive the times and flush the internal
+ * array with {@link getNewTimes_}. If you forget to do this often enough,
+ * {@link TIME_COLLECTION_OVERFLOW} will be dispatched with a property
+ * {@code collection}.
+ *
  * [1] {@link http://ludios.net/browser_bugs/clock_jump_test_page.html}
  * [2] {@link http://bugs.mysql.com/bug.php?id=44276}
  * 	also search for "backwards QueryPerformanceCounter"
@@ -363,10 +370,12 @@ cw.clock.EventType = {
  *	clearTimeout (eg Window). If it is !== goog.Timer.defaultTimerObject,
  * 	it must implement getTime as well.
  * @param {number} pollInterval Interval to poll at, in milliseconds.
+ * @param {number} collectionSize Maximum size for time collection array
+ * 	before dispatching {@link TIME_COLLECTION_OVERFLOW} and flushing.
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-cw.clock.JumpDetector = function(clock, pollInterval) {
+cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	goog.events.EventTarget.call(this);
 	
 	/**
@@ -387,10 +396,16 @@ cw.clock.JumpDetector = function(clock, pollInterval) {
 	this.pollInterval_ = pollInterval;
 
 	/**
-	 * @type {?number}
+	 * @type {!Array.<number>}
 	 * @private
 	 */
-	this.pollerTicket_ = null;
+	this.timeCollection_ = [];
+
+	/**
+	 * @type {number}
+	 * @private
+	 */
+	this.collectionSize_ = collectionSize;
 
 	this.poll_();
 
@@ -398,18 +413,59 @@ cw.clock.JumpDetector = function(clock, pollInterval) {
 goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
 
 
-cw.clock.JumpDetector.prototype.poll_ = function() {
-	try {
+/**
+ * @type {?number}
+ * @private
+ */
+cw.clock.JumpDetector.prototype.pollerTicket_ = null;
 
-	} finally {
-		// We use a repeated setTimeout because setInterval is more likely
-		// to be buggy. Proof of setInterval being buggy:
-		// 1) https://bugzilla.mozilla.org/show_bug.cgi?id=376643
-		//	The above is the bug that goog.Timer works around by using setTimeout
-		// 2) http://ludios.net/browser_bugs/clock_jump_test_page.html
-		//	See PROBLEMATIC(#3), which was confirmed in Firefox 2 through 3.6.
-		this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+
+/**
+ * @param {number} time Time to insert into timeCollection_
+ * @private
+ */
+cw.clock.JumpDetector.prototype.insertIntoCollection_ = function(time) {
+	if(this.timeCollection_.length >= this.collectionSize_) { /* >=, expect == */
+		var collection = this.timeCollection_;
+		this.timeCollection_ = [];
+		this.dispatchEvent({
+			type: cw.clock.EventType.TIME_COLLECTION_OVERFLOW,
+			collection: collection
+		});
 	}
+	this.timeCollection_.push(time);
+}
+
+
+/**
+ * @return {!Array.<number>} Array of times collected since the page loaded,
+ * 	since the last call to {@link getNewTimes_}, or since an internal flushing.
+ *
+ */
+cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
+	var collection = this.timeCollection_;
+	this.timeCollection_ = [];
+	return collection;
+}
+
+
+/**
+ * @private
+ */
+cw.clock.JumpDetector.prototype.poll_ = function() {
+	// We use a repeated setTimeout because setInterval is more likely
+	// to be buggy. Proof of setInterval being buggy:
+	// 1) https://bugzilla.mozilla.org/show_bug.cgi?id=376643
+	//	The above is the bug that goog.Timer works around by using setTimeout
+	// 2) http://ludios.net/browser_bugs/clock_jump_test_page.html
+	//	See PROBLEMATIC(#3), which was confirmed in Firefox 2 through 3.6.
+	//
+	// We also prefer setTimeout because we're interested in timeCollection_,
+	// and browsers are likely to automatically correct setInterval timers.
+	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+
+	var now = goog.Timer.getTime(this.clock_);
+	this.insertIntoCollection_(now);
 }
 
 
@@ -421,7 +477,7 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  */
 cw.clock.JumpDetector.prototype.prod_ = function() {
 	//
-	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+	
 }
 
 
