@@ -337,6 +337,14 @@ cw.clock.EventType = { // TODO: maybe obfuscate these names
 	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
 }
 
+// TODO XXX: JumpDetectingClock is going to want to check *all*
+// of the timers when prodded, because perhaps just one got
+// mischeduled by the browser.
+
+// TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
+// We want to avoid protectWindowSetTimeout because that adds too many
+// layers of functions. We already *need* to create a function in JumpDetectingClock. 
+
 /**
  * This detects fowards and backwards clock jumps for any browser, regardless
  * of how it schedules timers (either system time or monotonic clock or insane
@@ -382,6 +390,15 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	 * @type {!Object}
 	 */
 	this.clock_ = clock;
+
+    /**
+     * A monotonically increasing time that usually resembles how much time
+     * was actually spent on the page. In some browsers, if the clock jumps
+     * backwards and JumpDetector is not being prodded, this will be
+     * significantly less than the actual time spent on page.
+     * @type {?number}
+     */
+    this.monoTime_ = null;
 
 	/**
 	 * @type {!Function}
