@@ -44,16 +44,16 @@ there';
 	 * IE can't eval anything with a U+0000 in it; other browsers can.
 	 */
 	function test_nullEval(self) {
-	    var func =  function() { eval('"\u0000"'); };
+		var func =  function() { return eval('"\u0000"'); };
 		if(!goog.userAgent.IE) {
 			self.assertIdentical('\u0000', func());
 			self.assertIdentical(1, func().length);
 			self.assertNotIdentical('', func());
 		} else {
-		    self.assertThrows(Error, func, "Unterminated string constant");
-		    if(goog.userAgent.isVersion('9.0')) {
-			    self.assertThrows(EvalError, func, "Unterminated string constant");
-            }
+			self.assertThrows(Error, func, "Unterminated string constant");
+			if(goog.userAgent.IE && goog.userAgent.isVersion('9.0')) {
+				self.assertThrows(EvalError, func, "Unterminated string constant");
+			}
 		}
 	},
 
@@ -92,14 +92,14 @@ there';
 	 */
 
 	 function test_nullsOK(self) {
-	      var z1 = '\u0000';
-	      self.assertIdentical(1, z1.length);
+		var z1 = '\u0000';
+		self.assertIdentical(1, z1.length);
 
-	      var z2 = '\u0000\u0000';
-	      self.assertIdentical(2, z2.length);
+		var z2 = '\u0000\u0000';
+		self.assertIdentical(2, z2.length);
 
-	      var z9 = '\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000';
-	      self.assertIdentical(9, z9.length);
+		var z9 = '\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000';
+		self.assertIdentical(9, z9.length);
 	 },
 
 
@@ -135,7 +135,7 @@ there';
 
 	/**
 	 * Errors object construction is broken in IE < 9 (even with bigger
-     * numbers), and works fine elsewhere.
+	 * numbers), and works fine elsewhere.
 	 */
 	function test_errorIsBrokenBiggerNumbers(self) {
 		var e;
