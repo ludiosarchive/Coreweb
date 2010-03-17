@@ -848,7 +848,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ReprTests').methods(
 
 	function test_miscTypes(self) {
 		var repr = cw.UnitTest.repr;
-	      self.assertIdentical(repr(new Date(2009, 0, 1)), "(new Date(1230796800000))");
+		self.assertIdentical(repr(new Date(2009, 0, 1)), "(new Date(1230796800000))");
 		self.assertIdentical(repr(/\t/), '/\\t/');
 	}
 

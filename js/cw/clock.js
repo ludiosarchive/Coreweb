@@ -480,10 +480,10 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	// We also prefer setTimeout because we're interested in timeCollection_,
 	// and browsers are likely to automatically correct setInterval timers.
 	if(this.monoTime_ == null) {
-	    this.monoTime_ = 0;
-    } else {
-        this.monoTime_ += this.pollInterval_;
-    }
+		this.monoTime_ = 0;
+	} else {
+		this.monoTime_ += this.pollInterval_;
+	}
 	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
 
 	var now = goog.Timer.getTime(this.clock_);
