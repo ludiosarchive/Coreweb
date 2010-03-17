@@ -45,7 +45,7 @@ cw.clock.Clock = function() {
 	/**
 	 * @type {number}
 	 */
-	this.rightNow_ = 0.0;
+	this.rightNow_ = 0;
 
 	/**
 	 * @type {number}
@@ -235,7 +235,7 @@ cw.clock.Clock.prototype.clearInterval = function(ticket) {
  * If a callable throws an error, no more callables will be called. But if you
  * {@link advance_} again, they will.
  *
- * @param {number} amount How many seconds by which to advance_
+ * @param {number} amount How many milliseconds by which to advance_
  * 	this clock's time. Must be positive number; not NaN or Infinity.
  */
 cw.clock.Clock.prototype.advance_ = function(amount) {
@@ -391,15 +391,6 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	 */
 	this.clock_ = clock;
 
-    /**
-     * A monotonically increasing time that usually resembles how much time
-     * was actually spent on the page. In some browsers, if the clock jumps
-     * backwards and JumpDetector is not being prodded, this will be
-     * significantly less than the actual time spent on page.
-     * @type {?number}
-     */
-    this.monoTime_ = null;
-
 	/**
 	 * @type {!Function}
 	 * @private
@@ -429,6 +420,15 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 }
 goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
 
+
+/**
+ * A monotonically increasing time that usually resembles how much time
+ * was actually spent on the page. In some browsers, if the clock jumps
+ * backwards and JumpDetector is not being prodded, this will be
+ * significantly less than the actual time spent on page.
+ * @type {?number}
+ */
+cw.clock.JumpDetector.prototype.monoTime_ = null;
 
 /**
  * @type {?number}
@@ -479,6 +479,11 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	//
 	// We also prefer setTimeout because we're interested in timeCollection_,
 	// and browsers are likely to automatically correct setInterval timers.
+	if(this.monoTime_ == null) {
+	    this.monoTime_ = 0;
+    } else {
+        this.monoTime_ += this.pollInterval_;
+    }
 	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
 
 	var now = goog.Timer.getTime(this.clock_);

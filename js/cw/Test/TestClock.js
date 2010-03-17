@@ -374,18 +374,37 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
+	 * monoTime_ starts at 0 and increases as the clock is advanced.
+	 * It does not attempt to compensate for the page being frozen
+	 * for a while.
+	 */
+	function test_monoTime(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
+		self.assertEqual(0, jd.monoTime_);
+		clock.advance_(2999);
+		self.assertEqual(0, jd.monoTime_);
+		clock.advance_(1);
+		self.assertEqual(3000, jd.monoTime_);
+		clock.advance_(4000);
+		self.assertEqual(6000, jd.monoTime_);
+		clock.advance_(30000);
+		self.assertEqual(9000, jd.monoTime_);
+	},
+
+	/**
 	 * getNewTimes returns everything in timeCollection_ and flushes
 	 * timeCollection_.
 	 */
 	function test_getNewTimes(self) {
 		var clock = new cw.clock.Clock();
-		var jd = new cw.clock.JumpDetector(clock, 3, 5);
+		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
 		self.assertEqual([0], jd.getNewTimes_());
-		clock.advance_(2.9);
+		clock.advance_(2900);
 		self.assertEqual([], jd.getNewTimes_());
-		clock.advance_(0.1);
-		clock.advance_(4);
-		self.assertEqual([3, 7], jd.getNewTimes_());
+		clock.advance_(100);
+		clock.advance_(4000);
+		self.assertEqual([3000, 7000], jd.getNewTimes_());
 		self.assertEqual([], jd.getNewTimes_());
 	},
 
@@ -396,21 +415,21 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	 */
 	function test_timeCollectionOverflow(self) {
 		var clock = new cw.clock.Clock();
-		var jd = new cw.clock.JumpDetector(clock, 3, 5);
+		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
 		var called = false;
 		function callback(ev) {
 			called = ev;
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
-		clock.advance_(3);
-		clock.advance_(3);
-		clock.advance_(3);
-		clock.advance_(3.5);
+		clock.advance_(3000);
+		clock.advance_(3000);
+		clock.advance_(3000);
+		clock.advance_(3500);
 		// At this point, timeCollection_ has 5 entries, but hasn't overflowed yet.
 		self.assertEqual(false, called);
-		clock.advance_(10);
-		self.assertEqual([0, 3, 6, 9, 12.5], called.collection);
+		clock.advance_(10000);
+		self.assertEqual([0, 3000, 6000, 9000, 12500], called.collection);
 	},
 
 	/**
@@ -419,16 +438,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	 */
 	function test_timeCollectionOverflowReentrantGetNewTimes(self) {
 		var clock = new cw.clock.Clock();
-		var jd = new cw.clock.JumpDetector(clock, 3, 2);
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
 		var results;
 		function callback(ev) {
 			results = jd.getNewTimes_();
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
-		clock.advance_(3);
+		clock.advance_(3000);
 		self.assertEqual(undefined, results);
-		clock.advance_(3);
+		clock.advance_(3000);
 		self.assertEqual([], results);
 	}
 );

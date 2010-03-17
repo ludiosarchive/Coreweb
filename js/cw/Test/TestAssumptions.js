@@ -44,12 +44,16 @@ there';
 	 * IE can't eval anything with a U+0000 in it; other browsers can.
 	 */
 	function test_nullEval(self) {
+	    var func =  function() { eval('"\u0000"'); };
 		if(!goog.userAgent.IE) {
-			self.assertIdentical('\u0000', eval('"\u0000"'));
-			self.assertIdentical(1, eval('"\u0000"').length);
-			self.assertNotIdentical('', eval('"\u0000"'));
+			self.assertIdentical('\u0000', func());
+			self.assertIdentical(1, func().length);
+			self.assertNotIdentical('', func());
 		} else {
-			self.assertThrows(Error, function(){eval('"\u0000"');}, "Unterminated string constant");
+		    self.assertThrows(Error, func, "Unterminated string constant");
+		    if(goog.userAgent.isVersion('9.0')) {
+			    self.assertThrows(EvalError, func, "Unterminated string constant");
+            }
 		}
 	},
 
@@ -100,7 +104,7 @@ there';
 
 
 	/**
-	 * Test that conditional compilation code is run by IE6/7/8 and nothing else.
+	 * Test that conditional compilation code is run by IE and nothing else.
 	 */
 	function test_conditionalCompilation(self) {
 		var ccWasRun = /*@cc_on!@*/!1;
@@ -113,35 +117,36 @@ there';
 
 
 	/**
-	 * Confirm that errors object construction is broken in IE, and works fine elsewhere.
+	 * Error object construction is broken in IE < 9, and works fine elsewhere.
 	 */
 	function test_errorIsBroken(self) {
 		var e;
-		if(!goog.userAgent.IE) {
-			e = new Error("4");
-			self.assertIdentical("4", e.message);
-			self.assertIdentical(undefined, e.number);
-		} else {
+		if(goog.userAgent.IE && !goog.userAgent.isVersion('9.0')) {
 			e = new Error("4");
 			self.assertIdentical("", e.message);
 			self.assertIdentical(4, e.number);
+		} else {
+			e = new Error("4");
+			self.assertIdentical("4", e.message);
+			self.assertIdentical(undefined, e.number);
 		}
 	},
 
 
 	/**
-	 * Confirm that errors objects are broken in IE (even with bigger numbers), and works fine elsewhere.
+	 * Errors object construction is broken in IE < 9 (even with bigger
+     * numbers), and works fine elsewhere.
 	 */
 	function test_errorIsBrokenBiggerNumbers(self) {
 		var e;
-		if(!goog.userAgent.IE) {
-			e = new Error("49458712349712346723");
-			self.assertIdentical("49458712349712346723", e.message);
-			self.assertIdentical(undefined, e.number);
-		} else {
+		if(goog.userAgent.IE && !goog.userAgent.isVersion('9.0')) {
 			e = new Error("49458712349712346723");
 			self.assertIdentical("", e.message);
 			self.assertIdentical(49458712349712346723, e.number);
+		} else {
+			e = new Error("49458712349712346723");
+			self.assertIdentical("49458712349712346723", e.message);
+			self.assertIdentical(undefined, e.number);
 		}
 	},
 
