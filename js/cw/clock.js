@@ -420,6 +420,12 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	this.pollInterval_ = pollInterval;
 
 	/**
+	 * @type {?number}
+	 * @private
+	 */
+	this.expectedFiringTime_ = null;
+
+	/**
 	 * @type {!Array.<number>}
 	 * @private
 	 */
@@ -432,6 +438,7 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	this.collectionSize_ = collectionSize;
 
 	/**
+	 * The last time we have seen, recorded either by the timer or by prodding.
 	 * @type {?number}
 	 * @private
 	 */
@@ -491,25 +498,43 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 }
 
 /**
- * Dispatch a TIME_JUMP or LACK_OF_FIRING event if necessary,
- * and update this.lastTime_
- * @param {number} now The current time
+ * Dispatch a TIME_JUMP or LACK_OF_FIRING event if necessary.
+ * @param {number} now The current time, in milliseconds
+ * @param {boolean} prodded Whether this check was initiated by prodding
  * @private
  */
-cw.clock.JumpDetector.prototype.check_ = function(now) {
+cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	// TODO: perhaps we should also fire something if the timer
 	// fired too early? But does it really matter if it does?
 
-	if(this.timeLast_ != null) {
-		if(now < this.timeLast_ || now > (this.timeLast_ + this.pollInterval_ + cw.clock.TIMER_FORGIVENESS)) {
+	var timeLast = this.timeLast_;
+
+	//cw.UnitTest.logger.info('checkTimeJump_: ' +
+	//	cw.UnitTest.repr({now:now, prodded:prodded, timeLast: timeLast, expectedFiringTime_: this.expectedFiringTime_}));
+
+	if(timeLast != null) {
+		if(now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS) {
+			if(prodded) {
+				this.dispatchEvent({
+					type: cw.clock.EventType.LACK_OF_FIRING,
+					expectedFiringTime_: this.expectedFiringTime_,
+					timeNow_: now
+				});
+			} else {
+				this.dispatchEvent({
+					type: cw.clock.EventType.TIME_JUMP,
+					timeLast_: timeLast,
+					timeNow_: now
+				});
+			}
+		} else if(now < timeLast) {
 			this.dispatchEvent({
 				type: cw.clock.EventType.TIME_JUMP,
-				timeLast_: this.timeLast_,
+				timeLast_: timeLast,
 				timeNow_: now
 			});
 		}
 	}
-	this.timeLast_ = now;
 }
 
 /**
@@ -530,12 +555,15 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	} else {
 		this.monoTime_ += this.pollInterval_;
 	}
+	// Do this first, in case an Error is raised below.
 	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
 
 	var now = goog.Timer.getTime(this.clock_);
 	this.insertIntoCollection_(now);
+	this.checkTimeJump_(now, false/* prodded */);
 
-	this.check_(now);
+	this.expectedFiringTime_ = now + this.pollInterval_;
+	this.timeLast_ = now;
 }
 
 /**
@@ -546,7 +574,8 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  */
 cw.clock.JumpDetector.prototype.prod_ = function() {
 	var now = goog.Timer.getTime(this.clock_);
-	this.check_(now);
+	this.checkTimeJump_(now, true/* prodded */);
+	this.timeLast_ = now;
 }
 
 /**

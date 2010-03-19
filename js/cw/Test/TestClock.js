@@ -492,7 +492,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * If the clock jumped forwards (and this is detected by the timer), a
-	 * TIME_JUMP event is fire with properties {@code timeLast_} and {@code timeNow_}.
+	 * TIME_JUMP event is fired with properties {@code timeLast_} and {@code timeNow_}.
 	 */
 	function test_forwardsClockJumpByTimer(self) {
 		var clock = new cw.clock.Clock();
@@ -517,18 +517,29 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
-	 * If the clock jumped forwards (and this is detected by prodding), a
-	 * TIME_JUMP event is fire with properties {@code timeLast_} and {@code timeNow_}.
+	 * If the internal timer has not fired by its due date (for whatever reason), a
+	 * LACK_OF_FIRING event is fired with properties
+	 * {@code expectedFiringTime_} and {@code timeNow_}.
+	 *
+	 * In the real world, this will be fired on Chromium/Windows if the clock
+	 * jumps backwards (and then the user clicks around a bit later).
+	 * See http://ludios.net/browser_bugs/clock_jump_test_page.html
+	 *
+	 * It will also be fired if someone calls prod_ before the timer has a chance
+	 * to fire (equivalent to the above case, but probably more common).
 	 */
-	function test_forwardsClockJumpByProdding(self) {
+	function test_lackOfFiring(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		var timeJump = false;
 		var event = null;
 		function callback(ev) {
 			event = ev;
 		}
 		jd.addEventListener(
-			cw.clock.EventType.TIME_JUMP, callback, true);
+			cw.clock.EventType.TIME_JUMP, function() { timeJump = true; }, true);
+		jd.addEventListener(
+			cw.clock.EventType.LACK_OF_FIRING, callback, true);
 		jd.start_();
 
 		clock.advance_(3000);
@@ -537,17 +548,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		var newTime = 3000 + 3000 + cw.clock.TIMER_FORGIVENESS + 1;
 		clock.setTime_(newTime);
 		jd.prod_();
-		self.assertEqual(3000, event.timeLast_);
+		self.assertEqual(2*3000, event.expectedFiringTime_);
 		self.assertEqual(newTime, event.timeNow_);
-	},
-
-	/**
-	 * If the clock did not appear to jump, but a timer that should have
-	 * fired has not fired, a LACK_OF_FIRING event is fired.
-	 * with properties {@code expectedFiringTime_} and {@code timeNow_}.
-	 */
-	function test_lackOfFiring(self) {
-
+		// The TIME_JUMP is not dispatched
+		self.assertEqual(false, timeJump);
 	},
 
 	/**
