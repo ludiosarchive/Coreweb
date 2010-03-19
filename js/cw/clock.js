@@ -337,6 +337,15 @@ cw.clock.EventType = { // TODO: maybe obfuscate these names
 	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
 }
 
+
+/**
+ * How much timer-firing inaccuracy (in milliseconds) to assume.
+ * TODO: Write about how this impacts event firing
+ * @const
+ */
+cw.clock.TIMER_FORGIVENESS = 100;
+
+
 // TODO XXX: JumpDetectingClock is going to want to check *all*
 // of the timers when prodded, because perhaps just one got
 // mischeduled by the browser.
@@ -344,6 +353,13 @@ cw.clock.EventType = { // TODO: maybe obfuscate these names
 // TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
 // We want to avoid protectWindowSetTimeout because that adds too many
 // layers of functions. We already *need* to create a function in JumpDetectingClock. 
+
+// TODO XXX: Detect if the environment fires timers if the clock went backwards
+// (at least sometimes):
+// 	- If the clock went backwards on the next poll_, fire MAYBE_MONOTONIC
+//	- If the clock went backwards on a prod_, preserve the old poll_ timer
+//		and see if it fires in the "right amount of time" (it is not delayed for
+//		too long). If so, fire MAYBE_MONOTONIC.
 
 /**
  * This detects fowards and backwards clock jumps for any browser, regardless
@@ -415,11 +431,13 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	 */
 	this.collectionSize_ = collectionSize;
 
-	this.poll_();
-
+	/**
+	 * @type {?number}
+	 * @private
+	 */
+	this.timeLast_ = null;
 }
 goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
-
 
 /**
  * A monotonically increasing time that usually resembles how much time
@@ -436,6 +454,14 @@ cw.clock.JumpDetector.prototype.monoTime_ = null;
  */
 cw.clock.JumpDetector.prototype.pollerTicket_ = null;
 
+/**
+ * Set up a timer to check the time every {@code pollInterval_} milliseconds.
+ * You really want to call this. Remember to call it after you've set up
+ * event listeners.
+ */
+cw.clock.JumpDetector.prototype.start_ = function() {
+	this.poll_();
+}
 
 /**
  * @param {number} time Time to insert into timeCollection_
@@ -453,7 +479,6 @@ cw.clock.JumpDetector.prototype.insertIntoCollection_ = function(time) {
 	this.timeCollection_.push(time);
 }
 
-
 /**
  * @return {!Array.<number>} Array of times collected since the page loaded,
  * 	since the last call to {@link getNewTimes_}, or since an internal flushing.
@@ -465,6 +490,27 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 	return collection;
 }
 
+/**
+ * Dispatch a TIME_JUMP or LACK_OF_FIRING event if necessary,
+ * and update this.lastTime_
+ * @param {number} now The current time
+ * @private
+ */
+cw.clock.JumpDetector.prototype.check_ = function(now) {
+	// TODO: perhaps we should also fire something if the timer
+	// fired too early? But does it really matter if it does?
+
+	if(this.timeLast_ != null) {
+		if(now < this.timeLast_ || now > (this.timeLast_ + this.pollInterval_ + cw.clock.TIMER_FORGIVENESS)) {
+			this.dispatchEvent({
+				type: cw.clock.EventType.TIME_JUMP,
+				timeLast_: this.timeLast_,
+				timeNow_: now
+			});
+		}
+	}
+	this.timeLast_ = now;
+}
 
 /**
  * @private
@@ -488,8 +534,9 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 
 	var now = goog.Timer.getTime(this.clock_);
 	this.insertIntoCollection_(now);
-}
 
+	this.check_(now);
+}
 
 /**
  * Your application code must call this when non-time-related events happen
@@ -498,10 +545,9 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  * LACK_OF_FIRING might not be detected.
  */
 cw.clock.JumpDetector.prototype.prod_ = function() {
-	//
-	
+	var now = goog.Timer.getTime(this.clock_);
+	this.check_(now);
 }
-
 
 /**
  * Disposes of the object.

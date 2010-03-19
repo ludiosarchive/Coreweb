@@ -381,6 +381,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_monoTime(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
+		self.assertEqual(null, jd.monoTime_);
+		jd.start_();
 		self.assertEqual(0, jd.monoTime_);
 		clock.advance_(2999);
 		self.assertEqual(0, jd.monoTime_);
@@ -399,6 +401,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_getNewTimes(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
+		self.assertEqual([], jd.getNewTimes_());
+		jd.start_();
 		self.assertEqual([0], jd.getNewTimes_());
 		clock.advance_(2900);
 		self.assertEqual([], jd.getNewTimes_());
@@ -422,6 +426,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
+		jd.start_();
 		clock.advance_(3000);
 		clock.advance_(3000);
 		clock.advance_(3000);
@@ -445,10 +450,125 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
+		jd.start_();
+
 		clock.advance_(3000);
 		self.assertEqual(undefined, results);
 		clock.advance_(3000);
 		self.assertEqual([], results);
+	},
+
+	/**
+	 * If the clock jumped backwards, a TIME_JUMP event is fired
+	 * with properties {@code timeLast_} and {@code timeNow_}.
+	 */
+	function test_backwardsClockJump(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		var event = null;
+		function callback(ev) {
+			event = ev;
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_JUMP, callback, true);
+		jd.start_();
+
+		clock.advance_(3000);
+		clock.advance_(2000);
+		self.assertEqual(null, event);
+
+		// Jump the clock by 1 millisecond from the last recorded time
+		clock.setTime_(2999);
+		jd.prod_();
+		self.assertEqual(3000, event.timeLast_);
+		self.assertEqual(2999, event.timeNow_);
+
+		// Jump the clock back again
+		clock.setTime_(0);
+		jd.prod_();
+		self.assertEqual(2999, event.timeLast_);
+		self.assertEqual(0, event.timeNow_);
+	},
+
+	/**
+	 * If the clock jumped forwards (and this is detected by the timer), a
+	 * TIME_JUMP event is fire with properties {@code timeLast_} and {@code timeNow_}.
+	 */
+	function test_forwardsClockJumpByTimer(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		var event = null;
+		function callback(ev) {
+			event = ev;
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_JUMP, callback, true);
+		jd.start_();
+
+		clock.advance_(3000);
+		self.assertEqual(null, event);
+
+		clock.advance_(3000 + cw.clock.TIMER_FORGIVENESS);
+		self.assertEqual(null, event);
+
+		clock.advance_(3000 + cw.clock.TIMER_FORGIVENESS + 1);
+		self.assertEqual((2*3000+cw.clock.TIMER_FORGIVENESS), event.timeLast_);
+		self.assertEqual((3*3000+2*cw.clock.TIMER_FORGIVENESS+1), event.timeNow_);
+	},
+
+	/**
+	 * If the clock jumped forwards (and this is detected by prodding), a
+	 * TIME_JUMP event is fire with properties {@code timeLast_} and {@code timeNow_}.
+	 */
+	function test_forwardsClockJumpByProdding(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		var event = null;
+		function callback(ev) {
+			event = ev;
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_JUMP, callback, true);
+		jd.start_();
+
+		clock.advance_(3000);
+		self.assertEqual(null, event);
+
+		var newTime = 3000 + 3000 + cw.clock.TIMER_FORGIVENESS + 1;
+		clock.setTime_(newTime);
+		jd.prod_();
+		self.assertEqual(3000, event.timeLast_);
+		self.assertEqual(newTime, event.timeNow_);
+	},
+
+	/**
+	 * If the clock did not appear to jump, but a timer that should have
+	 * fired has not fired, a LACK_OF_FIRING event is fired.
+	 * with properties {@code expectedFiringTime_} and {@code timeNow_}.
+	 */
+	function test_lackOfFiring(self) {
+
+	},
+
+	/**
+	 * Dispose works on an unstarted JumpDetector
+	 */
+	function test_disposeUnstarted(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		jd.dispose();
+		jd.dispose();
+	},
+
+	/**
+	 * Dispose works on a started JumpDetector
+	 */
+	function test_disposeStarted(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		jd.start_();
+		jd.dispose();
+		jd.dispose();
 	}
 );
 
