@@ -459,7 +459,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
-	 * If the clock jumped backwards, a TIME_JUMP event is fired
+	 * If the clock jumped backwards, a TIME_JUMP event is dispatched
 	 * with properties {@code timeLast_} and {@code timeNow_}.
 	 */
 	function test_backwardsClockJump(self) {
@@ -492,7 +492,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * If the clock jumped forwards (and this is detected by the timer), a
-	 * TIME_JUMP event is fired with properties {@code timeLast_} and {@code timeNow_}.
+	 * TIME_JUMP event is dispatched with properties {@code timeLast_} and
+	 * {@code timeNow_}.
 	 */
 	function test_forwardsClockJumpByTimer(self) {
 		var clock = new cw.clock.Clock();
@@ -518,15 +519,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * If the internal timer has not fired by its due date (for whatever reason), a
-	 * LACK_OF_FIRING event is fired with properties
+	 * LACK_OF_FIRING event is dispatched with properties
 	 * {@code expectedFiringTime_} and {@code timeNow_}.
 	 *
-	 * In the real world, this will be fired on Chromium/Windows if the clock
-	 * jumps backwards (and then the user clicks around a bit later).
+	 * In the real world, this will be dispatched on Chromium/Windows if the
+	 * clock jumps backwards (and then the user clicks around a bit later).
 	 * See http://ludios.net/browser_bugs/clock_jump_test_page.html
 	 *
-	 * It will also be fired if someone calls prod_ before the timer has a chance
-	 * to fire (equivalent to the above case, but probably more common).
+	 * It will also be fired if someone calls prod_ before the timer has a
+	 * chance to fire (equivalent to the above case, but probably more
+	 * common).
 	 */
 	function test_lackOfFiring(self) {
 		var clock = new cw.clock.Clock();
@@ -550,7 +552,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		jd.prod_();
 		self.assertEqual(2*3000, event.expectedFiringTime_);
 		self.assertEqual(newTime, event.timeNow_);
-		// The TIME_JUMP is not dispatched
+		// TIME_JUMP is not dispatched
 		self.assertEqual(false, timeJump);
 	},
 

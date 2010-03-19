@@ -426,12 +426,17 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	this.expectedFiringTime_ = null;
 
 	/**
+	 * An array of times limited to length {@code collectionSize}, useful for recording
+	 * and then uploading to the server. This information can be used to determine when
+	 * the users' browser is locking up (although another tab may be responsible).
 	 * @type {!Array.<number>}
 	 * @private
 	 */
 	this.timeCollection_ = [];
 
 	/**
+	 * Maximum length for {@code this.timeCollection_} before
+	 * {@link TIME_COLLECTION_OVERFLOW} is dispatched.
 	 * @type {number}
 	 * @private
 	 */
