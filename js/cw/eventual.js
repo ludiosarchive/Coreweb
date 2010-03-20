@@ -37,6 +37,10 @@
  * 	flushEventualQueue -> notifyEmpty_
  * 	_flushObservers -> emptyObservers_
  *
+ * TODO: consider using postMessage as a faster alternative to
+ * setTimeout(..., 0). See http://dbaron.org/log/20100309-faster-timeouts
+ * This might however defeat the lack-of-crashing guarantee of setTimeout.
+ *
  * LICENSE: Coreweb, Foolscap
  */
 
