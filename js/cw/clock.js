@@ -8,6 +8,7 @@ goog.require('goog.asserts');
 goog.require('goog.events');
 goog.require('goog.debug.Error');
 goog.require('goog.Timer');
+goog.require('goog.functions');
 
 
 /**
@@ -226,41 +227,26 @@ cw.clock.Clock.prototype.clearInterval = function(ticket) {
 }
 
 /**
- * Move time on this clock forward by the given amount and run whatever
- * pending calls should be run.
- *
- * If a callable adds another timeout or interval, it will not be run until
- * the next {@link advance_} (even if the timeout was set to 0).
- *
- * If a callable throws an error, no more callables will be called. But if you
- * {@link advance_} again, they will.
- *
- * @param {number} amount How many milliseconds by which to advance_
- * 	this clock's time. Must be positive number; not NaN or Infinity.
+ * @param {function():boolean} extraStopCondition
+ * @private
  */
-cw.clock.Clock.prototype.advance_ = function(amount) {
+cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 	if(this.advancing_) {
 		throw new cw.clock.ClockAdvanceError("You cannot re-entrantly advance the Clock.");
-	}
-
-	if(amount < 0) {
-		throw new cw.clock.ClockAdvanceError("amount was "+amount+", should have been > 0");
 	}
 
 	this.advancing_ = true;
 
 	try {
-		this.rightNow_ += amount;
-
 		// Remember that callables can add or clear timeouts/intervals.
 		// New callables won't get called until at least the next advance_,
 		// but cleared timeouts/intervals will be immediately removed, even
 		// while we're inside this loop. Note that callables should not expect
 		// to reliably remove their "sibling" calls, because they run in an
-		// arbitrary order. ("sibling" means happening around the same time). 
+		// arbitrary order. ("sibling" means happening around the same time).
 		for(;;) {
 			//console.log('calls_: ', cw.UnitTest.repr(this.calls_), 'rightNow_: ', this.rightNow_);
-			if(this.calls_.length === 0 || this.calls_[0].runAt_ > this.rightNow_ || this.calls_[0].notNow_) {
+			if(this.calls_.length === 0 || extraStopCondition() || this.calls_[0].notNow_) {
 				break;
 			}
 			var call = this.calls_.shift();
@@ -270,6 +256,7 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 			// callable may want to clear its own interval.
 			if(call.respawn_ === true) {
 				call.runAt_ += call.interval_;
+				call.notNow_ = true;
 				this.addCall_(call);
 			}
 
@@ -294,10 +281,40 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 }
 
 /**
- * Fire all of the scheduled calls indiscriminately. TODO XXX: really needed?
+ * Move time on this clock forward by the given amount and run whatever
+ * pending calls should be run.
+ *
+ * If a callable adds another timeout or interval, it will not be run until
+ * the next {@link advance_} (even if the timeout was set to 0).
+ *
+ * If a callable throws an error, no more callables will be called. But if you
+ * {@link advance_} again, they will.
+ *
+ * @param {number} amount How many milliseconds by which to advance_
+ * 	this clock's time. Must be positive number; not NaN or Infinity.
+ */
+cw.clock.Clock.prototype.advance_ = function(amount) {
+	if(amount < 0) {
+		throw new cw.clock.ClockAdvanceError("amount was "+amount+", should have been > 0");
+	}
+
+	this.rightNow_ += amount;
+
+	// Actually stop when it's time to
+	var extraStopCondition = goog.bind(function() {
+		return this.calls_[0].runAt_ > this.rightNow_;
+	}, this);
+
+	this.internalAdvance_(extraStopCondition);
+}
+
+/**
+ * Fire all of the scheduled calls indiscriminately (without regard to when
+ * they are scheduled to fire).
  */
 cw.clock.Clock.prototype.fireEverything_ = function() {
-	1/0
+	var extraStopCondition = goog.functions.FALSE;
+	this.internalAdvance_(extraStopCondition);
 }
 
 /**
@@ -340,7 +357,6 @@ cw.clock.backwardsTimeJumpImpliesDelayedTimers_ = false;
  */
 cw.clock.EventType = { // TODO: maybe obfuscate these names
 	TIME_JUMP: 'time_jump',
-	LACK_OF_FIRING: 'lack_of_firing',
 	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
 }
 
@@ -375,17 +391,19 @@ cw.clock.TIMER_FORGIVENESS = 100;
  * Chromium on Windows, because it conceals backwards time jumps. See [1]
  *
  * If a clock jump is detected, this will dispatch {@link TIME_JUMP}. If a clock
- * jump did not happen but timers are failing to fire, this will dispatch
- * {@link LACK_OF_FIRING}. This is likely to happen in Chromium/Windows [1]
+ * jump did not happen the internal timer is failing to fire, this will also dispatch
+ * {@link TIME_JUMP}. This latter is likely to happen in Chromium/Windows [1]
  * and possibly Safari/Windows.  This can also happen in browsers that schedule
  * timers with a monotonic clock, because monotonic clocks may freeze or go
- * backwards in some environments [2].
+ * backwards in some environments [2].  JumpDetector does not distinguish
+ * between the two events, because doing so would require JumpDetector
+ * to know if timers are scheduled by date or by monotonic clock.
  *
  * To detect backwards time jumps and lack of firing, your application code must
  * call {@link prod_} often. See its JSDoc.
  *
- * Note: if the browser freezes for a few seconds, this will dispatch a forwards
- * time jump.
+ * Note: if the browser freezes for a few seconds, this will dispatch a
+ * {@link TIME_JUMP}.
  *
  * This also collects the time with {@code new Date.getTime()} every
  * {@code pollInterval} ms. You can retreive the times and flush the internal
@@ -510,7 +528,7 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 }
 
 /**
- * Dispatch a TIME_JUMP or LACK_OF_FIRING event if necessary.
+ * Dispatch a TIME_JUMP event if necessary.
  * @param {number} now The current time, in milliseconds
  * @param {boolean} prodded Whether this check was initiated by prodding
  * @private
@@ -524,28 +542,13 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	//cw.UnitTest.logger.info('checkTimeJump_: ' +
 	//	cw.UnitTest.repr({now:now, prodded:prodded, timeLast: timeLast, expectedFiringTime_: this.expectedFiringTime_}));
 
-	if(timeLast != null) {
-		if(now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS) {
-			if(prodded) {
-				this.dispatchEvent({
-					type: cw.clock.EventType.LACK_OF_FIRING,
-					expectedFiringTime_: this.expectedFiringTime_,
-					timeNow_: now
-				});
-			} else {
-				this.dispatchEvent({
-					type: cw.clock.EventType.TIME_JUMP,
-					timeLast_: timeLast,
-					timeNow_: now
-				});
-			}
-		} else if(now < timeLast) {
-			this.dispatchEvent({
-				type: cw.clock.EventType.TIME_JUMP,
-				timeLast_: timeLast,
-				timeNow_: now
-			});
-		}
+	if(timeLast != null && now < timeLast || now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS) {
+		this.dispatchEvent({
+			type: cw.clock.EventType.TIME_JUMP,
+			expectedFiringTime_: this.expectedFiringTime_,
+			timeLast_: timeLast,
+			timeNow_: now
+		});
 	}
 }
 

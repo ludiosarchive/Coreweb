@@ -144,21 +144,21 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		self.assertEqual(1, called2);
 
 		clock.advance_(3);
-		self.assertEqual(3, called1);
+		self.assertEqual(2, called1);
 		self.assertEqual(2, called2);
 	},
 
-
-	function test_advanceQuicklyInterval(self) {
+	/**
+	 * a setInterval happens a maximum of 1 time per advance.
+	 */
+	function test_maxOneSetIntervalPerAdvance(self) {
 		var clock = new cw.clock.Clock();
-		var called1 = 0;
-		var called2 = 0;
-		clock.setInterval(function(){called1 += 1}, 2);
-		clock.setInterval(function(){called2 += 1}, 3);
-
+		var counter = 0;
+		clock.setInterval(function() { counter += 1; }, 2);
+		clock.advance_(20);
+		self.assertEqual(1, counter);
 		clock.advance_(6);
-		self.assertEqual(3, called1);
-		self.assertEqual(2, called2);
+		self.assertEqual(2, counter);
 	},
 
 	/**
@@ -225,8 +225,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var out = [];
 
 		var nextTicket;
-		clock.setTimeout(function() {out.push("ok"); clock.clearTimeout(nextTicket)}, 0);
-		nextTicket = clock.setTimeout(function() {out.push("should never get called")}, 0);
+		clock.setTimeout(function() { out.push("ok"); clock.clearTimeout(nextTicket); }, 0);
+		nextTicket = clock.setTimeout(function() { out.push("should never get called"); }, 0);
 
 		// Make sure the first-added timeout is first
 		clock.getCallsArray_().sort(function(a, b) { return a.ticket_ < b.ticket_ ? -1 : 1; });
@@ -245,8 +245,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var clock = new cw.clock.Clock();
 		var called1 = 0;
 		var called2 = 0;
-		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
-		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
+		var ticket1 = clock.setInterval(function() { called1 += 1; }, 2);
+		clock.setInterval(function() { called2 += 1; clock.clearTimeout(ticket1); }, 3);
 
 		clock.advance_(2);
 		self.assertEqual(1, called1);
@@ -259,24 +259,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 		clock.advance_(6);
 		self.assertEqual(1, called1);
-		self.assertEqual(3, called2);
-	},
-
-
-	/**
-	 * Similar to test_clearIntervalInsideCallable, except we only advance_ the clock
-	 * once.
-	 */
-	function test_clearIntervalAppliesImmediately(self) {
-		var clock = new cw.clock.Clock();
-		var called1 = 0;
-		var called2 = 0;
-		var ticket1 = clock.setInterval(function(){called1 += 1}, 2);
-		clock.setInterval(function(){called2 += 1; clock.clearTimeout(ticket1)}, 3);
-
-		clock.advance_(9);
-		self.assertEqual(1, called1);
-		self.assertEqual(3, called2);
+		self.assertEqual(2, called2);
 	},
 
 	/**
@@ -320,8 +303,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 	function test_clockAdvanceError(self) {
 		var clock = new cw.clock.Clock();
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance_(-1);});
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){clock.advance_(-0.5);});
+		self.assertThrows(cw.clock.ClockAdvanceError, function(){ clock.advance_(-1); });
+		self.assertThrows(cw.clock.ClockAdvanceError, function(){ clock.advance_(-0.5); });
 	},
 
 	/**
@@ -377,7 +360,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setTime_(1500); // but don't advance
 		clock.fireEverything_();
 		self.assertEqual([1, 1, 1, 1], called);
-		clock.advance_(2000); // Make sure advance_ also works
+		clock.advance_(4000); // Make sure advance_ also works
 		self.assertEqual([1, 1, 1, 2], called);
 		clock.fireEverything_();
 		self.assertEqual([1, 1, 1, 3], called); // the interval is called yet again
@@ -548,11 +531,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * If the internal timer has not fired by its due date (for whatever reason), a
-	 * LACK_OF_FIRING event is dispatched with properties
-	 * {@code expectedFiringTime_} and {@code timeNow_}.
+	 * TIME_JUMP event is dispatched.
 	 *
-	 * In the real world, this will be dispatched on Chromium/Windows if the
-	 * clock jumps backwards (and then the user clicks around a bit later).
+	 * In the real world, this happens on Chromium/Windows if the
+	 * clock jumps backwards and then the user clicks around a bit later (causing prodding).
 	 * See http://ludios.net/browser_bugs/clock_jump_test_page.html
 	 *
 	 * It will also be fired if someone calls prod_ before the timer has a
@@ -562,15 +544,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_lackOfFiring(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
-		var timeJump = false;
 		var event = null;
 		function callback(ev) {
 			event = ev;
 		}
 		jd.addEventListener(
-			cw.clock.EventType.TIME_JUMP, function() { timeJump = true; }, true);
-		jd.addEventListener(
-			cw.clock.EventType.LACK_OF_FIRING, callback, true);
+			cw.clock.EventType.TIME_JUMP, callback, true);
 		jd.start_();
 
 		clock.advance_(3000);
@@ -581,8 +560,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		jd.prod_();
 		self.assertEqual(2*3000, event.expectedFiringTime_);
 		self.assertEqual(newTime, event.timeNow_);
-		// TIME_JUMP is not dispatched
-		self.assertEqual(false, timeJump);
 	},
 
 	/**
@@ -590,13 +567,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	 */
 	function test_proddingAfterTimeJumpResetsTimer(self) {
 		
-	},
-
-	/**
-	 * If LACK_OF_FIRING happens, the internal timer is also reset.
-	 */
-	function test_proddingAfterLackOfFiringResetsTimer(self) {
-
 	},
 
 	/**
