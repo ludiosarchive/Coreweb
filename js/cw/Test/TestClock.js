@@ -379,9 +379,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
  * Tests for {@link cw.clock.JumpDetector}
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
-	function test_detectBackwardsJump(self) {
-	},
-
 	/**
 	 * monoTime_ starts at 0 and increases as the clock is advanced.
 	 * It does not attempt to compensate for the page being frozen
