@@ -286,18 +286,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		self.assert(err instanceof cw.clock.ClockAdvanceError, err);
 	},
 
-
+	/**
+	 * Callables are called with in the context of the window, not some
+	 * other object like a {@link cw.clock.Clock}.
+	 */
 	function test_callablesCalledWithWindowThis(self) {
-		var called = 0;
+		var scopeObject = 12345; // placeholder
 		function callable() {
-			// Don't use assertIdentical; if that fails here, you'll see a stack overflow.
-			self.assert(this === window, "this !== window");
-			called = 1;
+			scopeObject = this;
 		}
 		var clock = new cw.clock.Clock();
 		clock.setTimeout(callable, 1);
 		clock.advance_(1);
-		self.assert(called === 1, "callable wasn't even called?");
+		// Don't use assertIdentical or similar because TestCase.compare
+		// calls cw.UnitTest.repr, and this leads to a stack overflow if
+		// the objects do not match.
+		self.assert(window === scopeObject, "this !== scopeObject");
 	},
 
 
