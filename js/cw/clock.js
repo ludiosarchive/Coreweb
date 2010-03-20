@@ -142,7 +142,7 @@ cw.clock.Clock.prototype.sortCalls_ = function() {
 /**
  * The deterministic version of {@code window.setTimeout}.
  *
- * @param {!Function} callable The callable to call soon
+ * @param {!Function} callable The callable to call soon.
  * @param {number} when When to call {@code callable}, in milliseconds.
  *
  * @return {number} The ticket number for the added event.
@@ -395,8 +395,8 @@ cw.clock.TIMER_FORGIVENESS = 100;
  * To detect time jumps and internal lack of firing, your application code must
  * call {@link prod_} often. See its JSDoc.
  *
- * Note: if the browser freezes for a short time, this may dispatch a
- * {@link TIME_JUMP}.
+ * Note: if the browser freezes for a short time (or JavaScript execution is
+ * suspended), this may dispatch a {@link TIME_JUMP}.
  *
  * JumpDetector also collects the time every {@code pollInterval} ms.
  * You can retreive the times and flush the internal
@@ -411,9 +411,15 @@ cw.clock.TIMER_FORGIVENESS = 100;
  * @param {!Object} clock An object that implements setTimeout and
  *	clearTimeout (eg Window). If it is !== goog.Timer.defaultTimerObject,
  * 	it must implement getTime as well.
- * @param {number} pollInterval Interval to poll at, in milliseconds.
+ *
+ * @param {number} pollInterval Interval to poll at, in milliseconds. If this
+ * is too infrequent, and the clock jumps back in a non-monotonic browser,
+ * timeLast_ will be too obsolete. This will impact JumpDetectingClock,
+ * because the readjusted timers will take longer to fire than expected.
+ *
  * @param {number} collectionSize Maximum size for time collection array
  * 	before dispatching {@link TIME_COLLECTION_OVERFLOW} and flushing.
+ *
  * @constructor
  * @extends {goog.events.EventTarget}
  */
@@ -602,6 +608,9 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  * (for example, key strokes or mouse clicks, focus events, network activity.)
  * If you don't make arrangements to call this, a backwards TIME_JUMP or
  * LACK_OF_FIRING might not be detected.
+ *
+ * Avoid calling this so frequently that the browser's CPU usage goes up.
+ * You don't want users' laptop fans to spin up.
  */
 cw.clock.JumpDetector.prototype.prod_ = function() {
 	var now = goog.Timer.getTime(this.clock_);
@@ -636,8 +645,16 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 // layers of functions. We already *need* to create a function in JumpDetectingClock.
 
 /**
- * A clock that detects time jumps and automatically readjusts scheduled
- * timers.
+	This is a clock that detects backwards time jumps and reschedules
+	calls if necessary. It wraps an existing clock, such as a real browser
+	Window or a deterministic cw.clock.Clock.
+
+	Use JumpDetectingClock in all browsers, even in those where you
+	have confidence that timers are scheduled with a monotonic clock.
+	You can't be sure that timers are always scheduled with a monotonic
+	clock. For example, you might find a browser with a workaround to
+	avoid using the monotonic clock on Athlon X2 CPUs (Chromium does
+	this.)
  *
  * Note: because setInterval is buggy in Firefox on backwards time jumps [1],
  * and because it's more likely to be buggy in general, you should still
@@ -645,13 +662,144 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
  *
  * [1] http://ludios.net/browser_bugs/clock_jump_test_page.html
  *
- * @param {!cw.clock.JumpDetector} jumpDetector
+ * @param {!cw.clock.JumpDetector} jumpDetector An already-started
+ * 	{@link cw.clock.JumpDetector}.
  *
  * @constructor
  */
 cw.clock.JumpDetectingClock = function(jumpDetector) {
 	/**
 	 * @type {!cw.clock.JumpDetector}
+	 * @private
 	 */
 	this.jumpDetector_ = jumpDetector;
+
+	/**
+	 * @type {!Object}
+	 * @private
+	 */
+	this.clock_ = jumpDetector.clock_;
+
+	/**
+	 * Both setTimeouts and setIntervals are tracked here.
+	 *
+	 * In the array for each property value, the
+	 * [0]th item is true for intervals, and false for timeouts.
+	 * [1]th item is the delay between calls for intervals, and the timeout for timeouts.
+	 * [2]th item is the expected next firing time. 
+	 *
+	 * @type {Object.<string, Array.<boolean, number, number>>}
+	 * @private
+	 */
+	this.timeouts_ = {};
+
+	jumpDetector.addEventListener(
+		cw.clock.EventType.TIME_JUMP, this.gotTimeJump_, true, this);
 }
+
+/**
+ * Get the current time.
+ * Our modified version of goog.Timer expects this to be implemented.
+ * @return {number} The current time.
+ */
+cw.clock.JumpDetectingClock.prototype.getTime = function() {
+	return goog.Timer.getTime(this.clock_);
+}
+
+/**
+ * @param {number} adjustment By how many milliseconds to adjust the timeout
+ * 	for the rescheduled timeouts. Note: intervals cannot be adjusted, so they may
+ * 	take longer to fire.  If this receives too many spurious TIME_JUMP events,
+ * 	intervals may never fire. You should avoid using setInterval in general
+ * 	(use goog.Timer instead).
+ * @private
+ */
+cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
+	for(var ticket in this.timeouts_) {
+		if(Object.prototype.hasOwnProperty.call(this.timeouts_, ticket)) {
+			this.clock_.clearTimeout();
+		}
+	}
+	1/0
+}
+
+/**
+ * @private
+ */
+cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
+	var adjustment = 1/0;
+	this.rescheduleCalls_(adjustment);
+}
+
+/**
+ * A jump-correcting version of {@code window.setTimeout}.
+ *
+ * @param {!Function} callable The callable to call soon.
+ * @param {number} when When to call {@code callable}, in milliseconds.
+ *
+ * @return {number} The ticket number for the added event.
+ */
+cw.clock.JumpDetectingClock.prototype.setTimeout = function(callable, delay) {
+	var now = this.getTime();
+	var that = this;
+	var ticket = this.clock_.setTimeout(function() {
+		delete that.timeouts_[ticket];
+		callable.call(null);
+	}, delay);
+	this.timeouts_[ticket] = [false, delay, now + delay];
+	return ticket;
+}
+
+/**
+ * A jump-correcting version of {@code window.setInterval}.
+ *
+ * @param {!Function} callable The callable to call soon (possibly repeatedly).
+ * @param {number} interval The delay between calls to {@code callable},
+ * 	in milliseconds. If you want to, you may specify 0.
+ *
+ * @return {number} The ticket number for the added event.
+ */
+cw.clock.JumpDetectingClock.prototype.setInterval = function(callable, interval) {
+	var now = this.getTime();
+	var that = this;
+	var ticket = this.clock_.setInterval(function() {
+		now = this.getTime();
+		that.timeouts_[ticket][2] = now;
+		callable.call(null);
+	}, interval);
+	this.timeouts_[ticket] = [true, interval, now + interval]; // [2]th represents "next firing time"
+	return ticket;
+}
+
+/**
+ * A jump-detecting version of {@code window.clearTimeout}.
+ *
+ * @param {number} ticket The ticket number of the timeout/interval to clear.
+ */
+cw.clock.JumpDetectingClock.prototype.clearTimeout = function(ticket) {
+	this.clock_.clearTimeout(ticket);
+	delete this.timeouts_[ticket];
+}
+
+/**
+ * A jump-detecting version of {@code window.clearInterval}.
+ *
+ * @param {number} ticket The ticket number of the timeout/interval to clear.
+ */
+cw.clock.JumpDetectingClock.prototype.clearInterval = function(ticket) {
+	this.clock_.clearInterval(ticket);
+	delete this.timeouts_[ticket];
+}
+
+// Do we want a disposeInternal that clears all the timeouts and intervals?
+// Is that a sane thing to do, given what could be going on as the page unloads?
+
+
+/*
+The composition in a real application would be:
+	CallQueue
+		JumpDetectingClock
+			JumpDetector
+				Window (or Clock for testing)
+
+*/
