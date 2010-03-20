@@ -556,7 +556,7 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	//cw.UnitTest.logger.info('checkTimeJump_: ' +
 	//	cw.UnitTest.repr({now:now, prodded:prodded, timeLast: timeLast, expectedFiringTime_: this.expectedFiringTime_}));
 
-	if(timeLast != null && now < timeLast || now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS) {
+	if(timeLast != null && (now < timeLast || now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS)) {
 		this.dispatchEvent({
 			type: cw.clock.EventType.TIME_JUMP,
 			expectedFiringTime_: this.expectedFiringTime_,
@@ -643,6 +643,8 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 // TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
 // We want to avoid protectWindowSetTimeout because that adds too many
 // layers of functions. We already *need* to create a function in JumpDetectingClock.
+// BUT: is this really necessary? In all browsers but Opera, window.onerror
+// should do adequate error-detection for us.
 
 /**
 	This is a clock that detects backwards time jumps and reschedules

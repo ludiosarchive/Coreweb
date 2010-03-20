@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc2">
+<p>
+cw.clock.JumpDetector test page.
+For reference, see <a href="http://ludios.net/browser_bugs/clock_jump_test_page.html">clock_jump_test_page.html</a>
+for the timer-scheduling behavior you can expect from browsers.
+</p>
+
+<p>
+Instructions: force the system time forwards or backwards. This should always detect forwards time jumps
+without user activity. In some browsers (on some OSes), you'll need to click or press a keystroke for
+this to detect a backwards time jump. 
+</p>
+</div>
+
+<div id="log"></div>
+
+<div id="dots"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('cw.clock');
+goog.require('goog.events');
+goog.require('goog.events.EventHandler');
+goog.require('cw.UnitTest');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
+function jumpHandler(ev) {
+	var delta = ev.timeNow_ - ev.timeLast_;
+	logger.info('TIME_JUMP delta=' + delta + ', expectedFiringTime=' + ev.expectedFiringTime_);
+}
+
+function pollHandler(ev) {
+	var div = document.getElementById('dots');
+	var textnode = document.createTextNode('# ');
+	div.appendChild(textnode);
+}
+
+// Use timeCollection size of 1 so that we get a pollHandler call frequently
+var jd = new cw.clock.JumpDetector(goog.global['window'], 3000, 1); /* for IE, must use goog.global['window'], not window */ 
+jd.addEventListener(cw.clock.EventType.TIME_JUMP, jumpHandler, true);
+jd.addEventListener(cw.clock.EventType.TIME_COLLECTION_OVERFLOW, pollHandler, true);
+jd.start_();
+
+var INPUT_EVENTS = [
+	goog.events.EventType.MOUSEDOWN,
+	goog.events.EventType.KEYDOWN];
+
+var eventHandler = new goog.events.EventHandler(jd);
+eventHandler.listen(document, INPUT_EVENTS, jd.prod_);
+</script>
+
+</body>
+</html>

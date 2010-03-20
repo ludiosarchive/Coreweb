@@ -604,6 +604,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
+	 * Regression test for bug: TIME_JUMP was being (incorrectly) fired when
+	 * timeLast was null, because of a lack of parentheses near && (now fixed).
+	 */
+	function test_noPhantomEventOnStart(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		var event = null;
+		function callback(ev) {
+			event = ev;
+		}
+		jd.addEventListener(
+			cw.clock.EventType.TIME_JUMP, callback, true);
+		clock.advance_(9000);
+		jd.start_();
+
+		self.assertEqual(null, event);
+	},
+
+	/**
 	 * JumpDetector has a publicly-accessible {@code clock_} property.
 	 */
 	function test_publicClock(self) {
