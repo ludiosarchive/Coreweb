@@ -7,6 +7,7 @@ goog.provide('cw.Test.TestClock');
 goog.require('cw.UnitTest');
 goog.require('cw.array');
 goog.require('cw.clock');
+goog.require('goog.object');
 
 
 // anti-clobbering for JScript
@@ -301,7 +302,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		// Don't use assertIdentical or similar because TestCase.compare
 		// calls cw.UnitTest.repr, and this leads to a stack overflow if
 		// the objects do not match.
-		self.assert(window === scopeObject, "this !== scopeObject");
+		self.assert(window === scopeObject,
+			"this !== scopeObject; scopeObject is " + scopeObject.toString() +
+			" with keys " + goog.object.getKeys(scopeObject).join(','));
 	},
 
 

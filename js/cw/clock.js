@@ -263,7 +263,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 			// Make sure `this' is the global object for callable (making `this'
 			// "worthless" like it is when the real setTimeout calls you.) Note that
 			// for callable, `this' becomes `window', not `null'.
-			//call.callable.apply(null, []); // Doesn't work in Opera 10.50
+			//call.callable_.apply(null, []); // Doesn't work in Opera 10.50
 			call.callable_.call(null);
 			// Opera 10.50 has a serious miscompilation issue and strips the
 			// `apply` property on the callable after re-entrant calls happen.
