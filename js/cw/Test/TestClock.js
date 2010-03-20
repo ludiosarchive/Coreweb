@@ -362,6 +362,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 		// setTime_ is not like advance; it will not call scheduled calls.
 		self.assertEqual(false, called);
+	},
+
+	/**
+	 * clock.fireEverything_ fires everything, even if it's too early.
+	 */
+	function test_fireEverything(self) {
+		var clock = new cw.clock.Clock();
+		var called = [0, 0, 0, 0];
+		clock.setTimeout(function() { called[0] += 1; }, 1000);
+		clock.setTimeout(function() { called[1] += 1; }, 2000);
+		clock.setTimeout(function() { called[2] += 1; }, 3000);
+		clock.setInterval(function() { called[3] += 1; }, 2000);
+		clock.setTime_(1500); // but don't advance
+		clock.fireEverything_();
+		self.assertEqual([1, 1, 1, 1], called);
+		clock.advance_(2000); // Make sure advance_ also works
+		self.assertEqual([1, 1, 1, 2], called);
+		clock.fireEverything_();
+		self.assertEqual([1, 1, 1, 3], called); // the interval is called yet again
 	}
 );
 
@@ -459,10 +478,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
-	 * If the clock jumped backwards, a TIME_JUMP event is dispatched
-	 * with properties {@code timeLast_} and {@code timeNow_}.
+	 * If the clock jumped backwards, and this is detected by prodding,
+	 * a TIME_JUMP event is dispatched with properties {@code timeLast_}
+	 * and {@code timeNow_}.
 	 */
-	function test_backwardsClockJump(self) {
+	function test_backwardsClockJumpViaProd(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
 		var event = null;
@@ -488,6 +508,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		jd.prod_();
 		self.assertEqual(2999, event.timeLast_);
 		self.assertEqual(0, event.timeNow_);
+	},
+
+	/**
+	 * If the clock jumped backwards, and this is detected by the internal timer,
+	 * a TIME_JUMP event is dispatched with properties {@code timeLast_}
+	 * and {@code timeNow_}.
+	 */
+	function test_backwardsClockJumpViaTimer(self) {
+		1/0
 	},
 
 	/**
@@ -527,8 +556,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	 * See http://ludios.net/browser_bugs/clock_jump_test_page.html
 	 *
 	 * It will also be fired if someone calls prod_ before the timer has a
-	 * chance to fire (equivalent to the above case, but probably more
-	 * common).
+	 * chance to fire (equivalent to the above case, but much more common
+	 * because many browsers schedule timers with a monotonic clock.)
 	 */
 	function test_lackOfFiring(self) {
 		var clock = new cw.clock.Clock();
@@ -554,6 +583,20 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		self.assertEqual(newTime, event.timeNow_);
 		// TIME_JUMP is not dispatched
 		self.assertEqual(false, timeJump);
+	},
+
+	/**
+	 * If TIME_JUMP happens, the internal timer is also reset.
+	 */
+	function test_proddingAfterTimeJumpResetsTimer(self) {
+		
+	},
+
+	/**
+	 * If LACK_OF_FIRING happens, the internal timer is also reset.
+	 */
+	function test_proddingAfterLackOfFiringResetsTimer(self) {
+
 	},
 
 	/**

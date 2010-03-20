@@ -294,6 +294,13 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 }
 
 /**
+ * Fire all of the scheduled calls indiscriminately. TODO XXX: really needed?
+ */
+cw.clock.Clock.prototype.fireEverything_ = function() {
+	1/0
+}
+
+/**
  * Set the time on this clock to {@code time}. You may use this to move
  * the clock backwards. This will not call any scheduled calls, even if you move
  * it fowards.
