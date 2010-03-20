@@ -369,27 +369,34 @@ cw.clock.TIMER_FORGIVENESS = 100;
 //		too long). If so, fire MAYBE_MONOTONIC.
 
 /**
- * This detects fowards and backwards clock jumps for any browser, regardless
- * of how it schedules timers (either system time, or monotonic clock, or insane
- * hybrid are all fine). This may be unable to detect a backwards clock jump in
- * Chromium on Windows, because it conceals backwards time jumps. See [1]
- * This also detects when the internal timer is failing to fire, whether or not
- * .getTime() has jumped.
+ * JumpDetector detects fowards and backwards clock jumps for any browser,
+ * regardless of how it schedules timers. Browsers schedule timers by system
+ * time, monotonic clock, or an insane hybrid of both (in at least
+ * Chromium/Windows and Safari/Windows). JumpDetector may be unable to
+ * detect a backwards clock jump in Chromium/Windows, because it conceals
+ * backwards time jumps. See [1]. JumpDetector also detects when the internal
+ * timer is failing to fire, whether or not .getTime() has jumped. All of these
+ * detections lead to a dispatching of a {@link TIME_JUMP} event, which has
+ * three properties:
+ * 	timeNow_: The time now.
+ * 	timeLast_: The time last recorded, before a possible clock jump.
+ * 	expectedFiringTime_: When the internal timer was expected to fire.
+ * You should not strain too hard to extract meaning from the properties. Try
+ * to care only about the dispatching of a {@link TIME_JUMP}. Especially do not
+ * peek into the event properties to only reschedule calls on
+ * "backwards time jumps". "Internal timer hasn't fired" events look like a
+ * forward time jump, and it's very important to reschedule calls in this case.
  *
  * JumpDetector does not distinguish between "forwards time jump" and
- * "internal timer hasn't fired in time", because doing so would require
- * JumpDetector to know if timers are scheduled by system time or by monotonic
- * clock. (And in some browsers like Safari/Windows, it is an insane hybrid.)
+ * "internal timer hasn't fired", because doing so would require
+ * JumpDetector to know intimate details about how the browser schedules
+ * timers. This information is hard to obtain and keep up to date.
  *
  * To detect time jumps and internal lack of firing, your application code must
  * call {@link prod_} often. See its JSDoc.
  *
  * Note: if the browser freezes for a short time, this may dispatch a
  * {@link TIME_JUMP}.
- *
- * Note: Do not peek into the event properties to only reschedule calls on
- * "backwards time jumps". "Internal timer not firing" events look like a
- * forward time jump. 
  *
  * JumpDetector also collects the time every {@code pollInterval} ms.
  * You can retreive the times and flush the internal
