@@ -342,14 +342,6 @@ cw.clock.Clock.prototype.setTime_ = function(time) {
 
 /*-----------------------------------------------------------------------------*/
 
-/**
- * If the system time jumps back, are scheduled timeouts and intervals
- * delayed?
- *
- * @type {boolean}
- */
-cw.clock.backwardsTimeJumpImpliesDelayedTimers_ = false;
-
 
 /**
  * JumpDetector's event types
