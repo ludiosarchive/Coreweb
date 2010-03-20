@@ -453,7 +453,9 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	/**
 	 * An array of times limited to length {@code collectionSize}, useful for recording
 	 * and then uploading to the server. This information can be used to determine when
-	 * the users' browser is locking up (although another tab may be responsible).
+	 * the users' browser is locking up (although another tab may be responsible). This
+	 * will contain {@code null}s which indicate that the next item represents the time
+	 * when the internal timer was reset.
 	 * @type {!Array.<number>}
 	 * @private
 	 */
@@ -501,7 +503,7 @@ cw.clock.JumpDetector.prototype.start_ = function() {
 }
 
 /**
- * @param {number} time Time to insert into timeCollection_
+ * @param {?number} time A time, or {@code null}.
  * @private
  */
 cw.clock.JumpDetector.prototype.insertIntoCollection_ = function(time) {
@@ -528,6 +530,17 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 }
 
 /**
+ * Set up a new internal timer. If necessary, you must clearTimeout the old
+ * one yourself.
+ * @param {number} now The time
+ * @private
+ */
+cw.clock.JumpDetector.prototype.setNewTimer_ = function(now) {
+	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+	this.expectedFiringTime_ = now + this.pollInterval_;
+}
+
+/**
  * Dispatch a TIME_JUMP event if necessary.
  * @param {number} now The current time, in milliseconds
  * @param {boolean} prodded Whether this check was initiated by prodding
@@ -549,6 +562,14 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 			timeLast_: timeLast,
 			timeNow_: now
 		});
+		// If prodded, it means we weren't called by the internal timer,
+		// and we need to reset the timer to make sure it is called soon.
+		if(prodded) {
+			this.insertIntoCollection_(null); // a marker; see the JSDoc
+			this.insertIntoCollection_(now);
+			this.clock_.clearTimeout(this.pollerTicket_);
+			this.setNewTimer_(now);
+		}
 	}
 }
 
@@ -565,20 +586,20 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	//
 	// We also prefer setTimeout because we're interested in timeCollection_,
 	// and browsers are likely to automatically correct setInterval timers.
-	if(this.monoTime_ == null) {
-		this.monoTime_ = 0;
-	} else {
-		this.monoTime_ += this.pollInterval_;
+	try {
+		if(this.monoTime_ == null) {
+			this.monoTime_ = 0;
+		} else {
+			this.monoTime_ += this.pollInterval_;
+		}
+
+		var now = goog.Timer.getTime(this.clock_);
+		this.insertIntoCollection_(now);
+		this.checkTimeJump_(now, false/* prodded */);
+		this.timeLast_ = now;
+	} finally {
+		this.setNewTimer_(now);
 	}
-	// Do this first, in case an Error is raised below.
-	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
-
-	var now = goog.Timer.getTime(this.clock_);
-	this.insertIntoCollection_(now);
-	this.checkTimeJump_(now, false/* prodded */);
-
-	this.expectedFiringTime_ = now + this.pollInterval_;
-	this.timeLast_ = now;
 }
 
 /**
