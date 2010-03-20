@@ -604,6 +604,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	},
 
 	/**
+	 * JumpDetector has a publicly-accessible {@code clock_} property.
+	 */
+	function test_publicClock(self) {
+		var clock = new cw.clock.Clock();
+		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
+		self.assertIdentical(clock, jd.clock_);
+	},
+
+	/**
 	 * Dispose works on an unstarted JumpDetector
 	 */
 	function test_disposeUnstarted(self) {

@@ -369,14 +369,6 @@ cw.clock.EventType = { // TODO: maybe obfuscate these names
 cw.clock.TIMER_FORGIVENESS = 100;
 
 
-// TODO XXX: JumpDetectingClock is going to want to check *all*
-// of the timers when prodded, because perhaps just one got
-// mischeduled by the browser.
-
-// TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
-// We want to avoid protectWindowSetTimeout because that adds too many
-// layers of functions. We already *need* to create a function in JumpDetectingClock. 
-
 // TODO XXX: Detect if the environment fires timers if the clock went backwards
 // (at least sometimes):
 // 	- If the clock went backwards on the next poll_, fire MAYBE_MONOTONIC
@@ -386,27 +378,29 @@ cw.clock.TIMER_FORGIVENESS = 100;
 
 /**
  * This detects fowards and backwards clock jumps for any browser, regardless
- * of how it schedules timers (either system time or monotonic clock or insane
+ * of how it schedules timers (either system time, or monotonic clock, or insane
  * hybrid are all fine). This may be unable to detect a backwards clock jump in
  * Chromium on Windows, because it conceals backwards time jumps. See [1]
+ * This also detects when the internal timer is failing to fire, whether or not
+ * .getTime() has jumped.
  *
- * If a clock jump is detected, this will dispatch {@link TIME_JUMP}. If a clock
- * jump did not happen the internal timer is failing to fire, this will also dispatch
- * {@link TIME_JUMP}. This latter is likely to happen in Chromium/Windows [1]
- * and possibly Safari/Windows.  This can also happen in browsers that schedule
- * timers with a monotonic clock, because monotonic clocks may freeze or go
- * backwards in some environments [2].  JumpDetector does not distinguish
- * between the two events, because doing so would require JumpDetector
- * to know if timers are scheduled by date or by monotonic clock.
+ * JumpDetector does not distinguish between "forwards time jump" and
+ * "internal timer hasn't fired in time", because doing so would require
+ * JumpDetector to know if timers are scheduled by system time or by monotonic
+ * clock. (And in some browsers like Safari/Windows, it is an insane hybrid.)
  *
- * To detect backwards time jumps and lack of firing, your application code must
+ * To detect time jumps and internal lack of firing, your application code must
  * call {@link prod_} often. See its JSDoc.
  *
- * Note: if the browser freezes for a few seconds, this will dispatch a
+ * Note: if the browser freezes for a short time, this may dispatch a
  * {@link TIME_JUMP}.
  *
- * This also collects the time with {@code new Date.getTime()} every
- * {@code pollInterval} ms. You can retreive the times and flush the internal
+ * Note: Do not peek into the event properties to only reschedule calls on
+ * "backwards time jumps". "Internal timer not firing" events look like a
+ * forward time jump. 
+ *
+ * JumpDetector also collects the time every {@code pollInterval} ms.
+ * You can retreive the times and flush the internal
  * array with {@link getNewTimes_}. If you forget to do this often enough,
  * {@link TIME_COLLECTION_OVERFLOW} will be dispatched with a property
  * {@code collection}.
@@ -532,7 +526,7 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 /**
  * Set up a new internal timer. If necessary, you must clearTimeout the old
  * one yourself.
- * @param {number} now The time
+ * @param {number} now The time.
  * @private
  */
 cw.clock.JumpDetector.prototype.setNewTimer_ = function(now) {
@@ -541,15 +535,17 @@ cw.clock.JumpDetector.prototype.setNewTimer_ = function(now) {
 }
 
 /**
- * Dispatch a TIME_JUMP event if necessary.
- * @param {number} now The current time, in milliseconds
- * @param {boolean} prodded Whether this check was initiated by prodding
+ * Dispatch a {@link TIME_JUMP} event if necessary.
+ * @param {number} now The current time, in milliseconds.
+ * @param {boolean} prodded Whether this check was initiated by prodding.
  * @private
  */
 cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	// TODO: perhaps we should also fire something if the timer
 	// fired too early? But does it really matter if it does?
 
+	// Use a local variable to potentially speed up access times for IE6-IE8,
+	// assuming Compiler preserves it.
 	var timeLast = this.timeLast_;
 
 	//cw.UnitTest.logger.info('checkTimeJump_: ' +
@@ -631,3 +627,32 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 };
 
 
+
+// TODO XXX: JumpDetectingClock is going to want to check *all*
+// of the timers when prodded, because perhaps just one got
+// mischeduled by the browser.
+
+// TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
+// We want to avoid protectWindowSetTimeout because that adds too many
+// layers of functions. We already *need* to create a function in JumpDetectingClock.
+
+/**
+ * A clock that detects time jumps and automatically readjusts scheduled
+ * timers.
+ *
+ * Note: because setInterval is buggy in Firefox on backwards time jumps [1],
+ * and because it's more likely to be buggy in general, you should still
+ * prefer to use setTimeout (and goog.Timer) over setInterval.
+ *
+ * [1] http://ludios.net/browser_bugs/clock_jump_test_page.html
+ *
+ * @param {!cw.clock.JumpDetector} jumpDetector
+ *
+ * @constructor
+ */
+cw.clock.JumpDetectingClock = function(jumpDetector) {
+	/**
+	 * @type {!cw.clock.JumpDetector}
+	 */
+	this.jumpDetector_ = jumpDetector;
+}

@@ -204,7 +204,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * CallQueue has a publicly-accessible clock_ property.
+	 * CallQueue has a publicly-accessible {@code clock_} property.
 	 */
 	function test_publicClock(self) {
 		var clock = new cw.clock.Clock();
