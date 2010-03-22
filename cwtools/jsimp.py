@@ -433,7 +433,8 @@ class Script(_BaseScript):
 
 	def _getParentName(self):
 		"""
-		Returns None if this Script is the root.
+		Returns the name of the "parent" script, or C{None} if this Script
+		is the root.
 		"""
 		parts = self._name.split('.')
 		if len(parts) == 1:
