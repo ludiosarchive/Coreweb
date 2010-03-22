@@ -81,7 +81,9 @@ class DirectoryScan(object):
 						last = n
 						provide = _extractOneArgFromFuncall(line, 'goog.provide')
 						if provide in self._mapping:
-							raise ProvideConflict('%r already in _mapping. Conflict between files %r and %r.' % (provide, c, self._mapping[provide]))
+							raise ProvideConflict("%r already in _mapping. "
+								"Conflict between files %r and %r." % (
+									provide, c, self._mapping[provide]))
 						moduleName = c.basename().split('.', 1)[0] # copied from globChildren
 						self._mapping[provide] = '.'.join(location + [moduleName])
 				f.close()
@@ -237,10 +239,11 @@ class _BaseScript(object):
 			elif line.startswith('//import '):
 				imports.append(line.rstrip().replace('//import ', '', 1).encode('utf-8'))
 			elif line.startswith('goog.require('):
-				# goog.require doesn't make a script Closure-style - it could be a Closure/CW hybrid that does both // import and goog.require
-				# But scripts that have a goog.provide are obviously Closure-style.
 				requires.append(_extractOneArgFromFuncall(line, 'goog.require').encode('utf-8'))
 			elif line.startswith('goog.provide('):
+				# goog.require doesn't guarantee that a script is Closure-style, as it
+				# could be a Closure/CW hybrid that does both // import and goog.require.
+				# So we check for goog.provide instead, which does guarantee it.
 				self._isClosureStyle = True
 
 		self._stringCache = data
@@ -303,7 +306,8 @@ class _BaseScript(object):
 		for requireeName in data['requires']:
 			importeeName = self._directoryScan.whoProvide(requireeName)
 			if importeeName is None:
-				raise NobodyProvidesThis("%r requires %r but nobody provides it." % (self, requireeName))
+				raise NobodyProvidesThis("%r requires %r "
+					"but nobody provides it." % (self, requireeName))
 			_addImportee(importeeName)
 
 		return deps
@@ -329,7 +333,8 @@ class Script(_BaseScript):
 
 	def __init__(self, name, basePath, directoryScan=None):
 		"""
-		C{name} is the module name (examples: 'module', 'package', 'package.module')
+		C{name} is the module name (examples: 'module', 'package',
+			'package.module')
 		C{basePath} is a L{twisted.python.filepath.FilePath}.
 		C{directoryScan} is a L{DirectoryScan}, or C{None}.
 		"""
@@ -401,14 +406,16 @@ class Script(_BaseScript):
 		else:
 			location = '/'.join(parts) + '.js'
 			if not self._basePath.preauthChild(location).exists():
-				raise FindScriptError("Tried to find %r but no such file %r" % (self._name, location))
+				raise FindScriptError("Tried to find %r but no such file %r" % (
+					self._name, location))
 
 		return location
 
 
 	def getAbsoluteFilename(self):
 		"""
-		Returns a L{t.p.f.FilePath} object representing the absolute filename of the script.
+		Returns a L{t.p.f.FilePath} object representing the absolute
+		filename of the script.
 		"""
 		return self._basePath.preauthChild(self.getFilename())
 
@@ -424,7 +431,8 @@ class Script(_BaseScript):
 			raise CorruptScriptError((
 				r"Script %r needs to end with a \n. "
 				r"\n is a line terminator, not a separator. "
-				"Fix your text editor. Last 100 bytes were: %r") % (self, bytes[-100:]))
+				"Fix your text editor. Last 100 bytes were: %r"
+				) % (self, bytes[-100:]))
 		else:
 			uni = bytes.decode('utf-8')
 
@@ -497,7 +505,6 @@ class Script(_BaseScript):
 		"""
 		Return the header required for the JS module to run.
 		"""
-
 		if not hasattr(self, '_isClosureStyle'):
 			self._getImportantStrings()
 
@@ -506,7 +513,8 @@ class Script(_BaseScript):
 			#     cw.net.Test is CW-Style
 			#     cw.net is Closure-style
 			# The loading of cw.net.Test cannot override the existing cw.net namespace.
-			return "if(typeof %s == 'undefined') { %s = {} }; %s.__name__ = '%s'" % ((self._name,) * 4)
+			return ("if(typeof %s == 'undefined') { %s = {} }; "
+				"%s.__name__ = '%s'" % ((self._name,) * 4))
 		else:
 			return '/* Closure-style module: %s */' % (self._name,)
 
@@ -575,7 +583,8 @@ class VirtualScript(_BaseScript):
 
 	def _getScriptWithName(self, name):
 		if self._basePath is None:
-			raise NoBasePathNoImportsError("basePath is None, so I cannot instantiate Scripts")
+			raise NoBasePathNoImportsError(
+				"basePath is None, so I cannot instantiate Scripts")
 		return self._realScriptClass(name, self._basePath, self._directoryScan)
 
 
