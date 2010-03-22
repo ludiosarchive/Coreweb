@@ -974,3 +974,59 @@ var x={};
 goog.provide("something")
 var y={};
 ''' % (_nameFor('s1'),), result)
+
+
+
+class GetAllFilenamesForXTests(unittest.TestCase):
+
+	def _setup(self):
+		d = FilePath(self.mktemp())
+		d.child('goog').makedirs()
+		d.child('goog').child('base.js').setContent('')
+		c = d.child('p')
+		c.makedirs()
+
+		d.child('another.js').setContent('''\
+goog.provide('another');
+1;
+''')
+
+		c.child('mod1.js').setContent('''\
+goog.provide('p.mod1');
+
+goog.require('another')
+''')
+		return c, d
+
+
+	def test_getAllFilenamesForContent(self):
+		c, d	 = self._setup()
+
+		filenames = jsimp.getAllFilenamesForContent('''\
+goog.require('p.mod1');
+''', basePath=d)
+
+		expected = [
+			d.child('goog').child('base.js'),
+			d.child('another.js'),
+			c.child('mod1.js')]
+
+		self.assertEqual(expected, filenames)
+
+
+	def test_getAllFilenamesForFile(self):
+		c, d	 = self._setup()
+
+		d.child('x.js').setContent('''\
+goog.require('p.mod1');
+''')
+
+		filenames = jsimp.getAllFilenamesForFile(d.child('x.js'), basePath=d)
+
+		expected = [
+			d.child('goog').child('base.js'),
+			d.child('another.js'),
+			c.child('mod1.js'),
+			d.child('x.js')]
+
+		self.assertEqual(expected, filenames)

@@ -211,6 +211,43 @@ def megaScript(scripts):
 
 
 
+def getAllFilenamesForContent(content, basePath):
+	"""
+	C{content} is a C{str} representing the contents of a script to
+		get dependencies for.
+	C{basePath} is a L{FilePath} representing the base path for on-disk
+		scripts that are dependencies of C{content}
+
+	Return a list of C{str} filenames, representing all of the dependencies
+	needed to execute C{content}.
+	"""
+	assert isinstance(content, str), type(content)
+
+	directoryScan = DirectoryScan(basePath)
+	v = VirtualScript(content, basePath=basePath, directoryScan=directoryScan)
+	deps = getDeps(v, treeCache={})
+	deps.pop() # The last item is the VirtualScript itself, which we don't want.
+	return list(s.getAbsoluteFilename() for s in deps)
+
+
+
+def getAllFilenamesForFile(jsfile, basePath):
+	"""
+	C{jsfile} is a L{FilePath} representing the script to get dependencies for.
+		It does not have to be inside C{basePath}.
+	C{basePath} is a L{FilePath} representing the base path for on-disk
+		scripts that are dependencies of C{jsfile}
+
+	Return a list of C{str} filenames, representing all of the dependencies
+	needed to execute C{content}.
+	"""
+	content = jsfile.open('rb').read()
+	files = getAllFilenamesForContent(content, basePath)
+	files.append(jsfile)
+	return files
+
+
+
 def parentContainsChild(parent, child):
 	return child.startswith(parent + '.')
 
@@ -337,7 +374,8 @@ class Script(_BaseScript):
 		"""
 		C{name} is the module name (examples: 'module', 'package',
 			'package.module')
-		C{basePath} is a L{twisted.python.filepath.FilePath}.
+		C{basePath} is a L{FilePath} representing the base path for on-disk
+			scripts that this L{Script} can import/require.
 		C{directoryScan} is a L{DirectoryScan}, or C{None}.
 		"""
 		# TODO: verify that `name' is a valid JavaScript identifier (or identifier.identifier, and so on.)
@@ -539,13 +577,16 @@ class VirtualScript(_BaseScript):
 		@type content: unicode
 
 		@param basePath: base path for on-disk scripts that
-			this L{VirtualScript} can import
-		@type basePath: L{twisted.python.filepath.FilePath}
+			this L{VirtualScript} can import/require
+		@type basePath: L{FilePath}
 
 		@param forcedDeps: sequence of L{Script}-like objects to
 			treat as dependencies for this L{VirtualScript}, in addition
 			to the imports in C{content}.
 		@type forcedDeps: any sequence
+
+		@param directoryScan: A L{DirectoryScan}
+		@type directoryScan: L{DirectoryScan}
 		"""
 		self._content = content
 		self._basePath = basePath
