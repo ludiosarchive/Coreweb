@@ -45,7 +45,9 @@ def _extractOneArgFromFuncall(line, prefix):
 	>>> _extractOneArgFromFuncall("goog.provide('test one')", 'goog.provide')
 	'test one'
 	"""
-	quotedString = line[len(prefix) + 1:line.find(')')] # len(prefix) + 1 because C{prefix} doesn't include the "("
+	assert not '(' in prefix, prefix
+	# len(prefix) + 1 because C{prefix} doesn't include the "("
+	quotedString = line[len(prefix) + 1:line.find(')')]
 	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
 	if quotedString[0] == "'" and quotedString[-1] == "'":
 		quotedString = '"' + quotedString[1:-1] + '"'
