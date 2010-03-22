@@ -358,7 +358,7 @@ cw.clock.EventType = { // TODO: maybe obfuscate these names
  * TODO: Write about how this impacts event firing
  * @const
  */
-cw.clock.TIMER_FORGIVENESS = 100;
+cw.clock.TIMER_FORGIVENESS = 400;
 
 
 // TODO XXX: Detect if the environment fires timers if the clock went backwards
