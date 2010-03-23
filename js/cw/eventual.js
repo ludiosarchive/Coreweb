@@ -69,7 +69,7 @@ cw.eventual.CallQueue = function(clock) {
 
 	/**
 	 * Array of callables to eventually call.
-	 * @type {!Array.<!Array.<!Function, Object, !Array<*>>>}
+	 * @type {!Array.<!Array.<!Function, Object, !Array.<*>>>}
 	 * @private
 	 */
 	this.events_ = [];
@@ -113,7 +113,7 @@ cw.eventual.CallQueue.prototype.timer_ = null;
  *
  * @param {!Function} cb The function to be called eventually.
  * @param {Object} scope The scope to call {@code cb} in.
- * @param {!Array<*>} args The arguments the function will be called with.
+ * @param {!Array.<*>} args The arguments the function will be called with.
  */
 cw.eventual.CallQueue.prototype.eventually_ = function(cb, scope, args) {
 	goog.asserts.assert(goog.isArray(args),

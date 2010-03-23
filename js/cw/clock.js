@@ -427,12 +427,12 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	goog.events.EventTarget.call(this);
 	
 	/**
-	 * @type {!Object}
+	 * @type {Object}
 	 */
 	this.clock_ = clock;
 
 	/**
-	 * @type {!Function}
+	 * @type {Function}
 	 * @private
 	 */
 	this.boundPoll_ = goog.bind(this.poll_, this);
@@ -679,7 +679,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	this.jumpDetector_ = jumpDetector;
 
 	/**
-	 * @type {!Object}
+	 * @type {Object}
 	 * @private
 	 */
 	this.clock_ = jumpDetector.clock_;
@@ -739,7 +739,7 @@ cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
  * A jump-correcting version of {@code window.setTimeout}.
  *
  * @param {!Function} callable The callable to call soon.
- * @param {number} when When to call {@code callable}, in milliseconds.
+ * @param {number} delay When to call {@code callable}, in milliseconds.
  *
  * @return {number} The ticket number for the added event.
  */
