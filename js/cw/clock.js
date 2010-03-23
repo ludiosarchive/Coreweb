@@ -647,16 +647,18 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 // should do adequate error-detection for us.
 
 /**
-	This is a clock that detects backwards time jumps and reschedules
-	calls if necessary. It wraps an existing clock, such as a real browser
-	Window or a deterministic cw.clock.Clock.
-
-	Use JumpDetectingClock in all browsers, even in those where you
-	have confidence that timers are scheduled with a monotonic clock.
-	You can't be sure that timers are always scheduled with a monotonic
-	clock. For example, you might find a browser with a workaround to
-	avoid using the monotonic clock on Athlon X2 CPUs (Chromium does
-	this.)
+ * DOES NOT ACTUALLY WORK YET - DO NOT USE
+ *
+ * This is a clock that detects backwards time jumps and reschedules
+ * calls if necessary. It wraps an existing clock, such as a real browser
+ * Window or a deterministic cw.clock.Clock.
+ *
+ * Use JumpDetectingClock in all browsers, even in those where you
+ * have confidence that timers are scheduled with a monotonic clock.
+ * You can't be sure that timers are always scheduled with a monotonic
+ * clock. For example, you might find a browser with a workaround to
+ * avoid using the monotonic clock on Athlon X2 CPUs (Chromium does
+ * this.)
  *
  * Note: because setInterval is buggy in Firefox on backwards time jumps [1],
  * and because it's more likely to be buggy in general, you should still
