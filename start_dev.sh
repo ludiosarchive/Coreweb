@@ -1,6 +1,6 @@
 #!/bin/sh -e
 export JSPATH="$HOME/JSPATH"
-export PYTHONPATH=$HOME/Projects/Coreweb:$HOME/Projects/Webmagic
+export PYTHONPATH=$HOME/Projects/Coreweb:$HOME/Projects/Webmagic:$HOME/Projects/Ecmaster
 export PYRELOADING=1
 
 echo "Using `which twistd`"
