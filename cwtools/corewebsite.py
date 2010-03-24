@@ -18,7 +18,7 @@ class Compiler(resource.Resource):
 
 
 	def render_GET(self, request):
-		o = tempfile.mkstemp(suffix='.js', prefix='_Compilables')
+		o = tempfile.mkstemp(suffix='.js', prefix='_Compilables_')
 		outputFile = FilePath(o[1])
 
 		d = closurecompiler.advancedCompile(
@@ -27,6 +27,9 @@ class Compiler(resource.Resource):
 		def write(output):
 			# TODO: only write if not aborted already
 			request.write('''\
+<style>
+html, body { background-color: #d4d0c8; }
+</style>
 Output file is:<br>
 <pre>%s</pre>
 Output from Closure Compiler:<br>
