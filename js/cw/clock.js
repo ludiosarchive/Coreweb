@@ -587,6 +587,10 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	//
 	// We also prefer setTimeout because we're interested in timeCollection_,
 	// and browsers are likely to automatically correct setInterval timers.
+
+	// Trust goog.Timer.getTime to work all of the time.
+	var now = goog.Timer.getTime(this.clock_);
+
 	try {
 		if(this.monoTime_ == null) {
 			this.monoTime_ = 0;
@@ -594,7 +598,6 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 			this.monoTime_ += this.pollInterval_;
 		}
 
-		var now = goog.Timer.getTime(this.clock_);
 		this.insertIntoCollection_(now);
 		this.checkTimeJump_(now, false/* prodded */);
 		this.timeLast_ = now;
@@ -692,7 +695,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	 * [1]th item is the delay between calls for intervals, and the timeout for timeouts.
 	 * [2]th item is the expected next firing time. 
 	 *
-	 * @type {Object.<string, Array.<boolean, number, number>>}
+	 * @type {!Object.<string, !Array.<(boolean|number)>>}
 	 * @private
 	 */
 	this.timeouts_ = {};

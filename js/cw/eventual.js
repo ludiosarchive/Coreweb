@@ -69,7 +69,7 @@ cw.eventual.CallQueue = function(clock) {
 
 	/**
 	 * Array of callables to eventually call.
-	 * @type {!Array.<!Array.<!Function, Object, !Array.<*>>>}
+	 * @type {!Array.<!Array>}
 	 * @private
 	 */
 	this.events_ = [];
@@ -151,6 +151,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 			}, 0);
 		}
 	}
+	// TODO: add test to prove (this.timer_ == null) check is necessary?
 	if(this.events_.length && this.timer_ == null) {
 		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}

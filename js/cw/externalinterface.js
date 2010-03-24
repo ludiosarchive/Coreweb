@@ -109,7 +109,8 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 	var type = goog.typeOf(value);
 	switch(type) {
 		case 'string':
-			buffer.push('<string>', cw.externalinterface.escapeString_(value), '</string>');
+			buffer.push('<string>', cw.externalinterface.escapeString_(
+				/** @type {string} */ (value)), '</string>');
 			break;
 		case 'number':
 			buffer.push('<number>', value, '</number>');
@@ -121,14 +122,14 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 			buffer.push('<undefined/>');
 			break;
 		case 'array':
-			cw.externalinterface.handleArray_(buffer, value);
+			cw.externalinterface.handleArray_(buffer, /** @type {!Array} */ (value));
 			break;
 		case 'object':
 			// `getFullYear' check is identical to the one in goog.isDateLike
 			if(typeof value.getFullYear == 'function' && typeof value.getTime == 'function') {
 				buffer.push('<date>', value.getTime(), '</date>');
 			} else {
-				cw.externalinterface.handleObject_(buffer, value);
+				cw.externalinterface.handleObject_(buffer, /** @type {!Object} */ (value));
 			}
 			break;
 		default: // matches 'null', 'function', 'unknown', and possibly more if goog.typeOf changes.
