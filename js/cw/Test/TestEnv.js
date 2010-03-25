@@ -30,12 +30,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		self.assert(thickness > 0, thickness);
 	},
 
-	function test_getFlashVersionInIE(self) {
+	function test_getActiveXFlashVersion(self) {
 		if(!goog.userAgent.IE) {
 			throw new cw.UnitTest.SkipTest("Only works in IE");
 		}
 
-		var version = cw.env.getFlashVersionInIE();
+		var version = cw.env.getActiveXFlashVersion_();
 		self.assert(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 	},
@@ -78,12 +78,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		self.assertEqual('1021524111001232', psig)
 	},
 
-	function test_compressPluginSignature_(self) {
+	function test_compressPluginSignature(self) {
 		self.assertEqual('', cw.env.compressPluginSignature_(''));
 
 		// Taken from test_extractPluginsMock
 		var psig = '1021524111001232'
 		self.assertEqual('aMALjuVK', cw.env.compressPluginSignature_(psig));
+	},
+
+	function test_filterObject(self) {
+		var orig = {
+			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str", 'x': function() {}, 'y': [], 'z': {}};
+		self.assertEqual({
+			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"}, cw.env.filterObject_(orig));
 	}
 );
 

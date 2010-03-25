@@ -4,10 +4,32 @@
 
 goog.provide('cw.env');
 
-goog.require('goog.editor.SeamlessField');
+goog.require('goog.dom');
+goog.require('goog.userAgent');
 
 
-cw.env.getScrollbarThickness_ = goog.editor.SeamlessField.getScrollbarThickness_;
+/**
+ * Gets the scrollbar width from the browser.
+ * The implementation is inspired by
+ * {@code goog.editor.SeamlessField.getScrollbarThickness_}.
+ *
+ * Note: This is buggy in at least XP SP2 IE6 (both 32 and 64-bit), where it
+ * returns 0.
+ *
+ * @return {number} The scrollbar width in pixels.
+ *
+ */
+cw.env.getScrollbarThickness_ = function() {
+	var div = goog.dom.createDom('div',
+		{'style': 'overflow:scroll;position:absolute;visibility:hidden;'});
+	goog.dom.appendChild(goog.dom.getDocument().body, div);
+	try {
+		return div.offsetWidth - div.clientWidth;
+	} finally {
+		goog.dom.removeNode(div);
+	}
+}
+
 
 /**
  * Get the version of the installed Flash Player plugin, for Internet Explorer
@@ -15,7 +37,7 @@ cw.env.getScrollbarThickness_ = goog.editor.SeamlessField.getScrollbarThickness_
  *
  * @return {?string} The Flash Player version, or {@code null} if not installed.
  */
-cw.env.getFlashVersionInIE = function() {
+cw.env.getActiveXFlashVersion_ = function() {
 	var flashVersion = null, ax;
 	var sfString = 'ShockwaveFlash';
 	sfString += '.' + sfString; // now "ShockwaveFlash.ShockwaveFlash"
@@ -86,7 +108,6 @@ cw.env.compressPluginSignature_ = function(psig) {
 };
 
 
-
 /**
  * Convert a {@code navigator.plugins} pseudo-array into a a real array of
  * arrays containing the information we want. This also returns a
@@ -130,3 +151,102 @@ cw.env.extractPlugins_ = function(plugins) {
 	// psig is concatenated into a string like "128957812736781"
 	return [pluginList, psig.join('')];
 };
+
+
+/**
+ * Convert the properties from an object onto a new object that has
+ * the original object's properties, except for properties that
+ * point to objects, arrays, or functions.
+ *
+ * @param {!Object} orig Any non-null object
+ *
+ * @return {!Object} The filtered object
+ */
+cw.env.filterObject_ = function(orig) {
+	var out = {};
+	var allowed = {'string': 1, 'number': 1, 'null': 1, 'boolean': 1};
+	for(var k in orig) {
+		var v = orig[k];
+		if(goog.typeOf(v) in allowed) {
+			out[k] = v;
+		}
+	}
+	return out;
+}
+
+
+/**
+ * Extract the interesting properties from a window object.
+ *
+ * @param {!Object} orig Any non-null object
+ *
+ * @return {!Object} The filtered object
+ */
+cw.env.filterWindow_ = function(orig) {
+	var out = {};
+	var allowed = {
+		'innerWidth': 1, 'innerHeight': 1, 'outerWidth': 1, 'outerHeight': 1,
+		'screenX': 1, 'screenY': 1, 'fullScreen': 1, 'maxConnectionsPerServer': 1};
+	for(var k in orig) {
+		if(k in allowed) {
+			out[k] = orig[k];
+		}
+	}
+	// filterObject_ just in case we got some unexpected arrays/objects/functions.
+	return cw.env.filterObject_(out);
+}
+
+
+/**
+ * Gather a lot of information from the browser environment
+ * and return an object.
+ */
+cw.env.makeReport_ = function() {
+	var report = {};
+	report['_reportVersion'] = 20100324.2355;
+
+	report['window'] = cw.env.filterWindow_(goog.global);
+
+	if(goog.global.navigator) {
+		report['navigator'] = cw.env.filterObject_(navigator);
+
+		if(goog.isFunction(navigator.javaEnabled)) {
+			try {
+				report['navigator.javaEnabled()'] = navigator.javaEnabled();
+			} catch(e) { /* TODO: remove this if we never see it in the wild */
+				report['navigator.javaEnabled()'] = 'Error';
+			}
+		}
+
+		if(navigator.plugins) {
+			var pluginList = cw.env.extractPlugins_(navigator.plugins)[0];
+			report['plugins'] = pluginList;
+		}
+
+		if(navigator.mimeTypes) {
+			report['navigator.mimeTypes.length'] = navigator.mimeTypes.length;
+		}
+	}
+
+	if(goog.global.document) {
+		report['document'] = cw.env.filterObject_(document);
+	}
+
+	if(goog.global.screen) {
+		report['window.screen'] = cw.env.filterObject_(screen);
+	}
+
+	if(goog.global.history && goog.isNumber(history.length)) {
+		report['window.history.length'] = window.history.length;
+	}
+
+	var date = new Date();
+	report['new Date().getTime()'] = +date;
+	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
+
+	if(goog.userAgent.IE) {
+		report['Flash Player ActiveX Control $version'] = cw.env.getActiveXFlashVersion_();
+	}
+
+	return report;
+}
