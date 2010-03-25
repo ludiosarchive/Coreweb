@@ -88,19 +88,20 @@ cw.env.compressPluginSignature_ = function(psig) {
 
 
 /**
- * Get all of the installed plugins (in non-IE browsers), along with a
- * large "signature" string that uniquely represents the installed
+ * Convert a {@code navigator.plugins} pseudo-array into a a real array of
+ * arrays containing the information we want. This also returns a
+ * (possibly large) "signature" string that uniquely represents the installed
  * plugins 99.9% of the time. The signature array can be further
  * compressed with {@link cw.env.compressPluginSignature_},
- * and used to first ask the server if it wants the full plugin
- * report before sending it.
+ * and used to first ask the server if it wants the full plugin report before
+ * sending it.
  *
  * @param {!Array} plugins {@code navigator.plugins} or a similar object.
  *
  * @return {!Array.<(!Array.<!Array.<(string|!Array.<string>)>>|string)>} A two-item array:
  * 	[a "copy" of navigator.plugins, the signature string].
  */
-cw.env.getAllPlugins_ = function(plugins) {
+cw.env.extractPlugins_ = function(plugins) {
 	var pluginList = [];
 	var psig = [];
 	psig.push(plugins.length);

@@ -41,30 +41,31 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	/**
-	 * Test {@link cw.env.getAllPlugins_} with the real {@code navigator.plugins}
+	 * Test {@link cw.env.extractPlugins_} with the real {@code navigator.plugins}
 	 * object.
 	 */
-	function test_getAllPlugins(self) {
+	function test_extractPluginsReal(self) {
 		if(!(goog.global.navigator && navigator.plugins)) {
 			throw new cw.UnitTest.SkipTest("This browser lacks a navigator.plugins");
 		}
 
-		var ret = cw.env.getAllPlugins_(navigator.plugins);
+		var ret = cw.env.extractPlugins_(navigator.plugins);
 		var pluginList = ret[0];
 		var psig = ret[1];
 
 		self.assert(goog.isArray(pluginList));
+		self.assertEqual(navigator.plugins.length, pluginList.length);
 
 		self.assert(goog.isString(psig));
 		self.assert(psig.length >= 1); // At minimum, psig contains plugins.length
 	},
 
 	/**
-	 * Test {@link cw.env.getAllPlugins_} with a mock {@code navigator.plugins}
+	 * Test {@link cw.env.extractPlugins_} with a mock {@code navigator.plugins}
 	 * object.
 	 */
-	function test_getAllPluginsMock(self) {
-		var ret = cw.env.getAllPlugins_(cw.Test.TestEnv.samplePlugins_);
+	function test_extractPluginsMock(self) {
+		var ret = cw.env.extractPlugins_(cw.Test.TestEnv.samplePlugins_);
 		var pluginList = ret[0];
 		var psig = ret[1];
 
@@ -80,7 +81,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	function test_compressPluginSignature_(self) {
 		self.assertEqual('', cw.env.compressPluginSignature_(''));
 
-		// Taken from test_getAllPluginsMock
+		// Taken from test_extractPluginsMock
 		var psig = '1021524111001232'
 		self.assertEqual('aMALjuVK', cw.env.compressPluginSignature_(psig));
 	}
