@@ -158,7 +158,7 @@ cw.env.extractPlugins_ = function(plugins) {
  * the original object's properties, except for properties that
  * point to objects, arrays, or functions.
  *
- * @param {!Object} orig Any non-null object
+ * @param {!(Object|Navigator|Document)} orig
  *
  * @return {!Object} The filtered object
  */
@@ -218,7 +218,7 @@ cw.env.makeReport_ = function() {
 	report['window'] = cw.env.filterWindow_(goog.global);
 
 	if(goog.global.navigator) {
-		report['navigator'] = cw.env.filterObject_(navigator);
+		report['navigator'] = cw.env.filterObject_(/** @type {!Navigator} */(navigator));
 
 		if(goog.isFunction(navigator.javaEnabled)) {
 			try {
@@ -243,11 +243,11 @@ cw.env.makeReport_ = function() {
 	}
 
 	if(goog.global.screen) {
-		report['window.screen'] = cw.env.filterObject_(screen);
+		report['screen'] = cw.env.filterObject_(screen);
 	}
 
 	if(goog.global.history && goog.isNumber(history.length)) {
-		report['window.history.length'] = window.history.length;
+		report['history.length'] = history.length;
 	}
 
 	var date = new Date();
@@ -255,7 +255,7 @@ cw.env.makeReport_ = function() {
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
 
 	if(goog.userAgent.IE) {
-		report['Flash Player ActiveX Control $version'] = cw.env.getActiveXFlashVersion_();
+		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion_();
 	}
 
 	return report;
