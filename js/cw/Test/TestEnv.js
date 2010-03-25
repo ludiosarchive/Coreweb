@@ -91,6 +91,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str", 'x': function() {}, 'y': [], 'z': {}};
 		self.assertEqual({
 			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"}, cw.env.filterObject_(orig));
+	},
+
+	function test_makeReport(self) {
+		var report = cw.env.makeReport_();
+		self.assert(goog.isObject(report));
 	}
 );
 

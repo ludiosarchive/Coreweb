@@ -166,9 +166,19 @@ cw.env.filterObject_ = function(orig) {
 	var out = {};
 	var allowed = {'string': 1, 'number': 1, 'null': 1, 'boolean': 1};
 	for(var k in orig) {
-		var v = orig[k];
-		if(goog.typeOf(v) in allowed) {
-			out[k] = v;
+		/** @preserveTry */
+		try {
+			var v = orig[k];
+			if(goog.typeOf(v) in allowed) {
+				out[k] = v;
+			}
+		} catch(e) {
+			// Firefox has problems accessing some properties of `document` and
+			// throws: Exception... "Component returned failure code: 0x80004001
+			// 	(NS_ERROR_NOT_IMPLEMENTED) [nsIDOM3Document.domConfig]
+			out[k] = ['ERROR', {
+				'string': e.toString(), 'name': e.name,
+				'message': e.message, 'stack': e.stack}];
 		}
 	}
 	return out;
