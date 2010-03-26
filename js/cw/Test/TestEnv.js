@@ -31,13 +31,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_getActiveXFlashVersion(self) {
-		if(!goog.userAgent.IE) {
-			throw new cw.UnitTest.SkipTest("Only works in IE");
-		}
-
 		var version = cw.env.getActiveXFlashVersion_();
 		self.assert(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
+
+		if(goog.userAgent.IE) {
+			// In non-IE browsers, it should not find an installed Flash Player plugin
+			self.assertEqual(null, version);
+		}
 	},
 
 	/**
