@@ -173,9 +173,12 @@ cw.env.filterObject_ = function(orig) {
 				out[k] = v;
 			}
 		} catch(e) {
-			// Firefox has problems accessing some properties of `document` and
-			// throws: Exception... "Component returned failure code: 0x80004001
+			// Several browsers have problems accessing some properties of `document`.
+			// Firefox has problems accessing `document.domConfig` and throws:
+			// Exception... "Component returned failure code: 0x80004001
 			// 	(NS_ERROR_NOT_IMPLEMENTED) [nsIDOM3Document.domConfig]
+			// IE8 has problems accessing `document.fileUpdatedDate` and throws:
+			// Error: Invalid argument.
 			out[k] = ['ERROR', {
 				'string': e.toString(), 'name': e.name,
 				'message': e.message, 'stack': e.stack}];
@@ -196,9 +199,10 @@ cw.env.filterWindow_ = function(orig) {
 	var out = {};
 	var allowed = {
 		'innerWidth': 1, 'innerHeight': 1, 'outerWidth': 1, 'outerHeight': 1,
-		'screenX': 1, 'screenY': 1, 'fullScreen': 1, 'maxConnectionsPerServer': 1};
-	for(var k in orig) {
-		if(k in allowed) {
+		'screenX': 1, 'screenY': 1, 'screenLeft': 1, 'screenTop': 1, 'fullScreen': 1,
+		'maxConnectionsPerServer': 1, 'offscreenBuffering': 1};
+	for(var k in allowed) {
+		if(k in orig) {
 			out[k] = orig[k];
 		}
 	}
@@ -212,23 +216,34 @@ cw.env.filterWindow_ = function(orig) {
  * and return an object.
  */
 cw.env.makeReport_ = function() {
+	var date = new Date();
+
 	var report = {};
 
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_reportVersion'] = 20100325.0733;
+	report['_reportVersion'] = 20100325.1744;
 
 	report['window'] = cw.env.filterWindow_(goog.global);
 
 	if(goog.global.navigator) {
 		report['navigator'] = cw.env.filterObject_(/** @type {!Navigator} */(navigator));
 
-		if(goog.isFunction(navigator.javaEnabled)) {
+		// navigator.javaEnabled is a `function` in FF; an `object` in IE8.
+		if(navigator.javaEnabled) {
 			try {
 				report['navigator.javaEnabled()'] = navigator.javaEnabled();
 			} catch(e) { /* TODO: remove this if we never see it in the wild */
-				report['navigator.javaEnabled()'] = 'Error';
+				report['navigator.javaEnabled()'] = 'Error: ' + e;
+			}
+		}
+
+		if(navigator.taintEnabled) {
+			try {
+				report['navigator.taintEnabled()'] = navigator.taintEnabled();
+			} catch(e) { /* TODO: remove this if we never see it in the wild */
+				report['navigator.taintEnabled()'] = 'Error: ' + e;
 			}
 		}
 
@@ -254,13 +269,14 @@ cw.env.makeReport_ = function() {
 		report['history.length'] = history.length;
 	}
 
-	var date = new Date();
 	report['new Date().getTime()'] = +date;
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
 
 	if(goog.userAgent.IE) {
 		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion_();
 	}
+
+	report['_timeToCollect'] = goog.now() - +date;
 
 	return report;
 }
