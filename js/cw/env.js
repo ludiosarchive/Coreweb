@@ -223,7 +223,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_reportVersion'] = 20100325.1744;
+	report['_version'] = 20100325.1744;
 
 	report['window'] = cw.env.filterWindow_(goog.global);
 
