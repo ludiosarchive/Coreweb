@@ -119,11 +119,19 @@ cw.env.compressPluginSignature_ = function(psig) {
  *
  * @param {!Array} plugins {@code navigator.plugins} or a similar object.
  *
- * @return {!Array.<(!Array.<!Array.<(string|!Array.<string>)>>|string)>} A two-item array:
- * 	[a "copy" of navigator.plugins, the signature string].
+ * @return {!Array.<(!Array.<!Array.<(string|!Array.<string>)>>|string|!Object.<string, number>)>} A three-item array:
+ * 	[a "copy" of navigator.plugins, a description map, the signature string].
  */
 cw.env.extractPlugins_ = function(plugins) {
 	var pluginList = [];
+	// We de-duplicate descriptions in the report because Quicktime has a
+	// long description (228 bytes) that is in ~6 different plugins. This
+	// "compression" saves space even if Quicktime is not in the plugins.
+	// We prepend an underscore to every description in this map to avoid
+	// potential conflicts with a description being `toString` or similar.
+	var descriptions = {};
+	var lastDescriptionNumber = 0;
+	var descNum;
 	var psig = [];
 	psig.push(plugins.length);
 	for (var i = 0; i < plugins.length; i++) {
@@ -137,19 +145,26 @@ cw.env.extractPlugins_ = function(plugins) {
 		if(numbers && numbers.length) {
 			psig.push(numbers.join(''));
 		}
-		pluginList.push([p.name, p.description, p.filename, []]);
+		descNum = descriptions['_' + p.description];
+		if(descNum == null) { // or undefined
+			descNum = lastDescriptionNumber;
+			descriptions['_' + p.description] = lastDescriptionNumber++;
+		}
+		pluginList.push([p.name, descNum, p.filename, []]);
 		for (var j = 0; j < p.length; j++) { // p.length is the length of the mimetypes
 			var m = p[j];
-			// These just bloat the psig
-			//psig.push(m.type.length);
-			//psig.push(m.suffixes.length);
-			//psig.push(m.description.length);
-			pluginList[i][3].push([m.type, m.suffixes, m.description]); // 3 because it's last []
+			// A copy/paste from above; p. changed to m.
+			descNum = descriptions['_' + m.description];
+			if(descNum == null) { // or undefined
+				descNum = lastDescriptionNumber;
+				descriptions['_' + m.description] = lastDescriptionNumber++;
+			}
+			pluginList[i][3].push([m.type, m.suffixes, descNum]); // 3 because it's last []
 		}
 	}
 
 	// psig is concatenated into a string like "128957812736781"
-	return [pluginList, psig.join('')];
+	return [pluginList, descriptions, psig.join('')];
 };
 
 
@@ -223,7 +238,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100328.2246;
+	report['_version'] = 20100331.0612;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -250,8 +265,9 @@ cw.env.makeReport_ = function() {
 		}
 
 		if(navigator.plugins) {
-			var pluginList = cw.env.extractPlugins_(navigator.plugins)[0];
-			report['plugins'] = pluginList;
+			var ret = cw.env.extractPlugins_(navigator.plugins);
+			report['pluginList'] = ret[0];
+			report['pluginDescs'] = ret[1];
 		}
 
 		if(navigator.mimeTypes) {

@@ -51,8 +51,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		}
 
 		var ret = cw.env.extractPlugins_(navigator.plugins);
+		self.assertEqual(3, ret.length);
 		var pluginList = ret[0];
-		var psig = ret[1];
+		var descriptions = ret[1];
+		var psig = ret[2];
 
 		self.assert(goog.isArray(pluginList));
 		self.assertEqual(navigator.plugins.length, pluginList.length);
@@ -68,15 +70,23 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	function test_extractPluginsMock(self) {
 		var ret = cw.env.extractPlugins_(cw.Test.TestEnv.samplePlugins_);
 		var pluginList = ret[0];
-		var psig = ret[1];
+		var descriptions = ret[1];
+		var psig = ret[2];
 
-		var expected = [
-			["Shockwave Flash","Shockwave Flash 10.0 r12","NPSWF32.dll", [
-				["application/x-shockwave-flash","swf","Adobe Flash movie"],
-				["application/futuresplash","spl","FutureSplash movie"]]]]
+		var expectedPluginList = [
+			["Shockwave Flash",0,"NPSWF32.dll", [
+				["application/x-shockwave-flash","swf",1],
+				["application/futuresplash","spl",2]]]]
 
-		self.assertEqual(expected, pluginList)
-		self.assertEqual('1021524111001232', psig)
+		var expectedDescriptions = {
+			'_Shockwave Flash 10.0 r12': 0,
+			'_Adobe Flash movie': 1,
+			'_FutureSplash movie': 2
+		}
+
+		self.assertEqual(expectedPluginList, pluginList);
+		self.assertEqual(expectedDescriptions, descriptions);
+		self.assertEqual('1021524111001232', psig);
 	},
 
 	function test_compressPluginSignature(self) {
