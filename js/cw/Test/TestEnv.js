@@ -35,7 +35,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		self.assert(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 
-		if(goog.userAgent.IE) {
+		if(!goog.userAgent.IE) {
 			// In non-IE browsers, it should not find an installed Flash Player plugin
 			self.assertEqual(null, version);
 		}
