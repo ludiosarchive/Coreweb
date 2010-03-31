@@ -119,8 +119,11 @@ cw.env.compressPluginSignature_ = function(psig) {
  *
  * @param {!Array} plugins {@code navigator.plugins} or a similar object.
  *
- * @return {!Array.<(!Array.<!Array.<(string|!Array.<string>)>>|string|!Object.<string, number>)>} A three-item array:
+ * @return {!Array.<(!Array|!Object.<string, number>|string)>} A three-item array:
  * 	[a "copy" of navigator.plugins, a description map, the signature string].
+ *
+ * TODO: improve above type signature after Closure Compiler supports
+ * 	tuple annotations.
  */
 cw.env.extractPlugins_ = function(plugins) {
 	var pluginList = [];
