@@ -70,6 +70,63 @@ cw.env.getActiveXFlashVersion_ = function() {
 
 
 /**
+ * Get the version of the installed Google Gears plugin, for Internet Explorer
+ * only.
+ *
+ * @return {?string}
+ */
+cw.env.getActiveXGoogleGearsBuildInfo_ = function() {
+	try {
+		var factory = new ActiveXObject('Gears.Factory');
+		return factory['getBuildInfo']();
+	} catch(e) {
+		return null;
+	}
+}
+
+
+/**
+ * Probe for commonly-available ActiveXObjects.
+ *
+ * @return {!Object.<string, string>}
+ */
+cw.env.probeActiveXObjects_ = function() {
+	// In the future, we don't want to check these on every page load,
+	// because it adds 30-40ms to the collection time.
+	var objects = [
+		'Microsoft.XMLHTTP',
+		'Msxml2.XMLHTTP',
+		'Msxml2.XMLHTTP.3.0',
+		'Msxml2.XMLHTTP.4.0',
+		'Msxml2.XMLHTTP.5.0',
+		'Msxml2.XMLHTTP.6.0',
+		'Msxml2.DOMDocument',
+		 /* Instantiating htmlfile probably adds 16-30ms to the collection
+		 time, but we really want to know if we can. Maybe remove it later. */
+		'htmlfile',
+		'AcroPDF.PDF.1', /* Adobe Reader plugin, version 7 or above */
+		'PDF.PdfCtrl.6', /* Adobe Reader plugin, version 6 */
+		'Gears.Factory' /* Google Gears */
+	];
+
+	var results = {};
+	var n = objects.length;
+	while(n--) {
+		var name = objects[n];
+		try {
+			results[name] = [1/* object toString */, Object.prototype.toString(new ActiveXObject(name))];
+		} catch(e) {
+			results[name] = [0/* Error toString */, e.toString()];
+		}
+	}
+	return results;
+}
+
+
+// TODO: Silverlight version detection using iteration
+
+
+/**
  * Compress the signature string returned by the {@link cw.env.getAllPlugins_}
  * into a smaller string.
  *
@@ -241,7 +298,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100331.0612;
+	report['_version'] = 20100331.2231;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -290,11 +347,15 @@ cw.env.makeReport_ = function() {
 		report['history.length'] = history.length;
 	}
 
+	report['scrollbarThickness'] = cw.env.getScrollbarThickness_();
+
 	report['new Date().getTime()'] = +date;
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
 
 	if(goog.userAgent.IE) {
 		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion_();
+		report['Google Gears ActiveX Control version'] = cw.env.getActiveXGoogleGearsBuildInfo_();
+		report['ActiveXObjects'] = cw.env.probeActiveXObjects_();
 	}
 
 	report['_timeToCollect'] = goog.now() - +date;

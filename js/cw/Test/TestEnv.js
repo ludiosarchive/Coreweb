@@ -41,6 +41,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		}
 	},
 
+	function test_getActiveXGoogleGearsBuildInfo(self) {
+		var buildInfo = cw.env.getActiveXGoogleGearsBuildInfo_();
+		if(goog.userAgent.IE) {
+			self.assert(goog.isString(buildInfo) || goog.isNull(buildInfo));
+		} else {
+			self.assert(goog.isNull(buildInfo));
+		}
+	},
+
+	function test_probeActiveXObjects(self) {
+		var out = cw.env.probeActiveXObjects_();
+		self.assertEqual('object', goog.typeOf(out));
+		for(var k in out) {
+			var v = out[k];
+			self.assertIn(v[0], [0, 1]);
+			self.assertEqual('string', goog.typeOf(v[1]));
+		}
+	},
+
 	/**
 	 * Test {@link cw.env.extractPlugins_} with the real {@code navigator.plugins}
 	 * object.
