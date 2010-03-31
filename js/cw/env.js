@@ -298,40 +298,42 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100331.2231;
+	report['_version'] = 20100331.2326;
 
 	report['_type'] = 'browser-environment-initial';
 
 	report['window'] = cw.env.filterWindow_(goog.global);
 
 	if(goog.global.navigator) {
-		report['navigator'] = cw.env.filterObject_(/** @type {!Navigator} */(navigator));
+		var nav = goog.global.navigator;
+
+		report['navigator'] = cw.env.filterObject_(/** @type {!Navigator} */(nav));
 
 		// navigator.javaEnabled is a `function` in FF; an `object` in IE8.
-		if(navigator.javaEnabled) {
+		if('javaEnabled' in nav) {
 			try {
-				report['navigator.javaEnabled()'] = navigator.javaEnabled();
+				report['navigator.javaEnabled()'] = nav.javaEnabled();
 			} catch(e) { /* TODO: remove this if we never see it in the wild */
 				report['navigator.javaEnabled()'] = 'Error: ' + e;
 			}
 		}
 
-		if(navigator.taintEnabled) {
+		if('taintEnabled' in nav) {
 			try {
-				report['navigator.taintEnabled()'] = navigator.taintEnabled();
+				report['navigator.taintEnabled()'] = nav.taintEnabled();
 			} catch(e) { /* TODO: remove this if we never see it in the wild */
 				report['navigator.taintEnabled()'] = 'Error: ' + e;
 			}
 		}
 
-		if(navigator.plugins) {
-			var ret = cw.env.extractPlugins_(navigator.plugins);
+		if(nav.plugins) {
+			var ret = cw.env.extractPlugins_(nav.plugins);
 			report['pluginList'] = ret[0];
 			report['pluginDescs'] = ret[1];
 		}
 
-		if(navigator.mimeTypes) {
-			report['navigator.mimeTypes.length'] = navigator.mimeTypes.length;
+		if(nav.mimeTypes) {
+			report['navigator.mimeTypes.length'] = nav.mimeTypes.length;
 		}
 	}
 
