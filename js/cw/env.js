@@ -86,6 +86,35 @@ cw.env.getActiveXGoogleGearsBuildInfo_ = function() {
 
 
 /**
+ * Get the version of the installed Silverlight plugin, for Internet Explorer
+ * only.
+ *
+ * TODO: Silverlight version detection using binary search to get the exact
+ * version.
+ *
+ * @return {?string}
+ */
+cw.env.getActiveXSilverlightVersion_ = function() {
+	try {
+		var control = new ActiveXObject('AgControl.AgControl');
+	} catch(e) {
+		return null;
+	}
+	var version = '?';
+	var known = ['1.0', '2.0', '3.0', '4.0', '5.0', '6.0'];
+	var n = known.length;
+	while(n--) {
+		var maybeVer = known[n];
+		if(control['IsVersionSupported'](maybeVer)) {
+			version = maybeVer;
+			break;
+		}
+	}
+	return version;
+}
+
+
+/**
  * Probe for commonly-available ActiveXObjects.
  *
  * @return {!Object.<string, string>}
@@ -105,9 +134,11 @@ cw.env.probeActiveXObjects_ = function() {
 		 time, but we really want to know if we can. Maybe remove it later. */
 		'htmlfile',
 		'AcroPDF.PDF.1', /* Adobe Reader plugin, version 7 or above */
-		'PDF.PdfCtrl.6', /* Adobe Reader plugin, version 6 */
-		'Gears.Factory' /* Google Gears */
+		'PDF.PdfCtrl.6' /* Adobe Reader plugin, version 6 */
 	];
+
+	// Don't detect 'Gears.Factory' or 'AgControl.AgControl' here because
+	// we have separate functions to detect and get their versions.
 
 	var results = {};
 	var n = objects.length;
@@ -121,9 +152,6 @@ cw.env.probeActiveXObjects_ = function() {
 	}
 	return results;
 }
-
-
-// TODO: Silverlight version detection using iteration
 
 
 /**
@@ -298,7 +326,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100331.2326;
+	report['_version'] = 20100401.0037;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -357,6 +385,7 @@ cw.env.makeReport_ = function() {
 	if(goog.userAgent.IE) {
 		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion_();
 		report['Google Gears ActiveX Control version'] = cw.env.getActiveXGoogleGearsBuildInfo_();
+		report['Silverlight ActiveX Control version'] = cw.env.getActiveXSilverlightVersion_();
 		report['ActiveXObjects'] = cw.env.probeActiveXObjects_();
 	}
 

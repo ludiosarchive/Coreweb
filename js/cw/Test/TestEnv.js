@@ -36,17 +36,30 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		self.assertNotIdentical("", version);
 
 		if(!goog.userAgent.IE) {
-			// In non-IE browsers, it should not find an installed Flash Player plugin
+			// In non-IE browsers, it should not find an installed Flash Player plugin.
+			self.assertEqual(null, version);
+		}
+	},
+
+	function test_getActiveXSilverlightVersion(self) {
+		var version = cw.env.getActiveXSilverlightVersion_();
+		self.assert(goog.isString(version) || goog.isNull(version));
+		self.assertNotIdentical("", version);
+
+		if(!goog.userAgent.IE) {
+			// In non-IE browsers, it should not find an installed Silverlight plugin.
 			self.assertEqual(null, version);
 		}
 	},
 
 	function test_getActiveXGoogleGearsBuildInfo(self) {
 		var buildInfo = cw.env.getActiveXGoogleGearsBuildInfo_();
-		if(goog.userAgent.IE) {
-			self.assert(goog.isString(buildInfo) || goog.isNull(buildInfo));
-		} else {
-			self.assert(goog.isNull(buildInfo));
+		self.assert(goog.isString(buildInfo) || goog.isNull(buildInfo));
+		self.assertNotIdentical("", buildInfo);
+
+		if(!goog.userAgent.IE) {
+			// In non-IE browsers, it should not find an installed Google Gears plugin.
+			self.assertEqual(null, buildInfo);
 		}
 	},
 
