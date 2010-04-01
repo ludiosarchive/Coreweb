@@ -145,9 +145,11 @@ cw.env.probeActiveXObjects_ = function() {
 	while(n--) {
 		var name = objects[n];
 		try {
-			results[name] = [1/* object toString */, Object.prototype.toString(new ActiveXObject(name))];
+			results[name] = [1/* means "object toString" */,
+				Object.prototype.toString.call(new ActiveXObject(name))];
 		} catch(e) {
-			results[name] = [0/* Error toString */, e.toString()];
+			results[name] = [0/* means "Error toString" */,
+				e.toString()];
 		}
 	}
 	return results;
@@ -326,7 +328,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100401.0037;
+	report['_version'] = 20100401.0117;
 
 	report['_type'] = 'browser-environment-initial';
 
