@@ -73,6 +73,17 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		}
 	},
 
+	function test_hasWorkingXMLHttpRequest(self) {
+		var out = cw.env.hasWorkingXMLHttpRequest_();
+		self.assertEqual('boolean', goog.typeOf(out));
+		if(!goog.userAgent.IE) {
+			// All non-IE environments are expected to have a working
+			// XMLHttpRequest. Even in IE versions that have it, it can
+			// be disabled in the options.
+			self.assertEqual(true, out);
+		}
+	},
+
 	/**
 	 * Test {@link cw.env.extractPlugins_} with the real {@code navigator.plugins}
 	 * object.

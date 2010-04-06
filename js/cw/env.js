@@ -157,6 +157,21 @@ cw.env.probeActiveXObjects_ = function() {
 
 
 /**
+ * @return {boolean} Whether an actual {@code XMLHttpRequest} could be
+ * 	instantiated (no Error)
+ */
+cw.env.hasWorkingXMLHttpRequest_ = function() {
+	try {
+		new XMLHttpRequest();
+		return true;
+	/** @preserveTry */
+	} catch(e) {
+		return false;
+	}
+}
+
+
+/**
  * Compress the signature string returned by the {@link cw.env.getAllPlugins_}
  * into a smaller string.
  *
