@@ -19,6 +19,10 @@ goog.require('goog.asserts');
  * a naive O(N^2) uniq where every item would be ==='ed to every
  * other item.
  *
+ * See also {@code goog.array.removeDuplicates}, but it has problems
+ * when there are a mixture of primitive types in the array. TODO: combine
+ * the best of both, by using {@code goog.getUid} for objects/arrays here.
+ *
  * @param {!Array} a The array object to "uniq"
  * @return {!Array} the uniq'ed array.
  */
