@@ -328,7 +328,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100401.0117;
+	report['_version'] = 20100406.0011;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -345,14 +345,6 @@ cw.env.makeReport_ = function() {
 				report['navigator.javaEnabled()'] = nav.javaEnabled();
 			} catch(e) { /* TODO: remove this if we never see it in the wild */
 				report['navigator.javaEnabled()'] = 'Error: ' + e;
-			}
-		}
-
-		if('taintEnabled' in nav) {
-			try {
-				report['navigator.taintEnabled()'] = nav.taintEnabled();
-			} catch(e) { /* TODO: remove this if we never see it in the wild */
-				report['navigator.taintEnabled()'] = 'Error: ' + e;
 			}
 		}
 
