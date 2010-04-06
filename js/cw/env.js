@@ -343,7 +343,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100406.0011;
+	report['_version'] = 20100406.0133;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -387,6 +387,7 @@ cw.env.makeReport_ = function() {
 	}
 
 	report['scrollbarThickness'] = cw.env.getScrollbarThickness_();
+	report['has working XMLHttpRequest'] = cw.env.hasWorkingXMLHttpRequest_();
 
 	report['new Date().getTime()'] = +date;
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
