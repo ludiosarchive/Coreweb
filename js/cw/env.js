@@ -6,6 +6,7 @@ goog.provide('cw.env');
 
 goog.require('goog.dom');
 goog.require('goog.userAgent');
+goog.require('goog.debug');
 
 
 /**
@@ -258,6 +259,15 @@ cw.env.extractPlugins_ = function(plugins) {
 		pluginList.push([p.name, descNum, p.filename, []]);
 		for (var j = 0; j < p.length; j++) { // p.length is the length of the mimetypes
 			var m = p[j];
+			// `m` is almost always a non-null MimeType here, but in rare
+			// cases it is `null`. Around 2010-04, we observed `null` in
+			// at least two browsers:
+			// BlackBerry8110/4.5.0.182 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/102 Novarra-Vision/8.0
+			// SonyEricssonW995/R1GA Browser/NetFront/3.4 Profile/MIDP-2.1 Configuration/CLDC-1.1 JavaPlatform/JP-8.4.4 Novarra-Vision/8.0
+			if(m == null) { // or undefined
+				continue;
+			}
+
 			// A copy/paste from above; p. changed to m.
 			descNum = descriptions['_' + m.description];
 			if(descNum == null) { // or undefined
@@ -299,9 +309,7 @@ cw.env.filterObject_ = function(orig) {
 			// 	(NS_ERROR_NOT_IMPLEMENTED) [nsIDOM3Document.domConfig]
 			// IE8 has problems accessing `document.fileUpdatedDate` and throws:
 			// Error: Invalid argument.
-			out[k] = ['ERROR', {
-				'string': e.toString(), 'name': e.name,
-				'message': e.message, 'stack': e.stack}];
+			out[k] = ['ERROR', goog.debug.normalizeErrorObject(e)];
 		}
 	}
 	return out;
@@ -323,7 +331,19 @@ cw.env.filterWindow_ = function(orig) {
 		'maxConnectionsPerServer': 1, 'offscreenBuffering': 1};
 	for(var k in allowed) {
 		if(k in orig) {
-			out[k] = orig[k];
+			try {
+				out[k] = orig[k];
+			} catch(e) {
+				// try/catch every property access, because around 2010-04,
+				// we observed this error in Gecko GranParadiso/3.0.11
+				// and Gecko/20100315 Firefox/3.5.9:
+				//
+				// Component returned failure code: 0x80004005 (NS_ERROR_FAILURE)
+				// [nsIDOMWindowInternal.outerWidth]
+				//
+				// This may be caused by race conditions during the page load.
+				out[k] = ['ERROR', goog.debug.normalizeErrorObject(e)];
+			}
 		}
 	}
 	// filterObject_ just in case we got some unexpected arrays/objects/functions.
@@ -343,7 +363,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100406.0133;
+	report['_version'] = 20100408.2226;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -359,7 +379,7 @@ cw.env.makeReport_ = function() {
 			try {
 				report['navigator.javaEnabled()'] = nav.javaEnabled();
 			} catch(e) { /* TODO: remove this if we never see it in the wild */
-				report['navigator.javaEnabled()'] = 'Error: ' + e;
+				report['navigator.javaEnabled()'] = ['ERROR', goog.debug.normalizeErrorObject(e)];
 			}
 		}
 
@@ -383,7 +403,17 @@ cw.env.makeReport_ = function() {
 	}
 
 	if(goog.global.history && goog.isNumber(history.length)) {
-		report['history.length'] = history.length;
+		try {
+			report['history.length'] = history.length;
+		} catch(e) {
+			// Around 2010-04, we saw a report where accessing history.length on
+			// "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.16) Gecko/2009121707
+			// CentOS/3.0.16-1.el5.centos Firefox/3.0.16" resulted in error:
+			//
+			// Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIDOMHistory.length]
+			// See https://bugzilla.mozilla.org/show_bug.cgi?id=429550
+			report['history.length'] = ['ERROR', goog.debug.normalizeErrorObject(e)];
+		}
 	}
 
 	report['scrollbarThickness'] = cw.env.getScrollbarThickness_();
