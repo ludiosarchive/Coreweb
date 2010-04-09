@@ -158,16 +158,22 @@ cw.env.probeActiveXObjects_ = function() {
 
 
 /**
- * @return {boolean} Whether an actual {@code XMLHttpRequest} could be
- * 	instantiated (no Error)
+ * @return {?boolean|!Array.<(string|Object)>} If an XMLHttpRequest object
+ * 	could be instantiated, returns the default value of its {@code withCredentials}
+ * 	property (or null if has no such property). If it could not be instantiated,
+ * 	returns an Array containing error information.
  */
-cw.env.hasWorkingXMLHttpRequest_ = function() {
-	try {
-		new XMLHttpRequest();
-		return true;
+cw.env.getXHRDefaultWithCredentials_ = function() {
 	/** @preserveTry */
+	try {
+		var xhr = new XMLHttpRequest();
+		if('withCredentials' in xhr) {
+			return xhr['withCredentials'];
+		} else {
+			return null;
+		}
 	} catch(e) {
-		return false;
+		return ['ERROR', goog.debug.normalizeErrorObject(e)];
 	}
 }
 
@@ -354,6 +360,11 @@ cw.env.filterWindow_ = function(orig) {
 /**
  * Gather a lot of information from the browser environment
  * and return an object.
+ *
+ * Notes for offline analysis (incomplete):
+ * 	Before 20100408.2226, ['ERROR', ...] was sometimes 'Error: ...'
+ * 	Before 20100409.0001, report included 'has working XMLHttpRequest',
+ * 		which was incorrect because it was always {@code true}.
  */
 cw.env.makeReport_ = function() {
 	var date = new Date();
@@ -363,7 +374,7 @@ cw.env.makeReport_ = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100408.2226;
+	report['_version'] = 20100409.0001;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -417,7 +428,7 @@ cw.env.makeReport_ = function() {
 	}
 
 	report['scrollbarThickness'] = cw.env.getScrollbarThickness_();
-	report['has working XMLHttpRequest'] = cw.env.hasWorkingXMLHttpRequest_();
+	report['XHR.withCredentials'] = cw.env.getXHRDefaultWithCredentials_();
 
 	report['new Date().getTime()'] = +date;
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();

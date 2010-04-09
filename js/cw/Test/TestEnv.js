@@ -6,6 +6,7 @@ goog.provide('cw.Test.TestEnv');
 goog.require('cw.UnitTest');
 goog.require('cw.env');
 goog.require('goog.userAgent');
+goog.require('goog.object');
 
 
 // anti-clobbering for JScript
@@ -73,14 +74,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		}
 	},
 
-	function test_hasWorkingXMLHttpRequest(self) {
-		var out = cw.env.hasWorkingXMLHttpRequest_();
-		self.assertEqual('boolean', goog.typeOf(out));
+	function test_getXHRDefaultWithCredentials(self) {
+		var out = cw.env.getXHRDefaultWithCredentials_();
+		self.assertIn(goog.typeOf(out), goog.object.createSet('boolean', 'null', 'array'));
 		if(!goog.userAgent.IE) {
-			// All non-IE environments are expected to have a working
-			// XMLHttpRequest. Even in IE versions that have it, it can
-			// be disabled in the options.
-			self.assertEqual(true, out);
+			// Non-IE environments are expected to have a working
+			// XMLHttpRequest object.
+			self.assertEqual('boolean', goog.typeOf(out));
+		}
+		if(goog.userAgent.IE && !goog.userAgent.isVersion('7.0')) {
+			self.assertEqual('array', goog.typeOf(out));
 		}
 	},
 
