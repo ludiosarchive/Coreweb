@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="charset" content="text/html; charset=utf-8">
+</head>
+<body>
+This page makes an XMLHttpRequest in an inline <code>script</code> before
+the page finishes loading. The requested resource takes 4 seconds to load.
+<noscript><strong>JS is off. This needs JavaScript enabled to work.</strong></noscript>
+<div id="log"></div>
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('POST', '/analytics/wait_resource/?wait=4', true);
+xhr.onreadystatechange = function() {
+	if (xhr.readyState == 4) {
+		document.getElementById('log').innerHTML += 'Got response; done.';
+	}
+}
+xhr.send('POST body is ignored');
+document.getElementById('log').innerHTML += 'Sent XHR request...<br>';
+
+</script>
+</body>
+</html>

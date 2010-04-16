@@ -7,6 +7,7 @@ from twisted.python.filepath import FilePath
 
 from cwtools import testing, htmltools, jsimp
 from ecmaster import closurecompiler
+from lytics.endpoint import Analytics
 
 
 class Compiler(resource.Resource):
@@ -58,6 +59,7 @@ class Root(resource.Resource):
 		self.putChild('', static.File(here.child('index.html').path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH, directoryScan))
 		self.putChild('compiler', Compiler(reactor, JSPATH))
+		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/
 		self.putChild('@tests', testing.TestPage(testPackages, directoryScan))
 
 		testres_Coreweb = here.child('testres').path
