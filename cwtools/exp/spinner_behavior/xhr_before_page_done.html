@@ -7,6 +7,7 @@
 This page makes an XMLHttpRequest in an inline <code>script</code> before
 the page finishes loading. The requested resource takes 4 seconds to load.
 <noscript><strong>JS is off. This needs JavaScript enabled to work.</strong></noscript>
+<br><br>
 <div id="log"></div>
 <script>
 var xhr = new XMLHttpRequest();
@@ -17,8 +18,15 @@ xhr.onreadystatechange = function() {
 	}
 }
 xhr.send('POST body is ignored');
-document.getElementById('log').innerHTML += 'Sent XHR request...<br>';
+document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
 
 </script>
+<hr>
+Results observed 2010-04-15:<br>
+Chrome 5.0.342.9 beta <b>spins for 4 sec</b><br>
+Safari 4.0.4 (Win) and 3.2.2 (Win) <b>spin for 4 sec</b><br>
+Firefox 3.6.3 <b>does not spin</b><br>
+IE7, IE8, IE8 in IE7 mode <b>does not spin</b><br>
+Opera 10.51 <b>does not spin</b><br>
 </body>
 </html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="charset" content="text/html; charset=utf-8">
+</head>
+<body>
+This page starts an XHR request in 2 seconds (regardless of page load status), which
+takes 20 seconds to finish. The page also has an image that takes 4 seconds to load.
+The spinner <em>should</em> spin for just 4 seconds (not 22 seconds).
+<noscript><strong>JS is off. This needs JavaScript enabled to work.</strong></noscript>
+<br><br>
+<div id="log"></div>
+<img src="/analytics/wait_resource/?wait=4" width=1 height=1>
+<script>
+function makeRequest() {
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/analytics/wait_resource/?wait=20', true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4) {
+			document.getElementById('log').innerHTML += 'Got response; done.';
+		}
+	}
+	xhr.send('POST body is ignored');
+	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
+}
+setTimeout(makeRequest, 2000);
+</script>
+<hr>
+Results observed 2010-04-15:<br>
+Chrome 4.1.249.1045 <b>spins for 22 sec</b><br>
+Chrome 5.0.342.9 beta <b>spins for 22 sec</b><br>
+Safari 4.0.4 (Win) <b>spins for 22 sec</b><br>
+Arora 0.10.1 (Linux) <b>spins for 4 sec</b><br>
+Midori 0.1.9 (Linux) <b>spins for 22 sec</b><br>
+Firefox 3.6.3 <b>spins for 4 sec</b><br>
+IE7, IE8, IE8 in IE7 mode <b>spin for 4 sec</b><br>
+Opera 10.51 <b>spins for 4 sec</b><br><br>
+</body>
+</html>
