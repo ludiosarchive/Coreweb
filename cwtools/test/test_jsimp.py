@@ -95,29 +95,25 @@ class ScriptComparisonTests(unittest.TestCase):
 	def test_equal(self):
 		self.assertEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
-			jsimp.Script('p.mod1', FilePath('/tmp'))
-		)
+			jsimp.Script('p.mod1', FilePath('/tmp')))
 
 
 	def test_sameHash(self):
 		self.assertEqual(
 			hash(jsimp.Script('p.mod1', FilePath('/tmp'))),
-			hash(jsimp.Script('p.mod1', FilePath('/tmp')))
-		)
+			hash(jsimp.Script('p.mod1', FilePath('/tmp'))))
 
 
 	def test_notEqualNames(self):
 		self.assertNotEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
-			jsimp.Script('p.mod2', FilePath('/tmp'))
-		)
+			jsimp.Script('p.mod2', FilePath('/tmp')))
 
 
 	def test_notEqualPaths(self):
 		self.assertNotEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
-			jsimp.Script('p.mod1', FilePath('/tmp/a'))
-		)
+			jsimp.Script('p.mod1', FilePath('/tmp/a')))
 
 
 	def test_putInSet(self):
@@ -132,8 +128,7 @@ class ScriptComparisonTests(unittest.TestCase):
 	def test_compareDifferentTypes(self):
 		self.assertNotEqual(
 			jsimp.Script('p.mod1', FilePath('/tmp')),
-			_AlmostAScript('p.mod1', FilePath('/tmp'))
-		)
+			_AlmostAScript('p.mod1', FilePath('/tmp')))
 
 
 
@@ -142,29 +137,25 @@ class VirtualScriptComparisonTests(unittest.TestCase):
 	def test_equal(self):
 		self.assertEqual(
 			jsimp.VirtualScript('contents'),
-			jsimp.VirtualScript('contents')
-		)
+			jsimp.VirtualScript('contents'))
 
 
 	def test_sameHash(self):
 		self.assertEqual(
 			hash(jsimp.VirtualScript('contents')),
-			hash(jsimp.VirtualScript('contents'))
-		)
+			hash(jsimp.VirtualScript('contents')))
 
 
 	def test_notEqualNames(self):
 		self.assertNotEqual(
 			jsimp.VirtualScript('contents'),
-			jsimp.VirtualScript('different-contents')
-		)
+			jsimp.VirtualScript('different-contents'))
 
 
 	def test_notEqualPaths(self):
 		self.assertNotEqual(
 			jsimp.VirtualScript('contents', FilePath('/tmp')),
-			jsimp.VirtualScript('contents', FilePath('/tmp/a'))
-		)
+			jsimp.VirtualScript('contents', FilePath('/tmp/a')))
 
 
 	def test_putInSet(self):
@@ -179,8 +170,7 @@ class VirtualScriptComparisonTests(unittest.TestCase):
 	def test_compareDifferentTypes(self):
 		self.assertNotEqual(
 			jsimp.VirtualScript('contents'),
-			_AlmostAVirtualScript('contents')
-		)
+			_AlmostAVirtualScript('contents'))
 
 
 
@@ -194,8 +184,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/mod1.js',
-			jsimp.Script("something.mod1", d).getFilename()
-		)
+			jsimp.Script("something.mod1", d).getFilename())
 
 
 	def test_fileDepth2(self):
@@ -206,8 +195,7 @@ class PathForModuleTests(unittest.TestCase):
 
 		self.assertEqual(
 			'something/more/mod2.js',
-			jsimp.Script("something.more.mod2", d).getFilename()
-		)
+			jsimp.Script("something.more.mod2", d).getFilename())
 
 
 	def test_fileDepth2WithInitJS(self):
@@ -756,8 +744,7 @@ class DependencyTests(unittest.TestCase):
 
 		self.assertEqual(
 			[modx, mod3, mod2, mod1],
-			jsimp.getDeps(mod1)
-		)
+			jsimp.getDeps(mod1))
 
 
 	def test_getDepsComplicated(self):
@@ -781,8 +768,7 @@ class DependencyTests(unittest.TestCase):
 
 		self.assertEqual(
 			[q, z, a, c, b, d, e, f, x],
-			jsimp.getDeps(x)
-		)
+			jsimp.getDeps(x))
 
 
 	def test_getDepsComplicatedMore(self):
@@ -807,8 +793,7 @@ class DependencyTests(unittest.TestCase):
 
 		self.assertEqual(
 			[b, a, q, c, s, r, d, p, e],
-			jsimp.getDeps(e)
-		)
+			jsimp.getDeps(e))
 
 
 	def test_getDepsCircularTwo(self):
@@ -822,8 +807,7 @@ class DependencyTests(unittest.TestCase):
 		for script in [a, b]:
 			self.assertRaises(
 				jsimp.CircularDependencyError,
-				lambda: jsimp.getDeps(script)
-			)
+				lambda: jsimp.getDeps(script))
 
 
 	def test_getDepsCircularThree(self):
@@ -838,8 +822,7 @@ class DependencyTests(unittest.TestCase):
 		for script in [a, b, c]:
 			self.assertRaises(
 				jsimp.CircularDependencyError,
-				lambda: jsimp.getDeps(script)
-			)
+				lambda: jsimp.getDeps(script))
 
 
 	def test_getDepsMany(self):
@@ -855,8 +838,7 @@ class DependencyTests(unittest.TestCase):
 
 		self.assertEqual(
 			[z, d, b, a],
-			jsimp.getDepsMany([a, d])
-		)
+			jsimp.getDepsMany([a, d]))
 
 
 	def test_getDepsManyRedundant(self):
@@ -875,8 +857,7 @@ class DependencyTests(unittest.TestCase):
 
 		self.assertEqual(
 			[z, d, b, a],
-			jsimp.getDepsMany([a, d])
-		)
+			jsimp.getDepsMany([a, d]))
 
 
 

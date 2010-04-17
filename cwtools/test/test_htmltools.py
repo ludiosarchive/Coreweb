@@ -79,13 +79,9 @@ class ScriptTagTests(unittest.TestCase):
 				html.startswith(
 					"""<script>%s</script><script src="%s?""" % (
 					script._underscoreName(), mountedAt + 'p/mod1.js')),
-				html
-			)
+				html)
 
-			self.assert_(
-				html.endswith("""</script>\n"""),
-				html
-			)
+			self.assert_(html.endswith("""</script>\n"""), html)
 
 
 	def test_scriptSrcError(self):

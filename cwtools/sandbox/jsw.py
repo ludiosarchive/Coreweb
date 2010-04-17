@@ -26,7 +26,6 @@ class JavaScriptWriter(object):
 	"""
 
 	def __init__(self):
-
 		# These are chosen very carefully so that JS syntax-highlights reasonably
 		# even with these ugly macros.
 
@@ -36,8 +35,7 @@ class JavaScriptWriter(object):
 			variable_end_string = '//',
 			# TODO: ? also define block_(end|start)_string
 			comment_start_string = '/*###',
-			comment_end_string = '*/',
-		)
+			comment_end_string = '*/')
 
 
 	def render(self, template, dictionary={}):

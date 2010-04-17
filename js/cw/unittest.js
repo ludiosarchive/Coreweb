@@ -1093,7 +1093,6 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 					result.addError(self, anError);
 				}
 			}
-
 		);
 
 		return setUpD;

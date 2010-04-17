@@ -102,8 +102,7 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 			'setInterval',  'setTimeout', 'showHelp', 'showModalDialog',
 			'showModelessDialog', 'toStaticHTML',  'clientInformation',
 			'clipboardData', 'document', 'event', 'external', 'history', 'Image',
-			'location', 'navigator', 'Option', 'screen']
-		);
+			'location', 'navigator', 'Option', 'screen']);
 
 		// *** from http://code.google.com/p/doctype/wiki/WindowObject ***
 		// (copy/paste into text file, use Python to parse)
@@ -131,27 +130,23 @@ if(goog.DEBUG) { // TODO: use goog.asserts to make this unnecesssary?
 			'scrollByLines', 'scrollByPages', 'scrollTo', 'setActive',
 			'setInterval', 'setResizable', 'setTimeout', 'showHelp',
 			'showModalDialog', 'showModelessDialog', 'sizeToContent', 'stop',
-			'unescape', 'updateCommands']
-		);
+			'unescape', 'updateCommands']);
 
 		// *** Top-level functions (the Qoxdoo section is missing some) ***
 		// https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions
 		// + escape, unescape
 		globalsArray = globalsArray.concat([
 			"decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent",
-			"eval", "escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite",
-		]);
+			"eval", "escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite"]);
 
 		// *** Modern Firebug ***
 		globalsArray = globalsArray.concat(
-			['_firebug', '_FirebugCommandLine', 'loadFirebugConsole']
-		);
+			['_firebug', '_FirebugCommandLine', 'loadFirebugConsole']);
 
 		// *** Firefox 3.5.3 ***
 		globalsArray = globalsArray.concat(
 			['GetWeakReference', 'XPCSafeJSObjectWrapper', 'getInterface',
-			'postMessage', 'applicationCache']
-		);
+			'postMessage', 'applicationCache']);
 
 		// *** More IE stuff ***
 		globalsArray = globalsArray.concat(['CollectGarbage']);
