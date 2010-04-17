@@ -58,8 +58,7 @@ class ScriptTagTests(unittest.TestCase):
 			u"""\
 <script>if(typeof p.mod1 == 'undefined') { p.mod1 = {} }; p.mod1.__name__ = 'p.mod1';
 %s</script>""" % (contents,),
-			html
-		)
+			html)
 
 
 	def test_scriptSrc(self):

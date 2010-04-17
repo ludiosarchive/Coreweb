@@ -472,7 +472,7 @@ class Script(_BaseScript):
 				r"Script %r needs to end with a \n. "
 				r"\n is a line terminator, not a separator. "
 				"Fix your text editor. Last 100 bytes were: %r"
-				) % (self, bytes[-100:]))
+			) % (self, bytes[-100:]))
 		else:
 			uni = bytes.decode('utf-8')
 
