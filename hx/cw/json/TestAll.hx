@@ -344,6 +344,8 @@ E_val: N/A"}]}';
 		 *
 		 * Also, not tested here, but when you iterate over the properties,
 		 * you will find "123" and not "0123".
+		 *
+		 * This bug was later fixed in Flash 10.1 RC1 or RC2.
 		 */
 		var n:Dynamic = JSON.decode('{"0123": "hi"}');
 
@@ -353,7 +355,7 @@ E_val: N/A"}]}';
 		assertEquals("hi", Reflect.field(n, "0123"));
 
 		var flashVersion:Dynamic = getPlayerVersion();
-		if(flashVersion.major >= 10 && flashVersion.minor >= 1) {
+		if(flashVersion.major >= 10 && flashVersion.minor == 1 && flashVersion.build < 53) {
 			assertEquals("hi", Reflect.field(n, "123"));
 		} else {
 			assertEquals(null, Reflect.field(n, "123"));
@@ -386,11 +388,11 @@ E_val: N/A"}]}';
 		//	- its float representation is sometimes non-optimal; for example: 1.23456789000000e+34
 		//	- it backslashes forward slashes, leading to "wasted" bytes
 
-		// In Flash 10.1b2, after a decode->encode cycle, our
+		// In Flash 10.1b2 (but before RC1 or RC2), after a decode->encode cycle, our
 		// "0123456789": digits is corrupted to "123456789": digits
 		// See testLeadingZeroInPropertyBehavior
 		var flashVersion:Dynamic = getPlayerVersion();
-		if(flashVersion.major >= 10 && flashVersion.minor >= 1) {
+		if(flashVersion.major >= 10 && flashVersion.minor == 1 && flashVersion.build < 53) {
 			assertEquals(989, encoded.length);
 		} else {
 			assertEquals(990, encoded.length);
