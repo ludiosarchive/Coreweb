@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+	<script>
+		{{ expandScript('// import cw.autoTitle') }}
+		window.CLOSURE_NO_DEPS = true;
+	</script>
+</head>
+<body>
+
+<div id="doc">
+Test that document.domain works and two iframes on different subdomains
+can call functions on each other.
+</div>
+<div id="log"></div>
+
+<script>
+{{ expandScript("""
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.asserts');
+goog.require('goog.dom');
+goog.require('goog.Uri');
+""") }}
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+</script>
+
+<script>
+
+// TODO: also test if primary page is domain.com, child page is sub.domain.com
+
+var url = new goog.Uri(window.location);
+var queryData = url.getQueryData();
+var isChild = queryData.get('isChild');
+logger.info('isChild: ' + isChild);
+
+function sendMessageToChild() {
+	var childiframe = goog.dom.getFrameContentWindow(document.getElementById('childiframe'));
+	childiframe.messageFromParent('ack');
+}
+
+function messageFromChild(text) {
+	logger.info('Got message from child: ' + text);
+	logger.info('Sending message to child');
+	setTimeout(sendMessageToChild, 0);
+}
+
+function messageFromParent(text) {
+	logger.info('Got message from parent: ' + text);
+}
+
+function main() {
+	var domainWithoutPort = String(document.domain);
+	goog.asserts.assert(domainWithoutPort.indexOf(':') == -1, "':' in document.domain?");
+
+	var domainHigher = domainWithoutPort.split('.');
+	domainHigher.splice(0, 1)
+	domainHigher = domainHigher.join('.');
+
+	logger.info('document.domain was: ' + domainWithoutPort + ', changing to: ' + domainHigher);
+	document.domain = domainHigher;
+
+	if(!isChild) {
+		var childSubdomain = 'c2'; // Change this if needed
+		var childDomain = childSubdomain + '.' + domainHigher;
+		var childUrl = String(window.location).replace(url.getDomain(), childDomain) + '?isChild=1';
+		logger.info('Writing child iframe with URL: ' + childUrl);
+		document.write('Child iframe: <iframe id="childiframe" src="'+childUrl+'" width=800 height=400></iframe>');
+	} else {
+		// Send a message to parent
+		parent.messageFromChild("hi");
+	}
+}
+
+try {
+	main();
+} catch(e) {
+	logger.severe('main()', e);
+}
+
+
+</script>
+
+</body>
+</html>
