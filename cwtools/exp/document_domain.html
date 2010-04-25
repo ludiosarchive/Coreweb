@@ -43,9 +43,8 @@ logger.info('Logger works.');
 
 <script>
 
-// TODO: also test if primary page is domain.com, child page is sub.domain.com
-
-var url = new goog.Uri(window.location);
+var url = new goog.Uri(document.location);
+logger.info('My URL is: ' + url.toString());
 var queryData = url.getQueryData();
 var isChild = queryData.get('isChild');
 logger.info('isChild: ' + isChild);
@@ -66,28 +65,40 @@ function messageFromParent(text) {
 }
 
 function main() {
-	var domainWithoutPort = String(document.domain);
-	goog.asserts.assert(domainWithoutPort.indexOf(':') == -1, "':' in document.domain?");
+	var domain = url.getDomain();
+	var topDomain;
 
-	var domainHigher = domainWithoutPort.split('.');
-	domainHigher.splice(0, 1)
-	domainHigher = domainHigher.join('.');
+	// dontGoHigher is intended for testing when primary page is 'domain.com' instead of 'c1.domain.com' 
+	if(!queryData.get('dontGoHigher')) {
+		var topDomain = domain.split('.');
+		topDomain.splice(0, 1)
+		topDomain = topDomain.join('.');
+	} else {
+		topDomain = domain;
+	}
 
-	logger.info('document.domain was: ' + domainWithoutPort + ', changing to: ' + domainHigher);
+	// Always set document.domain, even if the current domain matches
+	// the topDomain. If we don't do this, we'll get a security exception in IE6
+	// and probably many other browsers.
+	logger.info('domain was: ' + domain + ', changing to: ' + topDomain);
 	if(!queryData.get('dontSetIt')) {
-		document.domain = domainHigher;
+		document.domain = topDomain;
 	}
 
 	if(!isChild) {
 		var childSubdomain = 'c2'; // Change this if needed
-		var childDomain = childSubdomain + '.' + domainHigher;
+		var childDomain = childSubdomain + '.' + topDomain;
 		var childQueryData = queryData.clone();
 		childQueryData.set('isChild', '1');
-		var childUrl = String(window.location).replace(url.getDomain(), childDomain) + '?' + childQueryData.toString();
-		logger.info('Writing child iframe with URL: ' + childUrl);
-		document.write('Child iframe: <iframe id="childiframe" src="'+childUrl+'" width=800 height=400></iframe>');
+		childQueryData.remove('dontGoHigher');
+		var childUrl = url.clone();
+		childUrl.setDomain(childDomain);
+		childUrl.setQueryData(childQueryData);
+		logger.info('Writing child iframe with URL: ' + childUrl.toString());
+		document.write('Child iframe: <iframe id="childiframe" src="'+childUrl.toString()+'" width=800 height=400></iframe>');
 	} else {
 		// Send a message to parent
+		logger.info('Sending message to parent');
 		parent.messageFromChild("hi");
 	}
 }
