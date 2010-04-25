@@ -74,12 +74,16 @@ function main() {
 	domainHigher = domainHigher.join('.');
 
 	logger.info('document.domain was: ' + domainWithoutPort + ', changing to: ' + domainHigher);
-	document.domain = domainHigher;
+	if(!queryData.get('dontSetIt')) {
+		document.domain = domainHigher;
+	}
 
 	if(!isChild) {
 		var childSubdomain = 'c2'; // Change this if needed
 		var childDomain = childSubdomain + '.' + domainHigher;
-		var childUrl = String(window.location).replace(url.getDomain(), childDomain) + '?isChild=1';
+		var childQueryData = queryData.clone();
+		childQueryData.set('isChild', '1');
+		var childUrl = String(window.location).replace(url.getDomain(), childDomain) + '?' + childQueryData.toString();
 		logger.info('Writing child iframe with URL: ' + childUrl);
 		document.write('Child iframe: <iframe id="childiframe" src="'+childUrl+'" width=800 height=400></iframe>');
 	} else {
