@@ -80,7 +80,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		if(!goog.userAgent.IE) {
 			// Non-IE environments are expected to have a working
 			// XMLHttpRequest object.
-			self.assertEqual('boolean', goog.typeOf(out));
+			self.assertIn(goog.typeOf(out), goog.object.createSet('boolean', 'null'));
 		}
 		if(goog.userAgent.IE && !goog.userAgent.isVersion('7.0')) {
 			self.assertEqual('array', goog.typeOf(out));
