@@ -385,8 +385,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * even when tests are run in a strange order.
 	 */
 	function test_visitSuite(self) {
-		var originalSelf = self;
-
 		var log = [];
 		function visitor(test) {
 			log.push(test);
