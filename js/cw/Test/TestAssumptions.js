@@ -211,7 +211,7 @@ there';
 			self.assertIdentical(size, result.length);
 		} else {
 			try {
-				var result = eval(stringedArray);
+				eval(stringedArray);
 				self.fail("This line should not be reached; eval should have thrown an Error with 'Out of memory' message");
 			} catch(e) {
 				self.assertIdentical("Out of memory", e.message);
