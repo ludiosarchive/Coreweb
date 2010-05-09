@@ -217,6 +217,45 @@ there';
 				self.assertIdentical("Out of memory", e.message);
 			}
 		}
+	},
+
+	/**
+	 * Test that IE6-IE8 improperly skip over properties during iteration,
+	 * while other browsers do not.
+	 *
+	 * From JScript Deviations from ES3 (2007 draft):
+	 *
+	 * "2.10 Enumerating shadowed [[DontEnum]] properties: §15.2.4
+	 *
+	 * Custom properties that shadow [[DontEnum]] properties on
+	 * Object.prototype are not enumerated using for-in. In the following
+	 * example toString is a property available on Object.prototype and is
+	 * shadowed on cowboy. Since such properties are not enumerated through
+	 * for-in, it is not possible to transfer them from a one object to another
+	 * using for-in."
+	 *
+	 * Paraphrased in [MS-ES3]: Internet Explorer ECMA-262 ECMAScript Language
+	 * Specification Standards Support Document (2010-03-26):
+	 *
+	 * "Note that JScript 5.x defines properties (see [ECMA-262] section
+	 * 6.6.2.2) such that their DontEnum attribute is inherited from prototype
+	 * properties with the same name. As a result of this, any properties that
+	 * have the same name as built-in properties of a prototype object that
+	 * have the DontEnum attribute are not included in an enumeration."
+	   */
+	function test_incorrectDontEnumInheritance(self) {
+		var IEBefore9 = goog.userAgent.IE && !goog.userAgent.isVersion('9');
+		var anObject = {'hello': 1, 'toString': 2, 'hasOwnProperty': 3, 'valueOf': 4};
+		var foundKeys = [];
+		for(var k in anObject) {
+			foundKeys.push(k);
+		}
+		foundKeys.sort();
+		if(IEBefore9) {
+			self.assertEqual(['hello'], foundKeys);
+		} else {
+			self.assertEqual(['hasOwnProperty', 'hello', 'toString', 'valueOf'], foundKeys);
+		}
 	}
 );
 
