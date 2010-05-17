@@ -6,6 +6,7 @@
 goog.provide('cw.Test.TestAssumptions');
 
 goog.require('cw.UnitTest');
+goog.require('goog.array');
 goog.require('goog.userAgent');
 
 
@@ -256,6 +257,15 @@ there';
 		} else {
 			self.assertEqual(['hasOwnProperty', 'hello', 'toString', 'valueOf'], foundKeys);
 		}
+	},
+
+	/**
+	 * parseInt ignores trailing garbage.
+	 */
+	function test_parseIntIgnoresTrailingGarbage(self) {
+		goog.array.forEach("N,~,!, ".split(','), function(trailer) {
+			self.assertIdentical(10, parseInt("010" + trailer, 10));
+		});
 	}
 );
 
