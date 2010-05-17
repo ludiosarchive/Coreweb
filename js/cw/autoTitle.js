@@ -3,6 +3,9 @@
  * 	reasonably-descriptive title.
  */
 
+goog.provide('cw.autoTitle');
+
+
 (function(){
 	var split = String(document.location).split('/');
 	var last = split[split.length-1];
