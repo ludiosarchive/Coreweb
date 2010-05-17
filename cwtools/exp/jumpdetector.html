@@ -6,10 +6,6 @@
 	<style>
 		{{ getTestPageCSS() }}
 	</style>
-	<script>
-		{{ expandScript('// import cw.autoTitle') }}
-		window.CLOSURE_NO_DEPS = true;
-	</script>
 </head>
 <body>
 
@@ -31,15 +27,17 @@ this to detect a backwards time jump.
 
 <div id="dots"></div>
 
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/nongoog_deps.js"></script>
+
 <script>
-{{ expandScript("""
+goog.require('cw.autoTitle');
 goog.require('goog.debug.DivConsole');
 goog.require('goog.debug.Logger');
 goog.require('cw.clock');
 goog.require('goog.events');
 goog.require('goog.events.EventHandler');
 goog.require('cw.UnitTest');
-""") }}
 </script>
 
 <script>

@@ -6,10 +6,6 @@
 	<style>
 		{{ getTestPageCSS() }}
 	</style>
-	<script>
-		{{ expandScript('// import cw.autoTitle') }}
-		window.CLOSURE_NO_DEPS = true;
-	</script>
 </head>
 <body>
 
@@ -46,13 +42,15 @@ because it is not shared accross tabs in most/all browsers.)
 
 <div id="log"></div>
 
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/nongoog_deps.js"></script>
+
 <script>
-{{ expandScript("""
+goog.require('cw.autoTitle');
 goog.require('goog.debug.DivConsole');
 goog.require('goog.debug.Logger');
 goog.require('goog.string');
 goog.require('goog.net.cookies');
-""") }}
 </script>
 
 <script>

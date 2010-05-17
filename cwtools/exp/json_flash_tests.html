@@ -6,18 +6,15 @@
 	<style>
 		{{ getTestPageCSS() }}
 	</style>
-	<script>
-		{{ expandScript('// import cw.autoTitle') }}
-		window.CLOSURE_NO_DEPS = true;
-	</script>
 </head>
 <body>
 
-<script>
-{{ expandScript("""
-goog.require('swfobject');
-""") }}
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/nongoog_deps.js"></script>
 
+<script>
+goog.require('cw.autoTitle');
+goog.require('swfobject');
 </script>
 
 

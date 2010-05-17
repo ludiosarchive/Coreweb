@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="charset" content="text/html; charset=utf-8">
-	<title>externalinterface_chartest</title>
+	<title></title>
 	<style>
 	* {
 		font-family: Verdana, sans-serif;
@@ -18,13 +18,14 @@
 </head>
 <body>
 
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/nongoog_deps.js"></script>
 
 <script>
-{{ expandScript("""
+goog.require('cw.autoTitle');
 goog.require('swfobject');
 goog.require('goog.json.Serializer');
 goog.require('cw.externalinterface');
-""") }}
 //function eval(s) {alert(s)};
 </script>
 
