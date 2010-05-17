@@ -54,13 +54,14 @@ class Root(resource.Resource):
 		here = FilePath(cwtools.__path__[0])
 
 		JSPATH = FilePath(os.environ['JSPATH'])
-		directoryScan = jsimp.DirectoryScan(JSPATH)
+		directoryScan = jsimp.DirectoryScan(JSPATH) # TODO: remove
 
 		self.putChild('', static.File(here.child('index.html').path))
+		self.putChild('JSPATH', static.File(JSPATH.path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH, directoryScan))
 		self.putChild('compiler', Compiler(reactor, JSPATH))
 		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/
-		self.putChild('@tests', testing.TestPage(testPackages, directoryScan))
+		self.putChild('@tests', testing.TestPage(testPackages, JSPATH))
 
 		testres_Coreweb = here.child('testres').path
 		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))

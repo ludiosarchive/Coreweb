@@ -29,6 +29,12 @@ TestRunnerPage._abortMessage =
 	"TestRunnerPage._abortExecution is true. " +
 	"Check for errors on this test page in your JavaScript console.";
 TestRunnerPage.timers = {};
+// The `moduleString` should look like ["cw.Test.TestModule1", "cw.Test.TestModule2"]
+TestRunnerPage.modules = {{ moduleString }};
+
+if(TestRunnerPage.modules.length == 0) {
+	throw new Error("TestRunnerPage: 0 modules?");
+}
 
 /**
  * Clone just the property strings, ignore the values.
@@ -71,11 +77,25 @@ TestRunnerPage.logNewProps = function() {
 }
 
 
+TestRunnerPage.moduleNamesToObjects = function(moduleNames) {
+	var objects = [];
+	for(var i=0; i < moduleNames.length; i++) {
+		var obj = goog.getObjectByName(moduleNames[i]);
+		if(obj == null) {
+			throw new Error("Could not get module object for " +
+				moduleNames[i] + " - check your goog.provide lines?");
+		}
+		objects.push(obj);
+	}
+	return objects;
+}
+
+
 TestRunnerPage.startTests = function() {
 	TestRunnerPage.logger.info('Running tests.');
 
-	var modules = {{ moduleString }};
-	var suite = cw.UnitTest.loadFromModules(modules);
+	var moduleObjects = TestRunnerPage.moduleNamesToObjects(TestRunnerPage.modules);
+	var suite = cw.UnitTest.loadFromModules(moduleObjects);
 
 	var outputDiv = document.getElementById('TestRunnerPage-results');
 	var d = cw.UnitTest.runWeb(suite, outputDiv);
@@ -94,28 +114,32 @@ TestRunnerPage.propsBefore = TestRunnerPage.cloneProperties(window);
 
 TestRunnerPage.timers.scriptLoadStart = +new Date; /* scripts begin */
 
-
-window.CLOSURE_NO_DEPS = true;
-
-// Stopping all script execution if there's an error above is good. We could use just
-// one <script> on this page to achieve that effect, but then we don't get timing
-// information about how long it takes for the scriptContent to parse (because it's
-// already parsed as we're in the <script>). So we use three <script>s and check for
-// a failure condition.
-
 TestRunnerPage._abortExecution = false;
 
 </script>
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/cw_deps.js"></script>
 <script>
-
 if(TestRunnerPage._abortExecution) {
 	throw new Error("[0] " + TestRunnerPage._abortMessage);
 }
+TestRunnerPage._abortExecution = true;
 
-{{ scriptContent }}
+(function() {
+	for(var i=0; i < TestRunnerPage.modules.length; i++) {
+		var moduleName = TestRunnerPage.modules[i];
+		goog.require(moduleName);
+	}
+})();
 
+TestRunnerPage._abortExecution = false;
 </script>
 <script>
+if(TestRunnerPage._abortExecution) {
+	throw new Error("[1] " + TestRunnerPage._abortMessage);
+}
+
+TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
 
 /*
  * Set up the Firebug console as a log observer.
@@ -144,12 +168,6 @@ goog.debug.LogManager.getRoot().addHandler(TestRunnerPage._htmlLogOutput);
 
 TestRunnerPage.logger = goog.debug.Logger.getLogger('TestRunnerPage');
 TestRunnerPage.logger.setLevel(goog.debug.Logger.Level.ALL);
-
-if(TestRunnerPage._abortExecution) {
-	throw new Error("[1] " + TestRunnerPage._abortMessage);
-}
-
-TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
 
 TestRunnerPage.logger.info(
 	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +

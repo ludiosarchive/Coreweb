@@ -1,39 +1,20 @@
+from __future__ import with_statement
+
 import os
 import jinja2
 
+from simplejson import dumps
 from twisted.python.filepath import FilePath
 from twisted.web import resource
 
 from cwtools import jsimp
 
 
-def _getTests(packages, basePath, directoryScan):
-	"""
-	C{packages} is a list of strings representing JavaScript package names.
-
-	@return: a list of L{Script}s.
-	"""
-	tests = []
-	for package in packages:
-		# This used to add `package' itself, but no longer.
-		# TODO: make this descend Test packages, too (imitate Twisted Trial)
-		tests.extend(jsimp.Script(package, basePath, directoryScan).globChildren('Test*'))
-	return tests
-
-
-
-def _getScriptContent(tests):
-	scriptContent = jsimp.megaScript(jsimp.getDepsMany(tests))
-	return scriptContent
-
-
-
-def _getModuleListString(tests):
-	moduleList = []
-	for t in tests:
-		moduleList.append(t.getName())
-	moduleString = '[' + ','.join(moduleList) + ']'
-	return moduleString
+def getFirstProvideLine(fp):
+	with open(fp.path, 'rb') as f:
+		for line in f:
+			if line.startswith("goog.provide("):
+				return jsimp._extractOneArgFromFuncall(line, 'goog.provide')
 
 
 
@@ -44,9 +25,8 @@ class TestPage(resource.Resource):
 	For example:
 
 		JSPATH = FilePath(os.environ['JSPATH'])
-		directoryScan = jsimp.DirectoryScan(JSPATH)
 
-		self.putChild('@tests', TestPage(['cw.Test'], directoryScan))
+		self.putChild('@tests', TestPage(['cw.Test'], JSPATH))
 		testres_Coreweb = FilePath(cwtools.__path__[0]).child('testres').path
 		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))
 
@@ -55,9 +35,9 @@ class TestPage(resource.Resource):
 
 	# C{testPackages} is a sequence of strings, which represent JavaScript packages or modules.
 
-	def __init__(self, testPackages, directoryScan):
+	def __init__(self, testPackages, JSPATH):
 		self.testPackages = testPackages
-		self.directoryScan = directoryScan
+		self.JSPATH = JSPATH
 
 
 	def render_GET(self, request):
@@ -72,32 +52,23 @@ class TestPage(resource.Resource):
 		# Note that unless restrictions are added to this feature, anyone
 		# who can visit the test page can download any JavaScript module in JSPATH.
 
-		JSPATH = FilePath(os.environ['JSPATH'])
-
 		if request.args.get('only'):
-			##theTests = _getTests(request.args['only'][0].split(','), JSPATH, self.directoryScan)
-			theTests = []
-			for package in request.args['only'][0].split(','):
-				theTests.append(jsimp.Script(package, JSPATH, self.directoryScan))
+			modules = request.args['only'][0].split(',')
 		else:
-			theTests = _getTests(self.testPackages, JSPATH, self.directoryScan)
-
-		# This try/except/rescan only handles the case where a `provide' could not be found.
-		# If the name being `provide'd moved to another JavaScript file, the state will be
-		# bad and the assembled JavaScript will be wrong. In this case, restarting the
-		# development server is the best option.
-		try:
-			scriptContent = _getScriptContent(theTests)
-		except jsimp.NobodyProvidesThis:
-			self.directoryScan.rescan()
-			scriptContent = _getScriptContent(theTests)
+			modules = []
+			for p in self.testPackages:
+				directory = self.JSPATH.preauthChild(p.replace('.', '/'))
+				# TODO: make this descend Test packages, too (imitate Twisted Trial)
+				testFiles = directory.globChildren('Test*')
+				for tf in testFiles:
+					provideLine = getFirstProvideLine(tf)
+					modules.append(provideLine)
 
 		# ...but don't run the tests on the dependency modules
-		moduleString = _getModuleListString(theTests)
+		moduleString = dumps(modules)
 
 		template = FilePath(__file__).parent().child('TestRunnerPage.html').getContent().decode('utf-8')
 		dictionary = dict(
-			scriptContent=scriptContent,
 			moduleString=moduleString,
 			pageTitle=','.join(self.testPackages))
 		rendered = jinja2.Environment().from_string(template).render(dictionary)
