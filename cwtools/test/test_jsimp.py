@@ -291,6 +291,8 @@ goog.require("something.else");\r
 		d.child('r.js').setContent('// \n')
 		d.child('closure_style.js').setContent('goog.require("special.thing2")\ngoog.provide("special.thing")\n')
 		d.child('closure_style2.js').setContent('goog.provide("special.thing2")\n')
+		d.child('a').child('goog').makedirs()
+		d.child('a').child('goog').child('base.js').setContent('var goog = goog || {};\n')
 
 		ds = jsimp.DirectoryScan(d)
 
@@ -299,7 +301,7 @@ goog.require("something.else");\r
 		r = jsimp.Script('r', d, ds)
 		closure_style = jsimp.Script('closure_style', d, ds)
 		closure_style2 = jsimp.Script('closure_style2', d, ds)
-		goog_base = jsimp.Script('goog.base', d, ds)
+		goog_base = jsimp.Script('a.goog.base', d, ds)
 
 		self.assertEqual(
 			[q, r, goog_base, closure_style],
@@ -321,14 +323,18 @@ goog.require("something.else");\r
 		d.child('sub').child('__init__.js').setContent('// import q\n')
 		d.child('sub').child('noimportlines.js').setContent('// \n')
 		d.child('sub').child('closure_style_code.js').setContent('goog.provide("something")\n')
+		d.child('a').child('goog').makedirs()
+		d.child('a').child('goog').child('base.js').setContent('var goog = goog || {};\n')
 
-		p = jsimp.Script('p', d)
-		q = jsimp.Script('q', d)
-		r = jsimp.Script('r', d)
-		initjs = jsimp.Script('sub', d)
-		noimportlines = jsimp.Script('sub.noimportlines', d)
-		closure_style_code = jsimp.Script('sub.closure_style_code', d)
-		goog_base = jsimp.Script('goog.base', d)
+		ds = jsimp.DirectoryScan(d)
+
+		p = jsimp.Script('p', d, ds)
+		q = jsimp.Script('q', d, ds)
+		r = jsimp.Script('r', d, ds)
+		initjs = jsimp.Script('sub', d, ds)
+		noimportlines = jsimp.Script('sub.noimportlines', d, ds)
+		closure_style_code = jsimp.Script('sub.closure_style_code', d, ds)
+		goog_base = jsimp.Script('a.goog.base', d, ds)
 
 		self.assertEqual(
 			[q, r],
@@ -963,7 +969,7 @@ class GetAllFilenamesForXTests(unittest.TestCase):
 	def _setup(self):
 		d = FilePath(self.mktemp())
 		d.child('goog').makedirs()
-		d.child('goog').child('base.js').setContent('')
+		d.child('goog').child('base.js').setContent('var goog = goog || {};\n')
 		c = d.child('p')
 		c.makedirs()
 

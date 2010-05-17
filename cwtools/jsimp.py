@@ -65,6 +65,8 @@ class DirectoryScan(object):
 
 	def __init__(self, basePath):
 		self._basePath = basePath
+		# Mapping of "X" in goog.provide("X") -> "dotted module name"
+		# (really a path with . instead of /)
 		self._mapping = {}
 		self.rescan()
 
@@ -88,6 +90,8 @@ class DirectoryScan(object):
 									provide, c, self._mapping[provide]))
 						moduleName = c.basename().split('.', 1)[0] # copied from globChildren
 						self._mapping[provide] = '.'.join(location + [moduleName])
+					elif line.startswith('var goog = goog || {};'):
+						self._mapping['goog.base'] = '.'.join(location + ['base'])
 				f.close()
 
 
@@ -340,7 +344,8 @@ class _BaseScript(object):
 		# All Closure-style scripts depend on goog.base
 		# Because Script('goog.base') is not Closure-style, it doesn't import itself
 		if self._isClosureStyle:
-			_addImportee('goog.base')
+			importeeName = self._directoryScan.whoProvide('goog.base')
+			_addImportee(importeeName)
 
 		for requireeName in data['requires']:
 			importeeName = self._directoryScan.whoProvide(requireeName)
@@ -414,7 +419,9 @@ class Script(_BaseScript):
 
 
 	def _isGoogBase(self):
-		return self._name == 'goog.base'
+		if self._name is None:
+			return False
+		return self._name.split('.')[-2:] == ['goog', 'base']
 
 
 	def _isPackage(self):
