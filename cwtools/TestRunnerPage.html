@@ -171,7 +171,8 @@ TestRunnerPage.logger.setLevel(goog.debug.Logger.Level.ALL);
 
 TestRunnerPage.logger.info(
 	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +
-	" ms to load scripts.");
+	" ms to load scripts. If this is too long, disable browser extensions "+
+	"that watch HTTP requests, like HttpFox or Firebug.");
 
 window.onload = TestRunnerPage.startTests;
 
