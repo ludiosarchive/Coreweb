@@ -127,24 +127,18 @@ class LiveBoxPage(resource.Resource):
 	"""
 	Treats C{basePath}/C{fileName} as a template.
 	"""
-	def __init__(self, basePath, fileName, JSPATH, directoryScan):
+	def __init__(self, basePath, fileName, JSPATH):
 		resource.Resource.__init__(self)
 		self._basePath = basePath
 		self._fileName = fileName
 		self._JSPATH = JSPATH
-		self._directoryScan = directoryScan
 		self._jinja2Env = jinja2.Environment()
 
 
 	def _render(self, request):
-		name = self._fileName
-
-		def _expandScript(s):
-			return expandScript(s, self._JSPATH, self._directoryScan)
-
 		# This jinja2 stuff is for the html page, not the JavaScript
 		template = self._basePath.child(self._fileName).getContent().decode('utf-8')
-		dictionary = dict(expandScript=_expandScript, getTestPageCSS=getTestPageCSS)
+		dictionary = dict(getTestPageCSS=getTestPageCSS)
 		rendered = self._jinja2Env.from_string(template).render(dictionary)
 		if not rendered.endswith(u'\n'):
 			rendered += u'\n'
@@ -170,18 +164,17 @@ class LiveBox(static.File):
 	Like L{static.File}, this can serve anything. Non-C{.html} files
 	will be not be processed with jinja2.
 	"""
-	def __init__(self, basePath, JSPATH, directoryScan, *args, **kwargs):
+	def __init__(self, basePath, JSPATH, *args, **kwargs):
 		static.File.__init__(self, basePath, *args, **kwargs)
 		self._basePath = FilePath(basePath)
 		self._JSPATH = JSPATH
-		self._directoryScan = directoryScan
 
 
 	def getChild(self, name, request):
 		if self._basePath.child(name).isdir() or not name.lower().endswith('.html'):
 			return static.File.getChild(self, name, request)
 		else:
-			return LiveBoxPage(self._basePath, name, self._JSPATH, self._directoryScan)
+			return LiveBoxPage(self._basePath, name, self._JSPATH)
 
 
 
