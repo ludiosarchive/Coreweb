@@ -1348,25 +1348,15 @@ cw.UnitTest.makeUneval_ = function() {
 		}
 	};
 
-	var uneval_asIs = function(o) {
-		return o.toString();
-	};
+	var uneval_Array = function(o) {
+		var src = [];
+		for (var i = 0, l = o.length; i < l; i++) {
+			src[i] = uneval(o[i], /*noParens*/true);
+		}
+		return '[' + src.toString() + ']';
+	}
 
-	// predefine for objects where typeof(o) != 'object'
-	var name2uneval = {
-		'boolean': uneval_asIs,
-		'number': uneval_asIs,
-		'string': function(o){
-			// regex is: control characters, double quote, backslash,
-			return '\"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, escapeChar) + '\"';
-		},
-		'undefined': function(o){
-			return 'undefined';
-		},
-		'function': uneval_asIs
-	};
-
-	var uneval_default = function(o, noParens) {
+	var uneval_Object = function(o, noParens) {
 		var src = []; // a-ha!
 		for (var p in o){
 			if (!hasOwnProperty.call(o, p)) {
@@ -1380,49 +1370,45 @@ cw.UnitTest.makeUneval_ = function() {
 		} else {
 			return '({' + src.toString() + '})';
 		}
-	};
+	}
 
-	var uneval_set = function(proto, name, func) {
-		protos.push([proto, name]);
-		name2uneval[name] = func || uneval_default;
-	};
-
-	uneval_set(Array, 'array', function(o) {
-		var src = [];
-		for (var i = 0, l = o.length; i < l; i++) {
-			src[i] = uneval(o[i], /*noParens*/true);
+	var uneval_Anything = function(o) {
+		if(o.__repr__ != null) {
+			return o.__repr__();
+		} else {
+			return o.toString();
 		}
-		return '[' + src.toString() + ']';
-	});
+	}
 
-	uneval_set(RegExp, 'regexp', uneval_asIs);
-
-	uneval_set(Date, 'date', function(o) {
-		return '(new Date(' + o.valueOf() + '))';
-	});
-
-	var typeName = function(o) {
-		var t = typeof o;
-		if (t != 'object') {
-			return t;
-		}
-		// we have to linear-search. sigh.
-		for (var i = 0, l = protos.length; i < l; i++){
-			if (o instanceof protos[i][0]) {
-				return protos[i][1];
-			}
-		}
-		return 'object';
-	};
-
-	var uneval = function(o, noParens) {
-		// if (o.toSource) return o.toSource(); // a bad idea, but maybe useful for comparison
-
-		// null is of type "object", so short-circuit
-		if (o === null) {
+	var name2uneval = {
+		'array': uneval_Array,
+		'object': uneval_Object,
+		'boolean': uneval_Anything,
+		'number': uneval_Anything,
+		'string': function(o) {
+			// regex is: control characters, double quote, backslash,
+			return '"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, escapeChar) + '"';
+		},
+		'null': function(o) {
 			return 'null';
+		},
+		'undefined': function(o) {
+			return 'undefined';
+		},
+		'function': uneval_Anything,
+		'unknown': uneval_Anything /* IE-only */
+	};
+
+	// TODO: use __repr__, maybe also toSource
+	var uneval = function(o, noParens) {
+		if(goog.isDateLike(o)) {
+			return '(new Date(' + o.valueOf() + '))';
+		// We cannot properly detect RegExps from other frames/windows. 
+		} else if(o instanceof RegExp) {
+			return o.toString();
 		}
-		var func = name2uneval[typeName(o)] || uneval_default;
+
+		var func = name2uneval[goog.typeOf(o)];
 		return func(o, noParens);
 	}
 

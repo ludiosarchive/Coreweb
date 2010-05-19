@@ -803,7 +803,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'ReprTests').methods(
 		self.assertIdentical(repr('foo'), '"foo"');
 	},
 
-
 	function test_shortEscapes(self) {
 		var repr = cw.UnitTest.repr;
 		self.assertIdentical(repr('fo\to'), '"fo\\to"');
