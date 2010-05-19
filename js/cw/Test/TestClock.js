@@ -300,7 +300,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		clock.setTimeout(callable, 1);
 		clock.advance_(1);
 		// Don't use assertIdentical or similar because TestCase.compare
-		// calls cw.UnitTest.repr, and this leads to a stack overflow if
+		// calls cw.repr.repr, and this leads to a stack overflow if
 		// the objects do not match.
 		self.assert(window === scopeObject,
 			"this !== scopeObject; scopeObject is " + scopeObject.toString() +

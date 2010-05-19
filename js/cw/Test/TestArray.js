@@ -4,6 +4,7 @@
 goog.provide('cw.Test.TestArray');
 
 goog.require('cw.UnitTest');
+goog.require('cw.repr');
 goog.require('cw.array');
 
 
@@ -55,7 +56,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestArray, 'UniqTests').methods(
 		var b = cw.array.uniq(a);
 		// How strings and numbers are mixed in a sorted array varies accross browsers,
 		// so we'll just check the length.
-		self.assertEqual(6, b.length, "uniq'ed: " + cw.UnitTest.repr(b));
+		self.assertEqual(6, b.length, "uniq'ed: " + cw.repr.repr(b));
 	},
 
 

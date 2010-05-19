@@ -696,7 +696,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 */
 	function compare(self, predicate, description, a, b,
 					 /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		var repr = cw.UnitTest.repr;
+		var repr = cw.repr.repr;
 		if (!predicate(a, b)) {
 			var msg = repr(a) + " " + description + " " + repr(b);
 			if (message != null) {
@@ -823,7 +823,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 			var i;
 			var failMsg = goog.string.subs("Arrays %s != %s; original message: %s",
-				cw.UnitTest.repr(a), cw.UnitTest.repr(b), message);
+				cw.repr.repr(a), cw.repr.repr(b), message);
 			// TODO: only repr() on error
 
 			self.assertIdentical(a.length, b.length, failMsg, true);
@@ -1287,135 +1287,6 @@ cw.UnitTest.runRemote = function runRemote(test) {
 	test.run(result);
 };*/
 
-
-/**
- * Return a string representation of an arbitrary value, similar to
- * Python's builtin repr() function.
- *
- * Copied from (same content)
- *    http://blog.livedoor.jp/dankogai/js/uneval.txt
- *    http://bulkya.blogdb.jp/share/browser/lang/javascript/clone/trunk/uneval.js
- *
- * TODO XXX LICENSE
- *
- * Modified:
- *    "str\"i'ng" instead of 'str\'i\"ng'
- *    fixed a major bug in escapeChar
- *    fixed a bug in char2esc - "\r" was incorrect
- *    fixed to make recursive calls with noParens when iterating an array
- *    remove short escape for vertical tab, because JScript doesn't support it.
- * 
- * Differs from our old repr:
- *    no more superfluous spaces between items in arrays.
- *
- * @private
- */
-cw.UnitTest.makeUneval_ = function() {
-	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	var protos = [];
-
-	var char2esc = {
-		'\t':'t', // tab
-		'\n':'n', // newline
-		'\f':'f', // form feed
-		'\r':'r' // carriage return
-
-		// short vertical tab isn't here because JScript doesn't support it, so we'll
-		// pretend it doesn't exist in any browser, for consistency.
-	};
-
-	var escapeChar = function(c) {
-		if (c in char2esc) {
-			return '\\' + char2esc[c];
-		}
-		var ord = c.charCodeAt(0);
-		// The choice is to use \x escapes, and to uppercase the hex,
-		// is based on .toSource() behavior in Firefox.
-		if(ord < 0x10) {
-			return '\\x0' + ord.toString(16).toUpperCase();
-		} else if(ord < 0x20) {
-			return '\\x' + ord.toString(16).toUpperCase();
-		} else if(ord < 0x7F) {
-			// Because this character is in the visible character range,
-			// and we were asked to escape it anyway, just backslash it.
-			return '\\' + c;
-		} else if(ord < 0x100) {
-			return '\\x' + ord.toString(16).toUpperCase();
-		} else if(ord < 0x1000) {
-			return '\\u0' + ord.toString(16).toUpperCase();
-		} else {
-			return '\\u'  + ord.toString(16).toUpperCase();
-		}
-	};
-
-	var uneval_Array = function(o) {
-		var src = [];
-		for (var i = 0, l = o.length; i < l; i++) {
-			src[i] = uneval(o[i], /*noParens*/true);
-		}
-		return '[' + src.toString() + ']';
-	}
-
-	var uneval_Object = function(o, noParens) {
-		var src = []; // a-ha!
-		for (var p in o){
-			if (!hasOwnProperty.call(o, p)) {
-				continue;
-			}
-			src.push(uneval(p, /*noParens*/true)  + ':' + uneval(o[p], /*noParens*/true));
-		};
-		// parens are only used for the outer-most object.
-		if(noParens) {
-			return '{' + src.toString() + '}';
-		} else {
-			return '({' + src.toString() + '})';
-		}
-	}
-
-	var uneval_Anything = function(o) {
-		if(o.__repr__ != null) {
-			return o.__repr__();
-		} else {
-			return o.toString();
-		}
-	}
-
-	var name2uneval = {
-		'array': uneval_Array,
-		'object': uneval_Object,
-		'boolean': uneval_Anything,
-		'number': uneval_Anything,
-		'string': function(o) {
-			// regex is: control characters, double quote, backslash,
-			return '"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, escapeChar) + '"';
-		},
-		'null': function(o) {
-			return 'null';
-		},
-		'undefined': function(o) {
-			return 'undefined';
-		},
-		'function': uneval_Anything,
-		'unknown': uneval_Anything /* IE-only */
-	};
-
-	// TODO: use __repr__, maybe also toSource
-	var uneval = function(o, noParens) {
-		if(goog.isDateLike(o)) {
-			return '(new Date(' + o.valueOf() + '))';
-		// We cannot properly detect RegExps from other frames/windows. 
-		} else if(o instanceof RegExp) {
-			return o.toString();
-		}
-
-		var func = name2uneval[goog.typeOf(o)];
-		return func(o, noParens);
-	}
-
-	return uneval;
-}
-
-cw.UnitTest.repr = cw.UnitTest.makeUneval_();
 
 
 /**

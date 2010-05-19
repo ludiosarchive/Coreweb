@@ -245,7 +245,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 		// to reliably remove their "sibling" calls, because they run in an
 		// arbitrary order. ("sibling" means happening around the same time).
 		for(;;) {
-			//console.log('calls_: ', cw.UnitTest.repr(this.calls_), 'rightNow_: ', this.rightNow_);
+			//console.log('calls_: ', cw.repr.repr(this.calls_), 'rightNow_: ', this.rightNow_);
 			if(this.calls_.length === 0 || extraStopCondition() || this.calls_[0].notNow_) {
 				break;
 			}
@@ -554,7 +554,7 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	var timeLast = this.timeLast_;
 
 	//cw.UnitTest.logger.info('checkTimeJump_: ' +
-	//	cw.UnitTest.repr({now:now, prodded:prodded, timeLast: timeLast, expectedFiringTime_: this.expectedFiringTime_}));
+	//	cw.repr.repr({now:now, prodded:prodded, timeLast: timeLast, expectedFiringTime_: this.expectedFiringTime_}));
 
 	if(timeLast != null && (now < timeLast || now > this.expectedFiringTime_ + cw.clock.TIMER_FORGIVENESS)) {
 		this.dispatchEvent({
