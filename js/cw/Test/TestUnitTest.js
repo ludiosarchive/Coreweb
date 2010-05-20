@@ -13,7 +13,6 @@ goog.require('cw.Test.Mock');
 goog.require('cw.Test.DMock');
 goog.require('cw.Test.DSMock');
 goog.require('goog.string');
-goog.require('goog.asserts.AssertionError');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 
@@ -190,8 +189,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
 			self.assert(
-				self.result.failures[0][1] instanceof goog.asserts.AssertionError,
-				"self.result.failures[0][1] should have been a goog.asserts.AssertionError, not a: " + self.result.failures[0][1]);
+				self.result.failures[0][1] instanceof cw.UnitTest.AssertionError,
+				"self.result.failures[0][1] should have been a cw.UnitTest.AssertionError, not a: " + self.result.failures[0][1]);
 			self.assertErrorMessage(self.result.failures[0][1], "[0] fail this test deliberately");
 
 			// check the error

@@ -29,9 +29,7 @@ goog.require('goog.array');
 goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
-goog.require('goog.asserts.AssertionError');
 goog.require('goog.testing.stacktrace');
-goog.require('goog.testing.TestCase.Error');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
@@ -152,6 +150,44 @@ cw.UnitTest.loadFromModules = function(testModules) {
 
 
 /**
+ * Raised to indicate that a test has failed.
+ *
+ * @param {string} msg Reason why the test failed.
+ * @constructor
+ * @extends {goog.debug.Error}
+ */
+cw.UnitTest.AssertionError = function(msg) {
+	goog.debug.Error.call(this, msg);
+	this.stack = goog.testing.stacktrace.canonicalize(this.stack);
+};
+goog.inherits(cw.UnitTest.AssertionError, goog.debug.Error);
+cw.UnitTest.AssertionError.prototype.name = 'cw.UnitTest.AssertionError';
+
+cw.UnitTest.AssertionError.prototype.toString = function() {
+	return this.message + (this.stack ? '\n' + this.stack : '');
+}
+
+
+/**
+ * Error wrapper for tests that have errored.
+ *
+ * @param {string} msg Error message
+ * @constructor
+ * @extends {goog.debug.Error}
+ */
+cw.UnitTest.TestError = function(msg) {
+	goog.debug.Error.call(this, msg);
+	this.stack = goog.testing.stacktrace.canonicalize(this.stack);
+};
+goog.inherits(cw.UnitTest.TestError, goog.debug.Error);
+cw.UnitTest.TestError.prototype.name = 'cw.UnitTest.TestError';
+
+cw.UnitTest.TestError.prototype.toString = function() {
+	return this.message + (this.stack ? '\n' + this.stack : '');
+}
+
+
+/**
  * Raised to indicate that a test is being skipped.
  *
  * @param {string} msg Reason why the test is being skipped.
@@ -180,7 +216,7 @@ cw.UnitTest.browserAddsCrapToErrorMessages = (
  * @type successes: Array of L{TestCase}
  * @ivar successes: A list of tests that succeeded.
  *
- * @type failures: Array of [L{TestCase}, L{goog.asserts.AssertionError}] pairs
+ * @type failures: Array of [L{TestCase}, L{cw.UnitTest.AssertionError}] pairs
  * @ivar failures: The assertion failures that have occurred in this test run,
  *				 paired with the tests that generated them.
  *
@@ -253,7 +289,7 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @type test: L{cw.UnitTest.TestCase}
 	 *
 	 * @param error: The failure that occurred.
-	 * @type error: A L{goog.asserts.AssertionError} instance.
+	 * @type error: A L{cw.UnitTest.AssertionError} instance.
 	 */
 	function addFailure(self, test, error) {
 		self.failures.push([test, error]);
@@ -328,9 +364,7 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
-		var shinyError = new goog.testing.TestCase.Error(
-			test.id(), error.message, goog.testing.stacktrace.canonicalize(error.stack));
-		pre.innerHTML = shinyError.toString();
+		pre.innerHTML = error.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -343,9 +377,7 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
-		var shinyError = new goog.testing.TestCase.Error(
-			test.id(), error.message, goog.testing.stacktrace.canonicalize(error.stack));
-		pre.innerHTML = shinyError.toString();
+		pre.innerHTML = error.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -632,10 +664,10 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
 	 *
 	 * @param {string} reason Why the test is being failed.
-	 * @return {goog.asserts.AssertionError}
+	 * @return {cw.UnitTest.AssertionError}
 	 */
 	function getFailError(self, reason) {
-		return new goog.asserts.AssertionError("[" + self._assertCounter + "] " + reason, []);
+		return new cw.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason, []);
 	},
 
 
@@ -697,7 +729,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @param message: An optional message to be included in the raised
 	 *				 L{AssertionError}.
 	 *
-	 * @raises L{goog.asserts.AssertionError} if C{predicate} returns
+	 * @raises L{cw.UnitTest.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
 	function compare(self, predicate, description, a, b,
@@ -944,7 +976,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *          a Deferred which will fire callback with a 1 item list: [the error object]
 	 *          with which the input Deferred failed
 	 *    else,
-	 *          a Deferred which will fire errback with a L{goog.asserts.AssertionError}.
+	 *          a Deferred which will fire errback with a L{cw.UnitTest.AssertionError}.
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
@@ -1022,12 +1054,12 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 				//console.log("From " + self._methodName + " got a ", methodD);
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
-					if (anError instanceof goog.asserts.AssertionError) {
+					if (anError instanceof cw.UnitTest.AssertionError) {
 						result.addFailure(self, anError);
 					} else if (anError instanceof cw.UnitTest.SkipTest) {
 						result.addSkip(self, anError);
 					} else {
-						result.addError(self, anError);
+						result.addError(self, new cw.UnitTest.TestError(anError.message));
 					}
 					success = false;
 				});
@@ -1129,7 +1161,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 //		try {
 //			self[self._methodName]();
 //		} catch (e) {
-//			if (e instanceof goog.asserts.AssertionError) {
+//			if (e instanceof cw.UnitTest.AssertionError) {
 //				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
