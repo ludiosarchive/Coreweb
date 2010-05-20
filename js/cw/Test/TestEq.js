@@ -25,19 +25,21 @@ var equals = cw.eq.equals;
 cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqTests').methods(
 
 	function test_equalsArrayLengthMismatch(self) {
-		var one = [[1], [3]];
-		var two = [[1], [3, 4]];
+		var one = [{}, [1], [3]];
+		var two = [{}, [1], [3, 4]];
 		var messages = [];
 		var equal = cw.eq.equals(one, two, messages);
 		self.assertFalse(equal);
 
 		var expectedMessages = [
 			'descending into array',
+			'descending into object',
+			'ascending from object',
 			'descending into array',
 			'ascending from array',
 			'descending into array',
 			'array length mismatch: 1, 2',
-			'earlier comparisons indicate mismatch at array item #1'
+			'earlier comparisons indicate mismatch at array item #2'
 		]
 
 		// Avoid using self.assertEqual in this file, in case cw.eq is broken
@@ -58,6 +60,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqTests').methods(
 			'descending into array',
 			'earlier comparisons indicate mismatch at array item #0',
 			'earlier comparisons indicate mismatch at array item #1'
+		]
+
+		// Avoid using self.assertEqual in this file, in case cw.eq is broken
+		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
+	},
+
+	function test_equalsObjectValueNotEqual(self) {
+		var one = {'x': 2};
+		var two = {'x': 3};
+		var messages = [];
+		var equal = cw.eq.equals(one, two, messages);
+		self.assertFalse(equal);
+
+		var expectedMessages = [
+			'descending into object',
+			'earlier comparisons indicate mismatch at property x'
 		]
 
 		// Avoid using self.assertEqual in this file, in case cw.eq is broken

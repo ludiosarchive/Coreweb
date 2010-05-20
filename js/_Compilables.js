@@ -6,6 +6,7 @@ goog.require('cw.eventual');
 goog.require('cw.externalinterface');
 goog.require('cw.string');
 goog.require('cw.repr');
+goog.require('cw.eq');
 goog.require('cw.uri');
 goog.require('cw.whoami');
 // in Minerva - one .require() per file, picked arbitrarily
