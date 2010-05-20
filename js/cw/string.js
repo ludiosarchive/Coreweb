@@ -74,3 +74,39 @@ cw.string.startsWithAlt = function(str, prefix) {
 	 // '==' works the same as '===' in this case
 	return !!(str.substr(0, prefix.length) == prefix);
 };
+
+
+/**
+ * Return the string with the last N characters truncated.
+ *
+ * @param {string} String to truncate
+ * @param {number} num How many characters to remove from the end.
+ *
+ * @return {string} The truncated string
+ */
+cw.string.withoutLast = function(str, num) {
+	return str.substr(0, str.length  - num);
+};
+
+
+
+cw.string.positiveIntegerRe = /^[1-9]\d*$/;
+
+
+/**
+ * A strict string->non-negative integer converter based on
+ * {@code mypy.objops.strToNonNegLimit}.
+ *
+ * @param {string} str String to convert to non-negative integer.
+ * @param {number} limit Upper bound for the number.
+ * @return {number|null} The number, or null, if it could not be converted.
+ */
+cw.string.strToNonNegLimit = function(str, limit) {
+	if(cw.string.positiveIntegerRe.test(str)) {
+		var num = parseInt(str, 10);
+		if(num <= limit) {
+			return num;
+		}
+	}
+	return null;
+}

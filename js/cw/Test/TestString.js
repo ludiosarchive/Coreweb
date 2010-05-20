@@ -116,4 +116,23 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'StartsWithAltTests').methods(
 	}
 );
 
+
+
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'WithoutLastTests').methods(
+
+	function test_withoutLast(self) {
+		self.assertIdentical("hell", cw.string.withoutLast("hello", 1));
+		self.assertIdentical("hello", cw.string.withoutLast("hello", 0));
+		self.assertIdentical("", cw.string.withoutLast("hello", 5));
+	},
+
+
+	function test_withoutLastRemoveTooMuch(self) {
+		self.assertIdentical("", cw.string.withoutLast("hello", 6));
+		self.assertIdentical("", cw.string.withoutLast("", 1));
+	}
+);
+
+
+
 })(); // end anti-clobbering for JScript
