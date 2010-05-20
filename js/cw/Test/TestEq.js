@@ -22,7 +22,7 @@ var equals = cw.eq.equals;
 // TODO: tests for custom .equals() behavior
 // TODO: make sure those custom `equals` methods can push messages
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqTests').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 
 	function test_equalsArrayLengthMismatch(self) {
 		var one = [{}, [1], [3]];
