@@ -89,7 +89,13 @@ cw.string.withoutLast = function(str, num) {
 };
 
 
-
+/**
+ * RegExp to match positive integers that start with [1-9].
+ * This does *not* match "0".
+ *
+ * @type {!RegExp}
+ * @const
+ */
 cw.string.strictPositiveIntegerRe = /^[1-9]\d*$/;
 
 
