@@ -60,32 +60,30 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 
 	},
 
-	function test_xAndUEscapes(self) {
+	function test_UEscapes(self) {
 		var repr = cw.repr.repr;
-		self.assertIdentical(repr('\u0000'), '"\\x00"');
-		self.assertIdentical(repr('\u000B'), '"\\x0B"'); // vertical tab; aka \v in decent browsers
-		self.assertIdentical(repr('\u0010'), '"\\x10"');
-		self.assertIdentical(repr('\u0015'), '"\\x15"');
-		self.assertIdentical(repr('\u0019'), '"\\x19"');
+		self.assertIdentical(repr('\u0000'), '"\\u0000"');
+		self.assertIdentical(repr('\u000B'), '"\\u000b"'); // vertical tab; aka \v in decent browsers
+		self.assertIdentical(repr('\u0010'), '"\\u0010"');
+		self.assertIdentical(repr('\u0015'), '"\\u0015"');
+		self.assertIdentical(repr('\u0019'), '"\\u0019"');
 		self.assertIdentical(repr('\u0020'), '" "');
 		self.assertIdentical(repr('\u007E'), '"~"');
-		self.assertIdentical(repr('\u007F'), '"\\x7F"');
-		self.assertIdentical(repr('\u0099'), '"\\x99"');
+		self.assertIdentical(repr('\u007F'), '"\\u007f"');
+		self.assertIdentical(repr('\u0099'), '"\\u0099"');
 		self.assertIdentical(repr('\u0100'), '"\\u0100"');
 		self.assertIdentical(repr('\u0400'), '"\\u0400"');
 		self.assertIdentical(repr('\u0999'), '"\\u0999"');
 		self.assertIdentical(repr('\u1000'), '"\\u1000"');
-		self.assertIdentical(repr('\ubeef'), '"\\uBEEF"');
-		self.assertIdentical(repr('\uFFFF'), '"\\uFFFF"');
-
+		self.assertIdentical(repr('\ubeef'), '"\\ubeef"');
+		self.assertIdentical(repr('\uFFFF'), '"\\uffff"');
 	},
 
 	function test_nestedEscaping(self) {
 		var repr = cw.repr.repr;
 		// All the escaping still works in nested objects/arrays
-		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\x00","\\x00"]');
-		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\x00","\\x00",{"\\x00":"0"}]');
-
+		self.assertIdentical(repr(['\u0000', '\u0000']), '["\\u0000","\\u0000"]');
+		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\u0000","\\u0000",{"\\u0000":"0"}]');
 	},
 
 	function test_miscTypes(self) {

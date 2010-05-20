@@ -20,53 +20,10 @@ goog.provide('cw.repr');
 goog.require('goog.json');
 
 
-cw.repr.shortEscapes_ = {
-	'\t':'t', // tab
-	'\n':'n', // newline
-	'\f':'f', // form feed
-	'\r':'r' // carriage return
-
-	// \v "short vertical tab" isn't here because IE6-IE8 doesn't
-	// support it, so we leave it out everywhere for consistency.
-};
-
-/**
- * Escape a single character.
- *
- * @param {string} c {@code string} of length 1 to escape.
- * @return {string} The escaped character (the original character
- * 	with a prepended backslash	, or a short escape, or an \xHH or
- * 	\uHHHH escape).
- */
-cw.repr.escapeChar = function(c) {
-	if (c in cw.repr.shortEscapes_) {
-		return '\\' + cw.repr.shortEscapes_[c];
-	}
-	var ord = c.charCodeAt(0);
-	// The choice is to use \x escapes, and to uppercase the hex,
-	// is based on .toSource() behavior in Firefox.
-	if(ord < 0x10) {
-		return '\\x0' + ord.toString(16).toUpperCase();
-	} else if(ord < 0x20) {
-		return '\\x' + ord.toString(16).toUpperCase();
-	} else if(ord < 0x7F) {
-		// Because this character is in the visible character range,
-		// and we were asked to escape it anyway, just backslash it.
-		return '\\' + c;
-	} else if(ord < 0x100) {
-		return '\\x' + ord.toString(16).toUpperCase();
-	} else if(ord < 0x1000) {
-		return '\\u0' + ord.toString(16).toUpperCase();
-	} else {
-		return '\\u'  + ord.toString(16).toUpperCase();
-	}
-};
-
-
 var uneval_Array = function(o) {
 	var src = [];
 	for (var i = 0, l = o.length; i < l; i++) {
-		src[i] = uneval(o[i], /*noParens*/true);
+		src[i] = cw.repr.repr(o[i], /*noParens*/true);
 	}
 	return '[' + src.toString() + ']';
 }
@@ -77,7 +34,7 @@ var uneval_Object = function(o, noParens) {
 		if (!hasOwnProperty.call(o, p)) {
 			continue;
 		}
-		src.push(uneval(p, /*noParens*/true)  + ':' + uneval(o[p], /*noParens*/true));
+		src.push(cw.repr.repr(p, /*noParens*/true)  + ':' + cw.repr.repr(o[p], /*noParens*/true));
 	};
 	// parens are only used for the outer-most object.
 	if(noParens) {
@@ -114,7 +71,9 @@ cw.repr.makeUneval_ = function() {
 		'number': uneval_Anything,
 		'string': function(o) {
 			// regex is: control characters, double quote, backslash,
-			return '"' + o.toString().replace(/[\x00-\x1F\"\\\u007F-\uFFFF]/g, cw.repr.escapeChar) + '"';
+			var a = [];
+			goog.json.Serializer.prototype.serializeString_(o, a);
+			return a.join('');
 		},
 		'null': function(o) {
 			return 'null';
@@ -127,7 +86,7 @@ cw.repr.makeUneval_ = function() {
 	};
 
 	// TODO: use __repr__, maybe also toSource
-	var uneval = function(o, noParens) {
+	return function(o, noParens) {
 		if(goog.isDateLike(o)) {
 			return '(new Date(' + o.valueOf() + '))';
 		// We cannot properly detect RegExps from other frames/windows.
@@ -138,8 +97,6 @@ cw.repr.makeUneval_ = function() {
 		var func = name2uneval[goog.typeOf(o)];
 		return func(o, noParens);
 	}
-
-	return uneval;
 }
 
 cw.repr.repr = cw.repr.makeUneval_();
