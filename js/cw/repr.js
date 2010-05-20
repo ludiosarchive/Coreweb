@@ -23,9 +23,9 @@ goog.require('goog.json');
 
 /**
  * Serializes an array to a string representation.
- * @private
  * @param {!Array} arr The array to serialize.
  * @param {!Array} sb Array used as a string builder.
+ * @private
  */
 cw.repr.serializeArray_ = function(arr, sb) {
 	var l = arr.length;
@@ -42,9 +42,9 @@ cw.repr.serializeArray_ = function(arr, sb) {
 
 /**
  * Serializes an object to a string representation.
- * @private
  * @param {!Object} obj The object to serialize.
  * @param {!Array} sb Array used as a string builder.
+ * @private
  */
 cw.repr.serializeObject_ = function(obj, sb) {
 	sb.push('{');
@@ -65,9 +65,9 @@ cw.repr.serializeObject_ = function(obj, sb) {
 
 /**
  * Serializes a Date to a string representation.
- * @private
  * @param {!Date} obj The date to serialize.
  * @param {!Array} sb Array used as a string builder.
+ * @private
  */
 cw.repr.serializeDate_ = function(obj, sb) {
 	sb.push('(new Date(', obj.valueOf(), '))');
@@ -77,9 +77,9 @@ cw.repr.serializeDate_ = function(obj, sb) {
 
 /**
  * Serializes anything to a string representation.
- * @private
  * @param {*} obj The object to serialize.
  * @param {!Array} sb Array used as a string builder.
+ * @private
  */
 cw.repr.serializeAny_ = function(obj, sb) {
 	var type = goog.typeOf(obj);
@@ -116,20 +116,29 @@ cw.repr.serializeAny_ = function(obj, sb) {
 
 /**
  * Return a string representation of an arbitrary value, similar to
+ * Python's builtin repr() function. Returned as an array of strings
+ * that you have to join yourself with {@code .join('')}.
+ *
+ * This may be useful if you are trying to avoid unnecessary string copies.
+ *
+ * @param {*} obj The object to serialize to a string representation.
+ * @param {!Array.<string>} sb Array to use as a string builder.
+ * 	May already have string values.
+ * @return {!Array.<string>} Pieces of the string representation.
+ */
+cw.repr.reprToPieces = function(obj, sb) {
+	cw.repr.serializeAny_(obj, sb);
+	return sb;
+}
+
+
+/**
+ * Return a string representation of an arbitrary value, similar to
  * Python's builtin repr() function.
  *
- * @private
  * @param {*} obj The object to serialize to a string representation.
  * @return {string} The string representation.
  */
 cw.repr.repr = function(obj) {
-	var sb = [];
-	cw.repr.serializeAny_(obj, sb);
-	// We need to wrap {...} serializations to ({...})
-	if(sb.length && sb[0].substr(0, 1) == '{') {
-		// This might be slow, but oh well.
-		sb.unshift('(');
-		sb.push(')');
-	}
-	return sb.join('');
+	return cw.repr.reprToPieces(obj, []).join('');
 }

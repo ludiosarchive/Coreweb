@@ -14,6 +14,7 @@ goog.require('goog.array');
 (function(){
 
 var repr = cw.repr.repr;
+var reprToPieces = cw.repr.reprToPieces;
 
 /**
  * Tests for L{cw.repr.repr}.
@@ -21,7 +22,7 @@ var repr = cw.repr.repr;
 cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	function test_basicRepr(self) {
 		var object = {'prop1': ['array', 'items', 1, 1.5, null, true, false, {"1": "abc"}, {}, [1, 2], [1], []]};
-		self.assertIdentical('({"prop1": ["array", "items", 1, 1.5, null, true, false, {"1": "abc"}, {}, [1, 2], [1], []]})', repr(object));
+		self.assertIdentical('{"prop1": ["array", "items", 1, 1.5, null, true, false, {"1": "abc"}, {}, [1, 2], [1], []]}', repr(object));
 	},
 
 	/**
@@ -43,13 +44,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		self.assertIdentical(repr([5, true]), '[5, true]');
 		self.assertIdentical(repr([5, false]), '[5, false]');
 
-		self.assertIdentical(repr(new Object()), '({})');
-		self.assertIdentical(repr({}), '({})');
-		self.assertIdentical(repr({"a": 3, "b": 4}), '({"a": 3, "b": 4})');
-		self.assertIdentical(repr({"a": 3, "b": {}}), '({"a": 3, "b": {}})');
-		self.assertIdentical(repr({"a": 3, "b": {a: "c"}}), '({"a": 3, "b": {"a": "c"}})');
-		self.assertIdentical(repr({"a": 3, "b": []}), '({"a": 3, "b": []})');
+		self.assertIdentical(repr(new Object()), '{}');
+		self.assertIdentical(repr({}), '{}');
+		self.assertIdentical(repr({"a": 3, "b": 4}), '{"a": 3, "b": 4}');
+		self.assertIdentical(repr({"a": 3, "b": {}}), '{"a": 3, "b": {}}');
+		self.assertIdentical(repr({"a": 3, "b": {a: "c"}}), '{"a": 3, "b": {"a": "c"}}');
+		self.assertIdentical(repr({"a": 3, "b": []}), '{"a": 3, "b": []}');
 		self.assertIdentical(repr('foo'), '"foo"');
+	},
+
+	/**
+	 * Test reprToPieces
+	 */
+	function test_reprToPieces(self) {
+		self.assertEqual(reprToPieces([5, true], []), ['[', '', '5', ', ', 'true', ']']);
+		// With existing values already
+		self.assertEqual(reprToPieces([5, true], ['x', 'yz']), ['x', 'yz', '[', '', '5', ', ', 'true', ']']);
 	},
 
 	function test_nestedEscaping(self) {
@@ -71,16 +81,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 			obj.__repr__ = function() { return 'custom'; };
 			self.assertIdentical(repr(obj), 'custom');
 		});
-	},
-
-	/**
-	 * If a custom __repr__ function for the outer object outputs a left "{",
-	 * the entire output is wrapped in parentheses.
-	 */
-	function test_customReprMakesCurlies(self) {
-		var a = [];
-		a.__repr__ = function() { return '{more'; };
-		self.assertIdentical(repr(a), "({more)");
 	},
 
 	/**
