@@ -547,6 +547,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		aT(function() { self.assertEqual({1: 3}, {"1": 3.00001}); });
 
 		aT(function() { self.assertEqual(a, b); });
+	},
+
+
+	function test_assertNotEqual(self) {
+		self.assertNotEqual(false, true);
+		self.assertNotEqual([1, 4], [1, 5]);
+	},
+
+
+	function test_assertNotEqualNegative(self) {
+		function aT(f) {
+			self.assertThrows(cw.UnitTest.AssertionError, f);
+		}
+
+		aT(function() { self.assertNotEqual(false, false); });
+		aT(function() { self.assertNotEqual([1, 4], [1, 4]); });
 	}
 
 	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE
