@@ -94,6 +94,8 @@ cw.eq.eqAny_ = function(one, two, messages) {
 
 	// We allow custom .equals comparisons where the other side is a
 	// primitive value.
+	// TODO: consider not letting right-side .equals override comparison
+	// with a primitive value. Look at what Python does.
 
 	if(one != null && typeof one.equals == 'function') {
 		messages.push('running custom equals function on left object');
