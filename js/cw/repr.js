@@ -34,7 +34,7 @@ cw.repr.serializeArray_ = function(arr, sb) {
 	for (var i = 0; i < l; i++) {
 		sb.push(sep)
 		cw.repr.serializeAny_(arr[i], sb);
-		sep = ',';
+		sep = ', ';
 	}
 	sb.push(']');
 };
@@ -54,9 +54,9 @@ cw.repr.serializeObject_ = function(obj, sb) {
 			var value = obj[key];
 			sb.push(sep);
 			goog.json.Serializer.prototype.serializeString_(key, sb);
-			sb.push(':');
+			sb.push(': ');
 			cw.repr.serializeAny_(value, sb);
-			sep = ',';
+			sep = ', ';
 		}
 	}
 	sb.push('}');
