@@ -53,7 +53,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 	function test_assert(self) {
 		self.assertThrows(
 			cw.UnitTest.AssertionError,
-			function() { self.assert(false, "message"); }
+			function() { self.assertTrue(false, "message"); }
 		);
 	},
 

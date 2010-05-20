@@ -170,7 +170,7 @@
 //						// we send 1+C{self.howManyMsgs} discrete events,
 //						// but they're not all counted, especially when the network is slow.
 //						// Do check that we got more than one, though.
-//						self.assert(stateCounters["3"] > 1, "only got one discrete event");
+//						self.assertTrue(stateCounters["3"] > 1, "only got one discrete event");
 //						self.assertIdentical(1, stateCounters["2"]);
 //						self.assertIdentical(1, stateCounters["4"]);
 //						if(/WebKit/.test(ua)) {

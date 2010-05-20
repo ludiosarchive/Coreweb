@@ -19,7 +19,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestArray, 'UniqTests').methods(
 	function test_returnsArray(self) {
 		var a = [3, 2];
 		var b = cw.array.uniq(a);
-		self.assert(b.length !== undefined);
+		self.assertTrue(b.length !== undefined);
 	},
 
 	function test_noMutation(self) {

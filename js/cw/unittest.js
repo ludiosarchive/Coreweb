@@ -684,11 +684,27 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	/**
 	 * Assert that the given value is truthy.
 	 *
-	 * @param {boolean} ok Whether the assertion was true (successful).
+	 * @param {*} ok Any value.
 	 * @param {string=} message An error message for the AssertionError.
 	 */
-	function assert(self, ok, message, _internalCall /*=false*/) {
+	function assertTrue(self, ok, message, _internalCall /*=false*/) {
 		if (!ok) {
+			self.fail(message);
+		}
+		if(_internalCall !== true) {
+			self._assertCounter += 1;
+		}
+	},
+
+
+	/**
+	 * Assert that the given value is falsy.
+	 *
+	 * @param {*} ok Any value.
+	 * @param {string=} message An error message for the AssertionError.
+	 */
+	function assertFalse(self, ok, message, _internalCall /*=false*/) {
+		if (ok) {
 			self.fail(message);
 		}
 		if(_internalCall !== true) {
@@ -904,7 +920,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			self.assertIdentical(errorMessage, expectedMessage,
 				"Error was of wrong message: " + errorMessage, true);
 		} else {
-			self.assert(
+			self.assertTrue(
 				goog.string.startsWith(errorMessage, expectedMessage),
 				"Error started with wrong message: " + errorMessage, true);
 		}
@@ -940,13 +956,13 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			callable();
 		} catch (e) {
 			threw = e;
-			self.assert(e instanceof expectedError,
+			self.assertTrue(e instanceof expectedError,
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
 				self.assertErrorMessage(e, expectedMessage, true);
 			}
 		}
-		self.assert(threw != null, "Callable threw no error", true);
+		self.assertTrue(threw != null, "Callable threw no error", true);
 		if(_internalCall !== true) {
 			self._assertCounter += 1;
 		}

@@ -219,7 +219,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').metho
 	 * cw.eventual.theQueue_ exists and seems to work.
 	 */
 	function test_theQueue(self) {
-		self.assert(cw.eventual.theQueue_ instanceof cw.eventual.CallQueue);
+		self.assertTrue(cw.eventual.theQueue_ instanceof cw.eventual.CallQueue);
 		self.assertIdentical(goog.global['window'], cw.eventual.theQueue_.clock_);
 
 		var d = cw.eventual.theQueue_.fireEventually_(null);

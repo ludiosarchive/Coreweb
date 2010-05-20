@@ -108,7 +108,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestInlineCallbacks, 'TestIC').methods(
 		var d = wrapped();
 		d.addErrback(function(r) {
 			self.assertIdentical(five, 5);
-			self.assert(r.error instanceof Error);
+			self.assertTrue(r.error instanceof Error);
 		});
 		return d;
 	},
@@ -130,7 +130,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestInlineCallbacks, 'TestIC').methods(
 		var wrapped = CW.InlineCallbacks.inlineCallbacks(withGenerators);
 		var d = wrapped();
 		d.addErrback(function(r) {
-			self.assert(r.error instanceof ReferenceError);
+			self.assertTrue(r.error instanceof ReferenceError);
 		});
 		return d;
 	},

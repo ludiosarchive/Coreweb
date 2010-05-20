@@ -27,13 +27,13 @@ cw.Test.TestEnv.samplePlugins_ = [{
 cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	function test_getScrollbarThickness(self) {
 		var thickness = cw.env.getScrollbarThickness_();
-		self.assert(goog.isNumber(thickness));
-		self.assert(thickness > 0, thickness);
+		self.assertTrue(goog.isNumber(thickness));
+		self.assertTrue(thickness > 0, thickness);
 	},
 
 	function test_getActiveXFlashVersion(self) {
 		var version = cw.env.getActiveXFlashVersion_();
-		self.assert(goog.isString(version) || goog.isNull(version));
+		self.assertTrue(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 
 		if(!goog.userAgent.IE) {
@@ -44,7 +44,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 
 	function test_getActiveXSilverlightVersion(self) {
 		var version = cw.env.getActiveXSilverlightVersion_();
-		self.assert(goog.isString(version) || goog.isNull(version));
+		self.assertTrue(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 
 		if(!goog.userAgent.IE) {
@@ -55,7 +55,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 
 	function test_getActiveXGoogleGearsBuildInfo(self) {
 		var buildInfo = cw.env.getActiveXGoogleGearsBuildInfo_();
-		self.assert(goog.isString(buildInfo) || goog.isNull(buildInfo));
+		self.assertTrue(goog.isString(buildInfo) || goog.isNull(buildInfo));
 		self.assertNotIdentical("", buildInfo);
 
 		if(!goog.userAgent.IE) {
@@ -102,11 +102,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 		var descriptions = ret[1];
 		var psig = ret[2];
 
-		self.assert(goog.isArray(pluginList));
+		self.assertTrue(goog.isArray(pluginList));
 		self.assertEqual(navigator.plugins.length, pluginList.length);
 
-		self.assert(goog.isString(psig));
-		self.assert(psig.length >= 1); // At minimum, psig contains plugins.length
+		self.assertTrue(goog.isString(psig));
+		self.assertTrue(psig.length >= 1); // At minimum, psig contains plugins.length
 	},
 
 	/**
@@ -152,7 +152,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 
 	function test_makeReport(self) {
 		var report = cw.env.makeReport_();
-		self.assert(goog.isObject(report));
+		self.assertTrue(goog.isObject(report));
 	}
 );
 

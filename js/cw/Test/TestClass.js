@@ -59,12 +59,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 		self.assertIdentical(undefined, BetterEater.classIncr);
 		// endif
 
-		self.assert(be.doEat() == 111, "explode");
+		self.assertTrue(be.doEat() == 111, "explode");
 
-		self.assert(Eater.classCounter == 3, 'classmethod fuckup');
+		self.assertTrue(Eater.classCounter == 3, 'classmethod fuckup');
 
 		// if attribute-copying 'polymorphism' is in cw.Class.subclass
-//		self.assert(BetterEater.classCounter == 2, 'classmethod fuckup');
+//		self.assertTrue(BetterEater.classCounter == 2, 'classmethod fuckup');
 		// endif
 
 		// if attribute-copying removed in cw.Class.subclass
@@ -224,16 +224,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 			});
 
 		var a = SomeClass(1, 2);
-		self.assert(a.x == 1, "Normal instantiation without new lost an argument");
-		self.assert(a.y == 2, "Normal instantiation without new lost an argument");
+		self.assertTrue(a.x == 1, "Normal instantiation without new lost an argument");
+		self.assertTrue(a.y == 2, "Normal instantiation without new lost an argument");
 
 		var b = SomeClass.apply(null, [1, 2]);
-		self.assert(b.x == 1, ".apply() instantiation lost an argument");
-		self.assert(b.y == 2, ".apply() instantiation lost an argument");
+		self.assertTrue(b.x == 1, ".apply() instantiation lost an argument");
+		self.assertTrue(b.y == 2, ".apply() instantiation lost an argument");
 
 		var c = SomeClass.call(null, 1, 2);
-		self.assert(c.x == 1, ".call() instantiation lost an argument");
-		self.assert(c.y == 2, ".call() instantiation lost an argument");
+		self.assertTrue(c.x == 1, ".call() instantiation lost an argument");
+		self.assertTrue(c.y == 2, ".call() instantiation lost an argument");
 	},
 
 
@@ -258,9 +258,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 
 		var mct = new MethodClassTest();
 
-		self.assert(mct.bar()() === mct);
-		self.assert(mct.quux()() === mct);
-		self.assert(mct.corge()() === mct);
+		self.assertTrue(mct.bar()() === mct);
+		self.assertTrue(mct.quux()() === mct);
+		self.assertTrue(mct.corge()() === mct);
 	}
 );
 

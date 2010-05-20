@@ -133,7 +133,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 0]);
-			self.assert(self.result.wasSuccessful());
+			self.assertTrue(self.result.wasSuccessful());
 		});
 		return d;
 	},
@@ -148,7 +148,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 1, 0, 0]);
-			self.assert(!self.result.wasSuccessful());
+			self.assertFalse(self.result.wasSuccessful());
 		});
 		return d;
 	},
@@ -163,7 +163,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = test.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
-			self.assert(!self.result.wasSuccessful());
+			self.assertFalse(self.result.wasSuccessful());
 		});
 		return d;
 	},
@@ -188,7 +188,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 			// check the failure
 			self.assertIdentical(self.result.failures[0].length, 2);
 			self.assertIdentical(self.result.failures[0][0], bad);
-			self.assert(
+			self.assertTrue(
 				self.result.failures[0][1] instanceof cw.UnitTest.AssertionError,
 				"self.result.failures[0][1] should have been a cw.UnitTest.AssertionError, not a: " + self.result.failures[0][1]);
 			self.assertErrorMessage(self.result.failures[0][1], "[0] fail this test deliberately");
@@ -196,14 +196,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 			// check the error
 			self.assertIdentical(self.result.errors[0].length, 2);
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assert(
+			self.assertTrue(
 				self.result.errors[0][1] instanceof Error,
 				"self.result.errors[0][1] should have been an Error, not a: " + self.result.errors[0][1]);
 
 			// check the skip
 			self.assertIdentical(self.result.skips[0].length, 2);
 			self.assertIdentical(self.result.skips[0][0], skip);
-			self.assert(
+			self.assertTrue(
 				self.result.skips[0][1] instanceof cw.UnitTest.SkipTest,
 				"self.result.skips[0][1] should have been a cw.UnitTest.SkipTest, not a: " + self.result.skips[0][1]);
 
@@ -330,7 +330,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var d = suite.run(self.result);
 		d.addCallback(function(){
 			self.assertArraysEqual(self.result.getSummary(), [2, 1, 0, 0]);
-			self.assert(!self.result.wasSuccessful());
+			self.assertFalse(self.result.wasSuccessful());
 		});
 		return d;
 	},
@@ -416,11 +416,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * of the second, and false otherwise.
 	 */
 	function test_issubclass(self) {
-		self.assert(
+		self.assertTrue(
 			self.__class__.subclassOf(self.__class__),
 			"Thing should subclass itself");
-		self.assert(self.__class__.subclassOf(cw.UnitTest.TestCase));
-		self.assert(!cw.UnitTest.TestCase.subclassOf(self.__class__));
+		self.assertTrue(self.__class__.subclassOf(cw.UnitTest.TestCase));
+		self.assertFalse(cw.UnitTest.TestCase.subclassOf(self.__class__));
 	}
 );
 

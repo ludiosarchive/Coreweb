@@ -141,8 +141,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(thisCaller, thatCaller, [], []);
 		d.callback(true);
 
-		self.assert(thisCalled);
-		self.assert(!thatCalled);
+		self.assertTrue(thisCalled);
+		self.assertFalse(thatCalled);
 
 		thisCalled = thatCalled = false;
 
@@ -150,8 +150,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		d.addCallbacks(thisCaller, thatCaller, [], []);
 		d.errback(new CW.Defer.Failure(Error("Test error for errback testing")));
 
-		self.assert(!thisCalled);
-		self.assert(thatCalled);
+		self.assertFalse(thisCalled);
+		self.assertTrue(thatCalled);
 	},
 
 
@@ -260,7 +260,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		var dl = new CW.Defer.DeferredList([]).addCallback(function(res) {
 			result = res;
 		});
-		self.assert(result instanceof Array);
+		self.assertTrue(result instanceof Array);
 		self.assertIdentical(result.length, 0);
 		return dl;
 	},
@@ -277,7 +277,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 				result = theResult;
 			}
 		);
-		self.assert(result instanceof Array);
+		self.assertTrue(result instanceof Array);
 		self.assertIdentical(result.length, 0);
 		return dl;
 	},
@@ -291,7 +291,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		dl.addCallback(function(res) {
 			result = res;
 		});
-		self.assert(result instanceof Array);
+		self.assertTrue(result instanceof Array);
 		self.assertArraysEqual(result, ['success', 1]);
 		return dl;
 	},
@@ -305,8 +305,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		dl.addErrback(function(err) {
 			result = err;
 		});
-		self.assert(result instanceof CW.Defer.Failure);
-		self.assert(result.error instanceof CW.Defer.FirstError);
+		self.assertTrue(result instanceof CW.Defer.Failure);
+		self.assertTrue(result.error instanceof CW.Defer.FirstError);
 		return dl;
 	},
 
@@ -318,7 +318,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'TestDeferred').methods(
 		dl.addCallback(function(res) {
 			result = res;
 		});
-		self.assert(result instanceof Array);
+		self.assertTrue(result instanceof Array);
 		self.assertArraysEqual(result, ['1', '2']);
 		return dl;
 	},
@@ -571,7 +571,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').method
 //	      var oldD = new goog.async.Deferred();
 //	      var oldDFunc = function(){return oldD;}
 //		var newD = CW.Defer.maybeDeferred(oldDFunc);
-//		self.assert(newD instanceof CW.Defer.Deferred);
+//		self.assertTrue(newD instanceof CW.Defer.Deferred);
 //		var expected = 3;
 //		function cb(result) {
 //			self.assertEqual(expected, result);
@@ -588,7 +588,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').method
 //	      var oldD = new goog.async.Deferred();
 //	      var oldDFunc = function(){return oldD;}
 //		var newD = CW.Defer.maybeDeferred(oldDFunc);
-//		self.assert(newD instanceof CW.Defer.Deferred);
+//		self.assertTrue(newD instanceof CW.Defer.Deferred);
 //		var expected = new Error("boom");
 //		function eb(failure) {
 //			self.assertEqual(expected, failure.error);
@@ -606,7 +606,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').method
 //	      var oldD = new goog.async.Deferred();
 //	      var oldDFunc = function(){return oldD;}
 //		var newD = CW.Defer.maybeDeferred(oldDFunc);
-//		self.assert(newD instanceof CW.Defer.Deferred);
+//		self.assertTrue(newD instanceof CW.Defer.Deferred);
 //		var expected = new CW.Error("boom");
 //		function eb(failure) {
 //			self.assertEqual(expected, failure.error);

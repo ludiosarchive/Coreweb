@@ -68,8 +68,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		self.assertEqual(2, clock.getCallsArray_().length);
 
 		// make sure the other tickets are still there
-		self.assert(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket1));
-		self.assert(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket3));
+		self.assertTrue(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket1));
+		self.assertTrue(cw.Test.TestClock.isTicketInCalls_(clock.getCallsArray_(), ticket3));
 
 		// Check for clearInterval can clear a timeout.
 		clock.clearInterval(ticket1);
@@ -284,7 +284,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		}, 2);
 		clock.advance_(2);
 		self.assertEqual(1, counter);
-		self.assert(err instanceof cw.clock.ClockAdvanceError, err);
+		self.assertTrue(err instanceof cw.clock.ClockAdvanceError, err);
 	},
 
 	/**
@@ -302,7 +302,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		// Don't use assertIdentical or similar because TestCase.compare
 		// calls cw.repr.repr, and this leads to a stack overflow if
 		// the objects do not match.
-		self.assert(window === scopeObject,
+		self.assertTrue(window === scopeObject,
 			"this !== scopeObject; scopeObject is " + scopeObject.toString() +
 			" with keys " + goog.object.getKeys(scopeObject).join(','));
 	},
