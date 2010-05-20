@@ -25,6 +25,8 @@
 goog.provide('cw.UnitTest');
 
 goog.require('cw.Class');
+goog.require('cw.repr');
+goog.require('cw.eq');
 goog.require('goog.array');
 goog.require('goog.object');
 goog.require('goog.userAgent');
@@ -843,66 +845,21 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 
 	/**
-	 * Assert that C{a} and C{b} are equal. This handles strings, arrays,
-	 * objects, numbers, bools, and nulls.
+	 * Assert that C{a} and C{b} are deep-equal. See {@code cw.eq} for
+	 * limitations.
 	 *
-	 * Don't give this non-simple objects ("non-simple": functions,
-	 * callable host objects, Dates, RegExps, and so on.) Give it objects
-	 * made from object literals and new Object() calls only.
-	 *
-	 * If you give this function non-simple objects, it may produce lies.
 	 * If you give this function circularly-referenced objects, it will overflow
 	 * the stack.
 	 */
-	 // TODO: this could be further improved to handle Dates and a few other
-	 // types properly; see http://philrathe.com/articles/equiv and qunit/testrunner.js
 	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		// Implementation note: these "original message"s will get nested if you have
-		// nested objects/arrays.
+		var messages = [];
+		var equal = cw.eq.equals(a, b, messages);
 
-		var k;
-
-		// If a === b, we don't need to dig through them. But if you somehow find an object
-		// in JavaScriptland that ==='s successfully but isn't identical, you should remove
-		// this short-circuit.
-		if(a === b) {
-
-		} else if(a === null || b === null) {
-			// Because C{null} has typeof C{object} and may successfully iterate (though with 0 properties),
-			// we need to catch it early and do a direct === comparison if either C{a} or C{b} are C{null}
-			self.assertIdentical(a, b, message, true);
-
-		} else if(goog.isArray(a) && goog.isArray(b)) {
-			// This is a deep (recursive) comparison, unlike assertArraysEqual or goog.array.equals
-
-			var i;
-			var failMsg = goog.string.subs("Arrays %s != %s; original message: %s",
-				cw.repr.repr(a), cw.repr.repr(b), message);
-			// TODO: only repr() on error
-
-			self.assertIdentical(a.length, b.length, failMsg, true);
-
-			for (i in a) {
-				self.assertIn(i, b, failMsg, true);
-				self.assertEqual(a[i], b[i], failMsg, true);
-			}
-			for (i in b) {
-				// We already checked for equality when we iterated over C{a}, so just
-				// check that everything in C{b} is in C{a}
-				self.assertIn(i, a, failMsg, true);
-			}
-		} else if(typeof a == 'object' && typeof b == 'object') {
-			// TODO: could be slightly optimized by comparing __count__ first (available in Firefox)
-			for(k in a) {
-				self.assertEqual(a[k], b[k],
-					"property mismatch a["+k+"] `not assertEqual` b["+k+"]; original message: " + message, true);
-			};
-			for(k in b) {
-				self.assertEqual(b[k], a[k],
-					"property mismatch b["+k+"] `not assertEqual` a["+k+"]; original message: " + message, true);
-			};
-		} else {
-			self.assertIdentical(a, b, message, true);
+		if(!equal) {
+			var failMsg = goog.string.subs(
+				"Object %s not deep-equal to %s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
+				cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
+			self.fail(failMsg);
 		}
 
 		if(_internalCall !== true) {

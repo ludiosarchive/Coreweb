@@ -5,7 +5,7 @@
 
 // TODO XXX LICENSE: uses copy/pasted jsdocs from Closure Library
 
-cw.provide('cw.eq');
+goog.provide('cw.eq');
 
 
 cw.eq.isPrimitive_ = function(type) {
@@ -27,16 +27,18 @@ cw.eq.isPrimitive_ = function(type) {
  * @private
  */
 cw.eq.eqArray_ = function(one, two, messages) {
+	messages.push('descending into array');
 	if(one.length != two.length) {
-		messages.push('array length mismatch: ' + one + ', ' + two);
+		messages.push('array length mismatch: ' + one.length + ', ' + two.length);
 		return false;
 	}
-	for (var i = 0, len = one.length; i < len; i++) {
-		if (!cw.eq.eqAny_(one[i], two[i])) {
+	for (var i=0, len=one.length; i < len; i++) {
+		if (!cw.eq.eqAny_(one[i], two[i], messages)) {
 			messages.push('earlier comparisons indicate mismatch at array item #' + i);
 			return false;
 		}
 	}
+	messages.push('ascending from array');
 	return true;
 }
 
@@ -54,22 +56,25 @@ cw.eq.eqArray_ = function(one, two, messages) {
  * @private
  */
 cw.eq.eqObject_ = function(one, two, messages) {
+	messages.push('descending into object');
 	for(var prop in one) {
 		if(!(prop in two)) {
 			messages.push('property ' + prop + ' missing on right object');
 			return false;
 		}
-		if(!cw.eq.eqAny_(one[prop], two[prop])) {
+		if(!cw.eq.eqAny_(one[prop], two[prop], messages)) {
 			messages.push('earlier comparisons indicate mismatch at property ' + prop);
 			return false;
 		}
 	}
 
 	for(var prop in two) {
-		if(!(prop in two)) {
+		if(!(prop in one)) {
 			messages.push('property ' + prop + ' missing on left object');
+			return false;
 		}
 	}
+	messages.push('ascending from object');
 	return true;
 }
 
@@ -87,16 +92,19 @@ cw.eq.eqAny_ = function(one, two, messages) {
 	var typeOne = goog.typeOf(one);
 	var typeTwo = goog.typeOf(two);
 
-	if(cw.repr.isPrimitive_(typeOne)) {
-		return one === two;
+	// We allow custom .equals comparisons where the other side is a
+	// primitive value.
 
-	} else if(typeof one.equals == 'function') {
+	if(one != null && typeof one.equals == 'function') {
 		messages.push('running custom equals function on left object');
 		return one.equals(two, messages);
 
-	} else if(typeof two.equals == 'function') {
+	} else if(two != null && typeof two.equals == 'function') {
 		messages.push('running custom equals function on right object');
 		return two.equals(one, messages);
+
+	} else if(cw.eq.isPrimitive_(typeOne) || cw.eq.isPrimitive_(typeTwo)) {
+		return one === two;
 
 	} else if(one instanceof RegExp && two instanceof RegExp) {
 		return one.toString() === two.toString();
@@ -105,14 +113,19 @@ cw.eq.eqAny_ = function(one, two, messages) {
 		return one.valueOf() === two.valueOf();
 
 	} else if(typeOne == 'array' && typeTwo == 'array') {
-		messages.push('descending into array');
-		return cw.eq.eqArray_(one, two, messages);
+		return cw.eq.eqArray_(
+			/** @type {!Array} */ (one),
+			/** @type {!Array} */ (two),
+			messages);
 
+	// TODO: support various {goog.struct}s, like goog.testing.asserts does.
 	// TODO: die on objects with __iterator__, like goog.testing.asserts does.
 
 	} else if(typeOne == 'object' && typeTwo == 'object') {
-		messages.push('descending into object');
-		return cw.eq.eqObject_(one, two, messages);
+		return cw.eq.eqObject_(
+			/** @type {!Object} */ (one),
+			/** @type {!Object} */ (two),
+			messages);
 
 	} else {
 		return one === two;
