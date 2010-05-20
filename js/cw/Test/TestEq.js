@@ -78,7 +78,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 			'earlier comparisons indicate mismatch at property x'
 		]
 
-		// Avoid using self.assertEqual in this file, in case cw.eq is broken
 		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
 	},
 
@@ -96,7 +95,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 			'earlier comparisons indicate mismatch at property outer'
 		]
 
-		// Avoid using self.assertEqual in this file, in case cw.eq is broken
 		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
 	},
 
@@ -112,7 +110,6 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 			'property y missing on left object'
 		]
 
-		// Avoid using self.assertEqual in this file, in case cw.eq is broken
 		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
 	},
 
