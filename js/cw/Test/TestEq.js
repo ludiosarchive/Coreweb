@@ -127,6 +127,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 	}
 
 	// TODO: IE6-IE8 [[DontEnum]] shadowing tests
+
+	// TODO: consider making cw.eq properly compare Arrays with Argument
+	// arrays, like our old TestCase.assertEqual.
 );
 
 })(); // end anti-clobbering for JScript
