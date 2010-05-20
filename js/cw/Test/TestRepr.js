@@ -7,6 +7,7 @@ goog.provide('cw.Test.TestRepr');
 goog.require('cw.Class');
 goog.require('cw.UnitTest');
 goog.require('cw.repr');
+goog.require('goog.array');
 
 
 // anti-clobbering for JScript; aliases
@@ -57,12 +58,33 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		self.assertIdentical(repr(['\u0000', '\u0000', {'\u0000': '0'}]), '["\\u0000","\\u0000",{"\\u0000":"0"}]');
 	},
 
-	function test_miscTypes(self) {
+	function test_date(self) {
 		self.assert(goog.string.startsWith(repr(new Date(2009, 0, 1)), "(new Date(123"));
+	},
+
+	function test_RegExp(self) {
 		self.assertIdentical(repr(/\t/), '/\\t/');
+	},
+
+	function test_customReprWorksForAllNonPrimitives(self) {
+		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
+			obj.__repr__ = function() { return 'custom'; };
+			self.assertIdentical(repr(obj), 'custom');
+		});
+	},
+
+	/**
+	 * If a custom __repr__ function for the outer object outputs a left "{",
+	 * the entire output is wrapped in parentheses.
+	 */
+	function test_customReprMakesCurlies(self) {
+		var a = [];
+		a.__repr__ = function() { return '{more'; };
+		self.assertIdentical(repr(a), "({more)");
 	}
 
-	// TODO: test that toString/other builtin properties are found in JScript; need a list of them
+	// TODO: test that toString and other [[DontEnum]] properties are found
+	// in IE6-8 (right now they are not).
 );
 
 })(); // end anti-clobbering for JScript
