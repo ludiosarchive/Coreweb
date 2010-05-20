@@ -90,7 +90,7 @@ cw.string.withoutLast = function(str, num) {
 
 
 
-cw.string.positiveIntegerRe = /^[1-9]\d*$/;
+cw.string.strictPositiveIntegerRe = /^[1-9]\d*$/;
 
 
 /**
@@ -102,7 +102,7 @@ cw.string.positiveIntegerRe = /^[1-9]\d*$/;
  * @return {number|null} The number, or null, if it could not be converted.
  */
 cw.string.strToNonNegLimit = function(str, limit) {
-	if(cw.string.positiveIntegerRe.test(str)) {
+	if(cw.string.strictPositiveIntegerRe.test(str) || str == '0') {
 		var num = parseInt(str, 10);
 		if(num <= limit) {
 			return num;
