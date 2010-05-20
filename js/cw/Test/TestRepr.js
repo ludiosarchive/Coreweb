@@ -81,6 +81,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		var a = [];
 		a.__repr__ = function() { return '{more'; };
 		self.assertIdentical(repr(a), "({more)");
+	},
+
+	/**
+	 * The output from a __repr__ function is used as-is, not escaped further.
+	 */
+	function test_customReprOutputNotEscaped(self) {
+		var a = [];
+		a.__repr__ = function() { return '\uffff'; };
+		self.assertIdentical(repr(a), "\uffff");
 	}
 
 	// TODO: test that toString and other [[DontEnum]] properties are found
