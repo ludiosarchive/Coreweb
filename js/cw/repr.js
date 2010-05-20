@@ -19,7 +19,6 @@
 goog.provide('cw.repr');
 
 goog.require('goog.json');
-goog.require('goog.asserts');
 
 
 /**
@@ -71,9 +70,7 @@ cw.repr.serializeObject_ = function(obj, sb) {
  * @param {!Array} sb Array used as a string builder.
  */
 cw.repr.serializeDate_ = function(obj, sb) {
-	sb.push('(new Date(');
-	sb.push(obj.valueOf());
-	sb.push('))');
+	sb.push('(new Date(', obj.valueOf(), '))');
 };
 
 
