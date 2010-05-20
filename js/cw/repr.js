@@ -8,10 +8,12 @@
  * 	- cw.repr internals
  *
  * For non-primitive objects that cw.repr understands, the priority is:
+ * 	- .__reprToPieces__(sb)
  * 	- .__repr__()
  * 	- cw.repr internals
  *
  * For non-primitive objects that cw.repr doesn't understand, the priority is:
+ * 	- .__reprToPieces__(sb)
  * 	- .__repr__()
  * 	- .toString()
  */
@@ -92,7 +94,9 @@ cw.repr.serializeAny_ = function(obj, sb) {
 	} else if(type == 'string') {
 		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
-		if(typeof obj.__repr__ == 'function') {
+		if(typeof obj.__reprToPieces__ == 'function') {
+			obj.__reprToPieces__(sb);
+		} else if(typeof obj.__repr__ == 'function') {
 			sb.push(obj.__repr__());
 		} else if(obj instanceof RegExp) {
 			sb.push(obj.toString());
@@ -107,7 +111,7 @@ cw.repr.serializeAny_ = function(obj, sb) {
 			} else {
 				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb);
 			}
-		} else { // 'function' or 'unknown' with no __repr__
+		} else { // ('function' or 'unknown') with no (__reprToPieces __ or __repr__)
 			sb.push(obj.toString());
 		}
 	}
@@ -124,11 +128,9 @@ cw.repr.serializeAny_ = function(obj, sb) {
  * @param {*} obj The object to serialize to a string representation.
  * @param {!Array.<string>} sb Array to use as a string builder.
  * 	May already have string values.
- * @return {!Array.<string>} Pieces of the string representation.
  */
 cw.repr.reprToPieces = function(obj, sb) {
 	cw.repr.serializeAny_(obj, sb);
-	return sb;
 }
 
 
@@ -140,5 +142,7 @@ cw.repr.reprToPieces = function(obj, sb) {
  * @return {string} The string representation.
  */
 cw.repr.repr = function(obj) {
-	return cw.repr.reprToPieces(obj, []).join('');
+	var sb = [];
+	cw.repr.reprToPieces(obj, sb);
+	return sb.join('');
 }

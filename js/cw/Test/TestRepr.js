@@ -54,12 +54,17 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
-	 * Test reprToPieces
+	 * Test {@code cw.repr.reprToPieces}
 	 */
 	function test_reprToPieces(self) {
-		self.assertEqual(reprToPieces([5, true], []), ['[', '', '5', ', ', 'true', ']']);
+		var sb = [];
+		reprToPieces([5, true], sb);
+		self.assertEqual(sb, ['[', '', '5', ', ', 'true', ']']);
+
 		// With existing values already
-		self.assertEqual(reprToPieces([5, true], ['x', 'yz']), ['x', 'yz', '[', '', '5', ', ', 'true', ']']);
+		var sb = ['x', 'yz'];
+		reprToPieces([5, true], sb);
+		self.assertEqual(sb, ['x', 'yz', '[', '', '5', ', ', 'true', ']']);
 	},
 
 	function test_nestedEscaping(self) {
@@ -80,6 +85,17 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
 			obj.__repr__ = function() { return 'custom'; };
 			self.assertIdentical(repr(obj), 'custom');
+		});
+	},
+
+	/**
+	 * a __reprToPieces__ is higher-priority than a __repr__
+	 */
+	function test_customReprToPiecesPriority(self) {
+		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
+			obj.__reprToPieces__ = function(sb) { sb.push('a', 'b'); };
+			obj.__repr__ = function() { return 'custom'; };
+			self.assertIdentical(repr(obj), 'ab');
 		});
 	},
 
