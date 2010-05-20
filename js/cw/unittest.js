@@ -30,6 +30,8 @@ goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
 goog.require('goog.asserts.AssertionError');
+goog.require('goog.testing.stacktrace');
+goog.require('goog.testing.TestCase.Error');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
@@ -250,11 +252,11 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param test: The test with the failed assertion.
 	 * @type test: L{cw.UnitTest.TestCase}
 	 *
-	 * @param failure: The failure that occurred.
-	 * @type failure: A L{goog.asserts.AssertionError} instance.
+	 * @param error: The failure that occurred.
+	 * @type error: A L{goog.asserts.AssertionError} instance.
 	 */
-	function addFailure(self, test, failure) {
-		self.failures.push([test, failure]);
+	function addFailure(self, test, error) {
+		self.failures.push([test, error]);
 	},
 
 
@@ -264,11 +266,11 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param test: The test that was skipped.
 	 * @type test: L{cw.UnitTest.TestCase}
 	 *
-	 * @param failure: The failure that occurred.
-	 * @type failure: A L{cw.UnitTest.SkipTest} instance.
+	 * @param error: The SkipTest exception that occurred.
+	 * @type error: A L{cw.UnitTest.SkipTest} instance.
 	 */
-	function addSkip(self, test, skip) {
-		self.skips.push([test, skip]);
+	function addSkip(self, test, error) {
+		self.skips.push([test, error]);
 	},
 
 
@@ -326,7 +328,9 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
-		pre.innerHTML = goog.debug.exposeException(error);
+		var shinyError = new goog.testing.TestCase.Error(
+			test.id(), error.message, goog.testing.stacktrace.canonicalize(error.stack));
+		pre.innerHTML = shinyError.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -334,12 +338,14 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 	},
 
 
-	function addFailure(self, test, failure) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, failure]);
+	function addFailure(self, test, error) {
+		cw.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
-		pre.innerHTML = goog.debug.exposeException(failure);
+		var shinyError = new goog.testing.TestCase.Error(
+			test.id(), error.message, goog.testing.stacktrace.canonicalize(error.stack));
+		pre.innerHTML = shinyError.toString();
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -347,10 +353,10 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 	},
 
 
-	function addSkip(self, test, skip) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, skip]);
+	function addSkip(self, test, error) {
+		cw.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, error]);
 		var br = document.createElement("br");
-		var textnode = document.createTextNode('... SKIP: ' + skip.message);
+		var textnode = document.createTextNode('... SKIP: ' + error.message);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		//self._div.appendChild(skip.toPrettyNode());
@@ -434,13 +440,13 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'SubunitTestClient').methods(
 		self._write(']');
 	},
 
-	function addFailure(self, test, failure) {
+	function addFailure(self, test, error) {
 		self._write("failure: " + test.id() + " [");
-		self._sendException(failure);
+		self._sendException(error);
 		self._write(']');
 	},
 
-	// TODO: needs addSkip is re-enabled
+	// TODO: needs addSkip if re-enabled
 
 	function addSuccess(self, test) {
 		self._write('successful: ' + test.id());
