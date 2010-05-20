@@ -126,8 +126,8 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 			break;
 		case 'object':
 			// `getFullYear' check is identical to the one in goog.isDateLike
-			if(typeof value.getFullYear == 'function' && typeof value.getTime == 'function') {
-				buffer.push('<date>', value.getTime(), '</date>');
+			if(typeof value.getFullYear == 'function') {
+				buffer.push('<date>', value.valueOf(), '</date>');
 			} else {
 				cw.externalinterface.handleObject_(buffer, /** @type {!Object} */ (value));
 			}

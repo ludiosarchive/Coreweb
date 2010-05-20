@@ -2,13 +2,14 @@
  * @fileoverview Python-style repr() for JavaScript, supporting both
  * 	__repr__ and toString on objects.
  *
+ * TODO XXX LICENSE: Closure Library (we copied functions from goog.json)
+ *
  * For primitive objects, the priority for deciding how to represent is:
  * 	- cw.repr internals
  *
  * For non-primitive objects that cw.repr understands, the priority is:
  * 	- .__repr__()
  * 	- cw.repr internals
- * 	- .toString()
  *
  * For non-primitive objects that cw.repr doesn't understand, the priority is:
  * 	- .__repr__()
@@ -18,40 +19,102 @@
 goog.provide('cw.repr');
 
 goog.require('goog.json');
+goog.require('goog.asserts');
 
 
-var uneval_Array = function(o) {
-	var src = [];
-	for (var i = 0, l = o.length; i < l; i++) {
-		src[i] = cw.repr.repr(o[i], /*noParens*/true);
+/**
+ * Serializes an array to a string representation.
+ * @private
+ * @param {!Array} arr The array to serialize.
+ * @param {!Array} sb Array used as a string builder.
+ */
+cw.repr.serializeArray_ = function(arr, sb) {
+	var l = arr.length;
+	sb.push('[');
+	var sep = '';
+	for (var i = 0; i < l; i++) {
+		sb.push(sep)
+		cw.repr.serializeAny_(arr[i], sb);
+		sep = ',';
 	}
-	return '[' + src.toString() + ']';
-}
+	sb.push(']');
+};
 
-var uneval_Object = function(o, noParens) {
-	var src = []; // a-ha!
-	for (var p in o){
-		if (!hasOwnProperty.call(o, p)) {
-			continue;
+
+/**
+ * Serializes an object to a string representation.
+ * @private
+ * @param {!Object} obj The object to serialize.
+ * @param {!Array} sb Array used as a string builder.
+ */
+cw.repr.serializeObject_ = function(obj, sb) {
+	sb.push('{');
+	var sep = '';
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			var value = obj[key];
+			sb.push(sep);
+			goog.json.Serializer.prototype.serializeString_(key, sb);
+			sb.push(':');
+			cw.repr.serializeAny_(value, sb);
+			sep = ',';
 		}
-		src.push(cw.repr.repr(p, /*noParens*/true)  + ':' + cw.repr.repr(o[p], /*noParens*/true));
-	};
-	// parens are only used for the outer-most object.
-	if(noParens) {
-		return '{' + src.toString() + '}';
+	}
+	sb.push('}');
+};
+
+
+/**
+ * Serializes a Date to a string representation.
+ * @private
+ * @param {!Date} obj The date to serialize.
+ * @param {!Array} sb Array used as a string builder.
+ */
+cw.repr.serializeDate_ = function(obj, sb) {
+	sb.push('(new Date(');
+	sb.push(obj.valueOf());
+	sb.push('))');
+};
+
+
+
+/**
+ * Serializes anything to a string representation.
+ * @private
+ * @param {*} obj The object to serialize.
+ * @param {!Array} sb Array used as a string builder.
+ */
+cw.repr.serializeAny_ = function(obj, sb) {
+	var type = goog.typeOf(obj);
+	if(type == 'boolean' || type == 'number') {
+		sb.push(obj.toString());
+	} else if(type == 'null') {
+		sb.push('null');
+	} else if(type == 'undefined') {
+		sb.push('undefined');
+	} else if(type == 'string') {
+		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
-		return '({' + src.toString() + '})';
+		if(typeof obj.__repr__ == 'function') {
+			sb.push(obj.__repr__());
+		} else if(obj instanceof RegExp) {
+			sb.push(obj.toString());
+		} else if(type == 'array') {
+			cw.repr.serializeArray_(/** @type {!Array} */ (obj), sb)
+		} else if(type == 'object') {
+			// `getFullYear' check is identical to the one in goog.isDateLike
+			if(typeof obj.getFullYear == 'function') {
+				// TODO: find out if it's a good idea to be possibly lying
+				// to the type system here.
+				cw.repr.serializeDate_(/** @type {!Date} */ (obj), sb);
+			} else {
+				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb);
+			}
+		} else { // 'function' or 'unknown' with no __repr__
+			sb.push(obj.toString());
+		}
 	}
 }
-
-var uneval_Anything = function(o) {
-	if(o.__repr__ != null) {
-		return o.__repr__();
-	} else {
-		return o.toString();
-	}
-}
-
 
 
 /**
@@ -59,44 +122,17 @@ var uneval_Anything = function(o) {
  * Python's builtin repr() function.
  *
  * @private
+ * @param {*} obj The object to serialize to a string representation.
+ * @return {string} The string representation.
  */
-cw.repr.makeUneval_ = function() {
-	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	var protos = [];
-
-	var name2uneval = {
-		'array': uneval_Array,
-		'object': uneval_Object,
-		'boolean': uneval_Anything,
-		'number': uneval_Anything,
-		'string': function(o) {
-			// regex is: control characters, double quote, backslash,
-			var a = [];
-			goog.json.Serializer.prototype.serializeString_(o, a);
-			return a.join('');
-		},
-		'null': function(o) {
-			return 'null';
-		},
-		'undefined': function(o) {
-			return 'undefined';
-		},
-		'function': uneval_Anything,
-		'unknown': uneval_Anything /* IE-only */
-	};
-
-	// TODO: use __repr__, maybe also toSource
-	return function(o, noParens) {
-		if(goog.isDateLike(o)) {
-			return '(new Date(' + o.valueOf() + '))';
-		// We cannot properly detect RegExps from other frames/windows.
-		} else if(o instanceof RegExp) {
-			return o.toString();
-		}
-
-		var func = name2uneval[goog.typeOf(o)];
-		return func(o, noParens);
+cw.repr.repr = function(obj) {
+	var sb = [];
+	cw.repr.serializeAny_(obj, sb);
+	// We need to wrap {...} serializations to ({...})
+	if(sb.length && sb[0].substr(0, 1) == '{') {
+		// This might be slow, but oh well.
+		sb.unshift('(');
+		sb.push(')');
 	}
+	return sb.join('');
 }
-
-cw.repr.repr = cw.repr.makeUneval_();
