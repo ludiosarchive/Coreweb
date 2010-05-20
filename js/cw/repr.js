@@ -119,9 +119,9 @@ cw.repr.serializeAny_ = function(obj, sb) {
 
 
 /**
- * Return a string representation of an arbitrary value, similar to
- * Python's builtin repr() function. Returned as an array of strings
- * that you have to join yourself with {@code .join('')}.
+ * Insert pieces of a string representation of an arbitrary value into
+ * an Array. Pieces will be pushed into the Array. To get a human-readable
+ * value, you must join the pieces yourself with {@code .join('')}.
  *
  * This may be useful if you are trying to avoid unnecessary string copies.
  *
