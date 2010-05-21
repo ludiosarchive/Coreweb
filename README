@@ -1,4 +1,38 @@
-=== FAQ ===
+=== Setting up JSPATH for development ===
+
+1)	Create a directory "JSPATH" somewhere.
+
+2)	Create symlinks like this:
+
+	JSPATH/closure/goog -> ~/Projects/closure-library/closure/goog
+	JSPATH/third_party -> ~/Projects/closure-library/third_party
+
+	JSPATH/_Compilables.js -> ~/Projects/Coreweb/js/_Compilables.js
+	JSPATH/cw/*.js -> ~/Projects/Coreweb/js/cw/*.js
+		(yes, you may have to manully add a new symlink often)
+	JSPATH/cw/Test -> ~/Projects/Coreweb/js/cw/Test
+
+	And if you have these projects:
+
+	JSPATH/cw/lytics -> ~/Projects/Minerva/js/cw/lytics
+	JSPATH/cw/net -> ~/Projects/Minerva/js/cw/net
+
+3)	Copy the regen-deps.sh and auto-regen-deps.sh scripts from
+	~/docs/ to your JSPATH root. Modify them as necessary to match
+	your filesystem and projects.
+
+4)	Run ./auto-regen-deps.sh
+	This will automatically regenerate the nongoog_deps.js file when
+	any of your JavaScript source files change.
+
+
+=== jsimp FAQ ===
+
+Q: Should I use jsimp?
+
+A: No, unless you need a large concatenated blob of JavaScript for an
+environment that has no <script> tags.
+
 
 Q: Why are my goog.provide(...) lines being ignored?
 
@@ -10,7 +44,7 @@ Q: What's the point of all this `jsimp` stuff? Why not use Closure's built-in go
 <script> inserter?
 
 A: jsimp was written before Closure Library was released. It was originally used to assemble
-Divmod-style JS code, that had "// import Another.Module" lines. Today, the advantages
+Divmod-style JS code, which had "// import Another.Module" lines. Today, the advantages
 and disadvantages are:
 
 Advantages of using jsimp over goog.require(...) loading:
@@ -34,6 +68,9 @@ Advantages of using goog.require(...) loading over jsimp:
 	your JavaScript source code files.
 	(with jsimp.megaScript concatenation, you have to View Source on the
 	html page to figure out which line is the problem.)
+
+-	It works without any server-side help, and you can even use it for file:///
+	URLs.
 
 -	This is what Google and everyone else does, so people will understand
 	what you are doing, and share your problems.
