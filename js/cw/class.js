@@ -203,7 +203,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	 * Create a constructor function that wraps the user-defined __init__.
 	 * This basically serves the purpose of type.__call__ in Python.
 	 */
-	var subClass = function(asConstructor) {
+	var subClass = function _cw_Class_subClassConstructor(asConstructor) {
 		var self;
 		if (this instanceof subClass) {
 			/*
@@ -289,7 +289,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	 * Use upcall like this:
 	 * cw.Defer.FirstError.upcall(self, '__init__', []);
 	 */
-	subClass.upcall = function(otherThis, methodName, funcArgs) {
+	subClass.upcall = function _cw_Class_subClass_upcall(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
 	};
 
@@ -355,7 +355,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 			methodFunction.displayName = className + '.' + methodName;
 		}
 
-		subClass.prototype[methodName] = function() {
+		subClass.prototype[methodName] = function _cw_Class_subClass_prototype_method() {
 			var args = [this];
 			args.push.apply(args, arguments); // A sparkling jewel.
 

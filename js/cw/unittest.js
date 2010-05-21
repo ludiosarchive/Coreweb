@@ -160,32 +160,13 @@ cw.UnitTest.loadFromModules = function(testModules) {
  */
 cw.UnitTest.AssertionError = function(msg) {
 	goog.debug.Error.call(this, msg);
-	this.stack = goog.testing.stacktrace.canonicalize(this.stack);
+	//this.stack = goog.testing.stacktrace.canonicalize(this.stack);
 };
 goog.inherits(cw.UnitTest.AssertionError, goog.debug.Error);
 cw.UnitTest.AssertionError.prototype.name = 'cw.UnitTest.AssertionError';
 
 cw.UnitTest.AssertionError.prototype.toString = function() {
-	return this.message + (this.stack ? '\n' + this.stack : '');
-}
-
-
-/**
- * Error wrapper for tests that have errored.
- *
- * @param {string} msg Error message
- * @constructor
- * @extends {goog.debug.Error}
- */
-cw.UnitTest.TestError = function(msg) {
-	goog.debug.Error.call(this, msg);
-	this.stack = goog.testing.stacktrace.canonicalize(this.stack);
-};
-goog.inherits(cw.UnitTest.TestError, goog.debug.Error);
-cw.UnitTest.TestError.prototype.name = 'cw.UnitTest.TestError';
-
-cw.UnitTest.TestError.prototype.toString = function() {
-	return this.message + (this.stack ? '\n' + this.stack : '');
+	return 'AssertionError: ' + this.message + (this.stack ? '\n' + this.stack : '');
 }
 
 
@@ -342,6 +323,43 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 
 
 /**
+ * Canoncalize and elide a stacktrace.
+ *
+ * @param {string} stack Browser-specific stack trace.
+ * @return {string} Same stack trace in common format.
+ *
+ * Inspired by goog.testing.stacktrace.canonicalize; adapted
+ * for cw.UnitTest.
+ */
+cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
+	var frames = goog.testing.stacktrace.parse_(stack);
+
+	var canonical = [];
+	var last = 0;
+	for (var i=0; i < frames.length; i++) {
+		canonical.push('> ');
+		if (frames[i]) { // frames[i] may be null
+			var s = frames[i].toCanonicalString();
+			canonical.push(s);
+			canonical.push('\n')
+			// Firefox, Chrome
+			if(goog.string.startsWith(s, 'test_') || goog.string.startsWith(s, '[object Object].test_')) {
+				// Any further frames are likely irrelevant.
+				last = i;
+				break;
+			}
+		} else {
+			canonical.push('(unknown)\n');
+		}
+		last = i;
+	}
+	canonical.push('{' + (frames.length - 1 - i) + ' frame(s) elided}\n');
+	return canonical.join('');
+}
+
+
+
+/**
  * Adds test results to a div, as they are run.
  *
  * @constructor
@@ -366,7 +384,8 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = document.createElement("pre");
-		pre.innerHTML = error.toString();
+		error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+		pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -379,11 +398,13 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = document.createElement("pre");
-		pre.innerHTML = error.toString();
+		// JavaScript-based tracebacks are unfortunately worthless in
+		// our case, so right now we're out of luck in IE (and probably Safari and Opera).
+		error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+		pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
-		//self._div.appendChild(failure.toPrettyNode());
 	},
 
 
@@ -393,7 +414,6 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		var textnode = document.createTextNode('... SKIP: ' + error.message);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
-		//self._div.appendChild(skip.toPrettyNode());
 	},
 
 
@@ -1049,7 +1069,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 					} else if (anError instanceof cw.UnitTest.SkipTest) {
 						result.addSkip(self, anError);
 					} else {
-						result.addError(self, new cw.UnitTest.TestError(anError.message));
+						result.addError(self, anError);
 					}
 					success = false;
 				});
