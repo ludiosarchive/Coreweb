@@ -51,20 +51,20 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 		Eater.classIncr();
 
 		// if attribute-copying 'polymorphism' is in cw.Class.subclass
-//		BetterEater.classIncr();
-//		BetterEater.classIncr();
+		////BetterEater.classIncr();
+		////BetterEater.classIncr();
 		// endif
 
 		// if attribute-copying removed in cw.Class.subclass
 		self.assertIdentical(undefined, BetterEater.classIncr);
 		// endif
 
-		self.assertTrue(be.doEat() == 111, "explode");
+		self.assertIdentical(111, be.doEat());
 
-		self.assertTrue(Eater.classCounter == 3, 'classmethod fuckup');
+		self.assertIdentical(3, Eater.classCounter);
 
 		// if attribute-copying 'polymorphism' is in cw.Class.subclass
-//		self.assertTrue(BetterEater.classCounter == 2, 'classmethod fuckup');
+		////self.assertIdentical(2, BetterEater.classCounter);
 		// endif
 
 		// if attribute-copying removed in cw.Class.subclass
