@@ -72,7 +72,7 @@ cw.repr.serializeObject_ = function(obj, sb) {
  * @private
  */
 cw.repr.serializeDate_ = function(obj, sb) {
-	sb.push('(new Date(', obj.valueOf(), '))');
+	sb.push('new Date(', obj.valueOf(), ')');
 };
 
 

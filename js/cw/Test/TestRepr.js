@@ -74,7 +74,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	function test_date(self) {
-		self.assertTrue(goog.string.startsWith(repr(new Date(2009, 0, 1)), "(new Date(123"));
+		var s = repr(new Date(2009, 0, 1));
+		self.assertTrue(goog.string.startsWith(s, "new Date(123"), s);
+		self.assertTrue(goog.string.endsWith(s, ")"), s);
 	},
 
 	function test_RegExp(self) {
