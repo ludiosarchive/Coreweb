@@ -358,6 +358,17 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 }
 
 
+cw.UnitTest.makeErrorElementForError_ = function(error) {
+	var pre = document.createElement("pre");
+	// JavaScript-based tracebacks are unfortunately worthless in
+	// our case, so right now we're out of luck in IE (and probably Safari and Opera).
+	error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+	pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
+
+	return pre;
+}
+
+
 
 /**
  * Adds test results to a div, as they are run.
@@ -383,9 +394,7 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		cw.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
-		var pre = document.createElement("pre");
-		error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
-		pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
+		var pre = cw.UnitTest.makeErrorElementForError_(error);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
@@ -397,11 +406,7 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
 		cw.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
-		var pre = document.createElement("pre");
-		// JavaScript-based tracebacks are unfortunately worthless in
-		// our case, so right now we're out of luck in IE (and probably Safari and Opera).
-		error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
-		pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
+		var pre = cw.UnitTest.makeErrorElementForError_(error);
 		self._div.appendChild(textnode);
 		self._div.appendChild(br);
 		self._div.appendChild(pre);
