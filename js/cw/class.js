@@ -365,7 +365,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 			return methodFunction.apply(this, args);
 		};
 
-		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)'
+		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)';
 	};
 
 	/**
