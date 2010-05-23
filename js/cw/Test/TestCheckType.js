@@ -61,7 +61,6 @@ cw.Test.TestCheckType.EnsureIntTests.subclass(cw.Test.TestCheckType, 'EnsureIntI
 		self.assertIdentical(-3, cw.checktype.ensureIntInRange(-3, -3, 3));
 		self.assertIdentical(null, cw.checktype.ensureIntInRange(-4, -3, 3));
 		self.assertIdentical(null, cw.checktype.ensureIntInRange(4, -3, 3));
-		
 	}
 );
 
