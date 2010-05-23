@@ -92,11 +92,28 @@ cw.string.withoutLast = function(str, num) {
 /**
  * RegExp to match positive integers that start with [1-9].
  * This does *not* match "0".
- *
  * @type {!RegExp}
  * @const
  */
 cw.string.strictPositiveIntegerRe = /^[1-9]\d*$/;
+
+
+/**
+ * RegExp to match non-negative integers.
+ * This does not match "-0".
+ * @type {!RegExp}
+ * @const
+ */
+cw.string.strictNonNegIntegerRe = /^(0|[1-9]\d*)$/;
+
+
+/**
+ * RegExp to match integers.
+ * This does not match "-0".
+ * @type {!RegExp}
+ * @const
+ */
+cw.string.strictIntegerRe = /^(0|\-?[1-9]\d*)$/;
 
 
 /**
@@ -108,9 +125,29 @@ cw.string.strictPositiveIntegerRe = /^[1-9]\d*$/;
  * @return {number|null} The number, or null, if it could not be converted.
  */
 cw.string.strToNonNegLimit = function(str, limit) {
-	if(cw.string.strictPositiveIntegerRe.test(str) || str == '0') {
+	if(cw.string.strictNonNegIntegerRe.test(str)) {
 		var num = parseInt(str, 10);
 		if(num <= limit) {
+			return num;
+		}
+	}
+	return null;
+}
+
+
+/**
+ * A strict numeric-string to integer converter based on
+ * {@code mypy.objops.strToIntInRange}.
+ *
+ * @param {string} str String to convert to an integer.
+ * @param {number} lower Lower bound for the number.
+ * @param {number} upper Upper bound for the number.
+ * @return {number|null} The number, or null, if it could not be converted.
+ */
+cw.string.strToIntInRange = function(str, lower, upper) {
+	if(cw.string.strictIntegerRe.test(str)) {
+		var num = parseInt(str, 10);
+		if(num >= lower && num <= upper) {
 			return num;
 		}
 	}
