@@ -49,7 +49,7 @@ cw.checktype.ensureIntInRange = function(value, min, max) {
  * For all other values, raise L{ValueError}.
  *
  * @param {*} value
- * @return {?bool} boolean equivalent of {@code value}, or {@code null}.
+ * @return {?boolean} boolean equivalent of {@code value}, or {@code null}.
  */
 cw.checktype.ensureBool = function(value) {
 	if(value === true || value === 1) {

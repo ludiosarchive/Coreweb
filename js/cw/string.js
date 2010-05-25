@@ -15,7 +15,7 @@ goog.require('goog.asserts');
  * @param {string} sep The separator to split by.
  * @param {number} maxsplit Maximum number of times to split.
  *
- * @return {Array.<string>} The splitted string, as an array.
+ * @return {!Array.<string>} The splitted string, as an array.
  */
 cw.string.split = function(s, sep, maxsplit) {
 	goog.asserts.assert(goog.isDef(sep), "arguments[1] of CW.split must be a separator string");
@@ -79,7 +79,7 @@ cw.string.startsWithAlt = function(str, prefix) {
 /**
  * Return the string with the last N characters truncated.
  *
- * @param {string} String to truncate
+ * @param {string} str String to truncate
  * @param {number} num How many characters to remove from the end.
  *
  * @return {string} The truncated string
