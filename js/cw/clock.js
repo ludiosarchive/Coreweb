@@ -696,6 +696,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	 * [2]th item is the expected next firing time. 
 	 *
 	 * @type {!Object.<string, !Array.<(boolean|number)>>}
+	 * // TODO: types for tuples
 	 * @private
 	 */
 	this.timeouts_ = {};

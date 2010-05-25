@@ -230,6 +230,7 @@ cw.env.compressPluginSignature_ = function(psig) {
  *
  * @return {!Array.<(!Array|!Object.<string, number>|string)>} A three-item array:
  * 	[a "copy" of navigator.plugins, a description map, the signature string].
+ * // TODO: types for tuples
  *
  * TODO: improve above type signature after Closure Compiler supports
  * 	tuple annotations.
