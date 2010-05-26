@@ -9,7 +9,8 @@ goog.require('goog.math');
 
 
 /**
- * Returns {@code value} is value is a finite integer, else returns {@code null}.
+ * Returns {@code value} is value is a finite integer,
+ * else returns {@code null}.
  *
  * @param {*} value
  * @return {?number}
