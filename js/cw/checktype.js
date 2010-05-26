@@ -44,9 +44,9 @@ cw.checktype.ensureIntInRange = function(value, min, max) {
 
 
 /**
- * Convert 1, and True to True.
- * Convert 0, -0 and False to False.
- * For all other values, raise L{ValueError}.
+ * Convert `1` and `true` to `true`.
+ * Convert `0`, `-0` and `false` to `false`.
+ * For all other values, return `null`
  *
  * @param {*} value
  * @return {?boolean} boolean equivalent of {@code value}, or {@code null}.
