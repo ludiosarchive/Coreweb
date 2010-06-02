@@ -13,65 +13,69 @@ goog.require('cw.globalprops');
 goog.require('goog.structs.Set');
 
 
-cw.Class = function() {};
+/**
+ * @constructor
+ */
+cw.Class = function() {
+};
 
 /**
  * Create a new subclass.
  *
- * Passing a module object for C{classNameOrModule} and C{subclassName} will
+ * Passing a module object for {@code classNameOrModule} and {@code subclassName} will
  * result in the subclass being added to the global variables, allowing for a
  * more concise method of defining a subclass.
  *
- * @type classNameOrModule: C{String} or a module object
- * @param classNameOrModule: Name of the new subclass or the module object
- *	 C{subclassName} should be created in
+ * @param {string|!Object} classNameOrModule Name of the new subclass,
+ * 	or the module object {@code subclassName} should be created in
  *
- * @type subclassName: C{String} or C{undefined}
- * @param subclassName: Name of the new subclass if C{classNameOrModule} is a
- *	 module object
+ * @param {string=} subclassName: If {@code classNameOrModule} is a module
+ * 	object, specify the name of the new subclass.
  *
- * @rtype: C{cw.Class}
+ * @return {!Function}
  */
-cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
-	/*
+cw.Class.subclass = function(classNameOrModule, subclassName) {
+	/**
 	 * subclass() must always be called on cw.Class or an object returned
-	 * from subclass() - so in this execution context, C{this} is the "class"
+	 * from subclass() - so in this execution context, {@code this} is the "class"
 	 * object.
 	 */
 	var superClass = this;
 
 	/* speed up access for JScript */
-	var CONSTRUCTOR = cw.Class._CONSTRUCTOR;
+	var CONSTRUCTOR = cw.Class.CONSTRUCTOR_;
 
-	/*
+	/**
 	 * Create a constructor function that wraps the user-defined __init__.
 	 * This basically serves the purpose of type.__call__ in Python.
+	 *
+	 * @constructor
 	 */
 	var subClass = function _cw_Class_subClassConstructor(asConstructor) {
 		var self;
 		if (this instanceof subClass) {
-			/*
-			 * If the instance is being created using C{new Class(args)},
-			 * C{this} will already be an object with the appropriate
+			/**
+			 * If the instance is being created using `new Class(args)`,
+			 * `this` will already be an object with the appropriate
 			 * prototype, so we can skip creating one ourself.
 			 */
 			self = this;
 		} else {
-			/*
-			 * If the instance is being created using just C{Class(args)} (or,
-			 * similarly, C{Class.apply(null, args)} or C{Class.call(null,
-			 * args)}), then C{this} is actually some random object - maybe the
+			/**
+			 * If the instance is being created using just `Class(args)` (or,
+			 * similarly, `Class.apply(null, args)} or `Class.call(null, args)`),
+			 * then `this` is actually some random object - maybe the
 			 * global execution context object, maybe the window, maybe a
-			 * pseudo-namespace object (ie, C{CW}), maybe null.  Whichever,
-			 * invoke C{new subClass(cw.Class._CONSTRUCTOR)} to create an object
-			 * with the right prototype without invoking C{__init__}.
+			 * pseudo-namespace object (ie, `cw`), maybe `null`.  Whichever,
+			 * invoke `new subClass(cw.Class.CONSTRUCTOR_)` to create an object
+			 * with the right prototype without invoking `__init__`.
 			 */
 			self = new subClass(CONSTRUCTOR);
 		}
-		/*
-		 * Once we have an instance, if C{asConstructor} is not the magic internal
-		 * object C{cw.Class._CONSTRUCTOR}, pass all our arguments on to the
-		 * instance's C{__init__}.
+		/**
+		 * Once we have an instance, if `asConstructor` is not the magic internal
+		 * object `cw.Class.CONSTRUCTOR_`, pass all our arguments on to the
+		 * instance's `__init__`.
 		 */
 		if (asConstructor !== CONSTRUCTOR) {
 			/* increment __instanceCounter__ and set an ID unique to this instance */
@@ -109,11 +113,11 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	 * bind the class to a property, it only returns it.
 	 */
 	var className;
-	if (subclassName !== undefined) {
+	if (goog.isDef(subclassName)) {
 		/* new style subclassing */
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
-		if(goog.DEBUG && classNameOrModule[subclassName] !== undefined) {
+		if(goog.DEBUG && goog.isDef(classNameOrModule[subclassName])) {
 			throw new Error("cw.Class.subclass: Won't overwrite " + className);
 		}
 
@@ -137,13 +141,16 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	if(goog.DEBUG) {
 		// This only helps prevent problems caused by IE6-8's mishandling of named functions.
 
-		subClass._alreadyDefinedMethods = new goog.structs.Set();
+		/**
+		 * @type {!goog.structs.Set}
+		 */
+		subClass.alreadyDefinedMethods_ = new goog.structs.Set();
 
 		/**
 		 * Throw an Error if this method has already been defined.
 		 */
 		subClass._prepareToAdd = function(methodName, allowWindowPropertyNames) {
-			if(subClass._alreadyDefinedMethods.contains(methodName)) {
+			if(subClass.alreadyDefinedMethods_.contains(methodName)) {
 				// See explanation above for why Error instead of a cw.NameCollisionError
 				throw new Error("cw.Class.subclass.subClass: Won't overwrite already-defined " +
 					subClass.__name__ + '.' + methodName);
@@ -165,24 +172,26 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 						" because window." + methodName + " may exist in some browsers.");
 				}
 			}
-			subClass._alreadyDefinedMethods.add(methodName);
+			subClass.alreadyDefinedMethods_.add(methodName);
 		}
 	}
 
 	/**
 	 * Helper function for adding a method to the prototype.
 	 *
-	 * C{methodFunction} will be called with its class instance as the first argument,
-	 *    so that you will not have to do: C{var self = this;} in each method.
-	 * Classes with prototypes created with method/methods will be slower than
-	 * those with prototypes created by directly setting C{.prototype} properties
+	 * `methodFunction` will be called with its class instance as the first argument,
+	 * so that you will not have to do: `var self = this;` anywhere.
+	 * Classes with prototypes created with method(...)/methods(...) are slower than
+	 * those with prototypes created by directly setting `.prototype` properties
+	 *
+	 * @param {!Function} methodFunction
 	 */
 	subClass.method = function(methodFunction) {
 		/* .name is a Mozilla extension to JavaScript, also supported in WebKit */
 		var methodName = methodFunction.name;
 
 		if (methodName == undefined) {
-			/* No C{methodFunction.name} in IE or Opera or older Safari, so try this workaround. */
+			/* No `methodFunction.name` in IE or Opera or older Safari, so try this workaround. */
 			var methodSource = methodFunction.toString();
 			methodName = methodSource.slice(
 				methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
@@ -201,11 +210,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 
 		subClass.prototype[methodName] = function _cw_Class_subClass_prototype_method() {
 			var args = [this];
-			args.push.apply(args, arguments); // A sparkling jewel.
-
-			// TODO: microbench against:
-			// var args = Array.prototype.slice.call(arguments);
-			// args.unshift(this);
+			args.push.apply(args, arguments);
 			return methodFunction.apply(this, args);
 		};
 
@@ -214,17 +219,16 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 
 	/**
 	 * Add many methods from an array of named functions.
-	 * This wraps each function with a function that passes in `this' as the first argument.
-	 * See comment for subClass.method.
+	 * This wraps each function with a function that passes in
+	 * `this' as the first argument. See comment for subClass.method.
+	 *
+	 * @param {...!Function} var_args The methods to add.
 	 */
-	subClass.methods = function() {
-		var n = arguments.length;
-		// order does not matter
-		while(n--) {
-			subClass.method(arguments[n]);
+	subClass.methods = function(var_args) {
+		for(var i=0; i < arguments.length; i++) {
+			subClass.method(arguments[i]);
 		}
 	};
-
 
 	/**
 	 * Add many methods from an object. Functions can be anonymous.
@@ -247,7 +251,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 
 			if(goog.DEBUG) {
 				/**
-				 * Check _alreadyDefinedMethods even though objects can't have two of
+				 * Check alreadyDefinedMethods_ even though objects can't have two of
 				 * the same property; because the user could be using pmethods() to
 				 * accidentally overwrite a method set with methods()
 				 */
@@ -261,47 +265,54 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		}
 	};
 
-
 	/**
-	 * Return C{true} if class C{a} is a subclass of class {b} (or is {b}).
-	 * Return C{false} otherwise.
+	 * @return {boolean} Whether this class is a subclass of
+	 * 	{@code superClass}, or is {@code superClass}.
 	 */
 	subClass.subclassOf = function(superClass) {
 		return (subClass.prototype instanceof superClass
 				|| subClass == superClass);
 	};
 
-	/*
+	/**
 	 * Make the subclass identifiable somehow.
+	 * @type {string}
 	 */
-	subClass.__name__ = className;
+	subClass.__name__ = /** @type {string} */ (className);
 
+	/**
+	 * @return {string}
+	 */
 	subClass.toString = subClass.__repr__ = function() {
 		return '<Class ' + className + '>';
 	};
+
+	/**
+	 * @return {string}
+	 */
 	subClass.prototype.toString = subClass.prototype.__repr__ = function() {
 		return '<"Instance" of ' + className + '>';
 	};
+
 	return subClass;
 };
 
 
 cw.Class.prototype.__init__ = function() {
-	//cw.msg("In cw.Class.prototype.__init__");
 };
 
 
 /**
- * This tracks the number of instances of L{cw.Class} subclasses.
+ * This tracks the number of instances of {@link cw.Class} subclasses.
  * This is incremented for each instantiation; never decremented.
+ * @private
  */
 cw.Class.__instanceCounter__ = 0;
 
 /**
- *  C{cw._CONSTRUCTOR} chosen to be C{{}} because it has the nice property of
- *    ({} === {}) === false
- *    (cw._CONSTRUCTOR === cw._CONSTRUCTOR) === true
- *
- *    which avoids any ambiguitity when "instantiating" instances.
+ * {@code cw.CONSTRUCTOR_} is a non-primitive object {@code {}}
+ *    because ({} === {}) === false, while
+ *    (cw.CONSTRUCTOR_ === cw.CONSTRUCTOR_) === true
+ * @private
  */
-cw.Class._CONSTRUCTOR = {};
+cw.Class.CONSTRUCTOR_ = {};

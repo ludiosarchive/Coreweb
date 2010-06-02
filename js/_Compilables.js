@@ -1,5 +1,6 @@
 // in Coreweb
 goog.require('cw.array');
+goog.require('cw.Class');
 goog.require('cw.clock');
 goog.require('cw.checktype');
 goog.require('cw.env');
