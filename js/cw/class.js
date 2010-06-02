@@ -114,10 +114,6 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
 		if(goog.DEBUG && classNameOrModule[subclassName] !== undefined) {
-			// throw an Error instead of something like cw.NameCollisionError
-			// because we don't have subclassing yet, and if we define it later, it might
-			// have a typo that triggers this condition; at this point you'll see a strange
-			// ReferenceError here.
 			throw new Error("cw.Class.subclass: Won't overwrite " + className);
 		}
 
