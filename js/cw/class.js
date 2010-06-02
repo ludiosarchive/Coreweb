@@ -190,7 +190,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 		/* .name is a Mozilla extension to JavaScript, also supported in WebKit */
 		var methodName = methodFunction.name;
 
-		if (methodName == undefined) {
+		if (methodName == null) {
 			/* No `methodFunction.name` in IE or Opera or older Safari, so try this workaround. */
 			var methodSource = methodFunction.toString();
 			methodName = methodSource.slice(
