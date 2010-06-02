@@ -27,5 +27,6 @@ cw.whoami.getUaId = function() {
 	var cookieName = (isHttps ? cw.whoami.HTTPS_COOKIE_NAME :
 		cw.whoami.HTTP_COOKIE_NAME);
 
-	return goog.net.cookies.get(cookieName, null);
+	var uaId = goog.net.cookies.get(cookieName);
+	return goog.isDef(uaId) ? uaId : null;
 };
