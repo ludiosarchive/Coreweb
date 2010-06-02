@@ -9,8 +9,8 @@ goog.require('goog.structs.Set');
 
 
 /**
- * @private
  * @return {!goog.structs.Set}
+ * @private
  */
 cw.globalprops.makeExpectedGlobalProperties_ = function() {
 	var globalsArray = [];
