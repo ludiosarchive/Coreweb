@@ -42,9 +42,6 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 	 */
 	var superClass = this;
 
-	/* speed up access for JScript */
-	var CONSTRUCTOR = cw.Class.CONSTRUCTOR_;
-
 	/**
 	 * Create a constructor function that wraps the user-defined __init__.
 	 * This basically serves the purpose of type.__call__ in Python.
@@ -70,14 +67,14 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 			 * invoke `new subClass(cw.Class.CONSTRUCTOR_)` to create an object
 			 * with the right prototype without invoking `__init__`.
 			 */
-			self = new subClass(CONSTRUCTOR);
+			self = new subClass(cw.Class.CONSTRUCTOR_);
 		}
 		/**
 		 * Once we have an instance, if `asConstructor` is not the magic internal
 		 * object `cw.Class.CONSTRUCTOR_`, pass all our arguments on to the
 		 * instance's `__init__`.
 		 */
-		if (asConstructor !== CONSTRUCTOR) {
+		if (asConstructor !== cw.Class.CONSTRUCTOR_) {
 			/* increment __instanceCounter__ and set an ID unique to this instance */
 			self.__id__ = ++cw.Class.__instanceCounter__;
 
@@ -85,36 +82,30 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 			self.__init__.apply(self, arguments);
 		}
 
-		/*
-		 * We've accomplished... Something.  Either we made a blank, boring
-		 * instance of a particular class, or we actually initialized an
-		 * instance of something (possibly something that we had to create).
-		 * Whatever it is, give it back to our caller to enjoy.
-		 */
+		// We've accomplished... Something.  Either we made a blank, boring
+		// instance of a particular class, or we actually initialized an
+		// instance of something (possibly something that we had to create).
+		// Whatever it is, give it back to our caller to enjoy.
 		return self;
 	};
 
-	/*
+	/**
 	 * This is how you spell inheritance in JavaScript.
 	 */
-	subClass.prototype = new superClass(CONSTRUCTOR);
+	subClass.prototype = new superClass(cw.Class.CONSTRUCTOR_);
 
-	/*
+	/**
 	 * Make the subclass subclassable in the same way.
 	 */
 	subClass.subclass = cw.Class.subclass;
 
-	/*
-	 * Support both new and old-style subclassing.
-	 *
-	 * New-style takes fewer bytes.
-	 *
-	 * Old-style is still useful (especially for unit testing UnitTest) because it doesn't
-	 * bind the class to a property, it only returns it.
-	 */
+	// Support both new and old-style subclassing. New-style is less verbose.
+	// Old-style is still useful (especially for unit testing cw.UnitTest) because
+	// it doesn't bind the class to a property; it just returns it.
+
+	/** @type {string} */
 	var className;
-	if (goog.isDef(subclassName)) {
-		/* new style subclassing */
+	if (goog.isDef(subclassName)) { // implies new-style subclassing
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
 		if(goog.DEBUG && goog.isDef(classNameOrModule[subclassName])) {
@@ -123,15 +114,15 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 
 		// Now define it so that it can actually be accessed later.
 		classNameOrModule[subclassName] = subClass;
-	} else {
-		/* old style subclassing */
-		className = classNameOrModule;
+	} else { // implies old-style subclassing
+		// This cast is a mere hope.
+		className = /** @type {string} */ (classNameOrModule);
 	}
 
 	/**
-	 * upcall is similar to Python super()
-	 * Use upcall like this:
+	 * upcall is similar to Python super(). Use upcall like this:
 	 * cw.Defer.FirstError.upcall(self, '__init__', []);
+	 * @return {*}
 	 */
 	subClass.upcall = function _cw_Class_subClass_upcall(otherThis, methodName, funcArgs) {
 		return superClass.prototype[methodName].apply(otherThis, funcArgs);
@@ -139,8 +130,6 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 
 
 	if(goog.DEBUG) {
-		// This only helps prevent problems caused by IE6-8's mishandling of named functions.
-
 		/**
 		 * @type {!goog.structs.Set}
 		 */
@@ -188,11 +177,12 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 	 * @param {!Function} methodFunction
 	 */
 	subClass.method = function(methodFunction) {
-		/* .name is a Mozilla extension to JavaScript, also supported in WebKit */
+		// .name is a Mozilla extension to JavaScript; also supported in WebKit.
 		var methodName = methodFunction.name;
 
 		if (methodName == null) {
-			/* No `methodFunction.name` in IE or Opera or older Safari, so try this workaround. */
+			// No `methodFunction.name` in IE, Opera, and older Safari,
+			// so try this workaround.
 			var methodSource = methodFunction.toString();
 			methodName = methodSource.slice(
 				methodSource.indexOf(' ') + 1, methodSource.indexOf('('));
@@ -201,7 +191,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 		if(goog.DEBUG) {
 			subClass.prepareToAdd_(methodName, /*allowWindowPropertyNames=*/false);
 
-			/*
+			/**
 			 * Safari 4 supports displayName to name any function for the debugger/profiler.
 			 * It might work with Firebug in the future.
 			 * See http://code.google.com/p/chromium/issues/detail?id=17356 for details.
@@ -209,13 +199,21 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 			methodFunction.displayName = className + '.' + methodName;
 		}
 
-		subClass.prototype[methodName] = function _cw_Class_subClass_prototype_method() {
+		/**
+		 * @param {...*} var_args
+		 * @return {*}
+		 */
+		subClass.prototype[methodName] = function _cw_Class_subClass_prototype_method(var_args) {
 			var args = [this];
 			args.push.apply(args, arguments);
 			return methodFunction.apply(this, args);
 		};
 
-		subClass.prototype[methodName].displayName = className + '.' + methodName + ' (self wrap)';
+		/**
+		 * @type {string}
+		 */
+		subClass.prototype[methodName].displayName = (
+			className + '.' + methodName + ' (self wrap)');
 	};
 
 	/**
@@ -233,18 +231,20 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 
 	/**
 	 * Add many methods from an object. Functions can be anonymous.
-	 * This doesn't wrap the functions (.methods/.method does) for slightly better speed.
-	 * Use this instead of .methods for performance-critical classes.
+	 * This doesn't wrap the functions (like .methods/.method does).
 	 *
-	 * JScript will not enumerate over things that it should (including `toString').
-	 * See https://developer.mozilla.org/En/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
-	 * If you want to define a custom `toString' method for instances, do not use .pmethods.
+	 * Note: JScript will not enumerate over things that it should (including
+	 * `toString'). See https://developer.mozilla.org/En/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
+	 * If you want to define a custom `toString' method for instances,
+	 * do not use .pmethods.
 	 * 
 	 * Side note: YUI yui-core.js works around this with:
 	 * var fn = s.toString;
        * if (L.isFunction(fn) && fn != Object.prototype.toString) {
        *    r.toString = fn;
 	 * }
+	 *
+	 * @param {!Object.<string, !Function>} obj
 	 */
 	subClass.pmethods = function(obj) {
 		for(var methodName in obj) {
@@ -311,9 +311,7 @@ cw.Class.prototype.__init__ = function() {
 cw.Class.__instanceCounter__ = 0;
 
 /**
- * {@code cw.CONSTRUCTOR_} is a non-primitive object {@code {}}
- *    because ({} === {}) === false, while
- *    (cw.CONSTRUCTOR_ === cw.CONSTRUCTOR_) === true
+ * A unique marker object used to make sure __init__ is called only once.
  * @private
  */
 cw.Class.CONSTRUCTOR_ = {};
