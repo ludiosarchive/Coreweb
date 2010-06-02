@@ -148,8 +148,9 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 
 		/**
 		 * Throw an Error if this method has already been defined.
+		 * @private
 		 */
-		subClass._prepareToAdd = function(methodName, allowWindowPropertyNames) {
+		subClass.prepareToAdd_ = function(methodName, allowWindowPropertyNames) {
 			if(subClass.alreadyDefinedMethods_.contains(methodName)) {
 				// See explanation above for why Error instead of a cw.NameCollisionError
 				throw new Error("cw.Class.subclass.subClass: Won't overwrite already-defined " +
@@ -198,7 +199,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 		}
 
 		if(goog.DEBUG) {
-			subClass._prepareToAdd(methodName, /*allowWindowPropertyNames=*/false);
+			subClass.prepareToAdd_(methodName, /*allowWindowPropertyNames=*/false);
 
 			/*
 			 * Safari 4 supports displayName to name any function for the debugger/profiler.
@@ -255,7 +256,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 				 * the same property; because the user could be using pmethods() to
 				 * accidentally overwrite a method set with methods()
 				 */
-				subClass._prepareToAdd(methodName, /*allowWindowPropertyNames=*/true);
+				subClass.prepareToAdd_(methodName, /*allowWindowPropertyNames=*/true);
 
 				// See comment about Safari 4 above.
 				methodFunction.displayName = className + '.' + methodName;
