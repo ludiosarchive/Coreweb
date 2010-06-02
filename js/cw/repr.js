@@ -2,8 +2,6 @@
  * @fileoverview Python-style repr() for JavaScript, supporting both
  * 	__repr__ and toString on objects.
  *
- * TODO XXX LICENSE: Closure Library (we copied functions from goog.json)
- *
  * For primitive objects, the priority for deciding how to represent is:
  * 	- cw.repr internals
  *
@@ -16,6 +14,8 @@
  * 	- .__reprToPieces__(sb)
  * 	- .__repr__()
  * 	- .toString()
+ *
+ * LICENSE note: copied some functions from Closure Library's goog.json.
  */
 
 goog.provide('cw.repr');

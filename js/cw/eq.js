@@ -1,9 +1,9 @@
 /**
  * @fileoverview Generic equality comparisons, usable for both test code
  * 	and production code.
+ *
+ * LICENSE note: includes copy/pasted JSDocs from Closure Library.
  */
-
-// TODO XXX LICENSE: uses copy/pasted jsdocs from Closure Library
 
 goog.provide('cw.eq');
 

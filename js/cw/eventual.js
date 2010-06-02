@@ -41,7 +41,7 @@
  * setTimeout(..., 0). See http://dbaron.org/log/20100309-faster-timeouts
  * This might however defeat the lack-of-crashing guarantee of setTimeout.
  *
- * LICENSE: Coreweb, Foolscap
+ * LICENSE note: directly translated from Foolscap's foolscap.eventually.
  */
 
 goog.provide('cw.eventual');
