@@ -4,15 +4,28 @@ goog.require('goog.net.cookies');
 
 
 /**
- * Get the uaId from the cookie. If not set, returns undefined.
+ * @const
+ * @type {string}
+ */
+cw.whoami.HTTP_COOKIE_NAME = '__';
+
+
+/**
+ * @const
+ * @type {string}
+ */
+cw.whoami.HTTPS_COOKIE_NAME = '_s';
+
+
+/**
+ * Get the uaId from the cookie. If not set, returns null.
  *
- * @return {string|undefined} the uaId
+ * @return {?string} the uaId
  */
 cw.whoami.getUaId = function() {
 	var isHttps = window.location.protocol == 'https:';
-	var cookieName = isHttps ? '_s' : '__';
+	var cookieName = (isHttps ? cw.whoami.HTTPS_COOKIE_NAME :
+		cw.whoami.HTTP_COOKIE_NAME);
 
-	var uaId = goog.net.cookies.get(cookieName);
-
-	return uaId;
+	return goog.net.cookies.get(cookieName, null);
 };
