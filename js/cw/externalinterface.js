@@ -12,12 +12,12 @@ goog.require('goog.string');
  * These functions were modified from the ones Flash Player injects into the page
  * (the ones named __flash__*)
  *
- * Modifications:
+ * Improvements over the injected __flash__* functions:
  * 	escapes object keys properly, so the XML serialization is not corrupted.
  * 	uses array .join("") to be faster in JScript, where string appends are very slow.
  * 	detects Arrays and Dates properly, even if they originated in another window.
  *   uses Closure Compiler type annotations, so hopefully the encoder is inlined into
- * 		one function.
+ *		one function.
  *
  * Keep in mind that JS->Flash is slightly more lossy than Flash->JS, because
  * invalid surrogates, Noncharacters, and unallocated Specials may be U+FFFD'ed.
@@ -45,6 +45,7 @@ goog.require('goog.string');
  *
  * @param {!Array} buffer Temporary buffer
  * @param {!Array} obj Array to encode
+ * @private
  */
 cw.externalinterface.handleArray_ = function(buffer, obj) {
 	buffer.push('<array>');
@@ -63,6 +64,7 @@ cw.externalinterface.handleArray_ = function(buffer, obj) {
  * @param {!Array} buffer Temporary buffer
  * @param {!Object} obj Argument pseudo-array to encode
  * @param {number} index Which argument to start at
+ * @private
  */
 cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
 	buffer.push('<arguments>');
@@ -77,6 +79,7 @@ cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
  *
  * @param {!Array} buffer Temporary buffer
  * @param {!Object} obj Object to encode
+ * @private
  */
 cw.externalinterface.handleObject_ = function(buffer, obj) {
 	buffer.push('<object>');
@@ -92,8 +95,8 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 
 /**
  * @param {string} s String to escape
- *
  * @return {string} Escaped string
+ * @private
  */
 cw.externalinterface.escapeString_ = function(s) {
 	return goog.string.htmlEscape(s);
@@ -104,6 +107,7 @@ cw.externalinterface.escapeString_ = function(s) {
  *
  * @param {!Array} buffer Temporary buffer
  * @param {*} value Value to encode
+ * @private
  */
 cw.externalinterface.handleAny_ = function(buffer, value) {
 	var type = goog.typeOf(value);
@@ -139,15 +143,14 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 };
 
 /**
- * Returns the XML string that can be used to call an ExternalInterface-exposed Flash function,
- * with arguments, on an any embedded Flash applet.
+ * Returns the XML string that can be used to call an ExternalInterface-exposed
+ * Flash function, with arguments, on an any embedded Flash applet.
  *
  * @param {string} name The name of the function to invoke. Must not contain
- * 							the characters C{<>&"'}.
+ * 	the characters C{<>&"'}.
  * @param {...*} var_args The arguments to the function.
- * 
  * @return {string} The XML string that can be used in
- * 	<code>var result = flashObj.CallFunction(xmlString)</code>.
+ * 	{@code var result = flashObj.CallFunction(xmlString)}.
  */
 cw.externalinterface.request = function(name, var_args) {
 	var buffer = ['<invoke name="', name, '" returntype="javascript">'];
