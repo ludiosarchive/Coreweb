@@ -18,9 +18,8 @@ goog.require('goog.debug');
  * returns 0.
  *
  * @return {number} The scrollbar width in pixels.
- *
  */
-cw.env.getScrollbarThickness_ = function() {
+cw.env.getScrollbarThickness = function() {
 	var div = goog.dom.createDom('div',
 		{'style': 'overflow:scroll;position:absolute;visibility:hidden;'});
 	goog.dom.appendChild(goog.dom.getDocument().body, div);
@@ -38,7 +37,7 @@ cw.env.getScrollbarThickness_ = function() {
  *
  * @return {?string} The Flash Player version, or {@code null} if not installed.
  */
-cw.env.getActiveXFlashVersion_ = function() {
+cw.env.getActiveXFlashVersion = function() {
 	var flashVersion = null, ax;
 	var sfString = 'ShockwaveFlash';
 	sfString += '.' + sfString; // now "ShockwaveFlash.ShockwaveFlash"
@@ -76,7 +75,7 @@ cw.env.getActiveXFlashVersion_ = function() {
  *
  * @return {?string}
  */
-cw.env.getActiveXGoogleGearsBuildInfo_ = function() {
+cw.env.getActiveXGoogleGearsBuildInfo = function() {
 	try {
 		var factory = new ActiveXObject('Gears.Factory');
 		return factory['getBuildInfo']();
@@ -95,7 +94,7 @@ cw.env.getActiveXGoogleGearsBuildInfo_ = function() {
  *
  * @return {?string}
  */
-cw.env.getActiveXSilverlightVersion_ = function() {
+cw.env.getActiveXSilverlightVersion = function() {
 	try {
 		var control = new ActiveXObject('AgControl.AgControl');
 	} catch(e) {
@@ -120,7 +119,7 @@ cw.env.getActiveXSilverlightVersion_ = function() {
  *
  * @return {!Object.<string, string>}
  */
-cw.env.probeActiveXObjects_ = function() {
+cw.env.probeActiveXObjects = function() {
 	// In the future, we don't want to check these on every page load,
 	// because it adds 30-40ms to the collection time.
 	var objects = [
@@ -163,7 +162,7 @@ cw.env.probeActiveXObjects_ = function() {
  * 	property (or null if has no such property). If it could not be instantiated,
  * 	returns an Array containing error information.
  */
-cw.env.getXHRDefaultWithCredentials_ = function() {
+cw.env.getXHRDefaultWithCredentials = function() {
 	/** @preserveTry */
 	try {
 		var xhr = new XMLHttpRequest();
@@ -183,10 +182,9 @@ cw.env.getXHRDefaultWithCredentials_ = function() {
  * into a smaller string.
  *
  * @param {string} psig The plugin signature string.
- *
  * @return {string} The compressed signature.
  */
-cw.env.compressPluginSignature_ = function(psig) {
+cw.env.compressPluginSignature = function(psig) {
 	var checksum = [];
 
 	// The algorithm works conceptually like this:
@@ -222,20 +220,16 @@ cw.env.compressPluginSignature_ = function(psig) {
  * arrays containing the information we want. This also returns a
  * (possibly large) "signature" string that uniquely represents the installed
  * plugins 99.9% of the time. The signature array can be further
- * compressed with {@link cw.env.compressPluginSignature_},
+ * compressed with {@link cw.env.compressPluginSignature},
  * and used to first ask the server if it wants the full plugin report before
  * sending it.
  *
  * @param {!Array} plugins {@code navigator.plugins} or a similar object.
- *
  * @return {!Array.<(!Array|!Object.<string, number>|string)>} A three-item array:
  * 	[a "copy" of navigator.plugins, a description map, the signature string].
  * // TODO: types for tuples
- *
- * TODO: improve above type signature after Closure Compiler supports
- * 	tuple annotations.
  */
-cw.env.extractPlugins_ = function(plugins) {
+cw.env.extractPlugins = function(plugins) {
 	var pluginList = [];
 	// We de-duplicate descriptions in the report because Quicktime has a
 	// long description (228 bytes) that is in ~6 different plugins. This
@@ -296,10 +290,9 @@ cw.env.extractPlugins_ = function(plugins) {
  * point to objects, arrays, or functions.
  *
  * @param {!(Object|Navigator|Document)} orig
- *
  * @return {!Object} The filtered object
  */
-cw.env.filterObject_ = function(orig) {
+cw.env.filterObject = function(orig) {
 	var out = {};
 	var allowed = {'string': 1, 'number': 1, 'null': 1, 'boolean': 1};
 	for(var k in orig) {
@@ -326,11 +319,11 @@ cw.env.filterObject_ = function(orig) {
 /**
  * Extract the interesting properties from a window object.
  *
- * @param {!Object} orig Any non-null object
- *
+ * @param {!Object} orig Any !Object, but preferably one with the properties
+ * 	we're looking for.
  * @return {!Object} The filtered object
  */
-cw.env.filterWindow_ = function(orig) {
+cw.env.filterWindow = function(orig) {
 	var out = {};
 	var allowed = {
 		'innerWidth': 1, 'innerHeight': 1, 'outerWidth': 1, 'outerHeight': 1,
@@ -353,8 +346,8 @@ cw.env.filterWindow_ = function(orig) {
 			}
 		}
 	}
-	// filterObject_ just in case we got some unexpected arrays/objects/functions.
-	return cw.env.filterObject_(out);
+	// filterObject just in case we got some unexpected arrays/objects/functions.
+	return cw.env.filterObject(out);
 };
 
 
@@ -367,7 +360,7 @@ cw.env.filterWindow_ = function(orig) {
  * 	Before 20100409.0001, report included 'has working XMLHttpRequest',
  * 		which was incorrect because it was always {@code true}.
  */
-cw.env.makeReport_ = function() {
+cw.env.makeReport = function() {
 	var date = new Date();
 
 	var report = {};
@@ -379,12 +372,12 @@ cw.env.makeReport_ = function() {
 
 	report['_type'] = 'browser-environment-initial';
 
-	report['window'] = cw.env.filterWindow_(goog.global);
+	report['window'] = cw.env.filterWindow(goog.global);
 
 	if(goog.global.navigator) {
 		var nav = goog.global.navigator;
 
-		report['navigator'] = cw.env.filterObject_(/** @type {!Navigator} */(nav));
+		report['navigator'] = cw.env.filterObject(/** @type {!Navigator} */(nav));
 
 		// navigator.javaEnabled is a `function` in FF; an `object` in IE8.
 		if('javaEnabled' in nav) {
@@ -396,7 +389,7 @@ cw.env.makeReport_ = function() {
 		}
 
 		if(nav.plugins) {
-			var ret = cw.env.extractPlugins_(nav.plugins);
+			var ret = cw.env.extractPlugins(nav.plugins);
 			report['pluginList'] = ret[0];
 			report['pluginDescs'] = ret[1];
 		}
@@ -407,16 +400,16 @@ cw.env.makeReport_ = function() {
 	}
 
 	if(goog.global.document) {
-		report['document'] = cw.env.filterObject_(document);
+		report['document'] = cw.env.filterObject(document);
 	}
 
 	if(goog.global.screen) {
-		report['screen'] = cw.env.filterObject_(screen);
+		report['screen'] = cw.env.filterObject(screen);
 	}
 
-	if(goog.global.history && goog.isNumber(history.length)) {
+	if(goog.global.history && goog.isNumber(goog.global.history.length)) {
 		try {
-			report['history.length'] = history.length;
+			report['history.length'] = goog.global.history.length;
 		} catch(e) {
 			// Around 2010-04, we saw a report where accessing history.length on
 			// "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.16) Gecko/2009121707
@@ -428,17 +421,17 @@ cw.env.makeReport_ = function() {
 		}
 	}
 
-	report['scrollbarThickness'] = cw.env.getScrollbarThickness_();
-	report['XHR.withCredentials'] = cw.env.getXHRDefaultWithCredentials_();
+	report['scrollbarThickness'] = cw.env.getScrollbarThickness();
+	report['XHR.withCredentials'] = cw.env.getXHRDefaultWithCredentials();
 
 	report['new Date().getTime()'] = +date;
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
 
 	if(goog.userAgent.IE) {
-		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion_();
-		report['Google Gears ActiveX Control version'] = cw.env.getActiveXGoogleGearsBuildInfo_();
-		report['Silverlight ActiveX Control version'] = cw.env.getActiveXSilverlightVersion_();
-		report['ActiveXObjects'] = cw.env.probeActiveXObjects_();
+		report['Flash Player ActiveX Control version'] = cw.env.getActiveXFlashVersion();
+		report['Google Gears ActiveX Control version'] = cw.env.getActiveXGoogleGearsBuildInfo();
+		report['Silverlight ActiveX Control version'] = cw.env.getActiveXSilverlightVersion();
+		report['ActiveXObjects'] = cw.env.probeActiveXObjects();
 	}
 
 	report['_timeToCollect'] = goog.now() - +date;

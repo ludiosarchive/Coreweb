@@ -26,13 +26,13 @@ cw.Test.TestEnv.samplePlugins_ = [{
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	function test_getScrollbarThickness(self) {
-		var thickness = cw.env.getScrollbarThickness_();
+		var thickness = cw.env.getScrollbarThickness();
 		self.assertTrue(goog.isNumber(thickness));
 		self.assertTrue(thickness > 0, thickness);
 	},
 
 	function test_getActiveXFlashVersion(self) {
-		var version = cw.env.getActiveXFlashVersion_();
+		var version = cw.env.getActiveXFlashVersion();
 		self.assertTrue(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 
@@ -43,7 +43,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_getActiveXSilverlightVersion(self) {
-		var version = cw.env.getActiveXSilverlightVersion_();
+		var version = cw.env.getActiveXSilverlightVersion();
 		self.assertTrue(goog.isString(version) || goog.isNull(version));
 		self.assertNotIdentical("", version);
 
@@ -54,7 +54,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_getActiveXGoogleGearsBuildInfo(self) {
-		var buildInfo = cw.env.getActiveXGoogleGearsBuildInfo_();
+		var buildInfo = cw.env.getActiveXGoogleGearsBuildInfo();
 		self.assertTrue(goog.isString(buildInfo) || goog.isNull(buildInfo));
 		self.assertNotIdentical("", buildInfo);
 
@@ -65,7 +65,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_probeActiveXObjects(self) {
-		var out = cw.env.probeActiveXObjects_();
+		var out = cw.env.probeActiveXObjects();
 		self.assertEqual('object', goog.typeOf(out));
 		for(var k in out) {
 			var v = out[k];
@@ -75,7 +75,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_getXHRDefaultWithCredentials(self) {
-		var out = cw.env.getXHRDefaultWithCredentials_();
+		var out = cw.env.getXHRDefaultWithCredentials();
 		self.assertIn(goog.typeOf(out), goog.object.createSet('boolean', 'null', 'array'));
 		if(!goog.userAgent.IE) {
 			// Non-IE environments are expected to have a working
@@ -88,7 +88,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	/**
-	 * Test {@link cw.env.extractPlugins_} with the real {@code navigator.plugins}
+	 * Test {@link cw.env.extractPlugins} with the real {@code navigator.plugins}
 	 * object.
 	 */
 	function test_extractPluginsReal(self) {
@@ -96,7 +96,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 			throw new cw.UnitTest.SkipTest("This browser lacks a navigator.plugins");
 		}
 
-		var ret = cw.env.extractPlugins_(navigator.plugins);
+		var ret = cw.env.extractPlugins(navigator.plugins);
 		self.assertEqual(3, ret.length);
 		var pluginList = ret[0];
 		var descriptions = ret[1];
@@ -110,11 +110,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	/**
-	 * Test {@link cw.env.extractPlugins_} with a mock {@code navigator.plugins}
+	 * Test {@link cw.env.extractPlugins} with a mock {@code navigator.plugins}
 	 * object.
 	 */
 	function test_extractPluginsMock(self) {
-		var ret = cw.env.extractPlugins_(cw.Test.TestEnv.samplePlugins_);
+		var ret = cw.env.extractPlugins(cw.Test.TestEnv.samplePlugins_);
 		var pluginList = ret[0];
 		var descriptions = ret[1];
 		var psig = ret[2];
@@ -136,22 +136,22 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	},
 
 	function test_compressPluginSignature(self) {
-		self.assertEqual('', cw.env.compressPluginSignature_(''));
+		self.assertEqual('', cw.env.compressPluginSignature(''));
 
 		// Taken from test_extractPluginsMock
 		var psig = '1021524111001232'
-		self.assertEqual('aMALjuVK', cw.env.compressPluginSignature_(psig));
+		self.assertEqual('aMALjuVK', cw.env.compressPluginSignature(psig));
 	},
 
 	function test_filterObject(self) {
 		var orig = {
 			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str", 'x': function() {}, 'y': [], 'z': {}};
 		self.assertEqual({
-			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"}, cw.env.filterObject_(orig));
+			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"}, cw.env.filterObject(orig));
 	},
 
 	function test_makeReport(self) {
-		var report = cw.env.makeReport_();
+		var report = cw.env.makeReport();
 		self.assertTrue(goog.isObject(report));
 	}
 );
