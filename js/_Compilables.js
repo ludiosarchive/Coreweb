@@ -1,5 +1,6 @@
 // in Coreweb
 goog.require('cw.array');
+goog.require('cw.autoTitle');
 goog.require('cw.Class');
 goog.require('cw.clock');
 goog.require('cw.checktype');
@@ -7,6 +8,7 @@ goog.require('cw.env');
 goog.require('cw.eq');
 goog.require('cw.eventual');
 goog.require('cw.externalinterface');
+goog.require('cw.firebugEmptyObjects');
 goog.require('cw.globalprops');
 goog.require('cw.objsize');
 goog.require('cw.repr');
