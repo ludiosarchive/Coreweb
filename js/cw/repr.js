@@ -115,7 +115,7 @@ cw.repr.serializeAny_ = function(obj, sb) {
 			sb.push(obj.toString());
 		}
 	}
-}
+};
 
 
 /**
@@ -131,7 +131,7 @@ cw.repr.serializeAny_ = function(obj, sb) {
  */
 cw.repr.reprToPieces = function(obj, sb) {
 	cw.repr.serializeAny_(obj, sb);
-}
+};
 
 
 /**
@@ -145,4 +145,4 @@ cw.repr.repr = function(obj) {
 	var sb = [];
 	cw.repr.reprToPieces(obj, sb);
 	return sb.join('');
-}
+};

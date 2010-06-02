@@ -15,4 +15,4 @@ cw.whoami.getUaId = function() {
 	var uaId = goog.net.cookies.get(cookieName);
 
 	return uaId;
-}
+};

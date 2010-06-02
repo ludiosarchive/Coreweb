@@ -11,7 +11,7 @@ goog.provide('cw.eq');
 cw.eq.isPrimitive_ = function(type) {
 	return (type == 'boolean' || type == 'number' || type == 'null' ||
 		type == 'undefined' || type == 'string');
-}
+};
 
 
 /**
@@ -40,7 +40,7 @@ cw.eq.eqArray_ = function(one, two, messages) {
 	}
 	messages.push('ascending from array');
 	return true;
-}
+};
 
 
 /**
@@ -76,7 +76,7 @@ cw.eq.eqObject_ = function(one, two, messages) {
 	}
 	messages.push('ascending from object');
 	return true;
-}
+};
 
 
 /**
@@ -132,7 +132,7 @@ cw.eq.eqAny_ = function(one, two, messages) {
 	} else {
 		return one === two;
 	}
-}
+};
 
 
 /**
@@ -165,4 +165,4 @@ cw.eq.equals = function(one, two, messages) {
 		messages = cw.eq.NOOP_PUSHABLE_;
 	}
 	return cw.eq.eqAny_(one, two, messages);
-}
+};

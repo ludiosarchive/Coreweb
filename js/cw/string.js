@@ -132,7 +132,7 @@ cw.string.strToNonNegLimit = function(str, limit) {
 		}
 	}
 	return null;
-}
+};
 
 
 /**
@@ -152,4 +152,4 @@ cw.string.strToIntInRange = function(str, lower, upper) {
 		}
 	}
 	return null;
-}
+};

@@ -73,7 +73,7 @@ cw.uri.urisplit = function(uri) {
 	// query (no query -> null; "?" -> "", "?hello" -> "hello")
 	// fragment (no fragment -> null; "#" -> "", "#hello" -> "hello")
 	return [scheme, authority, path, query, fragment];
-}
+};
 
 
 
@@ -108,7 +108,7 @@ cw.uri.uriunsplit = function(scheme, authority, path, query, fragment) {
 		result += '#' + fragment;
 	}
 	return result;
-}
+};
 
 
 
@@ -153,7 +153,7 @@ cw.uri.split_authority = function(authority) {
 	// but do it anyway for symmetry.
 
 	return [user, password, host, port];
-}
+};
 
 
 /**
@@ -178,7 +178,7 @@ cw.uri.join_authority = function(user, password, host, port) {
 		result +=  (':' + port);
 	}
 	return result;
-}
+};
 
 
 /**
@@ -248,7 +248,7 @@ cw.uri.URL = function(urlObjOrString) {
 	if(!(this['scheme'] && this['host'])) {
 		throw new Error("URL needs a scheme and a host");
 	}
-}
+};
 
 /**
  * Whether this URL has an explicit port set (instead of an implied
@@ -277,17 +277,17 @@ cw.uri.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
 			this['port'] = this.defaultPortForMyScheme_;
 		}
 	}
-}
+};
 
 cw.uri.URL.prototype._postPropertyUpdate_path = function(_internalCall) {
 	if(!this['path']) {
 		this['path'] = '/';
 	}
-}
+};
 
 cw.uri.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
 	this.explicitPort_ = true;
-}
+};
 
 /**
  * Set URL C{property} to C{value}.
@@ -309,7 +309,7 @@ cw.uri.URL.prototype.update_ = function(property, value, _internalCall/*=false*/
 		this._postPropertyUpdate_port(_internalCall);
 	}
 	return this;
-}
+};
 
 /**
  * Think of this as the __str__, for when you really need it as a string.
@@ -330,7 +330,7 @@ cw.uri.URL.prototype.getString = function() {
 
 	var authority = cw.uri.join_authority(this['user'], this['password'], this['host'], port);
 	return cw.uri.uriunsplit(this['scheme'], authority, this['path'], this['query'], this['fragment']);
-}
+};
 
 /**
  * Think of this as the __repr__
@@ -338,4 +338,4 @@ cw.uri.URL.prototype.getString = function() {
 cw.uri.URL.prototype.toString = function() {
 	// TODO: use a string repr function instead of replacing quotes
 	return 'cw.uri.URL("' + this.getString().replace(/"/, '\\"') + '")';
-}
+};

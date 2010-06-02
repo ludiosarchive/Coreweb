@@ -54,7 +54,7 @@ cw.externalinterface.handleArray_ = function(buffer, obj) {
 		buffer.push('</property>');
 	}
 	buffer.push('</array>');
-}
+};
 
 /**
  * Append to `buffer' an XML-serialized version of argument array
@@ -70,7 +70,7 @@ cw.externalinterface.handleArguments_ = function(buffer, obj, index) {
 		cw.externalinterface.handleAny_(buffer, obj[i]);
 	}
 	buffer.push('</arguments>');
-}
+};
 
 /**
  * Append to `buffer' an XML-serialized version of object `obj'.
@@ -88,7 +88,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 		}
 	}
 	buffer.push('</object>');
-}
+};
 
 /**
  * @param {string} s String to escape
@@ -97,7 +97,7 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
  */
 cw.externalinterface.escapeString_ = function(s) {
 	return goog.string.htmlEscape(s);
-}
+};
 
 /**
  * Append to `buffer' an XML-serialized version of any value `value'.
@@ -136,7 +136,7 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
 			buffer.push('<null/>');
 			break;
 	}
-}
+};
 
 /**
  * Returns the XML string that can be used to call an ExternalInterface-exposed Flash function,
@@ -154,4 +154,4 @@ cw.externalinterface.request = function(name, var_args) {
 	cw.externalinterface.handleArguments_(buffer, arguments, 1)
 	buffer.push('</invoke>');
 	return buffer.join('');
-}
+};

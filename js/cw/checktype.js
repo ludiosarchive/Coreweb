@@ -59,4 +59,4 @@ cw.checktype.ensureBool = function(value) {
 		return false;
 	}
 	return null;
-}
+};

@@ -109,7 +109,7 @@ CW.InlineCallbacks._inlineCallbacks = function(result, g, deferred) {
 	}
 
 	return deferred;
-}
+};
 
 
 
@@ -158,7 +158,7 @@ CW.InlineCallbacks.inlineCallbacks = function(f) {
 			undefined, generator, CW.Defer.Deferred());
 	}
 	return unwindGenerator;
-}
+};
 
 
 

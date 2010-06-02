@@ -26,7 +26,7 @@ cw.Test.TestClock.isTicketInCalls_ = function(calls, ticket) {
 		}
 	}
 	return haveIt;
-}
+};
 
 
 /**

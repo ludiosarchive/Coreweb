@@ -96,7 +96,7 @@ cw.clock.Clock = function() {
 	// TODO: more Date functions, in case anything needs them.
 	// The general strategy to implement `someMethod' would be:
 	//    return new Date(thisClock.rightNow_).someMethod();
-}
+};
 
 /**
  * The deterministic version of {@code Date.getTime}.
@@ -108,7 +108,7 @@ cw.clock.Clock = function() {
  */
 cw.clock.Clock.prototype.getTime = function() {
 	return this.rightNow_;
-}
+};
 
 /**
  * @private
@@ -116,7 +116,7 @@ cw.clock.Clock.prototype.getTime = function() {
 cw.clock.Clock.prototype.addCall_ = function(call) {
 	this.calls_.push(call);
 	this.sortCalls_();
-}
+};
 
 /**
  * @private
@@ -137,7 +137,7 @@ cw.clock.Clock.prototype.sortCalls_ = function() {
 			return aPriority < bPriority ? -1 : 1;
 		}
 	});
-}
+};
 
 /**
  * The deterministic version of {@code window.setTimeout}.
@@ -157,7 +157,7 @@ cw.clock.Clock.prototype.setTimeout = function(callable, when) {
 		interval_: null
 	});
 	return this.ticketCounter_;
-}
+};
 
 /**
  * The deterministic version of {@code window.setInterval}.
@@ -178,7 +178,7 @@ cw.clock.Clock.prototype.setInterval = function(callable, interval) {
 		interval_: interval
 	});
 	return this.ticketCounter_;
-}
+};
 
 /**
  * For use by unit tests ONLY.
@@ -186,7 +186,7 @@ cw.clock.Clock.prototype.setInterval = function(callable, interval) {
  */
 cw.clock.Clock.prototype.getCallsArray_ = function() {
 	return this.calls_;
-}
+};
 
 /**
  * Remove a timeout or interval from calls_, by ticket number.
@@ -206,7 +206,7 @@ cw.clock.Clock.prototype.clearAnything_ = function(ticket) {
 			break;
 		}
 	}
-}
+};
 
 /**
  * The deterministic version of {@code window.clearTimeout}.
@@ -215,7 +215,7 @@ cw.clock.Clock.prototype.clearAnything_ = function(ticket) {
  */
 cw.clock.Clock.prototype.clearTimeout = function(ticket) {
 	this.clearAnything_(ticket);
-}
+};
 
 /**
  * The deterministic version of {@code window.clearInterval}.
@@ -224,7 +224,7 @@ cw.clock.Clock.prototype.clearTimeout = function(ticket) {
  */
 cw.clock.Clock.prototype.clearInterval = function(ticket) {
 	this.clearAnything_(ticket);
-}
+};
 
 /**
  * @param {function():boolean} extraStopCondition
@@ -278,7 +278,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 			this.calls_[i].notNow_ = false;
 		}
 	}
-}
+};
 
 /**
  * Move time on this clock forward by the given amount and run whatever
@@ -306,7 +306,7 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 	}, this);
 
 	this.internalAdvance_(extraStopCondition);
-}
+};
 
 /**
  * Fire all of the scheduled calls indiscriminately (without regard to when
@@ -315,7 +315,7 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
 cw.clock.Clock.prototype.fireEverything_ = function() {
 	var extraStopCondition = goog.functions.FALSE;
 	this.internalAdvance_(extraStopCondition);
-}
+};
 
 /**
  * Set the time on this clock to {@code time}. You may use this to move
@@ -326,7 +326,7 @@ cw.clock.Clock.prototype.fireEverything_ = function() {
  */
 cw.clock.Clock.prototype.setTime_ = function(time) {
 	this.rightNow_ = time;
-}
+};
 
 // TODO: maybe implement and test pump, if needed
 
@@ -350,7 +350,7 @@ cw.clock.Clock.prototype.setTime_ = function(time) {
 cw.clock.EventType = { // TODO: maybe obfuscate these names
 	TIME_JUMP: 'time_jump',
 	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
-}
+};
 
 
 /**
@@ -474,7 +474,7 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	 * @private
 	 */
 	this.timeLast_ = null;
-}
+};
 goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
 
 /**
@@ -499,7 +499,7 @@ cw.clock.JumpDetector.prototype.pollerTicket_ = null;
  */
 cw.clock.JumpDetector.prototype.start_ = function() {
 	this.poll_();
-}
+};
 
 /**
  * @param {?number} time A time, or {@code null}.
@@ -515,7 +515,7 @@ cw.clock.JumpDetector.prototype.insertIntoCollection_ = function(time) {
 		});
 	}
 	this.timeCollection_.push(time);
-}
+};
 
 /**
  * @return {!Array.<number>} Array of times collected since the page loaded,
@@ -526,7 +526,7 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 	var collection = this.timeCollection_;
 	this.timeCollection_ = [];
 	return collection;
-}
+};
 
 /**
  * Set up a new internal timer. If necessary, you must clearTimeout the old
@@ -537,7 +537,7 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
 cw.clock.JumpDetector.prototype.setNewTimer_ = function(now) {
 	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
 	this.expectedFiringTime_ = now + this.pollInterval_;
-}
+};
 
 /**
  * Dispatch a {@link TIME_JUMP} event if necessary.
@@ -572,7 +572,7 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 			this.setNewTimer_(now);
 		}
 	}
-}
+};
 
 /**
  * @private
@@ -604,7 +604,7 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	} finally {
 		this.setNewTimer_(now);
 	}
-}
+};
 
 /**
  * Your application code must call this when non-time-related events happen
@@ -619,7 +619,7 @@ cw.clock.JumpDetector.prototype.prod_ = function() {
 	var now = goog.Timer.getTime(this.clock_);
 	this.checkTimeJump_(now, true/* prodded */);
 	this.timeLast_ = now;
-}
+};
 
 /**
  * Disposes of the object.
@@ -703,7 +703,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 
 	jumpDetector.addEventListener(
 		cw.clock.EventType.TIME_JUMP, this.gotTimeJump_, true, this);
-}
+};
 
 /**
  * Get the current time.
@@ -712,7 +712,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
  */
 cw.clock.JumpDetectingClock.prototype.getTime = function() {
 	return goog.Timer.getTime(this.clock_);
-}
+};
 
 /**
  * @param {number} adjustment By how many milliseconds to adjust the timeout
@@ -729,7 +729,7 @@ cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 		}
 	}
 	1/0
-}
+};
 
 /**
  * @private
@@ -737,7 +737,7 @@ cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
 	var adjustment = 1/0;
 	this.rescheduleCalls_(adjustment);
-}
+};
 
 /**
  * A jump-correcting version of {@code window.setTimeout}.
@@ -756,7 +756,7 @@ cw.clock.JumpDetectingClock.prototype.setTimeout = function(callable, delay) {
 	}, delay);
 	this.timeouts_[ticket] = [false, delay, now + delay];
 	return ticket;
-}
+};
 
 /**
  * A jump-correcting version of {@code window.setInterval}.
@@ -777,7 +777,7 @@ cw.clock.JumpDetectingClock.prototype.setInterval = function(callable, interval)
 	}, interval);
 	this.timeouts_[ticket] = [true, interval, now + interval]; // [2]th represents "next firing time"
 	return ticket;
-}
+};
 
 /**
  * A jump-detecting version of {@code window.clearTimeout}.
@@ -787,7 +787,7 @@ cw.clock.JumpDetectingClock.prototype.setInterval = function(callable, interval)
 cw.clock.JumpDetectingClock.prototype.clearTimeout = function(ticket) {
 	this.clock_.clearTimeout(ticket);
 	delete this.timeouts_[ticket];
-}
+};
 
 /**
  * A jump-detecting version of {@code window.clearInterval}.
@@ -797,7 +797,7 @@ cw.clock.JumpDetectingClock.prototype.clearTimeout = function(ticket) {
 cw.clock.JumpDetectingClock.prototype.clearInterval = function(ticket) {
 	this.clock_.clearInterval(ticket);
 	delete this.timeouts_[ticket];
-}
+};
 
 // Do we want a disposeInternal that clears all the timeouts and intervals?
 // Is that a sane thing to do, given what could be going on as the page unloads?

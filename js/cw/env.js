@@ -29,7 +29,7 @@ cw.env.getScrollbarThickness_ = function() {
 	} finally {
 		goog.dom.removeNode(div);
 	}
-}
+};
 
 
 /**
@@ -83,7 +83,7 @@ cw.env.getActiveXGoogleGearsBuildInfo_ = function() {
 	} catch(e) {
 		return null;
 	}
-}
+};
 
 
 /**
@@ -112,7 +112,7 @@ cw.env.getActiveXSilverlightVersion_ = function() {
 		}
 	}
 	return version;
-}
+};
 
 
 /**
@@ -154,7 +154,7 @@ cw.env.probeActiveXObjects_ = function() {
 		}
 	}
 	return results;
-}
+};
 
 
 /**
@@ -175,7 +175,7 @@ cw.env.getXHRDefaultWithCredentials_ = function() {
 	} catch(e) {
 		return ['ERROR', goog.debug.normalizeErrorObject(e)];
 	}
-}
+};
 
 
 /**
@@ -320,7 +320,7 @@ cw.env.filterObject_ = function(orig) {
 		}
 	}
 	return out;
-}
+};
 
 
 /**
@@ -355,7 +355,7 @@ cw.env.filterWindow_ = function(orig) {
 	}
 	// filterObject_ just in case we got some unexpected arrays/objects/functions.
 	return cw.env.filterObject_(out);
-}
+};
 
 
 /**
@@ -444,4 +444,4 @@ cw.env.makeReport_ = function() {
 	report['_timeToCollect'] = goog.now() - +date;
 
 	return report;
-}
+};

@@ -66,4 +66,4 @@ cw.array.uniq = function(a) {
 		}
 	}
 	return newArray;
-}
+};

@@ -167,7 +167,7 @@ cw.UnitTest.AssertionError.prototype.name = 'cw.UnitTest.AssertionError';
 
 cw.UnitTest.AssertionError.prototype.toString = function() {
 	return 'AssertionError: ' + this.message + (this.stack ? '\n' + this.stack : '');
-}
+};
 
 
 /**
@@ -355,7 +355,7 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 	}
 	canonical.push('{' + (frames.length - 1 - i) + ' frame(s) elided}\n');
 	return canonical.join('');
-}
+};
 
 
 cw.UnitTest.makeErrorElementForError_ = function(error) {
@@ -366,7 +366,7 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
 	pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
 
 	return pre;
-}
+};
 
 
 
@@ -1267,7 +1267,7 @@ cw.UnitTest.makeSummaryDiv = function(result) {
 	summaryDiv.style.padding = '2px';
 
 	return summaryDiv;
-}
+};
 
 
 /**
@@ -1360,7 +1360,7 @@ cw.UnitTest.calculateStackLimit = function(n) {
 	} catch(e) {
 		return n;
 	}
-}
+};
 
 
 cw.UnitTest.estimatedStackLimit = cw.UnitTest.calculateStackLimit();
@@ -1606,7 +1606,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	installD.callback(null);
 	return installD;
-}
+};
 
 
 })(); // end anti-clobbering for JScript

@@ -87,7 +87,7 @@ cw.eventual.CallQueue = function(clock) {
 	 * @private
 	 */
 	this.boundTurn_ = goog.bind(this.turn_, this);
-}
+};
 
 /**
  * The ID of the current setTimeout call, or {@code null}.
@@ -123,7 +123,7 @@ cw.eventual.CallQueue.prototype.eventually_ = function(cb, scope, args) {
 	if(this.timer_ == null) {
 		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
 	}
-}
+};
 
 /**
  * @private
@@ -164,7 +164,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 	}
 	// Have some faith, there is probably no re-entrancy bug
 	// involving notifyEmpty_ here. Think about it.
-}
+};
 
 /**
  * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
@@ -177,7 +177,7 @@ cw.eventual.CallQueue.prototype.notifyEmpty_ = function() {
 	var d = new goog.async.Deferred();
 	this.emptyObservers_.push(d);
 	return d;
-}
+};
 
 /**
  * @param {*} value The value that the Deferred will callback with.
@@ -191,7 +191,7 @@ cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
 	var d = new goog.async.Deferred();
 	this.eventually_(d.callback, d, [value]);
 	return d;
-}
+};
 
 
 

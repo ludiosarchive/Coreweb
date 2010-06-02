@@ -17,6 +17,6 @@ cw.firebugEmptyObjects.injectDummies = function() {
 			goog.global['console'][names[n]] = function() {};
 		}
 	}
-}
+};
 
 cw.firebugEmptyObjects.injectDummies();
