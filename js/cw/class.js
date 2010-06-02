@@ -10,6 +10,7 @@
 goog.provide('cw.Class');
 
 goog.require('cw.globalprops');
+goog.require('goog.structs.Set');
 
 
 cw.Class = function() {};
@@ -138,21 +139,15 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 
 
 	if(goog.DEBUG) {
-		// This only helps prevent problems caused by JScript's mishandling of named functions.
+		// This only helps prevent problems caused by IE6-8's mishandling of named functions.
 
-		subClass._alreadyDefinedMethods = {};
-
-		// Pretty much any object has a toString method. _alreadyDefinedMethods is used
-		// as a set to keep track of already-defined methods (to detect a programming error at
-		// runtime: where the same method name is accidentally used twice).
-		// For .method(function toString() {}) to work, toString must be made undefined here.
-		subClass._alreadyDefinedMethods.toString = undefined;
+		subClass._alreadyDefinedMethods = new goog.structs.Set();
 
 		/**
 		 * Throw an Error if this method has already been defined.
 		 */
 		subClass._prepareToAdd = function(methodName, allowWindowPropertyNames) {
-			if(subClass._alreadyDefinedMethods[methodName] !== undefined) {
+			if(subClass._alreadyDefinedMethods.contains(methodName)) {
 				// See explanation above for why Error instead of a cw.NameCollisionError
 				throw new Error("cw.Class.subclass.subClass: Won't overwrite already-defined " +
 					subClass.__name__ + '.' + methodName);
@@ -174,7 +169,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 						" because window." + methodName + " may exist in some browsers.");
 				}
 			}
-			subClass._alreadyDefinedMethods[methodName] = true;
+			subClass._alreadyDefinedMethods.add(methodName);
 		}
 	}
 
