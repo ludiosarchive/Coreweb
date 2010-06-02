@@ -1,36 +1,46 @@
 /**
  * @fileoverview Module based on webmagic.uriparse, which is loosely
- * based on a patch attached to http://bugs.python.org/issue1462525
+ *	based on a patch attached to http://bugs.python.org/issue1462525
+ *
+ * This module can accurately decode and encode URIs.
+ *
+ * For reasons why this doesn't use regexes, see
+ * 	http://blog.stevenlevithan.com/archives/npcg-javascript
+ * 	http://blog.stevenlevithan.com/page/3
+ *
+ * He has a parser which (probably) has the the empty-string NPCG problem:
+ * 	http://blog.stevenlevithan.com/archives/parseuri
+ *	http://stevenlevithan.com/demo/parseuri/js/
+ *
+ * Closure Library's URI parser uses NPCGs (as of 2010-03-06), and
+ * therefore suffers from the blank string / null mixup in IE6-IE8
+ * (IE9 untested).
  */
 
 goog.provide('cw.uri');
 
 goog.require('goog.string');
 goog.require('cw.string');
+goog.require('cw.repr');
 
 
-// For reasons on why you shouldn't use regexes, see
-// http://blog.stevenlevithan.com/archives/npcg-javascript
-// http://blog.stevenlevithan.com/page/3
-
-// Alternate parser that may or may not differentiate no query/fragment and blank query/fragment:
-// http://blog.stevenlevithan.com/archives/parseuri
-// http://stevenlevithan.com/demo/parseuri/js/
-
-// Note: Closure Library's URI parser uses NPCGs (as of 2010-03-06), and
-// therefore suffers from the blank string / null mixup in IE6-IE8 (9+ untested).
-
-
+/**
+ * @type {!Object.<string, number>} scheme -> default port number.
+ * @const
+ */
 cw.uri.schemeToDefaultPort = {'http': 80, 'https': 443, 'ftp': 21};
 
 
 /**
- * L{urisplit} is a basic URI Parser according to STD66 aka RFC3986.
+ * A basic URI Parser according to STD66 aka RFC3986.
  *
  * >>> cw.uri.urisplit("scheme://authority/path?query#fragment")
  * ['scheme', 'authority', '/path', 'query', 'fragment']
  *
  * See TestURI.js for the informal spec.
+ *
+ * @param {string} uri URI to split into 5 components.
+ * @return {!Array.<?string>} Splitted URI.
  */
 cw.uri.urisplit = function(uri) {
 	var scheme, authority = null, path = '', query = null, fragment = null, _rest, _split, _slashPos;
@@ -78,21 +88,28 @@ cw.uri.urisplit = function(uri) {
 
 
 /**
- * Inverse of L{urisplit}.
+ * Inverse of {@link cw.uri.urisplit} (except taking 5 arguments
+ * 	instead of an !Array).
  *
  * >>> cw.uri.uriunsplit('scheme', 'authority', '/path', 'query', 'fragment')
  * 'scheme://authority/path?query#fragment'
  *
+ * >>> cw.uri.uriunsplit('scheme', 'authority', '/path', 'query', null)
+ * 'scheme://authority/path?query#fragment'
+ *
  * See TestURI.js for the informal spec.
  *
- * You must have a C{scheme}.
- * If you have no C{authority}, you must pass C{null}.
- * If you have no C{path}, pass C{''}
- * If you have no C{query}, pass C{null}
- * If you have no C{fragment}, pass C{null}
+ * @param {string} scheme The scheme.
+ * @param {?string} authority The authority; `null` if none.
+ * @param {string} path The path, "" if none.
+ * @param {?string} query The query part; `null` if none.
+ * @param {?string} fragment The fragment part; `null` if none.
+ *
+ * @return {string} a URI.
  */
 cw.uri.uriunsplit = function(scheme, authority, path, query, fragment) {
-	// Keep in mind: a path might not start with /, for example, the path of 'about:blank' is 'blank'
+	// Keep in mind: a path might not start with /, for example,
+	// the path of 'about:blank' is 'blank'
 	var result = '';
 	if(scheme) {
 		result += scheme + ':';
@@ -113,14 +130,17 @@ cw.uri.uriunsplit = function(scheme, authority, path, query, fragment) {
 
 
 /**
- *  Basic authority parser that splits authority into component parts.
+ * Basic authority parser that splits authority into component parts.
  * 
- * >>> cw.uri.split_authority("user:password@host:port")
- * ['user', 'password', 'host', port]
+ * >>> cw.uri.splitAuthority("user:password@host:port")
+ * ['user', 'password', 'host', 'port']
  *
  * See TestURI.js for the informal spec.
+ *
+ * @param {string} authority Authority to split into 4 components.
+ * @return {!Array.<string>} Splitted authority.
  */
-cw.uri.split_authority = function(authority) {
+cw.uri.splitAuthority = function(authority) {
 	var userinfo, hostport, user, password, host, port, _split;
 	if(authority.indexOf('@') != -1) {
 		_split = cw.string.split(authority, '@', 1);
@@ -157,14 +177,22 @@ cw.uri.split_authority = function(authority) {
 
 
 /**
- * Inverse of split_authority()
+ * Inverse of {@link cw.uri.splitAuthority} (except taking 4 arguments
+ * 	instead of an Array).
  * 
- * >>> cw.uri.join_authority('user', 'password', 'host', port)
+ * >>> cw.uri.joinAuthority('user', 'password', 'host', port)
  * 'user:password@host:port'
  *
  * See TestURI.js for the informal spec.
+ *
+ * @param {?string} user
+ * @param {?string} password
+ * @param {string} host
+ * @param {?string} port
+ *
+ * @return {string} authority A joined authority.
  */
-cw.uri.join_authority = function(user, password, host, port) {
+cw.uri.joinAuthority = function(user, password, host, port) {
 	var result = '';
 	if (user !== null) {
 		result += user;
@@ -182,11 +210,13 @@ cw.uri.join_authority = function(user, password, host, port) {
 
 
 /**
- * Represents a URL. You can modify a L{cw.uri.URL} with C{.update_('property', 'value')}
- * to change parts of the URL, clone a URL by passing a L{cw.uri.URL} instance
- * into the constructor, and serialize to a string with C{.getString()}.
+ * Represents a URL. You can modify a it with
+ * {@code .setUrlProperty('property', 'value')}. You can clone a URL by
+ * passing a {@link cw.uri.URL} instance into the constructor.
+ * You serialize it to a string with {@code .toString()}.
  *
- * Do not modify any of the "public" attributes yourself.
+ * Do not modify any of the "public" attributes yourself. Use
+ * {@code setUrlProperty}.
  *
  * If you create a URL without an explicit port set, and you never updated
  * the port yourself,
@@ -194,8 +224,7 @@ cw.uri.join_authority = function(user, password, host, port) {
  *          AND the scheme is in L{schemeToDefaultPort},
  *                the port of the URL will change.
  * 
- * This is to make it less error-prone to switch between http and https.
- *
+ * This makes it less annoying to switch between http and https.
  * 
  * @param {!cw.uri.URL|string} urlObjOrString Either a
  * 	{@code cw.uri.URL} or a string to be parsed into a URL.
@@ -204,7 +233,6 @@ cw.uri.join_authority = function(user, password, host, port) {
  */
 cw.uri.URL = function(urlObjOrString) {
 	var split;
-	var authority;
 
 	if(urlObjOrString instanceof cw.uri.URL) {
 		// Clone it. We don't expect the object to have any crappy values like undefined,
@@ -215,14 +243,14 @@ cw.uri.URL = function(urlObjOrString) {
 		// ADVANCED_OPTIMIZATIONS.
 
 		// scheme must be set before port.
-		this.update_('scheme', urlObjOrString['scheme'], true);
-		this.update_('user', urlObjOrString['user'], true);
-		this.update_('password', urlObjOrString['password'], true);
-		this.update_('host', urlObjOrString['host'], true);
-		this.update_('port', urlObjOrString['port'], true);
-		this.update_('path', urlObjOrString['path'], true);
-		this.update_('query', urlObjOrString['query'], true);
-		this.update_('fragment', urlObjOrString['fragment'], true);
+		this.setUrlProperty('scheme', urlObjOrString['scheme'], true);
+		this.setUrlProperty('user', urlObjOrString['user'], true);
+		this.setUrlProperty('password', urlObjOrString['password'], true);
+		this.setUrlProperty('host', urlObjOrString['host'], true);
+		this.setUrlProperty('port', urlObjOrString['port'], true);
+		this.setUrlProperty('path', urlObjOrString['path'], true);
+		this.setUrlProperty('query', urlObjOrString['query'], true);
+		this.setUrlProperty('fragment', urlObjOrString['fragment'], true);
 		this.explicitPort_ = urlObjOrString.explicitPort_;
 	} else {
 		this['port'] = null; // scary logic follows
@@ -230,18 +258,22 @@ cw.uri.URL = function(urlObjOrString) {
 		// Parse the (hopefully) string
 		split = cw.uri.urisplit(urlObjOrString);
 		// scheme must be set before port
-		this.update_('scheme', split[0], true);
-		authority = split[1];
-		this.update_('path', split[2], true); // split[2] could be C{null} XOR C{''}
-		this.update_('query', split[3], true);
-		this.update_('fragment', split[4], true);
+		this.setUrlProperty('scheme', split[0], true);
+		var authority = split[1];
+		this.setUrlProperty('path', split[2], true); // split[2] could be `null` XOR ""
+		this.setUrlProperty('query', split[3], true);
+		this.setUrlProperty('fragment', split[4], true);
 
-		split = cw.uri.split_authority(authority);
-		this.update_('user', split[0], true);
-		this.update_('password', split[1], true);
-		this.update_('host', split[2], true);
+		if(authority == null) {
+			throw new Error("URL needs an authority");
+		}
+		split = cw.uri.splitAuthority(authority);
+		this.setUrlProperty('user', split[0], true);
+		this.setUrlProperty('password', split[1], true);
+		this.setUrlProperty('host', split[2], true);
 		if(split[3]) { // 0, null, or '';  sadly port 0 should be accepted, but whatever
-			this.update_('port', parseInt(split[3], 10), true); // at this point, this.port could be C{null} XOR C{''}
+			this.setUrlProperty('port', parseInt(split[3], 10), true);
+			// at this point, this['port'] could be `null` XOR ""
 		}
 	}
 
@@ -265,77 +297,91 @@ cw.uri.URL.prototype.explicitPort_ = false;
  */
 cw.uri.URL.prototype.defaultPortForMyScheme_;
 
-cw.uri.URL.prototype._postPropertyUpdate_scheme = function(_internalCall) {
+/**
+ * @private
+ */
+cw.uri.URL.prototype.postPropertyUpdate_scheme_ = function(_internalCall) {
 	this['scheme'] = this['scheme'].toLowerCase();
 
-	// This might become undefined.
+	// Get port number or `undefined`
 	this.defaultPortForMyScheme_ = cw.uri.schemeToDefaultPort[this['scheme']];
 
 	if(!this.explicitPort_) {
-		if(this.defaultPortForMyScheme_ !== undefined) {
-			// Note how we don't call this.update_('port', ...), because that would set explicitPort_
+		if(this.defaultPortForMyScheme_ != null) {
+			// Note how we don't call this.setUrlProperty('port', ...), because that would set explicitPort_
 			this['port'] = this.defaultPortForMyScheme_;
 		}
 	}
 };
 
-cw.uri.URL.prototype._postPropertyUpdate_path = function(_internalCall) {
+/**
+ * @private
+ */
+cw.uri.URL.prototype.postPropertyUpdate_path_ = function(_internalCall) {
 	if(!this['path']) {
 		this['path'] = '/';
 	}
 };
 
-cw.uri.URL.prototype._postPropertyUpdate_port = function(_internalCall) {
+/**
+ * @private
+ */
+cw.uri.URL.prototype.postPropertyUpdate_port_ = function(_internalCall) {
 	this.explicitPort_ = true;
 };
 
 /**
- * Set URL C{property} to C{value}.
+ * Set URL {@code property} to {@code value}.
  *
  * Don't give this unknown property names.
  *
- * @return {cw.uri.URL} This URL object.
+ * @param {string} property URL property to set
+ * @param {?(string|number)} value Value to set it to. `null` to clear.
+ * @param {boolean=} _internalCall Don't use.
+ *
+ * @return {!cw.uri.URL} This URL object.
  */
-cw.uri.URL.prototype.update_ = function(property, value, _internalCall/*=false*/) {
+cw.uri.URL.prototype.setUrlProperty = function(property, value, _internalCall) {
 	this[property] = value;
 
-	// Don't use dynamic this['_postPropertyUpdate_' + property] here,
-	// to make it easier to rename private property names later.
-	if(property === 'scheme') {
-		this._postPropertyUpdate_scheme(_internalCall);
+	if(property == 'scheme') {
+		this.postPropertyUpdate_scheme_(_internalCall);
 	} else if(property == 'path') {
-		this._postPropertyUpdate_path(_internalCall);
+		this.postPropertyUpdate_path_(_internalCall);
 	} else if(property == 'port') {
-		this._postPropertyUpdate_port(_internalCall);
+		this.postPropertyUpdate_port_(_internalCall);
 	}
 	return this;
 };
 
 /**
- * Think of this as the __str__, for when you really need it as a string.
+ * @return {string} This URL as a string.
  */
-cw.uri.URL.prototype.getString = function() {
+cw.uri.URL.prototype.toString = function() {
 	/**
-	 * Irreversibly normalizing an empty C{path} to C{'/'} is okay.
-	 * Irreversibly normalizing a superfluous port :80 or :443 -> null is okay (but only for getString)
+	 * Irreversibly normalizing an empty `path` to "/" is okay.
+	 * Irreversibly normalizing a superfluous port :80 or :443 -> `null` is
+	 * 	okay (but only for toString)
 	 *
-	 * We'll keep C{user} and C{password} exactly as-is because that feature is scary.
+	 * We'll keep `user` and `password` exactly as-is because no one
+	 * 	knows how to encode/decode those.
 	 */
 	var port;
 	if(!this['port'] || this.defaultPortForMyScheme_ === this['port']) {
 		port = null;
 	} else {
-		port = '' + this['port']; // convert to a string for join_authority
+		port = '' + this['port']; // convert to a string for joinAuthority
 	}
 
-	var authority = cw.uri.join_authority(this['user'], this['password'], this['host'], port);
+	var authority = cw.uri.joinAuthority(this['user'], this['password'], this['host'], port);
 	return cw.uri.uriunsplit(this['scheme'], authority, this['path'], this['query'], this['fragment']);
 };
 
 /**
- * Think of this as the __repr__
+ * @param {!Array.<string>} sb
  */
-cw.uri.URL.prototype.toString = function() {
-	// TODO: use a string repr function instead of replacing quotes
-	return 'cw.uri.URL("' + this.getString().replace(/"/, '\\"') + '")';
+cw.uri.URL.prototype.__reprToPieces__ = function(sb) {
+	sb.push('cw.uri.URL(');
+	cw.repr.reprToPieces(this.toString(), sb);
+	sb.push(')');
 };

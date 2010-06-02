@@ -5,11 +5,14 @@
 goog.provide('cw.Test.TestURI');
 
 goog.require('cw.UnitTest');
+goog.require('cw.repr')
 goog.require('cw.uri');
 
 
-// anti-clobbering for JScript
+// anti-clobbering for JScript; aliases
 (function(){
+
+var repr = cw.repr.repr;
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'functionalTests').methods(
 
@@ -143,47 +146,47 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'functionalTests').methods(
 			'scheme:path?#');
 	},
 
-	function test_split_authority(self) {
+	function test_splitAuthority(self) {
 		self.assertEqual(
-			cw.uri.split_authority(
+			cw.uri.splitAuthority(
 			"user:password@host:1"),
 			['user', 'password', 'host', '1']);
 
 		// No host, but a port? Ugly.
 		self.assertEqual(
-			cw.uri.split_authority(
+			cw.uri.splitAuthority(
 			"user:password@:1"),
 			['user', 'password', '', '1']);
 
 		self.assertEqual(
-			cw.uri.split_authority(
+			cw.uri.splitAuthority(
 			"user@host:1"),
 			['user', null, 'host', '1']);
 
 		self.assertEqual(
-			cw.uri.split_authority(
+			cw.uri.splitAuthority(
 			"user:@host:999"),
 			['user', '', 'host', '999']);
 
 		self.assertEqual(
-			cw.uri.split_authority(
+			cw.uri.splitAuthority(
 			":@host:1000000"),
 			['', '', 'host', '1000000']);
 	},
 
-	function test_join_authority(self) {
-		self.assertEqual('user:password@host:90', cw.uri.join_authority('user', 'password', 'host', '90'));
-		self.assertEqual('user:@host:90', cw.uri.join_authority('user', '', 'host', '90'));
-		self.assertEqual('user:@:90', cw.uri.join_authority('user', '', '', '90'));
-		self.assertEqual('user:@:', cw.uri.join_authority('user', '', '', ''));
-		self.assertEqual('user@host:90', cw.uri.join_authority('user', null, 'host', '90'));
-		self.assertEqual('host:90', cw.uri.join_authority(null, 'password', 'host', '90'));
-		self.assertEqual(':password@host:90', cw.uri.join_authority('', 'password', 'host', '90'));
-		self.assertEqual(':@host:90', cw.uri.join_authority('', '', 'host', '90'));
-		self.assertEqual(':@host:0', cw.uri.join_authority('', '', 'host', '0'));
-		self.assertEqual(':@host:-2', cw.uri.join_authority('', '', 'host', '-2')); // eh
-		self.assertEqual(':@host', cw.uri.join_authority('', '', 'host', null));
-		self.assertEqual('host', cw.uri.join_authority(null, null, 'host', null));
+	function test_joinAuthority(self) {
+		self.assertEqual('user:password@host:90', cw.uri.joinAuthority('user', 'password', 'host', '90'));
+		self.assertEqual('user:@host:90', cw.uri.joinAuthority('user', '', 'host', '90'));
+		self.assertEqual('user:@:90', cw.uri.joinAuthority('user', '', '', '90'));
+		self.assertEqual('user:@:', cw.uri.joinAuthority('user', '', '', ''));
+		self.assertEqual('user@host:90', cw.uri.joinAuthority('user', null, 'host', '90'));
+		self.assertEqual('host:90', cw.uri.joinAuthority(null, 'password', 'host', '90'));
+		self.assertEqual(':password@host:90', cw.uri.joinAuthority('', 'password', 'host', '90'));
+		self.assertEqual(':@host:90', cw.uri.joinAuthority('', '', 'host', '90'));
+		self.assertEqual(':@host:0', cw.uri.joinAuthority('', '', 'host', '0'));
+		self.assertEqual(':@host:-2', cw.uri.joinAuthority('', '', 'host', '-2')); // eh
+		self.assertEqual(':@host', cw.uri.joinAuthority('', '', 'host', null));
+		self.assertEqual('host', cw.uri.joinAuthority(null, null, 'host', null));
 	}
 );
 
@@ -203,8 +206,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 		self.assertEqual('query', u.query);
 		self.assertEqual('fragment', u.fragment);
 
-		self.assertEqual("scheme://user:password@host:81/path?query#fragment", u.getString());
-		self.assertEqual('cw.uri.URL("scheme://user:password@host:81/path?query#fragment")', u.toString());
+		self.assertEqual("scheme://user:password@host:81/path?query#fragment", u.toString());
+		self.assertEqual('cw.uri.URL("scheme://user:password@host:81/path?query#fragment")', repr(u));
 	},
 
 
@@ -221,37 +224,49 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 		self.assertEqual(null, u.query);
 		self.assertEqual(null, u.fragment);
 
-		self.assertEqual("https://host/", u.getString());
-		self.assertEqual('cw.uri.URL("https://host/")', u.toString());
+		self.assertEqual("https://host/", u.toString());
+		self.assertEqual('cw.uri.URL("https://host/")', repr(u));
 	},
 
 
 	function test_changeEverything(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("https://host");
-		self.assertEqual("https://host/", u.getString());
+		self.assertEqual("https://host/", u.toString());
 
-		u.update_('scheme', 'http');
-		u.update_('host', 'newhost');
-		u.update_('port', 1);
-		u.update_('user', 'auser')
+		u.setUrlProperty('scheme', 'http');
+		u.setUrlProperty('host', 'newhost');
+		u.setUrlProperty('port', 1);
+		u.setUrlProperty('user', 'auser')
 		// no password set.
-		u.update_('path', '/newpath');
-		u.update_('fragment', 'fragment');
-		u.update_('query', 'aquery?yes');
-		self.assertEqual("http://auser@newhost:1/newpath?aquery?yes#fragment", u.getString());
+		u.setUrlProperty('path', '/newpath');
+		u.setUrlProperty('fragment', 'fragment');
+		u.setUrlProperty('query', 'aquery?yes');
+		self.assertEqual("http://auser@newhost:1/newpath?aquery?yes#fragment", u.toString());
 
 		// and back...
-		u.update_('query', null);
-		u.update_('fragment', null);
-		u.update_('path', null);
-		u.update_('user', null);
-		u.update_('port', 443);
-		u.update_('host', 'host');
-		u.update_('scheme', 'https');
-		self.assertEqual("https://host/", u.getString());
+		u.setUrlProperty('query', null);
+		u.setUrlProperty('fragment', null);
+		u.setUrlProperty('path', null);
+		u.setUrlProperty('user', null);
+		u.setUrlProperty('port', 443);
+		u.setUrlProperty('host', 'host');
+		u.setUrlProperty('scheme', 'https');
+		self.assertEqual("https://host/", u.toString());
 	},
 
+	/**
+	 * A URL with no authority or no host throws an Error.
+	 */
+	function test_noAuthorityOrHost(self) {
+		var URL = cw.uri.URL;
+
+		self.assertThrows(Error, function() {
+			new URL("scheme:///path?query#fragment"); });
+
+		self.assertThrows(Error, function() {
+			new URL("scheme://:81/path?query#fragment"); });
+	},
 
 	/**
 	 * .update calls can be chained
@@ -259,8 +274,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'URLTests').methods(
 	function test_fluentInterface(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("https://host");
-		u.update_('host', 'newhost').update_('scheme', 'http');
-		self.assertEqual("http://newhost/", u.getString());
+		u.setUrlProperty('host', 'newhost').setUrlProperty('scheme', 'http');
+		self.assertEqual("http://newhost/", u.toString());
 	}
 );
 
@@ -281,42 +296,42 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		self.assertEqual(null, u.query);
 		self.assertEqual(null, u.fragment);
 
-		self.assertEqual("asdfq://host/", u.getString());
-		self.assertEqual('cw.uri.URL("asdfq://host/")', u.toString());
+		self.assertEqual("asdfq://host/", u.toString());
+		self.assertEqual('cw.uri.URL("asdfq://host/")', repr(u));
 	},
 
 
 	function test_changeSchemeStrangePort(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain:81/path?query#fragment");
-		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain:81/path?query#fragment", u.toString());
 
-		u.update_('scheme', 'HTTPS');
-		self.assertEqual("https://user:pass@domain:81/path?query#fragment", u.getString());
+		u.setUrlProperty('scheme', 'HTTPS');
+		self.assertEqual("https://user:pass@domain:81/path?query#fragment", u.toString());
 	},
 
 
 	function test_changeSchemeExplicitPort1(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain/path?query#fragment");
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 
-		u.update_('port', 80);
-		u.update_('scheme', 'HTTPS');
+		u.setUrlProperty('port', 80);
+		u.setUrlProperty('scheme', 'HTTPS');
 
-		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.toString());
 	},
 
 
 	function test_changeSchemeExplicitPort2(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain/path?query#fragment");
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 
-		u.update_('scheme', 'HTTPS');
-		u.update_('port', 80);
+		u.setUrlProperty('scheme', 'HTTPS');
+		u.setUrlProperty('port', 80);
 
-		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.toString());
 	},
 
 
@@ -327,30 +342,30 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 	function test_portMeansTaintedForever(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain/path?query#fragment");
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 
-		u.update_('port', 80);
+		u.setUrlProperty('port', 80);
 		var u2 = new URL(u);
-		u2.update_('scheme', 'https');
+		u2.setUrlProperty('scheme', 'https');
 
-		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u2.getString());
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u2.toString());
 	},
 
 
 	function test_changeSchemeDefaultPort(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain/path?query#fragment");
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 		self.assertEqual(80, u.port);
 
 		// to https
-		u.update_('scheme', "HTTPS");
-		self.assertEqual("https://user:pass@domain/path?query#fragment", u.getString());
+		u.setUrlProperty('scheme', "HTTPS");
+		self.assertEqual("https://user:pass@domain/path?query#fragment", u.toString());
 		self.assertEqual(443, u.port);
 
 		// ...and back to http
-		u.update_('scheme', "htTP");
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		u.setUrlProperty('scheme', "htTP");
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 		self.assertEqual(80, u.port);
 	},
 
@@ -358,8 +373,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 	function test_changePortForKnownScheme(self) {
 		var URL = cw.uri.URL;
 		var u = new URL("http://user:pass@domain:81/path?query#fragment");
-		u.update_('port', 80);
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		u.setUrlProperty('port', 80);
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 	},
 
 
@@ -368,19 +383,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("asdfq://user:pass@domain/path?query#fragment");
 		self.assertEqual(null, u.port);
 
-		u.update_('port', 80);
+		u.setUrlProperty('port', 80);
 		self.assertEqual(80, u.port);
-		self.assertEqual("asdfq://user:pass@domain:80/path?query#fragment", u.getString());
+		self.assertEqual("asdfq://user:pass@domain:80/path?query#fragment", u.toString());
 
 		// Now go http
-		u.update_('scheme', 'http');
+		u.setUrlProperty('scheme', 'http');
 		self.assertEqual(80, u.port);
-		self.assertEqual("http://user:pass@domain/path?query#fragment", u.getString());
+		self.assertEqual("http://user:pass@domain/path?query#fragment", u.toString());
 
 		// Now go https
-		u.update_('scheme', 'https');
+		u.setUrlProperty('scheme', 'https');
 		self.assertEqual(80, u.port);
-		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.getString());
+		self.assertEqual("https://user:pass@domain:80/path?query#fragment", u.toString());
 	},
 
 
@@ -394,7 +409,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestURI, 'PortSchemeSwitchingTests').metho
 		var u = new URL("http://user:pass@domain:80/path?query#fragment");
 		self.assertEqual(80, u.port);
 
-		u.update_('scheme', 'https');
+		u.setUrlProperty('scheme', 'https');
 		self.assertEqual(80, u.port);
 	}
 );
