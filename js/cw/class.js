@@ -168,7 +168,7 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 				// don't prevent these, the `print' method would get added,
 				// and another method might assume that `print()' actually
 				// prints the page (while now it actually does something unrelated).
-				if(cw.globalprops.properties[methodName] === true) {
+				if(cw.globalprops.properties.contains(methodName)) {
 					throw new Error("cw.Class.subclass.subClass: Won't create " +
 						subClass.__name__ + '.' + methodName +
 						" because window." + methodName + " may exist in some browsers.");

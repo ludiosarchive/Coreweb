@@ -5,9 +5,12 @@
 
 goog.provide('cw.globalprops');
 
+goog.require('goog.structs.Set');
+
 
 /**
  * @private
+ * @return {!goog.structs.Set}
  */
 cw.globalprops.makeExpectedGlobalProperties_ = function() {
 	var globalsArray = [];
@@ -15,24 +18,23 @@ cw.globalprops.makeExpectedGlobalProperties_ = function() {
 	// *** From qooxdoo/qooxdoo/tool/pylib/ecmascript/frontend/lang.py ***
 
 	// Builtin names
-	globalsArray = globalsArray.concat([
-		"ActiveXObject", "Array", "Boolean", "Date", "document",
-		"DOMParser", "Element", "Error", "Event", "Function", "Image",
-		"Math", "navigator", "Node", "Number", "Object", "Option",
-		"RegExp", "String", "window", "XMLHttpRequest", "XMLSerializer",
-		"XPathEvaluator", "XPathResult", "Range"
-	]);
+	globalsArray.push(
+		'ActiveXObject', 'Array', 'Boolean', 'Date', 'document',
+		'DOMParser', 'Element', 'Error', 'Event', 'Function', 'Image',
+		'Math', 'navigator', 'Node', 'Number', 'Object', 'Option',
+		'RegExp', 'String', 'window', 'XMLHttpRequest', 'XMLSerializer',
+		'XPathEvaluator', 'XPathResult', 'Range');
 
-	globalsArray = globalsArray.concat([
+	globalsArray.push(
 		// Java
-		"java", "sun", "Packages",
+		'java', 'sun', 'Packages',
 
 		// Firefox Firebug, Webkit, IE8, maybe others:
-		"console",
+		'console',
 
 		// IE
-		"event", "offscreenBuffering", "clipboardData", "clientInformation",
-		"external", "screenTop", "screenLeft",
+		'event', 'offscreenBuffering', 'clipboardData', 'clientInformation',
+		'external', 'screenTop', 'screenLeft',
 
 		// window
 		'addEventListener', '__firebug__', 'location', 'netscape',
@@ -56,17 +58,16 @@ cw.globalprops.makeExpectedGlobalProperties_ = function() {
 		'getComputedStyle', 'sessionStorage', 'globalStorage',
 
 		// Language
-		"decodeURI", "decodeURIComponent", "encodeURIComponent",
-		"escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite",
+		'decodeURI', 'decodeURIComponent', 'encodeURIComponent',
+		'escape', 'unescape', 'parseInt', 'parseFloat', 'isNaN', 'isFinite',
 
-		"this", "arguments", "undefined", "NaN", "Infinity"
-	]);
+		'this', 'arguments', 'undefined', 'NaN', 'Infinity');
 
 	// *** from http://msdn.microsoft.com/en-us/library/ms535873%28VS.85%29.aspx ***/
 	// (copy/paste from IE -> Excel; save as csv, use Python to parse)
 
-	globalsArray = globalsArray.concat(
-		['closed', 'constructor', 'defaultStatus', 'dialogArguments',
+	globalsArray.push(
+		'closed', 'constructor', 'defaultStatus', 'dialogArguments',
 		'dialogHeight', 'dialogLeft',  'dialogTop', 'dialogWidth',
 		'frameElement', 'length', 'localStorage',  'maxConnectionsPerServer',
 		'name', 'offscreenBuffering', 'opener', 'parent',  'returnValue',
@@ -82,13 +83,13 @@ cw.globalprops.makeExpectedGlobalProperties_ = function() {
 		'setInterval',  'setTimeout', 'showHelp', 'showModalDialog',
 		'showModelessDialog', 'toStaticHTML',  'clientInformation',
 		'clipboardData', 'document', 'event', 'external', 'history', 'Image',
-		'location', 'navigator', 'Option', 'screen']);
+		'location', 'navigator', 'Option', 'screen');
 
 	// *** from http://code.google.com/p/doctype/wiki/WindowObject ***
 	// (copy/paste into text file, use Python to parse)
 
-	globalsArray = globalsArray.concat(
-		['clientInformation', 'clipboardData', 'closed', 'content',
+	globalsArray.push(
+		'clientInformation', 'clipboardData', 'closed', 'content',
 		'controllers', 'crypto', 'defaultStatus', 'dialogArguments',
 		'dialogHeight', 'dialogLeft', 'dialogTop', 'dialogWidth', 'directories',
 		'event', 'frameElement', 'frames', 'fullScreen', 'globalStorage',
@@ -110,44 +111,39 @@ cw.globalprops.makeExpectedGlobalProperties_ = function() {
 		'scrollByLines', 'scrollByPages', 'scrollTo', 'setActive',
 		'setInterval', 'setResizable', 'setTimeout', 'showHelp',
 		'showModalDialog', 'showModelessDialog', 'sizeToContent', 'stop',
-		'unescape', 'updateCommands']);
+		'unescape', 'updateCommands');
 
 	// *** Top-level functions (the Qoxdoo section is missing some) ***
 	// https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions
 	// + escape, unescape
-	globalsArray = globalsArray.concat([
-		"decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent",
-		"eval", "escape", "unescape", "parseInt", "parseFloat", "isNaN", "isFinite"]);
+	globalsArray.push(
+		'decodeURI', 'decodeURIComponent', 'encodeURI', 'encodeURIComponent',
+		'eval', 'escape', 'unescape', 'parseInt', 'parseFloat', 'isNaN', 'isFinite');
 
 	// *** Modern Firebug ***
-	globalsArray = globalsArray.concat(
-		['_firebug', '_FirebugCommandLine', 'loadFirebugConsole']);
+	globalsArray.push(
+		'_firebug', '_FirebugCommandLine', 'loadFirebugConsole');
 
 	// *** Firefox 3.5.3 ***
-	globalsArray = globalsArray.concat(
-		['GetWeakReference', 'XPCSafeJSObjectWrapper', 'getInterface',
-		'postMessage', 'applicationCache']);
+	globalsArray.push(
+		'GetWeakReference', 'XPCSafeJSObjectWrapper', 'getInterface',
+		'postMessage', 'applicationCache');
 
 	// *** More IE stuff ***
-	globalsArray = globalsArray.concat(['CollectGarbage']);
+	globalsArray.push('CollectGarbage');
 
-	// *** cw, goog ***
-	globalsArray = globalsArray.concat(['cw', 'goog']);
+	// *** cw, goog, swfobject ***
+	globalsArray.push('cw', 'goog', 'swfobject');
 
-	// Now turn it into an object
+	// *** Closure Library cruft ***
+	globalsArray.push('COMPILED');
 
-	var expectedGlobalProperties = {};
-	var n = globalsArray.length;
-	while(n--) {
-		expectedGlobalProperties[globalsArray[n]] = true;
-	}
-
-	return expectedGlobalProperties;
+	return new goog.structs.Set(globalsArray);
 };
 
 
 if(goog.DEBUG) {
 	cw.globalprops.properties = cw.globalprops.makeExpectedGlobalProperties_();
 } else {
-	cw.globalprops.properties = {};
+	cw.globalprops.properties = new goog.structs.Set();
 }
