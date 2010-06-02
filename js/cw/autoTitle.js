@@ -6,7 +6,7 @@
 goog.provide('cw.autoTitle');
 
 
-(function(){
+cw.autoTitle.setTitle = function() {
 	var split = String(document.location).split('/');
 	var last = split[split.length-1];
 	var almostLast = split[split.length-2];
@@ -17,4 +17,6 @@ goog.provide('cw.autoTitle');
 	} else {
 		document.title = almostLast + ' ' + scheme;
 	}
-})();
+};
+
+cw.autoTitle.setTitle();
