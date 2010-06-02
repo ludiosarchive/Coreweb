@@ -390,24 +390,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	/**
-	 * monoTime_ starts at 0 and increases as the clock is advanced.
+	 * monoTime starts at 0 and increases as the clock is advanced.
 	 * It does not attempt to compensate for the page being frozen
 	 * for a while.
 	 */
 	function test_monoTime(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
-		self.assertEqual(null, jd.monoTime_);
-		jd.start_();
-		self.assertEqual(0, jd.monoTime_);
+		self.assertEqual(null, jd.monoTime);
+		jd.start();
+		self.assertEqual(0, jd.monoTime);
 		clock.advance(2999);
-		self.assertEqual(0, jd.monoTime_);
+		self.assertEqual(0, jd.monoTime);
 		clock.advance(1);
-		self.assertEqual(3000, jd.monoTime_);
+		self.assertEqual(3000, jd.monoTime);
 		clock.advance(4000);
-		self.assertEqual(6000, jd.monoTime_);
+		self.assertEqual(6000, jd.monoTime);
 		clock.advance(30000);
-		self.assertEqual(9000, jd.monoTime_);
+		self.assertEqual(9000, jd.monoTime);
 	},
 
 	/**
@@ -417,15 +417,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_getNewTimes(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 5);
-		self.assertEqual([], jd.getNewTimes_());
-		jd.start_();
-		self.assertEqual([0], jd.getNewTimes_());
+		self.assertEqual([], jd.getNewTimes());
+		jd.start();
+		self.assertEqual([0], jd.getNewTimes());
 		clock.advance(2900);
-		self.assertEqual([], jd.getNewTimes_());
+		self.assertEqual([], jd.getNewTimes());
 		clock.advance(100);
 		clock.advance(4000);
-		self.assertEqual([3000, 7000], jd.getNewTimes_());
-		self.assertEqual([], jd.getNewTimes_());
+		self.assertEqual([3000, 7000], jd.getNewTimes());
+		self.assertEqual([], jd.getNewTimes());
 	},
 
 	/**
@@ -442,7 +442,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
-		jd.start_();
+		jd.start();
 		clock.advance(3000);
 		clock.advance(3000);
 		clock.advance(3000);
@@ -455,18 +455,18 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * If an event callback for TIME_COLLECTION_OVERFLOW calls
-	 * getNewTimes_, it gets an empty array.
+	 * getNewTimes, it gets an empty array.
 	 */
 	function test_timeCollectionOverflowReentrantGetNewTimes(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
 		var results;
 		function callback(ev) {
-			results = jd.getNewTimes_();
+			results = jd.getNewTimes();
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_COLLECTION_OVERFLOW, callback, true);
-		jd.start_();
+		jd.start();
 
 		clock.advance(3000);
 		self.assertEqual(undefined, results);
@@ -476,7 +476,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * timeCollection has {@code null}s preceding timestamps that were
-	 * taken before a prod_ reset the internal timer.
+	 * taken before a .prod reset the internal timer.
 	 */
 	function test_timeCollectionNullMarkers(self) {
 		1/0
@@ -496,7 +496,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_JUMP, callback, true);
-		jd.start_();
+		jd.start();
 
 		clock.advance(3000);
 		clock.advance(2000);
@@ -504,14 +504,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 		// Jump the clock by 1 millisecond from the last recorded time
 		clock.setTime(2999);
-		jd.prod_();
+		jd.prod();
 		self.assertEqual(3000, event.timeLast_);
 		self.assertEqual(2999, event.timeNow_);
 		self.assertEqual(6000, event.expectedFiringTime_);
 
 		// Jump the clock back again
 		clock.setTime(0);
-		jd.prod_();
+		jd.prod();
 		self.assertEqual(2999, event.timeLast_);
 		self.assertEqual(0, event.timeNow_);
 		self.assertEqual(5999, event.expectedFiringTime_);
@@ -534,7 +534,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_JUMP, callback, true);
-		jd.start_();
+		jd.start();
 
 		clock.advance(3000);
 		clock.setTime(0);
@@ -563,7 +563,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_JUMP, callback, true);
-		jd.start_();
+		jd.start();
 
 		clock.advance(3000);
 		self.assertEqual(null, event);
@@ -600,14 +600,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		}
 		jd.addEventListener(
 			cw.clock.EventType.TIME_JUMP, callback, true);
-		jd.start_();
+		jd.start();
 
 		clock.advance(3000);
 		self.assertEqual(null, event);
 
 		var newTime = 3000 + 3000 + cw.clock.TIMER_FORGIVENESS + 1;
 		clock.setTime(newTime);
-		jd.prod_();
+		jd.prod();
 		self.assertEqual(3000, event.timeLast_);
 		self.assertEqual(newTime, event.timeNow_);
 		self.assertEqual(2*3000, event.expectedFiringTime_);
@@ -627,18 +627,18 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 		jd.addEventListener(
 			cw.clock.EventType.TIME_JUMP, callback, true);
 		clock.advance(9000);
-		jd.start_();
+		jd.start();
 
 		self.assertEqual(null, event);
 	},
 
 	/**
-	 * JumpDetector has a publicly-accessible {@code clock_} property.
+	 * JumpDetector has a publicly-accessible {@code clock} property.
 	 */
 	function test_publicClock(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
-		self.assertIdentical(clock, jd.clock_);
+		self.assertIdentical(clock, jd.clock);
 	},
 
 	/**
@@ -657,7 +657,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 	function test_disposeStarted(self) {
 		var clock = new cw.clock.Clock();
 		var jd = new cw.clock.JumpDetector(clock, 3000, 2);
-		jd.start_();
+		jd.start();
 		jd.dispose();
 		jd.dispose();
 	}

@@ -14,7 +14,7 @@ goog.require('cw.eventual');
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	/**
-	 * eventually_ works calls the callable with the correct
+	 * eventually works calls the callable with the correct
 	 * scope and args.
 	 */
 	function test_eventually(self) {
@@ -28,20 +28,20 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		}
 		var a = new A();
 
-		cq.eventually_(cb, a, [10, "20"]);
+		cq.eventually(cb, a, [10, "20"]);
 		self.assertEqual([], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"]], calls);
 
 		// And again
-		cq.eventually_(cb, a, ["30", 40]);
+		cq.eventually(cb, a, ["30", 40]);
 		self.assertEqual([[a, 10, "20"]], calls);
 		clock.advance(0);
 		self.assertEqual([[a, 10, "20"], [a, "30", 40]], calls);
 	},
 
 	/**
-	 * If a callable calls eventually_, the new call isn't called
+	 * If a callable calls eventually, the new call isn't called
 	 * until after control returns to the environment.
 	 */
 	function test_eventuallyReentrant(self) {
@@ -52,11 +52,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var cb = function(arg) {
 			calls.push(arg);
 			if(arg === 1) {
-				cq.eventually_(cb, null, [2]);
+				cq.eventually(cb, null, [2]);
 			}
 		}
 
-		cq.eventually_(cb, null, [1]);
+		cq.eventually(cb, null, [1]);
 
 		self.assertEqual([], calls);
 		clock.advance(0);
@@ -78,7 +78,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 			throw new Error("hi");
 		}
 
-		cq.eventually_(throwingCallable, null, []);
+		cq.eventually(throwingCallable, null, []);
 		clock.advance(0);
 
 		var gotError = false;
@@ -97,7 +97,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * notifyEmpty_ returns a Deferred that fires when the call queue is
+	 * notifyEmpty returns a Deferred that fires when the call queue is
 	 * completely empty.
 	 */
 	function test_notifyEmptyNotEmptyYet(self) {
@@ -105,11 +105,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var cq = new cw.eventual.CallQueue(clock);
 		var notified = false;
 
-		cq.eventually_(function() {}, this, []);
-		cq.eventually_(function() {}, this, []);
-		cq.eventually_(function() {}, this, []);
+		cq.eventually(function() {}, this, []);
+		cq.eventually(function() {}, this, []);
+		cq.eventually(function() {}, this, []);
 
-		var d = cq.notifyEmpty_();
+		var d = cq.notifyEmpty();
 		d.addCallback(function() { notified = true; });
 
 		self.assertEqual(false, notified);
@@ -118,7 +118,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * notifyEmpty_ returns a Deferred that fires right away, if the call
+	 * notifyEmpty returns a Deferred that fires right away, if the call
 	 * queue is completely empty.
 	 */
 	function test_notifyEmptyQueueEmpty(self) {
@@ -126,14 +126,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var cq = new cw.eventual.CallQueue(clock);
 		var notified = false;
 
-		var d = cq.notifyEmpty_();
+		var d = cq.notifyEmpty();
 		d.addCallback(function() { notified = true; });
 
 		self.assertEqual(true, notified);
 	},
 
 	/**
-	 * If a callback triggered by a notifyEmpty_ Deferred adds a callable
+	 * If a callback triggered by a notifyEmpty Deferred adds a callable
 	 * to the CallQueue and calls notifyEmpty, the Deferred is fired after the
 	 * CallQueue becomes empty again.
 	 */
@@ -143,13 +143,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var notified = false;
 		var notified2 = false;
 
-		cq.eventually_(function() {}, this, []);
+		cq.eventually(function() {}, this, []);
 
-		var d = cq.notifyEmpty_();
+		var d = cq.notifyEmpty();
 		d.addCallback(function() {
 			notified = true;
-			cq.eventually_(function() {}, this, []);
-			cq.notifyEmpty_().addCallback(function(){ notified2 = true; });
+			cq.eventually(function() {}, this, []);
+			cq.notifyEmpty().addCallback(function(){ notified2 = true; });
 		});
 
 		self.assertEqual(false, notified);
@@ -163,7 +163,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * If a callback triggered by a notifyEmpty_ Deferred calls notifyEmpty_,
+	 * If a callback triggered by a notifyEmpty Deferred calls notifyEmpty,
 	 * the Deferred is fired right away.
 	 */
 	function test_notifyEmptyReentrantQueueEmpty(self) {
@@ -172,12 +172,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var notified = false;
 		var notified2 = false;
 
-		cq.eventually_(function() {}, this, []);
+		cq.eventually(function() {}, this, []);
 
-		var d = cq.notifyEmpty_();
+		var d = cq.notifyEmpty();
 		d.addCallback(function() {
 			notified = true;
-			cq.notifyEmpty_().addCallback(function(){ notified2 = true; });
+			cq.notifyEmpty().addCallback(function(){ notified2 = true; });
 		});
 
 		self.assertEqual(false, notified);
@@ -188,13 +188,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * fireEventually_ returns a Deferred that fires eventually with the
+	 * fireEventually returns a Deferred that fires eventually with the
 	 * correct value.
 	 */
 	function test_fireEventually(self) {
 		var clock = new cw.clock.Clock();
 		var cq = new cw.eventual.CallQueue(clock);
-		var d = cq.fireEventually_("hi");
+		var d = cq.fireEventually("hi");
 		var called = false;
 		d.addCallback(function(value) { called = [arguments.length, value]; });
 
@@ -204,25 +204,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	},
 
 	/**
-	 * CallQueue has a publicly-accessible {@code clock_} property.
+	 * CallQueue has a publicly-accessible {@code clock} property.
 	 */
 	function test_publicClock(self) {
 		var clock = new cw.clock.Clock();
 		var cq = new cw.eventual.CallQueue(clock);
-		self.assertIdentical(clock, cq.clock_);
+		self.assertIdentical(clock, cq.clock);
 	}
 );
 
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').methods(
 	/**
-	 * cw.eventual.theQueue_ exists and seems to work.
+	 * cw.eventual.theQueue exists and seems to work.
 	 */
 	function test_theQueue(self) {
-		self.assertTrue(cw.eventual.theQueue_ instanceof cw.eventual.CallQueue);
-		self.assertIdentical(goog.global['window'], cw.eventual.theQueue_.clock_);
+		self.assertTrue(cw.eventual.theQueue instanceof cw.eventual.CallQueue);
+		self.assertIdentical(goog.global['window'], cw.eventual.theQueue.clock);
 
-		var d = cw.eventual.theQueue_.fireEventually_(null);
+		var d = cw.eventual.theQueue.fireEventually(null);
 		return d;
 	}
 );

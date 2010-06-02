@@ -1,5 +1,7 @@
 /**
  * @fileoverview Deterministic clock; jump-detecting clock
+ *
+ * This file uses goog.Timer.getTime from our Closure Library branch `prime`.
  */
 
 goog.provide('cw.clock');
@@ -364,7 +366,7 @@ cw.clock.TIMER_FORGIVENESS = 400;
 // TODO XXX: Detect if the environment fires timers if the clock went backwards
 // (at least sometimes):
 // 	- If the clock went backwards on the next poll_, fire MAYBE_MONOTONIC
-//	- If the clock went backwards on a prod_, preserve the old poll_ timer
+//	- If the clock went backwards on a prod, preserve the old poll_ timer
 //		and see if it fires in the "right amount of time" (it is not delayed for
 //		too long). If so, fire MAYBE_MONOTONIC.
 
@@ -393,14 +395,14 @@ cw.clock.TIMER_FORGIVENESS = 400;
  * timers. This information is hard to obtain and keep up to date.
  *
  * To detect time jumps and internal lack of firing, your application code must
- * call {@link prod_} often. See its JSDoc.
+ * call {@link prod} often. See its JSDoc.
  *
  * Note: if the browser freezes for a short time (or JavaScript execution is
  * suspended), this may dispatch a {@link TIME_JUMP}.
  *
  * JumpDetector also collects the time every {@code pollInterval} ms.
  * You can retreive the times and flush the internal
- * array with {@link getNewTimes_}. If you forget to do this often enough,
+ * array with {@link getNewTimes}. If you forget to do this often enough,
  * {@link TIME_COLLECTION_OVERFLOW} will be dispatched with a property
  * {@code collection}.
  *
@@ -408,14 +410,15 @@ cw.clock.TIMER_FORGIVENESS = 400;
  * [2] {@link http://bugs.mysql.com/bug.php?id=44276}
  * 	also search for "backwards QueryPerformanceCounter"
  *
- * @param {!Object} clock An object that implements setTimeout and
- *	clearTimeout (eg Window). If it is !== goog.Timer.defaultTimerObject,
- * 	it must implement getTime as well.
+ * @param { {setTimeout: !Function, clearTimeout: !Function} } clock An
+ * 	object that implements setTimeout and clearTimeout (eg Window).
+ * 	If it is !== goog.Timer.defaultTimerObject, it must implement getTime as
+ * 	well.
  *
  * @param {number} pollInterval Interval to poll at, in milliseconds. If this
- * is too infrequent, and the clock jumps back in a non-monotonic browser,
- * timeLast_ will be too obsolete. This will impact JumpDetectingClock,
- * because the readjusted timers will take longer to fire than expected.
+ *	is too infrequent, and the clock jumps back in a non-monotonic browser,
+ *	timeLast_ will be too obsolete. This will impact JumpDetectingClock,
+ *	because the readjusted timers will take longer to fire than expected.
  *
  * @param {number} collectionSize Maximum size for time collection array
  * 	before dispatching {@link TIME_COLLECTION_OVERFLOW} and flushing.
@@ -427,9 +430,9 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	goog.events.EventTarget.call(this);
 	
 	/**
-	 * @type {Object}
+	 * @type { ?{setTimeout: !Function, clearTimeout: !Function} }
 	 */
-	this.clock_ = clock;
+	this.clock = clock;
 
 	/**
 	 * @type {Function}
@@ -484,7 +487,7 @@ goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
  * significantly less than the actual time spent on page.
  * @type {?number}
  */
-cw.clock.JumpDetector.prototype.monoTime_ = null;
+cw.clock.JumpDetector.prototype.monoTime = null;
 
 /**
  * @type {?number}
@@ -497,7 +500,7 @@ cw.clock.JumpDetector.prototype.pollerTicket_ = null;
  * You really want to call this. Remember to call it after you've set up
  * event listeners.
  */
-cw.clock.JumpDetector.prototype.start_ = function() {
+cw.clock.JumpDetector.prototype.start = function() {
 	this.poll_();
 };
 
@@ -519,10 +522,9 @@ cw.clock.JumpDetector.prototype.insertIntoCollection_ = function(time) {
 
 /**
  * @return {!Array.<number>} Array of times collected since the page loaded,
- * 	since the last call to {@link getNewTimes_}, or since an internal flushing.
- *
+ * 	since the last call to {@link getNewTimes}, or since an internal flushing.
  */
-cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
+cw.clock.JumpDetector.prototype.getNewTimes = function() {
 	var collection = this.timeCollection_;
 	this.timeCollection_ = [];
 	return collection;
@@ -535,7 +537,7 @@ cw.clock.JumpDetector.prototype.getNewTimes_ = function() {
  * @private
  */
 cw.clock.JumpDetector.prototype.setNewTimer_ = function(now) {
-	this.pollerTicket_ = this.clock_.setTimeout(this.boundPoll_, this.pollInterval_);
+	this.pollerTicket_ = this.clock.setTimeout(this.boundPoll_, this.pollInterval_);
 	this.expectedFiringTime_ = now + this.pollInterval_;
 };
 
@@ -568,7 +570,7 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 		if(prodded) {
 			this.insertIntoCollection_(null); // a marker; see the JSDoc
 			this.insertIntoCollection_(now);
-			this.clock_.clearTimeout(this.pollerTicket_);
+			this.clock.clearTimeout(this.pollerTicket_);
 			this.setNewTimer_(now);
 		}
 	}
@@ -589,13 +591,13 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	// and browsers are likely to automatically correct setInterval timers.
 
 	// Trust goog.Timer.getTime to work all of the time.
-	var now = goog.Timer.getTime(this.clock_);
+	var now = goog.Timer.getTime(this.clock);
 
 	try {
-		if(this.monoTime_ == null) {
-			this.monoTime_ = 0;
+		if(this.monoTime == null) {
+			this.monoTime = 0;
 		} else {
-			this.monoTime_ += this.pollInterval_;
+			this.monoTime += this.pollInterval_;
 		}
 
 		this.insertIntoCollection_(now);
@@ -615,8 +617,8 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  * Avoid calling this so frequently that the browser's CPU usage goes up.
  * You don't want users' laptop fans to spin up.
  */
-cw.clock.JumpDetector.prototype.prod_ = function() {
-	var now = goog.Timer.getTime(this.clock_);
+cw.clock.JumpDetector.prototype.prod = function() {
+	var now = goog.Timer.getTime(this.clock);
 	this.checkTimeJump_(now, true/* prodded */);
 	this.timeLast_ = now;
 };
@@ -628,10 +630,10 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 	cw.clock.JumpDetector.superClass_.disposeInternal.call(this);
 
 	if (this.pollerTicket_ != null) {
-		this.clock_.clearTimeout(this.pollerTicket_);
+		this.clock.clearTimeout(this.pollerTicket_);
 	}
 
-	this.clock_ = this.boundPoll_ = this.pollerTicket_ = null;
+	this.clock = this.boundPoll_ = this.pollerTicket_ = null;
 
 	// elsewhere
 	//this.dispatchEvent({type: evt.type, target: image});
@@ -682,10 +684,10 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	this.jumpDetector_ = jumpDetector;
 
 	/**
+	 * The underlying clock we use.
 	 * @type {Object}
-	 * @private
 	 */
-	this.clock_ = jumpDetector.clock_;
+	this.clock = jumpDetector.clock;
 
 	/**
 	 * Both setTimeouts and setIntervals are tracked here.
@@ -711,7 +713,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
  * @return {number} The current time.
  */
 cw.clock.JumpDetectingClock.prototype.getTime = function() {
-	return goog.Timer.getTime(this.clock_);
+	return goog.Timer.getTime(this.clock);
 };
 
 /**
@@ -725,7 +727,7 @@ cw.clock.JumpDetectingClock.prototype.getTime = function() {
 cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 	for(var ticket in this.timeouts_) {
 		if(Object.prototype.hasOwnProperty.call(this.timeouts_, ticket)) {
-			this.clock_.clearTimeout();
+			this.clock.clearTimeout();
 		}
 	}
 	1/0
@@ -750,7 +752,7 @@ cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
 cw.clock.JumpDetectingClock.prototype.setTimeout = function(callable, delay) {
 	var now = this.getTime();
 	var that = this;
-	var ticket = this.clock_.setTimeout(function() {
+	var ticket = this.clock.setTimeout(function() {
 		delete that.timeouts_[ticket];
 		callable.call(null);
 	}, delay);
@@ -770,7 +772,7 @@ cw.clock.JumpDetectingClock.prototype.setTimeout = function(callable, delay) {
 cw.clock.JumpDetectingClock.prototype.setInterval = function(callable, interval) {
 	var now = this.getTime();
 	var that = this;
-	var ticket = this.clock_.setInterval(function() {
+	var ticket = this.clock.setInterval(function() {
 		now = this.getTime();
 		that.timeouts_[ticket][2] = now;
 		callable.call(null);
@@ -785,7 +787,7 @@ cw.clock.JumpDetectingClock.prototype.setInterval = function(callable, interval)
  * @param {number} ticket The ticket number of the timeout/interval to clear.
  */
 cw.clock.JumpDetectingClock.prototype.clearTimeout = function(ticket) {
-	this.clock_.clearTimeout(ticket);
+	this.clock.clearTimeout(ticket);
 	delete this.timeouts_[ticket];
 };
 
@@ -795,7 +797,7 @@ cw.clock.JumpDetectingClock.prototype.clearTimeout = function(ticket) {
  * @param {number} ticket The ticket number of the timeout/interval to clear.
  */
 cw.clock.JumpDetectingClock.prototype.clearInterval = function(ticket) {
-	this.clock_.clearInterval(ticket);
+	this.clock.clearInterval(ticket);
 	delete this.timeouts_[ticket];
 };
 

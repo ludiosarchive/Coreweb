@@ -16,7 +16,7 @@
  * tested codepath, and therefore less likely to crash.
  * 
  * Inside your non-setTimeout event callbacks, by minimizing the work
- * you do to a CallQueue.eventually_, you reduce the chance of
+ * you do to a CallQueue.eventually, you reduce the chance of
  * hitting a re-entrancy bug.
  *
  * CallQueue is also very useful when making Flash->JavaScript calls
@@ -34,7 +34,7 @@
  * The foolscap.eventual->cw.eventual translation guide:
  * 	use of global queue encouraged -> use discouraged
  * 	_SimpleCallQueue -> CallQueue
- * 	flushEventualQueue -> notifyEmpty_
+ * 	flushEventualQueue -> notifyEmpty
  * 	_flushObservers -> emptyObservers_
  *
  * TODO: consider using postMessage as a faster alternative to
@@ -56,7 +56,7 @@ goog.require('goog.asserts');
  * for your application. Pass one CallQueue around just like you
  * would pass a clock around. In fact, you can skip passing a clock
  * around, because you pass a CallQueue around, and just access
- * the clock via the {@code clock_} property.
+ * the clock via the {@code clock} property.
  *
  * @constructor
  */
@@ -65,7 +65,7 @@ cw.eventual.CallQueue = function(clock) {
 	 * An object that implements {@code setTimeout}.
 	 * @type { {setTimeout: !Function} }
 	 */
-	this.clock_ = clock;
+	this.clock = clock;
 
 	/**
 	 * Array of callables to eventually call.
@@ -101,7 +101,7 @@ cw.eventual.CallQueue.prototype.timer_ = null;
  * Add a callable (with scope and arguments) to the call queue.
  * The callable will be invoked with {@code cb.apply(scope, args)}
  * after control is returned to the environment's event loop. Doing
- * 'eventually_(a); eventually_(b)' guarantees that a will be called before b.
+ * 'eventually(a); eventually(b)' guarantees that a will be called before b.
  *
  * Any exceptions that occur in the callable will be rethrown to the window,
  * in a manner similar to {@code goog.async.Deferred}.
@@ -115,13 +115,13 @@ cw.eventual.CallQueue.prototype.timer_ = null;
  * @param {Object} scope The scope to call {@code cb} in.
  * @param {!Array.<*>} args The arguments the function will be called with.
  */
-cw.eventual.CallQueue.prototype.eventually_ = function(cb, scope, args) {
+cw.eventual.CallQueue.prototype.eventually = function(cb, scope, args) {
 	goog.asserts.assert(goog.isArray(args),
 		"args should be an array, not " + goog.typeOf(args));
 
 	this.events_.push([cb, scope, args]);
 	if(this.timer_ == null) {
-		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
+		this.timer_ = this.clock.setTimeout(this.boundTurn_, 0);
 	}
 };
 
@@ -143,7 +143,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 		try {
 			cb.apply(scope, args);
 		} catch(e) {
-			this.clock_.setTimeout(function() {
+			this.clock.setTimeout(function() {
 				// Rethrow the unhandled error after a timeout.
 				// Execution will continue, but the error will be seen
 				// by global handlers and the user.
@@ -153,7 +153,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 	}
 	// TODO: add test to prove (this.timer_ == null) check is necessary?
 	if(this.events_.length && this.timer_ == null) {
-		this.timer_ = this.clock_.setTimeout(this.boundTurn_, 0);
+		this.timer_ = this.clock.setTimeout(this.boundTurn_, 0);
 	}
 	if(this.events_.length == 0) {
 		var observers = this.emptyObservers_;
@@ -163,14 +163,14 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 		}
 	}
 	// Have some faith, there is probably no re-entrancy bug
-	// involving notifyEmpty_ here. Think about it.
+	// involving notifyEmpty here. Think about it.
 };
 
 /**
  * @return {!goog.async.Deferred} A Deferred that will fire with {@code null}
  * when the call queue is completely empty.
  */
-cw.eventual.CallQueue.prototype.notifyEmpty_ = function() {
+cw.eventual.CallQueue.prototype.notifyEmpty = function() {
 	if(this.events_.length == 0) {
 		return goog.async.Deferred.succeed(null);
 	}
@@ -187,9 +187,9 @@ cw.eventual.CallQueue.prototype.notifyEmpty_ = function() {
  * current call stack has been completed (including deferreds previously
  * scheduled with fireEventually).
  */
-cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
+cw.eventual.CallQueue.prototype.fireEventually = function(value) {
 	var d = new goog.async.Deferred();
-	this.eventually_(d.callback, d, [value]);
+	this.eventually(d.callback, d, [value]);
 	return d;
 };
 
@@ -202,4 +202,4 @@ cw.eventual.CallQueue.prototype.fireEventually_ = function(value) {
  * 
  * @type {!cw.eventual.CallQueue}
  */
-cw.eventual.theQueue_ = new cw.eventual.CallQueue(goog.global['window']);
+cw.eventual.theQueue = new cw.eventual.CallQueue(goog.global['window']);
