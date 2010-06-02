@@ -30,13 +30,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 		cq.eventually_(cb, a, [10, "20"]);
 		self.assertEqual([], calls);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([[a, 10, "20"]], calls);
 
 		// And again
 		cq.eventually_(cb, a, ["30", 40]);
 		self.assertEqual([[a, 10, "20"]], calls);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([[a, 10, "20"], [a, "30", 40]], calls);
 	},
 
@@ -59,11 +59,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		cq.eventually_(cb, null, [1]);
 
 		self.assertEqual([], calls);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([1], calls);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([1, 2], calls);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([1, 2], calls);
 	},
 
@@ -79,11 +79,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		}
 
 		cq.eventually_(throwingCallable, null, []);
-		clock.advance_(0);
+		clock.advance(0);
 
 		var gotError = false;
 		try {
-			clock.advance_(0);
+			clock.advance(0);
 		} catch(e) {
 			gotError = true;
 			self.assertErrorMessage(e, "hi");
@@ -92,8 +92,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		self.assertEqual(true, gotError);
 
 		// no more errors
-		clock.advance_(0);
-		clock.advance_(0);
+		clock.advance(0);
+		clock.advance(0);
 	},
 
 	/**
@@ -113,7 +113,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		d.addCallback(function() { notified = true; });
 
 		self.assertEqual(false, notified);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual(true, notified);
 	},
 
@@ -154,10 +154,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 		self.assertEqual(false, notified);
 		self.assertEqual(false, notified2);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual(true, notified);
 		self.assertEqual(false, notified2);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual(true, notified);
 		self.assertEqual(true, notified2);
 	},
@@ -182,7 +182,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 		self.assertEqual(false, notified);
 		self.assertEqual(false, notified2);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual(true, notified);
 		self.assertEqual(true, notified2);
 	},
@@ -199,7 +199,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		d.addCallback(function(value) { called = [arguments.length, value]; });
 
 		self.assertEqual(false, called);
-		clock.advance_(0);
+		clock.advance(0);
 		self.assertEqual([1, "hi"], called);
 	},
 

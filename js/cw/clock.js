@@ -46,7 +46,7 @@ cw.clock.Clock = function() {
 	/**
 	 * @type {number}
 	 */
-	this.rightNow_ = 0;
+	this.rightNow = 0;
 
 	/**
 	 * @type {number}
@@ -95,7 +95,7 @@ cw.clock.Clock = function() {
 
 	// TODO: more Date functions, in case anything needs them.
 	// The general strategy to implement `someMethod' would be:
-	//    return new Date(thisClock.rightNow_).someMethod();
+	//    return new Date(thisClock.rightNow).someMethod();
 };
 
 /**
@@ -107,7 +107,7 @@ cw.clock.Clock = function() {
  * Our modified version of goog.Timer expects this to be implemented.
  */
 cw.clock.Clock.prototype.getTime = function() {
-	return this.rightNow_;
+	return this.rightNow;
 };
 
 /**
@@ -150,7 +150,7 @@ cw.clock.Clock.prototype.sortCalls_ = function() {
 cw.clock.Clock.prototype.setTimeout = function(callable, when) {
 	this.addCall_({
 		ticket_: ++this.ticketCounter_,
-		runAt_: this.rightNow_ + when,
+		runAt_: this.rightNow + when,
 		notNow_: this.advancing_,
 		callable_: callable,
 		respawn_: false,
@@ -171,7 +171,7 @@ cw.clock.Clock.prototype.setTimeout = function(callable, when) {
 cw.clock.Clock.prototype.setInterval = function(callable, interval) {
 	this.addCall_({
 		ticket_: ++this.ticketCounter_,
-		runAt_: this.rightNow_ + interval,
+		runAt_: this.rightNow + interval,
 		nowNow_: this.advancing_,
 		callable_: callable,
 		respawn_: true,
@@ -239,13 +239,13 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 
 	try {
 		// Remember that callables can add or clear timeouts/intervals.
-		// New callables won't get called until at least the next advance_,
+		// New callables won't get called until at least the next `advance`,
 		// but cleared timeouts/intervals will be immediately removed, even
 		// while we're inside this loop. Note that callables should not expect
 		// to reliably remove their "sibling" calls, because they run in an
 		// arbitrary order. ("sibling" means happening around the same time).
 		for(;;) {
-			//console.log('calls_: ', cw.repr.repr(this.calls_), 'rightNow_: ', this.rightNow_);
+			//console.log('calls_: ', cw.repr.repr(this.calls_), 'rightNow: ', this.rightNow);
 			if(this.calls_.length === 0 || extraStopCondition() || this.calls_[0].notNow_) {
 				break;
 			}
@@ -285,24 +285,24 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
  * pending calls should be run.
  *
  * If a callable adds another timeout or interval, it will not be run until
- * the next {@link advance_} (even if the timeout was set to 0).
+ * the next {@link advance} (even if the timeout was set to 0).
  *
  * If a callable throws an error, no more callables will be called. But if you
- * {@link advance_} again, they will.
+ * {@link advance} again, they will.
  *
- * @param {number} amount How many milliseconds by which to advance_
+ * @param {number} amount How many milliseconds by which to advance
  * 	this clock's time. Must be positive number; not NaN or Infinity.
  */
-cw.clock.Clock.prototype.advance_ = function(amount) {
+cw.clock.Clock.prototype.advance = function(amount) {
 	if(amount < 0) {
 		throw new cw.clock.ClockAdvanceError("amount was "+amount+", should have been > 0");
 	}
 
-	this.rightNow_ += amount;
+	this.rightNow += amount;
 
 	// Actually stop when it's time to
 	var extraStopCondition = goog.bind(function() {
-		return this.calls_[0].runAt_ > this.rightNow_;
+		return this.calls_[0].runAt_ > this.rightNow;
 	}, this);
 
 	this.internalAdvance_(extraStopCondition);
@@ -312,7 +312,7 @@ cw.clock.Clock.prototype.advance_ = function(amount) {
  * Fire all of the scheduled calls indiscriminately (without regard to when
  * they are scheduled to fire).
  */
-cw.clock.Clock.prototype.fireEverything_ = function() {
+cw.clock.Clock.prototype.fireEverything = function() {
 	var extraStopCondition = goog.functions.FALSE;
 	this.internalAdvance_(extraStopCondition);
 };
@@ -324,8 +324,8 @@ cw.clock.Clock.prototype.fireEverything_ = function() {
  *
  * @param {number} time The new time for the clock.
  */
-cw.clock.Clock.prototype.setTime_ = function(time) {
-	this.rightNow_ = time;
+cw.clock.Clock.prototype.setTime = function(time) {
+	this.rightNow = time;
 };
 
 // TODO: maybe implement and test pump, if needed
@@ -337,7 +337,7 @@ cw.clock.Clock.prototype.setTime_ = function(time) {
 //		@type timings: iterable of C{float}
 //		"""
 //		for amount in timings:
-//			self.advance_(amount)
+//			self.advance(amount)
 
 
 /*-----------------------------------------------------------------------------*/
