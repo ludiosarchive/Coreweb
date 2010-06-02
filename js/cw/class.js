@@ -285,10 +285,10 @@ cw.Class.subclass = function(classNameOrModule, /*optional*/ subclassName) {
 	 */
 	subClass.__name__ = className;
 
-	subClass.toString = function() {
+	subClass.toString = subClass.__repr__ = function() {
 		return '<Class ' + className + '>';
 	};
-	subClass.prototype.toString = function() {
+	subClass.prototype.toString = subClass.prototype.__repr__ = function() {
 		return '<"Instance" of ' + className + '>';
 	};
 	return subClass;
