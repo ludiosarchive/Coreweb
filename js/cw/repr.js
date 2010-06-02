@@ -52,7 +52,7 @@ cw.repr.serializeObject_ = function(obj, sb) {
 	sb.push('{');
 	var sep = '';
 	for (var key in obj) {
-		if (obj.hasOwnProperty(key)) {
+		if(Object.prototype.hasOwnProperty.call(obj, key)) {
 			var value = obj[key];
 			sb.push(sep);
 			goog.json.Serializer.prototype.serializeString_(key, sb);

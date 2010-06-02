@@ -54,6 +54,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
+	 * Test that repr still works if an object has an evil hasOwnProperty.
+	 */
+	function test_evilHasOwnProperty(self) {
+		var o = {'hasOwnProperty': null};
+		self.assertIdentical(repr(o), '{"hasOwnProperty": null}');
+	},
+
+	/**
 	 * Test {@code cw.repr.reprToPieces}
 	 */
 	function test_reprToPieces(self) {
