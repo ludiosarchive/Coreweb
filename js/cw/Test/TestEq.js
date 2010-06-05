@@ -4,7 +4,6 @@
 
 goog.provide('cw.Test.TestEq');
 
-goog.require('cw.Class');
 goog.require('cw.UnitTest');
 goog.require('cw.eq');
 goog.require('goog.array');
