@@ -266,6 +266,22 @@ there';
 		goog.array.forEach("N,~,!, ".split(','), function(trailer) {
 			self.assertIdentical(10, parseInt("010" + trailer, 10));
 		});
+	},
+
+	/**
+	 * Math.max tests. cw.net.client's ClientTransport relies on some of this.
+	 */
+	function test_mathMax(self) {
+		self.assertEqual(0, Math.max(0, null));
+		self.assertEqual(0, Math.max(null, 0));
+		self.assertEqual(0, Math.max(null, null));
+
+		self.assertEqual(3, Math.max(3, null));
+		self.assertEqual(3, Math.max(null, 3));
+
+		// Different from Python! Python returns -1 for max(None, -1) and max(-1, None).
+		self.assertEqual(0, Math.max(-1, null));
+		self.assertEqual(0, Math.max(null, -1));
 	}
 );
 
