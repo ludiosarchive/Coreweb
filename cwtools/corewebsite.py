@@ -8,9 +8,10 @@ from twisted.python.filepath import FilePath
 from cwtools import testing, htmltools, jsimp
 from ecmaster import closurecompiler
 from lytics.endpoint import Analytics
+from webmagic.untwist import BetterResource, BetterFile
 
 
-class Compiler(resource.Resource):
+class Compiler(BetterResource):
 	isLeaf = True
 
 	def __init__(self, reactor, JSPATH):
@@ -44,7 +45,7 @@ Output from Closure Compiler:<br>
 
 
 
-class Root(resource.Resource):
+class Root(BetterResource):
 
 	def __init__(self, reactor, testPackages):
 		import cwtools
@@ -55,15 +56,15 @@ class Root(resource.Resource):
 
 		JSPATH = FilePath(os.environ['JSPATH'])
 
-		self.putChild('', static.File(here.child('index.html').path))
-		self.putChild('JSPATH', static.File(JSPATH.path))
+		self.putChild('', BetterFile(here.child('index.html').path))
+		self.putChild('JSPATH', BetterFile(JSPATH.path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH))
 		self.putChild('compiler', Compiler(reactor, JSPATH))
 		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/
 		self.putChild('@tests', testing.TestPage(testPackages, JSPATH))
 
 		testres_Coreweb = here.child('testres').path
-		self.putChild('@testres_Coreweb', static.File(testres_Coreweb))
+		self.putChild('@testres_Coreweb', BetterFile(testres_Coreweb))
 
 
 
