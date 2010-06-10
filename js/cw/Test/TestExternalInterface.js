@@ -299,6 +299,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	/**
 	 * Test that a range of integral numbers from -2^53 to 2^53
 	 * make it through JS->Flash->JS unaltered.
+	 *
+	 * Note: fails in Opera 10.60 build 3409, because it has a problem with
+	 * -Math.pow(2, 31). The value is represented as -0. Reported to Opera
+	 * as DSK-301659.
 	 */
 	function test_mirrorExtremeNumbers(self) {
 		var numbers = [];
