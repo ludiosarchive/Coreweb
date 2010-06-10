@@ -348,6 +348,26 @@ cw.clock.Clock.prototype.setTime = function(time) {
 
 
 /**
+ * @type { {
+ * 	setTimeout: function(!Function, number): number,
+ * 	clearTimeout: function(number): undefined,
+ * 	setInterval: function(!Function, number): number,
+ * 	clearInterval: function(number): undefined
+ * } }
+ */
+cw.clock.IWindowTimeAll = goog.typedef;
+
+
+/**
+ * @type { {
+ * 	setTimeout: function(!Function, number): number,
+ * 	clearTimeout: function(number): undefined
+ * } }
+ */
+cw.clock.IWindowTimeIntervalOptional = goog.typedef;
+
+
+/**
  * JumpDetector's event types
  * @enum {string}
  */
@@ -412,10 +432,8 @@ cw.clock.TIMER_FORGIVENESS = 400;
  * [2] {@link http://bugs.mysql.com/bug.php?id=44276}
  * 	also search for "backwards QueryPerformanceCounter"
  *
- * @param { {setTimeout: !Function, clearTimeout: !Function} } clock An
- * 	object that implements setTimeout and clearTimeout (eg Window).
- * 	If it is !== goog.Timer.defaultTimerObject, it must implement getTime as
- * 	well.
+ * @param {!cw.clock.IWindowTimeAll} clock If !== goog.Timer.defaultTimerObject,
+ * 	clock must implement getTime as well.
  *
  * @param {number} pollInterval Interval to poll at, in milliseconds. If this
  *	is too infrequent, and the clock jumps back in a non-monotonic browser,
@@ -432,12 +450,15 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	goog.events.EventTarget.call(this);
 	
 	/**
-	 * @type { ?{setTimeout: !Function, clearTimeout: !Function} }
+	 * The clock to use. JumpDetector needs only `setTimeout` and
+	 * `clearTimeout`, but users may correctly expect to also use
+	 * JumpDetector.clock's `setInterval` and `clearInterval`.
+	 * @type {cw.clock.IWindowTimeAll}
 	 */
 	this.clock = clock;
 
 	/**
-	 * @type {Function}
+	 * @type {!Function}
 	 * @private
 	 */
 	this.boundPoll_ = goog.bind(this.poll_, this);
@@ -572,7 +593,9 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 		if(prodded) {
 			this.insertIntoCollection_(null); // a marker; see the JSDoc
 			this.insertIntoCollection_(now);
-			this.clock.clearTimeout(this.pollerTicket_);
+			if(this.pollerTicket_ != null) {
+				this.clock.clearTimeout(this.pollerTicket_);
+			}
 			this.setNewTimer_(now);
 		}
 	}
@@ -635,7 +658,7 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 		this.clock.clearTimeout(this.pollerTicket_);
 	}
 
-	this.clock = this.boundPoll_ = this.pollerTicket_ = null;
+	this.clock = this.pollerTicket_ = null;
 
 	// elsewhere
 	//this.dispatchEvent({type: evt.type, target: image});
@@ -686,8 +709,8 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	this.jumpDetector_ = jumpDetector;
 
 	/**
-	 * The underlying clock we use.
-	 * @type {Object}
+	 * The underlying clock to use.
+	 * @type {cw.clock.IWindowTimeAll}
 	 */
 	this.clock = jumpDetector.clock;
 
@@ -729,7 +752,7 @@ cw.clock.JumpDetectingClock.prototype.getTime = function() {
 cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 	for(var ticket in this.timeouts_) {
 		if(Object.prototype.hasOwnProperty.call(this.timeouts_, ticket)) {
-			this.clock.clearTimeout();
+			this.clock.clearTimeout(Number(ticket));
 		}
 	}
 	1/0

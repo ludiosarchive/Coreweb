@@ -48,22 +48,26 @@ goog.provide('cw.eventual');
 
 goog.require('goog.async.Deferred');
 goog.require('goog.asserts');
+goog.require('cw.clock');
 
 
 /**
- * A call queue that supports the eventually operation, for
+ * A call queue that supports the `eventually` operation, for
  * a specific clock. You should probably have just one CallQueue
  * for your application. Pass one CallQueue around just like you
  * would pass a clock around. In fact, you can skip passing a clock
  * around, because you pass a CallQueue around, and just access
  * the clock via the {@code clock} property.
  *
+ * @param {!cw.clock.IWindowTimeAll} clock
  * @constructor
  */
 cw.eventual.CallQueue = function(clock) {
 	/**
-	 * An object that implements {@code setTimeout}.
-	 * @type { {setTimeout: !Function} }
+	 * The clock to use. CallQueue needs only `setTimeout` and
+	 * `clearTimeout`, but users may correctly expect to also use
+	 * CallQueue.clock's `setInterval` and `clearInterval`.
+	 * @type {!cw.clock.IWindowTimeAll}
 	 */
 	this.clock = clock;
 
