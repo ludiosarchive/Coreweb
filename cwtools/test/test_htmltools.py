@@ -74,13 +74,13 @@ class ScriptTagTests(unittest.TestCase):
 			script = jsimp.Script('p.mod1', d)
 			html = htmltools.scriptSrc(script, mountedAt)
 
-			self.assert_(
+			self.assertTrue(
 				html.startswith(
 					"""<script>%s</script><script src="%s?""" % (
 					script._underscoreName(), mountedAt + 'p/mod1.js')),
 				html)
 
-			self.assert_(html.endswith("""</script>\n"""), html)
+			self.assertTrue(html.endswith("""</script>\n"""), html)
 
 
 	def test_scriptSrcError(self):
@@ -128,7 +128,7 @@ class GetTestPageCSSTests(unittest.TestCase):
 	"""
 	def test_getTestPageCSS(self):
 		output = htmltools.getTestPageCSS()
-		self.assert_(isinstance(output, unicode), type(output))
+		self.assertTrue(isinstance(output, unicode), type(output))
 
 		self.assertIn('#log', output)
 		self.assertIn('#doc', output)

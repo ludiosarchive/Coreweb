@@ -260,8 +260,8 @@ goog.require("something.else");\r
 		self.assertEqual(['p', 'p.blah', 'p.other', 'p.last'], imports)
 		self.assertEqual(['something', 'something.else'], requires)
 
-		self.assert_(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
-		self.assert_(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
+		self.assertTrue(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
+		self.assertTrue(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
 
 
 	def test_getDependencies(self):
@@ -397,8 +397,8 @@ goog.require("something.else");\r
 		self.assertEqual(['p', 'p.blah', 'p.other', 'p.last'], imports)
 		self.assertEqual(['something', 'something.else'], requires)
 
-		self.assert_(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
-		self.assert_(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
+		self.assertTrue(all(isinstance(s, str) for s in imports), "Not all were str: %r" % (imports))
+		self.assertTrue(all(isinstance(s, str) for s in requires), "Not all were str: %r" % (requires))
 
 
 	def test_getDependencies(self):
@@ -438,7 +438,7 @@ class ClosureStyleRequire(unittest.TestCase):
 #			['p', 'p.blah', 'p.other', 'p.last'],
 #			strings)
 #
-#		self.assert_(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
+#		self.assertTrue(all(isinstance(s, str) for s in strings), "Not all were str: %r" % (strings))
 
 
 
@@ -525,7 +525,7 @@ class TreeCacheTests(unittest.TestCase):
 		jsimp.getDeps(self.child4)
 		jsimp.getDeps(self.child4)
 
-		self.assert_(len(self.trackingList) > len(self.goodOrder),
+		self.assertTrue(len(self.trackingList) > len(self.goodOrder),
 			'self.trackingList %r should have been longer than self.goodOrder' % (self.trackingList,))
 
 		self.assertNotEqual(self.goodOrder, self.trackingList)
