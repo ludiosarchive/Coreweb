@@ -29,13 +29,20 @@ class Compiler(BetterResource):
 		def write(output):
 			# TODO: only write if not aborted already
 			request.write('''\
-<style>
-html, body { background-color: #d4d0c8; }
-</style>
+<!doctype html>
+<head>
+	<title>_Compilables.js warnings and errors</title>
+	<style>
+		html, body { background-color: #d4d0c8; }
+	</style>
+</head>
+<body>
 Output file is:<br>
 <pre>%s</pre>
 Output from Closure Compiler:<br>
 <pre>%s</pre>
+</body>
+</html>
 ''' % (cgi.escape(outputFile.path), cgi.escape(output),))
 			request.finish()
 
