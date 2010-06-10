@@ -246,7 +246,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 		// while we're inside this loop. Note that callables should not expect
 		// to reliably remove their "sibling" calls, because they run in an
 		// arbitrary order. ("sibling" means happening around the same time).
-		for(;;) {
+		while(true) {
 			//console.log('calls_: ', cw.repr.repr(this.calls_), 'rightNow: ', this.rightNow);
 			if(this.calls_.length === 0 || extraStopCondition() || this.calls_[0].notNow_) {
 				break;
