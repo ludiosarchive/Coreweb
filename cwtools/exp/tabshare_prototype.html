@@ -25,6 +25,8 @@ Talk.<br><br>
 
 <a href="#" onclick="stop_master_eating();return false">Stop eating master's CPU</a><br><br>
 
+Note: In Safari 4.0.4 (maybe earlier) - 5.0, window.open('named_window') seems to actually switch tabs.
+To work around this, perhaps we need to window.open a named iframe instead? Or just use SharedWorker.<br><br>
 
 <div id="debug"></div>
 
