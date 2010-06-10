@@ -31,15 +31,15 @@ goog.provide('another');
 
 
 	def _testDefaultSet(self, ds):
-		self.aE(None, ds.whoProvide('missing'))
-		self.aE(None, ds.whoProvide('too.far.down'))
-		self.aE('p', ds.whoProvide('hello.something'))
-		self.aE('p', ds.whoProvide('hello.another'))
-		self.aE('p', ds.whoProvide(u'hello.\u0000another2'))
-		self.aE('p', ds.whoProvide('hello.another3'))
-		self.aE('p', ds.whoProvide('hello.another4'))
-		self.aE('sub.x', ds.whoProvide('another'))
-		self.aE('sub.file_with_long_copyright', ds.whoProvide('still.scanned'))
+		self.assertEqual(None, ds.whoProvide('missing'))
+		self.assertEqual(None, ds.whoProvide('too.far.down'))
+		self.assertEqual('p', ds.whoProvide('hello.something'))
+		self.assertEqual('p', ds.whoProvide('hello.another'))
+		self.assertEqual('p', ds.whoProvide(u'hello.\u0000another2'))
+		self.assertEqual('p', ds.whoProvide('hello.another3'))
+		self.assertEqual('p', ds.whoProvide('hello.another4'))
+		self.assertEqual('sub.x', ds.whoProvide('another'))
+		self.assertEqual('sub.file_with_long_copyright', ds.whoProvide('still.scanned'))
 
 
 	def test_scan(self):
@@ -63,20 +63,20 @@ goog.provide('new.thing2');
 		ds.rescan()
 		self._testDefaultSet(ds)
 
-		self.aE('newFile', ds.whoProvide('new.thing1'))
-		self.aE('newDir.newFile2', ds.whoProvide('new.thing2'))
-		self.aE(None, ds.whoProvide('new.missing'))
+		self.assertEqual('newFile', ds.whoProvide('new.thing1'))
+		self.assertEqual('newDir.newFile2', ds.whoProvide('new.thing2'))
+		self.assertEqual(None, ds.whoProvide('new.missing'))
 
 
 	def test_conflictDuringInit(self):
 		self.d.child('q.js').setContent('goog.provide("hello.something")')
-		self.aR(jsimp.ProvideConflict, lambda: jsimp.DirectoryScan(self.d))
+		self.assertRaises(jsimp.ProvideConflict, lambda: jsimp.DirectoryScan(self.d))
 
 
 	def test_conflictDuringRescan(self):
 		ds = jsimp.DirectoryScan(self.d)
 		self.d.child('q.js').setContent('goog.provide("hello.something")')
-		self.aR(jsimp.ProvideConflict, lambda: ds.rescan())
+		self.assertRaises(jsimp.ProvideConflict, lambda: ds.rescan())
 
 
 
