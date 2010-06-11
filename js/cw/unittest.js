@@ -882,7 +882,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		var messages = [];
 		if(!cw.eq.equals(a, b, messages)) {
 			var failMsg = goog.string.subs(
-				"Object %s not deep-equal to %s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
+				"Objects not deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
 				cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
 			self.fail(failMsg);
 		}
@@ -904,7 +904,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		var messages = [];
 		if(cw.eq.equals(a, b, messages)) {
 			var failMsg = goog.string.subs(
-				"Object %s is deep-equal to %s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
+				"Objects are deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
 				cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
 			self.fail(failMsg);
 		}
