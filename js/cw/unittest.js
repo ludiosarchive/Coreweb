@@ -28,6 +28,7 @@ goog.require('cw.Class');
 goog.require('cw.repr');
 goog.require('cw.eq');
 goog.require('goog.array');
+goog.require('goog.string');
 goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.asserts');
@@ -39,7 +40,6 @@ goog.require('goog.debug.Logger');
 goog.require('goog.debug.Error');
 goog.require('goog.debug.Console'); // needed for TestRunnerPage
 goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
-goog.require('goog.string');
 
 
 // anti-clobbering for JScript
@@ -363,7 +363,9 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
 	// JavaScript-based tracebacks are unfortunately worthless in
 	// our case, so right now we're out of luck in IE (and probably Safari and Opera).
 	error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
-	pre.innerHTML = error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
+	pre.innerHTML =
+		goog.string.htmlEscape(error.name + ': ' + error.message) +
+		((error.stack ? '\n' + error.stack : ''));
 
 	return pre;
 };
