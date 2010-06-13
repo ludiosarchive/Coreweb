@@ -29,18 +29,17 @@ cw.clock.ClockAdvanceError.prototype.name = 'cw.clock.ClockAdvanceError';
 
 
 /**
- * Provide a deterministic, easily-controlled browser C{window}.
- * This is commonly useful for writing deterministic unit tests for code which
- * schedules events with C{setTimeout}, C{setInterval}, C{clearTimeout},
- * and {clearInterval}.
+ * Provide a deterministic, easily-controlled browser {@code window}.
+ * This is useful for writing deterministic unit tests for code which
+ * schedules events with `setTimeout`, `setInterval`, `clearTimeout`,
+ * and `clearInterval`.
  *
- * Note that this does not mimic browser deficiencies in C{setTimeout} and
- * C{setInterval}. For example, the C{1} in C{setTimeout(callable, 1)} will not
- * be raised to C{13}.
+ * Note that this does not mimic browser deficiencies in `setTimeout` and
+ * `setInterval`. For example, the timeout in {@code setTimeout(callable, 1)}
+ * will not be raised from 1ms to 13ms.
  *
- * Note: we must use .pmethods instead of .methods here, because IE leaks
- * named functions into the outer scope, and we really can't deal with that here,
- * because the function names are "setTimeout" and so on.
+ * This is inspired by {@code twisted.internet.task.Clock} but the
+ * {@code advance} method behaves differently; see its JSDoc.
  * 
  * @constructor
  */
