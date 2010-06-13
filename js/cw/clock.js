@@ -289,7 +289,10 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
  * pending calls should be run.
  *
  * If a callable adds another timeout or interval, it will not be run until
- * the next {@link advance} (even if the timeout was set to 0).
+ * the next {@link advance} (even if the timeout was set to 0). This
+ * makes the behavior unlike {@code twisted.internet.task.Clock},
+ * where {@code advance} may call newly-added calls, and even get
+ * stuck in a loop.
  *
  * If a callable throws an error, no more callables will be called. But if you
  * {@link advance} again, they will.
