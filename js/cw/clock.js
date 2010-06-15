@@ -764,6 +764,15 @@ cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
  * @private
  */
 cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
+	// We must never call any scheduled timeouts synchronously here,
+	// because the current stack sometimes looks like this,
+	// 	user code
+	//		JumpDetector.prod
+	//			goog.events
+	//				JumpDetectingClock.gotTimeJump_
+	// and user code assumes that timeouts are called directly from some
+	// kind of event loop (never under its current stack).
+
 	var adjustment = 1/0;
 	this.rescheduleCalls_(adjustment);
 };
