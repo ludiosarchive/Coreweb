@@ -28,6 +28,6 @@ cw.objsize.totalSizeOf = function(obj) {
 		return 8;
 	} else {
 		// TODO: support arrays
-		throw new Error("cannot determine size of object type " + type);
+		throw Error("cannot determine size of object type " + type);
 	}
 };

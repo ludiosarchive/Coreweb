@@ -997,7 +997,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 */
 	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
-			throw new Error("Specify at least one error class to assertFailure");
+			throw Error("Specify at least one error class to assertFailure");
 		}
 
 		var d = deferred.addCallbacks(

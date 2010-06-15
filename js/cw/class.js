@@ -109,7 +109,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
 		if(goog.DEBUG && goog.isDef(classNameOrModule[subclassName])) {
-			throw new Error("cw.Class.subclass: Won't overwrite " + className);
+			throw Error("cw.Class.subclass: Won't overwrite " + className);
 		}
 
 		// Now define it so that it can actually be accessed later.
@@ -142,7 +142,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 		subClass.prepareToAdd_ = function(methodName, allowWindowPropertyNames) {
 			if(subClass.alreadyDefinedMethods_.contains(methodName)) {
 				// See explanation above for why Error instead of a cw.NameCollisionError
-				throw new Error("cw.Class.subclass.subClass: Won't overwrite already-defined " +
+				throw Error("cw.Class.subclass.subClass: Won't overwrite already-defined " +
 					subClass.__name__ + '.' + methodName);
 			}
 			if(!allowWindowPropertyNames) {
@@ -157,7 +157,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 				// and another method might assume that `print()' actually
 				// prints the page (while now it actually does something unrelated).
 				if(cw.globalprops.properties.contains(methodName)) {
-					throw new Error("cw.Class.subclass.subClass: Won't create " +
+					throw Error("cw.Class.subclass.subClass: Won't create " +
 						subClass.__name__ + '.' + methodName +
 						" because window." + methodName + " may exist in some browsers.");
 				}

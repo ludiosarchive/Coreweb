@@ -265,7 +265,7 @@ cw.uri.URL = function(urlObjOrString) {
 		this.setUrlProperty('fragment', split[4], true);
 
 		if(authority == null) {
-			throw new Error("URL needs an authority");
+			throw Error("URL needs an authority");
 		}
 		split = cw.uri.splitAuthority(authority);
 		this.setUrlProperty('user', split[0], true);
@@ -278,7 +278,7 @@ cw.uri.URL = function(urlObjOrString) {
 	}
 
 	if(!(this['scheme'] && this['host'])) {
-		throw new Error("URL needs a scheme and a host");
+		throw Error("URL needs a scheme and a host");
 	}
 };
 
