@@ -85,12 +85,8 @@ cw.repr.serializeDate_ = function(obj, sb) {
  */
 cw.repr.serializeAny_ = function(obj, sb) {
 	var type = goog.typeOf(obj);
-	if(type == 'boolean' || type == 'number') {
-		sb.push(obj.toString());
-	} else if(type == 'null') {
-		sb.push('null');
-	} else if(type == 'undefined') {
-		sb.push('undefined');
+	if(type == 'boolean' || type == 'number' || type == 'null' || type == 'undefined') {
+		sb.push(String(obj));
 	} else if(type == 'string') {
 		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
