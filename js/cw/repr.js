@@ -26,7 +26,7 @@ goog.require('goog.json');
 /**
  * Serializes an array to a string representation.
  * @param {!Array} arr The array to serialize.
- * @param {!Array} sb Array used as a string builder.
+ * @param {!Array.<string>} sb Array used as a string builder.
  * @private
  */
 cw.repr.serializeArray_ = function(arr, sb) {
@@ -45,7 +45,7 @@ cw.repr.serializeArray_ = function(arr, sb) {
 /**
  * Serializes an object to a string representation.
  * @param {!Object} obj The object to serialize.
- * @param {!Array} sb Array used as a string builder.
+ * @param {!Array.<string>} sb Array used as a string builder.
  * @private
  */
 cw.repr.serializeObject_ = function(obj, sb) {
@@ -67,12 +67,12 @@ cw.repr.serializeObject_ = function(obj, sb) {
 
 /**
  * Serializes a Date to a string representation.
- * @param {!Date} obj The date to serialize.
- * @param {!Array} sb Array used as a string builder.
+ * @param {! {valueOf: !Function} } obj The date to serialize.
+ * @param {!Array.<string>} sb Array used as a string builder.
  * @private
  */
 cw.repr.serializeDate_ = function(obj, sb) {
-	sb.push('new Date(', obj.valueOf(), ')');
+	sb.push('new Date(', String(obj.valueOf()), ')');
 };
 
 
@@ -80,7 +80,7 @@ cw.repr.serializeDate_ = function(obj, sb) {
 /**
  * Serializes anything to a string representation.
  * @param {*} obj The object to serialize.
- * @param {!Array} sb Array used as a string builder.
+ * @param {!Array.<string>} sb Array used as a string builder.
  * @private
  */
 cw.repr.serializeAny_ = function(obj, sb) {
@@ -104,10 +104,8 @@ cw.repr.serializeAny_ = function(obj, sb) {
 			cw.repr.serializeArray_(/** @type {!Array} */ (obj), sb)
 		} else if(type == 'object') {
 			// `getFullYear' check is identical to the one in goog.isDateLike
-			if(typeof obj.getFullYear == 'function') {
-				// TODO: find out if it's a good idea to be possibly lying
-				// to the type system here.
-				cw.repr.serializeDate_(/** @type {!Date} */ (obj), sb);
+			if(goog.isDateLike(obj) && typeof obj.valueOf == 'function') {
+				cw.repr.serializeDate_(/** @type {! {valueOf: !Function} } */ (obj), sb);
 			} else {
 				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb);
 			}
