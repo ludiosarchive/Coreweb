@@ -15,12 +15,15 @@
  * 	- .__repr__()
  * 	- .toString()
  *
- * LICENSE note: copied some functions from Closure Library's goog.json.
+ * LICENSE note: copied some functions and comments from Closure Library's
+ * goog.json.
  */
 
 goog.provide('cw.repr');
 
+goog.require('goog.array');
 goog.require('goog.json');
+goog.require('goog.object');
 
 
 /**
@@ -42,6 +45,7 @@ cw.repr.serializeArray_ = function(arr, sb) {
 };
 
 
+
 /**
  * Serializes an object to a string representation.
  * @param {!Object} obj The object to serialize.
@@ -49,10 +53,19 @@ cw.repr.serializeArray_ = function(arr, sb) {
  * @private
  */
 cw.repr.serializeObject_ = function(obj, sb) {
+	// For IE the for-in-loop (in getKeys) does not find any properties
+	// that are not enumerable on the prototype object, so concat
+	// PROTOTYPE_FIELDS_. See goog.object.extend for information.
+	var keys = goog.object.getKeys(obj).concat(goog.object.PROTOTYPE_FIELDS_);
+
+	// Above concat may have added duplicate keys, so remove them.
+	goog.array.removeDuplicates(keys);
+
 	sb.push('{');
-	var sep = '';
-	for (var key in obj) {
-		if(Object.prototype.hasOwnProperty.call(obj, key)) {
+	var sep = '', key;
+	for (var i = 0; i < keys.length; i++) {
+		key = keys[i];
+		if (Object.prototype.hasOwnProperty.call(obj, key)) {
 			var value = obj[key];
 			sb.push(sep);
 			goog.json.Serializer.prototype.serializeString_(key, sb);
@@ -61,6 +74,7 @@ cw.repr.serializeObject_ = function(obj, sb) {
 			sep = ', ';
 		}
 	}
+
 	sb.push('}');
 };
 

@@ -116,10 +116,27 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		var a = [];
 		a.__repr__ = function() { return '\uffff'; };
 		self.assertIdentical(repr(a), "\uffff");
-	}
+	},
 
-	// TODO: test that toString and other [[DontEnum]] properties are found
-	// in IE6-8 (right now they are not).
+	/**
+	 * All object properties are found, even those covered by the [[DontEnum]]
+	 * shadowing bug in IE6-IE8.
+	 */
+	function test_dontEnumShadowingWorkaround(self) {
+		var evil = {
+			"constructor": 1,
+			"hasOwnProperty": 2,
+			"isPrototypeOf": 3,
+			"propertyIsEnumerable": 4,
+			"toLocaleString": 5,
+			"toString": 6,
+			"valueOf": 7,
+			"toJSON": 8}; // IE8+
+		var serialized = repr(evil);
+		// Make sure we have 8 pieces
+		var split = serialized.split(",");
+		self.assertIdentical(8, split.length);
+	}
 );
 
 })(); // end anti-clobbering for JScript
