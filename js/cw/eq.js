@@ -21,24 +21,32 @@ cw.eq.isPrimitive_ = function(type) {
  *
  * @param {!Array} one The first array to compare.
  * @param {!Array} two The second array to compare.
- * @param {!Array.<string>} messages Array to push comparison progress
+ * @param {Array.<string>=} eqLog Array to push comparison progress
  * 	messages into.
  * @return {boolean} Whether the two arrays are equal.
  * @private
  */
-cw.eq.eqArray_ = function(one, two, messages) {
-	messages.push('descending into array');
+cw.eq.eqArray_ = function(one, two, eqLog) {
+	if(eqLog) {
+		eqLog.push('descending into array');
+	}
 	if(one.length != two.length) {
-		messages.push('array length mismatch: ' + one.length + ', ' + two.length);
+		if(eqLog) {
+			eqLog.push('array length mismatch: ' + one.length + ', ' + two.length);
+		}
 		return false;
 	}
 	for (var i=0, len=one.length; i < len; i++) {
-		if (!cw.eq.eqAny_(one[i], two[i], messages)) {
-			messages.push('earlier comparisons indicate mismatch at array item #' + i);
+		if (!cw.eq.eqAny_(one[i], two[i], eqLog)) {
+			if(eqLog) {
+				eqLog.push('earlier comparisons indicate mismatch at array item #' + i);
+			}
 			return false;
 		}
 	}
-	messages.push('ascending from array');
+	if(eqLog) {
+		eqLog.push('ascending from array');
+	}
 	return true;
 };
 
@@ -50,31 +58,41 @@ cw.eq.eqArray_ = function(one, two, messages) {
  *
  * @param {!Object} one The first object to compare.
  * @param {!Object} two The second object to compare.
- * @param {!Array.<string>} messages Array to push comparison progress
+ * @param {Array.<string>=} eqLog Array to push comparison progress
  * 	messages into.
  * @return {boolean} Whether the two objects are equal.
  * @private
  */
-cw.eq.eqObject_ = function(one, two, messages) {
-	messages.push('descending into object');
+cw.eq.eqObject_ = function(one, two, eqLog) {
+	if(eqLog) {
+		eqLog.push('descending into object');
+	}
 	for(var prop in one) {
 		if(!(prop in two)) {
-			messages.push('property ' + prop + ' missing on right object');
+			if(eqLog) {
+				eqLog.push('property ' + prop + ' missing on right object');
+			}
 			return false;
 		}
-		if(!cw.eq.eqAny_(one[prop], two[prop], messages)) {
-			messages.push('earlier comparisons indicate mismatch at property ' + prop);
+		if(!cw.eq.eqAny_(one[prop], two[prop], eqLog)) {
+			if(eqLog) {
+				eqLog.push('earlier comparisons indicate mismatch at property ' + prop);
+			}
 			return false;
 		}
 	}
 
 	for(var prop in two) {
 		if(!(prop in one)) {
-			messages.push('property ' + prop + ' missing on left object');
+			if(eqLog) {
+				eqLog.push('property ' + prop + ' missing on left object');
+			}
 			return false;
 		}
 	}
-	messages.push('ascending from object');
+	if(eqLog) {
+		eqLog.push('ascending from object');
+	}
 	return true;
 };
 
@@ -88,7 +106,7 @@ cw.eq.eqObject_ = function(one, two, messages) {
  * 	http://philrathe.com/articles/equiv and qunit/testrunner.js
  * 	Closure Library's goog.testing.asserts
  */
-cw.eq.eqAny_ = function(one, two, messages) {
+cw.eq.eqAny_ = function(one, two, eqLog) {
 	var typeOne = goog.typeOf(one);
 	var typeTwo = goog.typeOf(two);
 
@@ -98,12 +116,16 @@ cw.eq.eqAny_ = function(one, two, messages) {
 	// with a primitive value. Look at what Python does.
 
 	if(one != null && typeof one.equals == 'function') {
-		messages.push('running custom equals function on left object');
-		return one.equals(two, messages);
+		if(eqLog) {
+			eqLog.push('running custom equals function on left object');
+		}
+		return one.equals(two, eqLog);
 
 	} else if(two != null && typeof two.equals == 'function') {
-		messages.push('running custom equals function on right object');
-		return two.equals(one, messages);
+		if(eqLog) {
+			eqLog.push('running custom equals function on right object');
+		}
+		return two.equals(one, eqLog);
 
 	} else if(cw.eq.isPrimitive_(typeOne) || cw.eq.isPrimitive_(typeTwo)) {
 		return one === two;
@@ -118,7 +140,7 @@ cw.eq.eqAny_ = function(one, two, messages) {
 		return cw.eq.eqArray_(
 			/** @type {!Array} */ (one),
 			/** @type {!Array} */ (two),
-			messages);
+			eqLog);
 
 	// TODO: support various {goog.struct}s, like goog.testing.asserts does.
 	// TODO: die on objects with __iterator__, like goog.testing.asserts does.
@@ -127,19 +149,12 @@ cw.eq.eqAny_ = function(one, two, messages) {
 		return cw.eq.eqObject_(
 			/** @type {!Object} */ (one),
 			/** @type {!Object} */ (two),
-			messages);
+			eqLog);
 
 	} else {
 		return one === two;
 	}
 };
-
-
-/**
- * @type {!Object.<string, !Function>}
- * @private
- */
-cw.eq.NOOP_PUSHABLE_ = {'push': goog.nullFunction};
 
 
 /**
@@ -154,17 +169,10 @@ cw.eq.NOOP_PUSHABLE_ = {'push': goog.nullFunction};
  *
  * @param {!Object} one The first object to compare.
  * @param {!Object} two The second object to compare.
- * @param {Array.<string>=} messages Array into which comparison progress
+ * @param {Array.<string>=} eqLog Array into which comparison progress
  * 	messages are pushed in to.
  * @return {boolean} Whether the two objects are equal.
  */
-cw.eq.equals = function(one, two, messages) {
-	// If messages is null or undefined, assume caller doesn't want
-	// comparison progress messages.
-	if(messages == null) {
-		// The type system really shouldn't allow this, because every
-		// `equals` function we have takes a {!Array.<string>}
-		messages = cw.eq.NOOP_PUSHABLE_;
-	}
-	return cw.eq.eqAny_(one, two, messages);
+cw.eq.equals = function(one, two, eqLog) {
+	return cw.eq.eqAny_(one, two, eqLog);
 };
