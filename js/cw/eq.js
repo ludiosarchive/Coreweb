@@ -162,6 +162,8 @@ cw.eq.equals = function(one, two, messages) {
 	// If messages is null or undefined, assume caller doesn't want
 	// comparison progress messages.
 	if(messages == null) {
+		// The type system really shouldn't allow this, because every
+		// `equals` function we have takes a {!Array.<string>}
 		messages = cw.eq.NOOP_PUSHABLE_;
 	}
 	return cw.eq.eqAny_(one, two, messages);
