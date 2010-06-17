@@ -335,7 +335,7 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 	var frames = goog.testing.stacktrace.parse_(stack);
 
 	var canonical = [];
-	var last = 0;
+	var last = -1;
 	for (var i=0; i < frames.length; i++) {
 		canonical.push('> ');
 		if (frames[i]) { // frames[i] may be null
