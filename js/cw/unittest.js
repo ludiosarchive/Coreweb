@@ -353,7 +353,7 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 		}
 		last = i;
 	}
-	canonical.push('{' + (frames.length - 1 - i) + ' frame(s) elided}\n');
+	canonical.push('{' + (frames.length - 1 - last) + ' frame(s) elided}\n');
 	return canonical.join('');
 };
 
