@@ -282,6 +282,25 @@ there';
 		// Different from Python! Python returns -1 for max(None, -1) and max(-1, None).
 		self.assertEqual(0, Math.max(-1, null));
 		self.assertEqual(0, Math.max(null, -1));
+	},
+
+	/**
+	 * Test a shortcut for comparing two Arrays: join(",") only the left
+	 * side, rely on implicit "," joining of the right side.
+	 *
+	 * JS Minerva's cw.net.SACK relies on this behavior.
+	 */
+	function test_arrayComparisonImplicitRightJoin(self) {
+		self.assertTrue([].join(',') == []);
+		self.assertTrue([1].join(',') == [1]);
+		self.assertTrue([1,2,3].join(',') == [1,2,3]);
+		self.assertTrue([1.0,2,3].join(',') == [1,2,3.0]);
+		self.assertTrue([0].join(',') == [-0]);
+
+		// Sanity checks
+		self.assertFalse([1,2,3].join(',') == [1,2]);
+		self.assertFalse([1,2].join(',') == [1,2,3]);
+		self.assertFalse([1,2,9].join(',') == [1,2,3]);
 	}
 );
 
