@@ -724,7 +724,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
 	 * [1]th item is the delay between calls for intervals, and the timeout for timeouts.
 	 * [2]th item is the expected next firing time. 
 	 *
-	 * @type {!Object.<string, !Array.<(boolean|number)>>}
+	 * @type {!Object.<number, !Array.<(boolean|number)>>}
 	 * // TODO: types for tuples
 	 * @private
 	 */
