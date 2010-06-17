@@ -368,7 +368,7 @@ cw.env.makeReport = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100409.0001;
+	report['_version'] = 20100617.0441;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -407,9 +407,12 @@ cw.env.makeReport = function() {
 		report['screen'] = cw.env.filterObject(screen);
 	}
 
-	if(goog.global.history && goog.isNumber(goog.global.history.length)) {
+	if(goog.global.history) {
 		try {
-			report['history.length'] = goog.global.history.length;
+			var length = goog.global.history.length;
+			if(goog.isNumber(length)) {
+				report['history.length'] = length;
+			}
 		} catch(e) {
 			// Around 2010-04, we saw a report where accessing history.length on
 			// "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.16) Gecko/2009121707
@@ -417,6 +420,9 @@ cw.env.makeReport = function() {
 			//
 			// Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIDOMHistory.length]
 			// See https://bugzilla.mozilla.org/show_bug.cgi?id=429550
+			//
+			// We observed this again on 2010-06-11 (Firefox 3.0.18) because
+			// we failed to fix the bug.
 			report['history.length'] = ['ERROR', goog.debug.normalizeErrorObject(e)];
 		}
 	}
