@@ -8,7 +8,9 @@ goog.require('cw.UnitTest');
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
 goog.require('goog.userAgent');
-goog.require('swfobject');
+goog.require('goog.userAgent.flash');
+goog.require('goog.ui.media.FlashObject');
+goog.require('cw.repr');
 goog.require('cw.externalinterface');
 
 
@@ -206,16 +208,21 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 			// Note: Firefox 2.0.0.20 + Flash 10.0 r32 is known good.
 			// Skip tests if Firefox version is < 2.0.0.20, because we can't
 			// be bothered to test the ancient versions anyway.
-			throw new cw.UnitTest.SkipTest("Flash corrupts Error hierarchy in Firefox 2.0.0.0; tests disabled for < 2.0.0.20");
+			throw new cw.UnitTest.SkipTest(
+				"Flash corrupts Error hierarchy in Firefox 2.0.0.0; " +
+				"tests disabled for < 2.0.0.20");
 		}
 
-		if(swfobject.ua.pv[0] < 9) {
+		if(!goog.userAgent.flash.isVersion('9')) {
 			throw new cw.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
 		}
 
 		// The .swf applet persists between tests.
-		if(goog.dom.getElement("TestExternalInterface")) {
-			self._object = goog.dom.getElement("TestExternalInterface");
+		var existingFlashDiv = goog.dom.getElement("TestExternalInterface");
+		if(existingFlashDiv) {
+			// TODO: grab the object by id instead of relying on the DOM
+			// to be consistent.
+			self._object = existingFlashDiv.firstChild.firstChild;
 			return goog.async.Deferred.succeed(null);
 		}
 
@@ -224,32 +231,39 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 
 		var flashLoaded = new goog.async.Deferred();
 		var timeout = null;
-		goog.global.__CW_TestRealFlash_ready = function() {
-			self._object = goog.dom.getElement("TestExternalInterface");
-			goog.global.__CW_TestRealFlash_ready = undefined; // Not `delete' because IE can't
-			if(timeout !== null) {
-				goog.global.clearTimeout(timeout);
-			}
-			flashLoaded.callback(null);
+		goog.global['__CW_TestRealFlash_ready'] = function() {
+			// setTimeout to get out from under the Flash->JS stack frame.
+			goog.global['window'].setTimeout(function() {
+				self._object = goog.dom.getElement(self._objectId);
+				cw.UnitTest.logger.info(
+					"TestExternalInterface: _objectId: " + cw.repr.repr([self._objectId]) +
+					", _object:" + self._object);
+				goog.global['__CW_TestRealFlash_ready'] = undefined; // Not `delete' because IE can't
+				if(timeout !== null) {
+					goog.global['window'].clearTimeout(timeout);
+				}
+				flashLoaded.callback(null);
+			}, 0);
 		}
-		timeout = goog.global.setTimeout(function() {
+		timeout = goog.global['window'].setTimeout(function() {
 			flashLoaded.errback(new Error("hit timeout"));
 		}, 8000);
 
-		var flashvars = {
-			'onloadcallback': '__CW_TestRealFlash_ready',
-			'responsecallback': '__CW_TestRealFlash_response'};
-		var params = {};
-		swfobject.embedSWF(
-			"/@testres_Coreweb/TestExternalInterface.swf", "TestExternalInterface", "30", "30", [9, 0, 0],
-			"/@testres_Coreweb/expressInstall.swf", flashvars, params); // no attributes
+		var flashObject = new goog.ui.media.FlashObject(
+			"/@testres_Coreweb/TestExternalInterface.swf");
+		flashObject.setBackgroundColor("#ffffff");
+		flashObject.setSize(30, 30);
+		flashObject.setFlashVar('onloadcallback', '__CW_TestRealFlash_ready');
+		flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
+		self._objectId = flashObject.getId();
+		flashObject.render(div);
 
 		return flashLoaded;
 	},
 
 
 	function tearDown(self) {
-		goog.global.__CW_TestRealFlash_response = undefined; // Not `delete' because IE can't
+		goog.global['__CW_TestRealFlash_response'] = undefined; // Not `delete' because IE can't
 	},
 
 
@@ -258,8 +272,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		d.addCallback(function(data){
 			self.assertEqual(original, data);
 		});
-		goog.global.__CW_TestRealFlash_response = function(data) {
-			d.callback(data);
+		goog.global['__CW_TestRealFlash_response'] = function(data) {
+			// setTimeout to get out from under the Flash->JS stack frame.
+			goog.global['window'].setTimeout(function() {
+				d.callback(data);
+			}, 0);
 		}
 		self._object.CallFunction(cw.externalinterface.request('respond_correct', original));
 		return d;
