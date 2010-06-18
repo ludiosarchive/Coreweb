@@ -206,4 +206,7 @@ cw.eventual.CallQueue.prototype.fireEventually = function(value) {
  * 
  * @type {!cw.eventual.CallQueue}
  */
-cw.eventual.theQueue = new cw.eventual.CallQueue(goog.global['window']);
+cw.eventual.theCallQueue = new cw.eventual.CallQueue(goog.global['window']);
+// TODO: maybe we want to use a JumpDetectingClock?
+// or make CallQueue use a non-setTimeout method to schedule
+// a call? (impervious to jumping clocks)

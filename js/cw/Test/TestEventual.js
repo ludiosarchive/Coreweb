@@ -216,13 +216,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestGlobalCallQueue').methods(
 	/**
-	 * cw.eventual.theQueue exists and seems to work.
+	 * cw.eventual.theCallQueue exists and seems to work.
 	 */
 	function test_theQueue(self) {
-		self.assertTrue(cw.eventual.theQueue instanceof cw.eventual.CallQueue);
-		self.assertIdentical(goog.global['window'], cw.eventual.theQueue.clock);
+		self.assertTrue(cw.eventual.theCallQueue instanceof cw.eventual.CallQueue);
+		self.assertIdentical(goog.global['window'], cw.eventual.theCallQueue.clock);
 
-		var d = cw.eventual.theQueue.fireEventually(null);
+		var d = cw.eventual.theCallQueue.fireEventually(null);
 		return d;
 	}
 );
