@@ -5,13 +5,16 @@
 goog.provide('cw.Test.TestUnitTestAssertions');
 
 goog.require('cw.UnitTest');
+goog.require('cw.eq');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
 goog.require('goog.debug.Error');
 
 
-// anti-clobbering for JScript
+// anti-clobbering for JScript; aliases
 (function(){
+
+var plainObject = cw.eq.plainObject;
 
 /**
  * Just for testing.
@@ -496,21 +499,18 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		self.assertEqual("2", "2");
 		var big = "big";
 		self.assertEqual(big, big);
-		
+
 		self.assertEqual([], []);
 		self.assertEqual([[]], [[]]);
 		self.assertEqual([[], []], [[], []]);
 		self.assertEqual([[1], [3]], [[1], [3]]);
-		self.assertEqual([[1], [3, [{}]]], [[1], [3, [{}]]]);
-		self.assertEqual([[1], [3, [{}]]], [[1], [3, [new Object()]]]);
+		self.assertEqual([[1], [3, [plainObject({})]]], [[1], [3, [plainObject({})]]]);
+		self.assertEqual([[1], [3, [plainObject({})]]], [[1], [3, [plainObject(new Object())]]]);
 
 		self.assertEqual(null, null);
 		self.assertEqual(undefined, undefined);
 		self.assertEqual(true, true);
 		self.assertEqual(false, false);
-
-		self.assertEqual({}, {});
-		self.assertEqual({1: 3}, {"1": 3});
 
 		self.assertEqual(a, a);
 	},
@@ -544,7 +544,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		aT(function() { self.assertEqual(true, false); });
 		aT(function() { self.assertEqual(false, true); });
 
-		aT(function() { self.assertEqual({1: 3}, {"1": 3.00001}); });
+		aT(function() { self.assertEqual(
+			plainObject({1: 3}),
+			plainObject({1: 3.00001})); });
 
 		aT(function() { self.assertEqual(a, b); });
 	},
@@ -565,7 +567,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 		aT(function() { self.assertNotEqual([1, 4], [1, 4]); });
 	}
 
-	// TODO: self.assertEqual({toString: 4}, {toString: 5}); // this might fail in IE
+	// TODO: make sure [[DontEnum]]-shadowed properties are compared
+	// in IE6-IE8.
 );
 
 })(); // end anti-clobbering for JScript

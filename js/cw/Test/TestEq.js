@@ -13,6 +13,8 @@ goog.require('goog.array');
 (function(){
 
 var equals = cw.eq.equals;
+var plainObject = cw.eq.plainObject;
+var plainObjectRecursive = cw.eq.plainObjectRecursive;
 
 
 // Note: cw.eq is also indirectly tested by cw.Test.TestUnitTestAssertions
@@ -21,11 +23,101 @@ var equals = cw.eq.equals;
 // TODO: tests for custom .equals() behavior
 // TODO: make sure those custom `equals` methods can push messages
 
+cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'PlainObjectTests').methods(
+	/**
+	 * If only the left side has been marked by plainObject, the objects
+	 * are not equal.
+	 */
+	function test_plainObjectOnlyLeft(self) {
+		var one = {};
+		var two = {};
+		plainObject(one);
+		self.assertFalse(cw.eq.equals(one, two));
+	},
+
+	/**
+	 * If only the right side has been marked by plainObject, the objects
+	 * are not equal.
+	 */
+	function test_plainObjectOnlyRight(self) {
+		var one = {};
+		var two = {};
+		plainObject(two);
+		self.assertFalse(cw.eq.equals(one, two));
+	},
+
+	/**
+	 * If both the left and right side have been marked by plainObject
+	 * and the objects have the same properties/values, the objects
+	 * are equal.
+	 */
+	function test_plainObjectBoth(self) {
+		var one = plainObject({'x': 1});
+		var two = plainObject({});
+		self.assertFalse(cw.eq.equals(one, two));
+		two['x'] = 1;
+		self.assertTrue(cw.eq.equals(one, two));
+	},
+
+	/**
+	 * plainObject attaches a function __isPlainObject__ which returns
+	 * {@code true}.
+	 */
+	function test_plainObjectAttachesFunction(self) {
+		var one = {'x': 1};
+		self.assertIdentical(undefined, one.__isPlainObject__); // sanity check
+		plainObject(one);
+		self.assertIdentical(true, one.__isPlainObject__());
+	},
+
+	/**
+	 * plainObjectRecursive descends object values and marks all non-Array
+	 * Objects with plainObject.
+	 */
+	function test_plainObjectRecursiveDescendsObject(self) {
+		var one = plainObjectRecursive({"a": {}, "b": {"inside": 1}});
+		var two = plainObjectRecursive({"a": {}, "b": {"inside": 2}});
+		self.assertFalse(cw.eq.equals(one, two));
+		two["b"]["inside"] = 1;
+		self.assertTrue(cw.eq.equals(one, two));
+	},
+
+	/**
+	 * plainObjectRecursive descends array values and marks all non-Array
+	 * Objects with plainObject.
+	 */
+	function test_plainObjectRecursiveDescendsArray(self) {
+		var one = plainObjectRecursive([{}, {"inside": 1}, []]);
+		var two = plainObjectRecursive([{}, {"inside": 2}, []]);
+		self.assertFalse(cw.eq.equals(one, two));
+		two[1]["inside"] = 1;
+		self.assertTrue(cw.eq.equals(one, two));
+
+		// the Array object was not marked
+		self.assertIdentical(undefined, one[2].__isPlainObject__);
+		self.assertIdentical(undefined, two[2].__isPlainObject__);
+	},
+
+	/**
+	 * plainObjectRecursive accepts and passes through non-object/array
+	 * values.
+	 */
+	function test_plainObjectRecursivePassThrough(self) {
+		// No Errors are raised for any of these
+		self.assertIdentical(3, plainObjectRecursive(3));
+		self.assertIdentical(null, plainObjectRecursive(null));
+		self.assertIdentical(true, plainObjectRecursive(true));
+		self.assertIdentical(undefined, plainObjectRecursive(undefined));
+	}
+);
+
+
+
 cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 
 	function test_equalsArrayLengthMismatch(self) {
-		var one = [{}, [1], [3]];
-		var two = [{}, [1], [3, 4]];
+		var one = [plainObject({}), [1], [3]];
+		var two = [plainObject({}), [1], [3, 4]];
 		var messages = [];
 		var equal = cw.eq.equals(one, two, messages);
 		self.assertFalse(equal);
@@ -66,8 +158,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 	},
 
 	function test_equalsObjectValueNotEqual(self) {
-		var one = {'x': 2};
-		var two = {'x': 3};
+		var one = plainObject({'x': 2});
+		var two = plainObject({'x': 3});
 		var messages = [];
 		var equal = cw.eq.equals(one, two, messages);
 		self.assertFalse(equal);
@@ -81,8 +173,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 	},
 
 	function test_equalsObjectLeftPropertyMissingOnRight(self) {
-		var one = {'outer': {'x': 2}};
-		var two = {'outer': {'y': 2}};
+		var one = plainObject({'outer': plainObject({'x': 2})});
+		var two = plainObject({'outer': plainObject({'y': 2})});
 		var messages = [];
 		var equal = cw.eq.equals(one, two, messages);
 		self.assertFalse(equal);
@@ -98,8 +190,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 	},
 
 	function test_equalsObjectRightPropertyMissingOnLeft(self) {
-		var one = {'x': 2}
-		var two = {'x': 2, 'y': 3}
+		var one = plainObject({'x': 2});
+		var two = plainObject({'x': 2, 'y': 3});
 		var messages = [];
 		var equal = cw.eq.equals(one, two, messages);
 		self.assertFalse(equal);

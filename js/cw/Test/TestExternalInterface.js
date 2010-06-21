@@ -10,12 +10,16 @@ goog.require('goog.async.Deferred');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.flash');
 goog.require('goog.ui.media.FlashObject');
+goog.require('cw.eq');
 goog.require('cw.repr');
 goog.require('cw.externalinterface');
 
 
-// anti-clobbering for JScript
+// anti-clobbering for JScript; aliases
 (function(){
+
+var plainObject = cw.eq.plainObject;
+var plainObjectRecursive = cw.eq.plainObjectRecursive;
 
 // TODO: test object with keys that are inherited from Object.prototype
 // TODO: same as above, except hasOwnProperty on the object has been deleted
@@ -89,6 +93,20 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 		self.assertIdentical(
 			self._func1('<null/>'),
 			cw.externalinterface.request('func1', named_function));
+	},
+
+
+	function test_functionsInArrayEncodedToNull(self) {
+		self.assertIdentical(
+			self._func1('<array><property id="0"><null/></property></array>'),
+			cw.externalinterface.request('func1', [function(){}]));
+	},
+
+
+	function test_functionsInObjectSkipped(self) {
+		self.assertIdentical(
+			self._func1('<object></object>'),
+			cw.externalinterface.request('func1', {"afunc": function(){}}));
 	},
 
 
@@ -269,7 +287,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 
 	function _testRespondCorrectFor(self, original) {
 		var d = new goog.async.Deferred();
-		d.addCallback(function(data){
+		d.addCallback(function(data) {
+			plainObjectRecursive(data);
 			self.assertEqual(original, data);
 		});
 		goog.global['__CW_TestRealFlash_response'] = function(data) {
@@ -278,7 +297,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 				d.callback(data);
 			}, 0);
 		}
-		self._object.CallFunction(cw.externalinterface.request('respond_correct', original));
+		var request = cw.externalinterface.request('respond_correct', original);
+		cw.UnitTest.logger.info('_object.CallFunction(' + cw.repr.repr(request) + ')');
+		self._object.CallFunction(request);
 		return d;
 	},
 
@@ -291,7 +312,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		var escapedScary = "&lt;&gt;&quot;&apos;&amp;&amp;amp;";
 		var original = [
 			[],
-			{scaryString: scaryString, escapedScary: escapedScary},
+			plainObject({scaryString: scaryString, escapedScary: escapedScary}),
 			"",
 			escapedScary,
 			scaryString,
@@ -327,10 +348,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 			numbers.push(-Math.pow(2, i));
 			numbers.push(Math.pow(2, i));
 		}
-		var original = {
+		var original = plainObject({
 			//numbers: [1E-100, 9E-99, 9E99, 1E100] // surprise, these aren't exactly identical when they come back
 			numbers: numbers
-		};
+		});
 
 		return self._testRespondCorrectFor(original);
 	},
@@ -365,12 +386,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	 *
 	 * There is some really terrible O(N^3) or worse stuff going on in Flash
 	 * with nested objects. Try i < 20 to completely lock it up. TODO:
-	 * Further investigation is needed
+	 * further investigation is needed.
 	 */
 	function test_mirrorNestedObjects(self) {
-		var o = {n:1};
+		var o = plainObject({"n": 1});
 		for(var i=0; i < 8; i++) {
-			o = {n:o};
+			o = plainObject({"n": o});
 		}
 		return self._testRespondCorrectFor(o);
 	}

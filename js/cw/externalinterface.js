@@ -85,6 +85,10 @@ cw.externalinterface.handleObject_ = function(buffer, obj) {
 	buffer.push('<object>');
 	for (var prop in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+			// Skip over functions on the object
+			if(goog.typeOf(obj[prop]) == 'function') {
+				continue;
+			}
 			buffer.push('<property id="', cw.externalinterface.escapeString_(prop), '">');
 			cw.externalinterface.handleAny_(buffer, obj[prop]);
 			buffer.push('</property>');
@@ -103,7 +107,9 @@ cw.externalinterface.escapeString_ = function(s) {
 };
 
 /**
- * Append to `buffer' an XML-serialized version of any value `value'.
+ * Append to `buffer' an XML-serialized version of value {@code value}.
+ * If {@code value} is a non-Array Object, any functions on the object
+ * are skipped.
  *
  * @param {!Array} buffer Temporary buffer
  * @param {*} value Value to encode

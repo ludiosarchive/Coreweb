@@ -5,12 +5,15 @@ goog.provide('cw.Test.TestEnv');
 
 goog.require('cw.UnitTest');
 goog.require('cw.env');
+goog.require('cw.eq');
 goog.require('goog.userAgent');
 goog.require('goog.object');
 
 
-// anti-clobbering for JScript
+// anti-clobbering for JScript; aliases
 (function(){
+
+var plainObject = cw.eq.plainObject;
 
 cw.Test.TestEnv.samplePlugins_ = [{
 	name: "Shockwave Flash",
@@ -128,10 +131,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 			'_Shockwave Flash 10.0 r12': 0,
 			'_Adobe Flash movie': 1,
 			'_FutureSplash movie': 2
-		}
+		};
 
 		self.assertEqual(expectedPluginList, pluginList);
-		self.assertEqual(expectedDescriptions, descriptions);
+		self.assertEqual(plainObject(expectedDescriptions), plainObject(descriptions));
 		self.assertEqual('1021524111001232', psig);
 	},
 
@@ -146,8 +149,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
 	function test_filterObject(self) {
 		var orig = {
 			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str", 'x': function() {}, 'y': [], 'z': {}};
-		self.assertEqual({
-			'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"}, cw.env.filterObject(orig));
+		var expected = {'a': 3, 'b': null, 'c': true, 'd': false, 'e': "str"};
+		self.assertEqual(plainObject(expected), plainObject(cw.env.filterObject(orig)));
 	},
 
 	function test_makeReport(self) {
