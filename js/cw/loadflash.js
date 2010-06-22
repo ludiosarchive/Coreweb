@@ -60,11 +60,11 @@ goog.global['__loadFlashObject_callbacks'] = {};
  * @return {!goog.async.Deferred} Deferred that fires with the Flash element.
  */
 cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderInto) {
-	var random;
+	var callbackSlot;
 
 	var clearCallbackFunction = function() {
-		if(random) {
-			delete goog.global['__loadFlashObject_callbacks'][random];
+		if(callbackSlot) {
+			delete goog.global['__loadFlashObject_callbacks'][callbackSlot];
 			// Note that Flash might still try to call the callback function,
 			// if it finishes loading after we cancelled.  This is not a
 			// problem because the thrown `blah is undefined` Error
@@ -111,13 +111,13 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
 	// anyway, the applet viewport is replaced with a "Missing Plug-In" text.
 
 	var appletId;
-	random = '_' + goog.string.getRandomString();
-	goog.asserts.assert(/^([_0-9a-zA-Z]*)$/.test(random),
-		"loadFlashObject: random has bad chars");
+	callbackSlot = '_' + goog.string.getRandomString();
+	goog.asserts.assert(/^([_0-9a-zA-Z]*)$/.test(callbackSlot),
+		"loadFlashObject: callbackSlot has bad chars");
 
 	var flashLoadedD = new goog.async.Deferred(loadFlashObjectCanceller);
 
-	goog.global['__loadFlashObject_callbacks'][random] = function() {
+	goog.global['__loadFlashObject_callbacks'][callbackSlot] = function() {
 		// setTimeout to get out from under the Flash->JS stack frame.
 		clock.setTimeout(function() {
 			clearCallbackFunction();
@@ -126,7 +126,7 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
 		}, 0);
 	}
 
-	var eiCallString = '__loadFlashObject_callbacks["' + random + '"]()';
+	var eiCallString = '__loadFlashObject_callbacks["' + callbackSlot + '"]()';
 	flashObject.setFlashVar('onloadcallback', eiCallString);
 	appletId = flashObject.getId();
 	flashObject.render(renderInto);
