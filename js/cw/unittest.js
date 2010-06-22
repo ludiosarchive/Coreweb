@@ -38,8 +38,6 @@ goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.Error');
-goog.require('goog.dom');
-goog.require('goog.userAgent.flash');
 goog.require('goog.debug.Console'); // needed for TestRunnerPage
 goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
 
@@ -1610,84 +1608,6 @@ cw.UnitTest.installMonkeys = function() {
 
 	installD.callback(null);
 	return installD;
-};
-
-
-/**
- * Take a {@link goog.ui.media.FlashObject} and return a Deferred that
- * fires with the actual Flash element after it has loaded.  This
- * function assumes that the Flash applet takes an `onloadcallback`
- * flashvar and calls that function via ExternalInterface.
- *
- * This can be safely used to load multiple Flash objects at the same time.
- *
- * @param {!goog.ui.media.FlashObject} flashObject
- * @param {string} minVersion Minimum Flash version required.
- * @param {!Element} renderInto The element to render the flashObject into.
- *
- * @return {!goog.async.Deferred} Deferred that fires with a reference to the
- * Flash element.
- */
-cw.UnitTest.loadFlashObject = function(flashObject, minVersion, renderInto) {
-	if(goog.userAgent.GECKO && !goog.userAgent.isVersion('1.8.1.20')) {
-		// Firefox 2.0.0.0 + Flash has a serious issue where, sometime
-		// in TestRealFlash (perhaps when the .swf is loaded or when
-		// ExternalInterface calls are made?), Firefox's error hierarchy
-		// is corrupted.
-
-		// For example, before the corruption, this will alert true, and
-		// after the corruption, it will alert false:
-		// javascript:try{null.hi}catch(e){alert(e instanceof Error)}
-
-		// The problem also affects our own Error classes like cw.UnitTest.SkipTest.
-
-		// Instead of worrying about 3.5 year old browsers, we just don't
-		// intend to use Flash on them. One untested alternative would
-		// be to mitigate this by loading Flash in an iframe.
-
-		// Note: Firefox 2.0.0.20 + Flash 10.0 r32 is known good.
-		// Skip tests if Firefox version is < 2.0.0.20, because we can't
-		// be bothered to test the ancient versions anyway.
-		throw new cw.UnitTest.SkipTest(
-			"Flash corrupts Error hierarchy in Firefox 2.0.0.0; " +
-			"tests disabled for < 2.0.0.20");
-	}
-
-	if(!goog.userAgent.flash.isVersion(minVersion)) {
-		throw new cw.UnitTest.SkipTest(
-			"This test needs Flash player plugin, version " + minVersion + "+");
-	}
-
-	var appletId;
-	var flashLoadedD = new goog.async.Deferred();
-	var timeout = null;
-	var callbackFunctionName =
-		'__cw_UnitTest_loadFlashObject_callback_' + goog.string.getRandomString();
-
-	goog.global[callbackFunctionName] = function() {
-		// setTimeout to get out from under the Flash->JS stack frame.
-		goog.global['window'].setTimeout(function() {
-			var applet = goog.dom.getElement(appletId);
-			cw.UnitTest.logger.info(
-				"loadFlashObject: appletId: " + cw.repr.repr([appletId]) +
-				", applet:" + applet);
-			goog.global[callbackFunctionName] = undefined; // Not `delete' because IE can't
-			if(timeout !== null) {
-				goog.global['window'].clearTimeout(timeout);
-			}
-			flashLoadedD.callback(applet);
-		}, 0);
-	}
-
-	timeout = goog.global['window'].setTimeout(function() {
-		flashLoadedD.errback(new Error("loadFlashObject: hit timeout"));
-	}, 8000);
-
-	flashObject.setFlashVar('onloadcallback', callbackFunctionName);
-	appletId = flashObject.getId();
-	flashObject.render(renderInto);
-
-	return flashLoadedD;
 };
 
 

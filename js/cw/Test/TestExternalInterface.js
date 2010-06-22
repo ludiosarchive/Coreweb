@@ -9,6 +9,7 @@ goog.require('goog.dom');
 goog.require('goog.async.Deferred');
 goog.require('goog.userAgent');
 goog.require('goog.ui.media.FlashObject');
+goog.require('cw.loadflash');
 goog.require('cw.eq');
 goog.require('cw.repr');
 goog.require('cw.externalinterface');
@@ -211,18 +212,33 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		if(existingApplet) {
 			self._object = existingApplet;
 			return goog.async.Deferred.succeed(null);
-		} else {
+		} else if(existingApplet === null) {
+			throw new cw.UnitTest.SkipTest("Previous attempt to load applet failed.");
+		} else { // === 'undefined'
 			var flashObject = new goog.ui.media.FlashObject(
 				"/@testres_Coreweb/TestExternalInterface.swf");
 			flashObject.setBackgroundColor("#777777");
-			flashObject.setSize(30, 30);
+			// Make it wide so that you can read the text on the Chrome plugin
+			// shim that says "Plugin Missing".
+			flashObject.setSize(300, 30);
 			flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
 
-			var d = cw.UnitTest.loadFlashObject(flashObject, '9', document.body);
-			d.addCallback(function(applet) {
-				self._object = applet;
-				cw.Test.TestExternalInterface.__existingFlashApplet = applet;
-			});
+			var d = cw.loadflash.loadFlashObjectWithTimeout(
+				goog.global['window'], flashObject, '9', document.body, 8000/* timeout */);
+			d.addCallbacks(
+				function(applet) {
+					self._object = applet;
+					cw.Test.TestExternalInterface.__existingFlashApplet = applet;
+				},
+				function(err) {
+					cw.Test.TestExternalInterface.__existingFlashApplet = null;
+					if(err instanceof cw.loadflash.FlashLoadFailed) {
+						throw new cw.UnitTest.SkipTest(err.message);
+					} else {
+						// Timed out, or other Error
+						throw err;
+					}
+				});
 			return d;
 		}
 	},

@@ -10,6 +10,7 @@ goog.require('cw.eventual');
 goog.require('cw.externalinterface');
 goog.require('cw.firebugEmptyObjects');
 goog.require('cw.globalprops');
+goog.require('cw.loadflash');
 goog.require('cw.math');
 goog.require('cw.objsize');
 goog.require('cw.repr');
