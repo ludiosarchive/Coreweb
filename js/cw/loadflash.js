@@ -111,9 +111,9 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
 	// anyway, the applet viewport is replaced with a "Missing Plug-In" text.
 
 	var appletId;
-	random = goog.string.getRandomString();
-	goog.asserts.assert(!goog.string.contains(random, '"'),
-		"loadFlashObject: random has double quote");
+	random = '_' + goog.string.getRandomString();
+	goog.asserts.assert(/^([_0-9a-zA-Z]*)$/.test(random),
+		"loadFlashObject: random has bad chars");
 
 	var flashLoadedD = new goog.async.Deferred(loadFlashObjectCanceller);
 
