@@ -8,7 +8,6 @@ goog.require('cw.UnitTest');
 goog.require('goog.dom');
 goog.require('goog.async.Deferred');
 goog.require('goog.userAgent');
-goog.require('goog.userAgent.flash');
 goog.require('goog.ui.media.FlashObject');
 goog.require('cw.eq');
 goog.require('cw.repr');
@@ -207,75 +206,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').methods(
 
 	function setUp(self) {
-		if(goog.userAgent.GECKO && !goog.userAgent.isVersion('1.8.1.20')) {
-			// Firefox 2.0.0.0 + Flash has a serious issue where, sometime
-			// in TestRealFlash (perhaps when the .swf is loaded or when
-			// ExternalInterface calls are made?), Firefox's error hierarchy
-			// is corrupted.
-
-			// For example, before the corruption, this will alert true, and
-			// after the corruption, it will alert false:
-			// javascript:try{null.hi}catch(e){alert(e instanceof Error)}
-
-			// The problem also affects our own Error classes like cw.UnitTest.SkipTest.
-
-			// Instead of worrying about 3.5 year old browsers, we just don't
-			// intend to use Flash on them. One untested alternative would
-			// be to mitigate this by loading Flash in an iframe.
-
-			// Note: Firefox 2.0.0.20 + Flash 10.0 r32 is known good.
-			// Skip tests if Firefox version is < 2.0.0.20, because we can't
-			// be bothered to test the ancient versions anyway.
-			throw new cw.UnitTest.SkipTest(
-				"Flash corrupts Error hierarchy in Firefox 2.0.0.0; " +
-				"tests disabled for < 2.0.0.20");
-		}
-
-		if(!goog.userAgent.flash.isVersion('9')) {
-			throw new cw.UnitTest.SkipTest("This test needs Flash player plugin, version 9+");
-		}
-
 		// The .swf applet persists between tests.
 		var existingApplet = cw.Test.TestExternalInterface.__existingFlashApplet;
 		if(existingApplet) {
 			self._object = existingApplet;
 			return goog.async.Deferred.succeed(null);
+		} else {
+			var flashObject = new goog.ui.media.FlashObject(
+				"/@testres_Coreweb/TestExternalInterface.swf");
+			flashObject.setBackgroundColor("#777777");
+			flashObject.setSize(30, 30);
+			flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
+
+			var d = cw.UnitTest.loadFlashObject(flashObject, '9', document.body);
+			d.addCallback(function(applet) {
+				self._object = applet;
+				cw.Test.TestExternalInterface.__existingFlashApplet = applet;
+			});
+			return d;
 		}
-
-		var div = goog.dom.createDom('div', {"id": "TestExternalInterface"});
-		goog.dom.appendChild(document.body, div);
-
-		var flashLoaded = new goog.async.Deferred();
-		var timeout = null;
-		goog.global['__CW_TestRealFlash_ready'] = function() {
-			// setTimeout to get out from under the Flash->JS stack frame.
-			goog.global['window'].setTimeout(function() {
-				self._object = goog.dom.getElement(self._objectId);
-				cw.Test.TestExternalInterface.__existingFlashApplet = self._object;
-				cw.UnitTest.logger.info(
-					"TestExternalInterface: _objectId: " + cw.repr.repr([self._objectId]) +
-					", _object:" + self._object);
-				goog.global['__CW_TestRealFlash_ready'] = undefined; // Not `delete' because IE can't
-				if(timeout !== null) {
-					goog.global['window'].clearTimeout(timeout);
-				}
-				flashLoaded.callback(null);
-			}, 0);
-		}
-		timeout = goog.global['window'].setTimeout(function() {
-			flashLoaded.errback(new Error("hit timeout"));
-		}, 8000);
-
-		var flashObject = new goog.ui.media.FlashObject(
-			"/@testres_Coreweb/TestExternalInterface.swf");
-		flashObject.setBackgroundColor("#777777");
-		flashObject.setSize(30, 30);
-		flashObject.setFlashVar('onloadcallback', '__CW_TestRealFlash_ready');
-		flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
-		self._objectId = flashObject.getId();
-		flashObject.render(div);
-
-		return flashLoaded;
 	},
 
 
