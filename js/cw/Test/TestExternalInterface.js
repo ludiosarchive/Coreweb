@@ -236,11 +236,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		}
 
 		// The .swf applet persists between tests.
-		var existingFlashDiv = goog.dom.getElement("TestExternalInterface");
-		if(existingFlashDiv) {
-			// TODO: grab the object by id instead of relying on the DOM
-			// to be consistent.
-			self._object = existingFlashDiv.firstChild.firstChild;
+		var existingApplet = cw.Test.TestExternalInterface.__existingFlashApplet;
+		if(existingApplet) {
+			self._object = existingApplet;
 			return goog.async.Deferred.succeed(null);
 		}
 
@@ -253,6 +251,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 			// setTimeout to get out from under the Flash->JS stack frame.
 			goog.global['window'].setTimeout(function() {
 				self._object = goog.dom.getElement(self._objectId);
+				cw.Test.TestExternalInterface.__existingFlashApplet = self._object;
 				cw.UnitTest.logger.info(
 					"TestExternalInterface: _objectId: " + cw.repr.repr([self._objectId]) +
 					", _object:" + self._object);
