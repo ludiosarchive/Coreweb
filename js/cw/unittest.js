@@ -1052,7 +1052,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
-		cw.UnitTest.logger.info('Starting ' + self + ' ' + self._methodName);
+		cw.UnitTest.logger.info('Starting ' + self.id());
 
 		result.startTest(self);
 
