@@ -268,7 +268,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 
 		var flashObject = new goog.ui.media.FlashObject(
 			"/@testres_Coreweb/TestExternalInterface.swf");
-		flashObject.setBackgroundColor("#ffffff");
+		flashObject.setBackgroundColor("#777777");
 		flashObject.setSize(30, 30);
 		flashObject.setFlashVar('onloadcallback', '__CW_TestRealFlash_ready');
 		flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
