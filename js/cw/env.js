@@ -127,7 +127,8 @@ cw.env.probeActiveXObjects = function() {
 		'Msxml2.XMLHTTP',
 		'Msxml2.XMLHTTP.3.0',
 		'Msxml2.XMLHTTP.4.0',
-		'Msxml2.XMLHTTP.5.0',
+		// DO NOT USE - it pops up infobar in IE8 on Server 2008 R2.
+		//'Msxml2.XMLHTTP.5.0',
 		'Msxml2.XMLHTTP.6.0',
 		'Msxml2.DOMDocument',
 		 /* Instantiating htmlfile probably adds 16-30ms to the collection
@@ -368,7 +369,7 @@ cw.env.makeReport = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100617.0441;
+	report['_version'] = 20100623.2236;
 
 	report['_type'] = 'browser-environment-initial';
 
