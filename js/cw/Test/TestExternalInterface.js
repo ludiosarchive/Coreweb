@@ -324,6 +324,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	 * Test that a big range of unicode codepoints makes it through JS->Flash->JS unaltered.
 	 */
 	function test_mirrorUnicodeRange(self) {
+		if(goog.userAgent.IE && goog.userAgent.isVersion('9')) {
+			throw Error("failing early, IE9 seems to not get a response.");
+		}
 		var nums = [];
 		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range. This isn't a maximally-thorough test.
 			nums.push(i);
