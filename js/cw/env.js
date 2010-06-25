@@ -353,6 +353,28 @@ cw.env.filterWindow = function(orig) {
 
 
 /**
+ * Return an Object containing the properties of the
+ * {@code window.location} object.
+ * @return {!Object}
+ */
+cw.env.getLocation = function() {
+	var out = {};
+	var props = ['hash', 'host', 'hostname', 'href', 'pathname', 'port', 'protocol', 'search'];
+	var n = props.length;
+	while(n--) {
+		var k = props[n];
+		try {
+			out[k] = goog.global.location[k];
+		} catch(e) {
+			// No errors expected, but catch them anyway.
+			out[k] = ['ERROR', goog.debug.normalizeErrorObject(e)];
+		}
+	}
+	return out;
+};
+
+
+/**
  * Gather a lot of information from the browser environment
  * and return an object.
  *
@@ -369,7 +391,7 @@ cw.env.makeReport = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100623.2236;
+	report['_version'] = 20100625.0010;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -402,6 +424,10 @@ cw.env.makeReport = function() {
 
 	if(goog.global.document) {
 		report['document'] = cw.env.filterObject(document);
+	}
+
+	if(goog.global.location) {
+		report['location'] = cw.env.getLocation();
 	}
 
 	if(goog.global.screen) {
