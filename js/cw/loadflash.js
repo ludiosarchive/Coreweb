@@ -6,11 +6,11 @@
 goog.provide('cw.loadflash');
 
 goog.require('cw.clock');
+goog.require('cw.string');
 goog.require('goog.async.Deferred');
 goog.require('goog.asserts');
 goog.require('goog.debug.Error');
 goog.require('goog.dom');
-goog.require('goog.string');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.flash');
 goog.require('goog.ui.media.FlashObject');
@@ -111,7 +111,7 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
 	// anyway, the applet viewport is replaced with a "Missing Plug-In" text.
 
 	var appletId;
-	callbackSlot = '_' + goog.string.getRandomString();
+	callbackSlot = '_' + cw.string.getCleanRandomString();
 	goog.asserts.assert(/^([_0-9a-zA-Z]*)$/.test(callbackSlot),
 		"loadFlashObject: callbackSlot has bad chars");
 

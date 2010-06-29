@@ -77,6 +77,23 @@ cw.string.startsWithAlt = function(str, prefix) {
 
 
 /**
+ * Returns a string with at least 63 bits of randomness.  Unlike
+ * {@link goog.string.getRandomString}, returned strings never contain
+ * a dash ("-").
+ *
+ * Doesn't trust Javascript's random function entirely.  Uses a combination of
+ * random and current timestamp, and then encodes the string in base-36 to
+ * make it shorter.
+ *
+ * @return {string} A random string, e.g. "sn1s7vb4gcic".
+ */
+cw.string.getCleanRandomString = function() {
+	return Math.floor(Math.random() * 2147483648).toString(36) +
+		Math.abs(Math.floor(Math.random() * 2147483648) ^ goog.now()).toString(36);
+};
+
+
+/**
  * Return the string with the last N characters truncated.
  *
  * @param {string} str String to truncate
