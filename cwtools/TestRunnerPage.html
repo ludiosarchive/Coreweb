@@ -33,7 +33,7 @@ TestRunnerPage.timers = {};
 TestRunnerPage.modules = {{ moduleString }};
 
 if(TestRunnerPage.modules.length == 0) {
-	throw new Error("TestRunnerPage: 0 modules?");
+	throw Error("TestRunnerPage: 0 modules?");
 }
 
 /**
@@ -82,7 +82,7 @@ TestRunnerPage.moduleNamesToObjects = function(moduleNames) {
 	for(var i=0; i < moduleNames.length; i++) {
 		var obj = goog.getObjectByName(moduleNames[i]);
 		if(obj == null) {
-			throw new Error("Could not get module object for " +
+			throw Error("Could not get module object for " +
 				moduleNames[i] + " - check your goog.provide lines?");
 		}
 		objects.push(obj);
@@ -121,7 +121,7 @@ TestRunnerPage._abortExecution = false;
 <script src="/JSPATH/nongoog_deps.js"></script>
 <script>
 if(TestRunnerPage._abortExecution) {
-	throw new Error("[0] " + TestRunnerPage._abortMessage);
+	throw Error("[0] " + TestRunnerPage._abortMessage);
 }
 TestRunnerPage._abortExecution = true;
 
@@ -136,7 +136,7 @@ TestRunnerPage._abortExecution = false;
 </script>
 <script>
 if(TestRunnerPage._abortExecution) {
-	throw new Error("[1] " + TestRunnerPage._abortMessage);
+	throw Error("[1] " + TestRunnerPage._abortMessage);
 }
 
 TestRunnerPage.timers.scriptLoadEnd = +new Date; /* scripts end */
