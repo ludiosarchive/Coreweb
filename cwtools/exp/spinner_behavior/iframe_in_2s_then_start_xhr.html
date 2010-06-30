@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="charset" content="text/html; charset=utf-8">
+</head>
+<body>
+iframe loading starts in 2 seconds and takes 4 seconds to finish.<br>
+XHR starts in 4 seconds and takes 20 seconds to finish.<br><br>
+
+The spinner <em>should</em> spin for just 4 seconds (from seconds 2 to 6).
+It should not spin for 22 seconds (from seconds 2 to 24).
+
+<noscript><strong><br><br>JS is off. This needs JavaScript enabled to work.</strong></noscript>
+<br><br>
+<div id="log"></div>
+<script>
+function insertImage() {
+	// An image doesn't seem to even make the "stop loading" icon appear
+	// in Safari 5.0, so use an iframe instead.
+	//var iframe = document.createElement("img");
+	var iframe = document.createElement("iframe");
+	iframe.src = "/analytics/wait_resource/?wait=4&zx=" + Math.random();
+	iframe.width = "16";
+	iframe.height = "16";
+	document.body.appendChild(iframe);
+	document.getElementById('log').innerHTML += 'Inserted iframe...<br>';
+}
+
+function makeRequest() {
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/analytics/wait_resource/?wait=20', true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4) {
+			document.getElementById('log').innerHTML += 'Got response; done.';
+		}
+	}
+	xhr.send('POST body is ignored');
+	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
+}
+setTimeout(insertImage, 2000);
+setTimeout(makeRequest, 4000);
+</script>
+<hr>
+Results observed 2010-06-30:<br>
+Chrome 5.0.375.86 beta <b>spins for 4 sec</b><br>
+Chromium 6.0.447.0 (50587) <b>spins for 4 sec</b><br>
+Safari 4.0.4 (Win) <b>spins for 4 sec</b><br>
+Safari 5.0 (Win) <b>spins for 4 sec</b> (not really spinning, just a "stop" button)<br>
+Firefox 3.7a6pre <b>spins for 4 sec</b><br>
+IE8, IE8 in IE7 mode <b>spin for 4 sec</b><br>
+Opera 10.53 <b>spins for 4 sec</b><br><br>
+</body>
+</html>
