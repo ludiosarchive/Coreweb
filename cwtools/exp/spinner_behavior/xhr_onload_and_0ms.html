@@ -17,8 +17,6 @@ function onLoadFired() {
 	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
 }
 
-window.onload = onLoadFired;
-
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', '/analytics/wait_resource/?wait=4', true);
@@ -30,7 +28,11 @@ function makeRequest() {
 	xhr.send('POST body is ignored');
 	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
 }
-window.onload = function() { setTimeout(makeRequest, 0) };
+
+window.onload = function() {
+	onLoadFired();
+	setTimeout(makeRequest, 0);
+};
 </script>
 <hr>
 Results observed 2010-04-15:<br>
@@ -40,5 +42,7 @@ Safari 4.0.4 (Win) <b>spins for 4 sec</b> (if you clicked reload icon) or <b>doe
 Firefox 3.6.3 <b>does not spin</b><br>
 IE7, IE8, IE8 in IE7 mode <b>does not spin</b><br>
 Opera 10.51 <b>does not spin</b><br><br>
+Results observed 2010-06-30:<br>
+Safari 5.0 (Win) <b>spins for 4 sec</b> (if you clicked reload icon) or <b>does not spin</b> (if you hit enter in the URL bar)<br>
 </body>
 </html>

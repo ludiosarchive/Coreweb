@@ -17,8 +17,6 @@ function onLoadFired() {
 	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
 }
 
-window.onload = onLoadFired;
-
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', '/analytics/wait_resource/?wait=4', true);
@@ -30,7 +28,11 @@ function makeRequest() {
 	xhr.send('POST body is ignored');
 	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
 }
-window.onload = makeRequest;
+
+window.onload = function() {
+	onLoadFired();
+	makeRequest();
+}
 </script>
 <hr>
 Results observed 2010-04-15:<br>
