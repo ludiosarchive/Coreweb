@@ -2,6 +2,9 @@
 <html>
 <head>
 <meta http-equiv="charset" content="text/html; charset=utf-8">
+<style>
+#log { background-color: #eee; }
+</style>
 </head>
 <body>
 This page starts an XHR request in 2 seconds (regardless of page load status), which
@@ -12,6 +15,12 @@ The spinner <em>should</em> spin for just 4 seconds (not 22 seconds).
 <div id="log"></div>
 <img src="/analytics/wait_resource/?wait=4" width=1 height=1>
 <script>
+function onLoadFired() {
+	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
+}
+
+window.onload = onLoadFired;
+
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', '/analytics/wait_resource/?wait=20', true);

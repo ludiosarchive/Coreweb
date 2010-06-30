@@ -2,6 +2,9 @@
 <html>
 <head>
 <meta http-equiv="charset" content="text/html; charset=utf-8">
+<style>
+#log { background-color: #eee; }
+</style>
 </head>
 <body>
 iframe loading starts in 2 seconds and takes 4 seconds to finish.<br>
@@ -14,6 +17,12 @@ It should not spin for 22 seconds (from seconds 2 to 24).
 <br><br>
 <div id="log"></div>
 <script>
+function onLoadFired() {
+	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
+}
+
+window.onload = onLoadFired;
+
 function insertImage() {
 	// An image doesn't seem to even make the "stop loading" icon appear
 	// in Safari 5.0, so use an iframe instead.
@@ -23,7 +32,7 @@ function insertImage() {
 	iframe.width = "16";
 	iframe.height = "16";
 	document.body.appendChild(iframe);
-	document.getElementById('log').innerHTML += 'Inserted iframe...<br>';
+	document.getElementById('log').innerHTML += 'Inserted iframe.<br>';
 }
 
 function makeRequest() {
