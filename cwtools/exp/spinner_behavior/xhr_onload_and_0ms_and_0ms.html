@@ -7,7 +7,7 @@
 </style>
 </head>
 <body>
-This page makes an XMLHttpRequest after two consecutive setTimeout(..., 0)s fire,
+This page makes an XMLHttpRequest after five consecutive setTimeout(..., 9)s fire,
 which is set up in the window's <code>onload</code> handler. The requested
 resource takes 4 seconds to load.
 <noscript><strong><br><br>JS is off. This needs JavaScript enabled to work.</strong></noscript>
@@ -30,14 +30,29 @@ function makeRequest() {
 	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
 }
 
+var countdown = 5;
+
+function continueCountdown() {
+	document.getElementById('log').innerHTML += 'Continuing countdown; readyState: ' + document.readyState + '<br>';
+	if(!countdown) {
+		makeRequest();
+		return;
+	}
+	countdown--;
+	setTimeout(continueCountdown, 9);
+}
+
 window.onload = function() {
 	onLoadFired();
-	setTimeout(function() { setTimeout(makeRequest, 0); }, 0);
+	continueCountdown();
 };
 </script>
 <hr>
 Results observed 2010-06-30:<br>
 
-Safari 5.0 (Win) <b>does not spin 90% of the time</b>, even if you clicked the reload icon. The other 10%, it spins 4 seconds.<br>
+For countdown=2 and timeout=0, Safari 5.0 (Win) <b>does not spin 90% of the time</b>, even if you clicked the reload icon. The other 10%, it spins 4 seconds.<br>
+For countdown=5 and timeout=9, Safari 5.0 (Win) <b>does not spin</b>.<br><br>
+
+(View and edit the page source)
 </body>
 </html>
