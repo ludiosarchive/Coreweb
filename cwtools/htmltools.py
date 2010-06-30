@@ -165,7 +165,7 @@ class LiveBox(static.File):
 	will be not be processed with jinja2.
 	"""
 	def __init__(self, basePath, JSPATH, *args, **kwargs):
-		static.File.__init__(self, basePath, *args, **kwargs)
+		static.File.__init__(self, basePath)
 		self._basePath = FilePath(basePath)
 		self._JSPATH = JSPATH
 
