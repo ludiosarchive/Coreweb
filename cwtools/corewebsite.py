@@ -8,7 +8,7 @@ from twisted.python.filepath import FilePath
 from cwtools import testing, htmltools, jsimp
 from ecmaster import closurecompiler
 from lytics.endpoint import Analytics
-from webmagic.untwist import BetterResource, BetterFile
+from webmagic.untwist import BetterResource, BetterFile, ConnectionTrackingSite
 
 
 class Compiler(BetterResource):
@@ -77,5 +77,5 @@ class Root(BetterResource):
 
 def makeSite(reactor, testPackages):
 	root = Root(reactor, testPackages)
-	site = server.Site(root, clock=reactor)
+	site = ConnectionTrackingSite(root, clock=reactor)
 	return site
