@@ -34,20 +34,20 @@ goog.require('goog.userAgent');
 goog.require('goog.asserts');
 goog.require('goog.testing.stacktrace');
 goog.require('goog.async.Deferred');
-goog.require('goog.async.DeferredList');
 goog.require('goog.debug');
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.Error');
-goog.require('goog.debug.Console'); // needed for TestRunnerPage
-goog.require('goog.debug.HtmlFormatter'); // needed for TestRunnerPage
 
 
 // anti-clobbering for JScript
 (function(){
 
 
+/**
+ * @type {!goog.debug.Logger}
+ * @private
+ */
 cw.UnitTest.logger = goog.debug.Logger.getLogger('cw.UnitTest');
-cw.UnitTest.logger.setLevel(goog.debug.Logger.Level.ALL);
 
 
 /**

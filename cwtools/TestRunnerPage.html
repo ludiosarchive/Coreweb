@@ -120,6 +120,12 @@ TestRunnerPage._abortExecution = false;
 <script src="/JSPATH/closure/goog/base.js"></script>
 <script src="/JSPATH/nongoog_deps.js"></script>
 <script>
+goog.require('goog.debug.Logger');
+goog.require('goog.debug.LogManager');
+goog.require('goog.debug.Console');
+goog.require('goog.debug.HtmlFormatter');
+</script>
+<script>
 if(TestRunnerPage._abortExecution) {
 	throw Error("[0] " + TestRunnerPage._abortMessage);
 }
@@ -161,13 +167,10 @@ TestRunnerPage._htmlLogOutput = function(logRecord) {
 	span.innerHTML = htmlString;
 	TestRunnerPage._debugLogDiv.appendChild(span);
 }
+goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.ALL);
 goog.debug.LogManager.getRoot().addHandler(TestRunnerPage._htmlLogOutput);
 
-
-// This assumes goog.debug.Logger was included in scriptContent. Maybe a bad assumption.
-
 TestRunnerPage.logger = goog.debug.Logger.getLogger('TestRunnerPage');
-TestRunnerPage.logger.setLevel(goog.debug.Logger.Level.ALL);
 
 TestRunnerPage.logger.info(
 	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +
