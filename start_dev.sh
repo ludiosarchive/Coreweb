@@ -2,6 +2,7 @@
 export JSPATH="$HOME/JSPATH"
 export PYTHONPATH=$HOME/Projects/Coreweb:$HOME/Projects/Webmagic:$HOME/Projects/Ecmaster
 export PYRELOADING=1
+export INTERFACE="192.168.0.119"
 
 echo "Using `which twistd`"
 
@@ -10,4 +11,5 @@ looper python -N \
 -W 'ignore:Not importing directory' \
 -W 'ignore:the sets module is deprecated' \
 `which twistd` -n cwrun \
--p cw.Test -a tcp:9090:interface=0 -b ssl:443:privateKey=dev_keys/x.linuxwan.com-key.pem:interface=0
+-p cw.Test -a tcp:9090:interface=$INTERFACE \
+-b ssl:443:privateKey=dev_keys/x.linuxwan.com-key.pem:interface=$INTERFACE \
