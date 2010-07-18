@@ -26,3 +26,4 @@ goog.require('cw.net.SackFrame');
 goog.require('cw.net.UsableXDR');
 goog.require('cw.net.ResponseTextDecoder');
 goog.require('cw.net.demo.loadFlashConnector');
+goog.require('cw.net.setupXDRFrame');
