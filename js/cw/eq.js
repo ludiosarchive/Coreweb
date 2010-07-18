@@ -21,7 +21,7 @@ cw.eq.IT_IS_PLAIN_ = goog.functions.TRUE;
 
 
 /**
- * Mark {@code object} as a plain object andreturn the mutated object.
+ * Mark {@code object} as a plain object and return the mutated object.
  *
  * @param {!Object} object
  * @return {!Object} The mutated object
