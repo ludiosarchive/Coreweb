@@ -668,6 +668,32 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 
 
 
+/**
+ * Notes for any future development of JumpDetectingClock:
+ *
+ * 1) setTimeout / setInterval is a bad API, because:
+ * 	-	you cannot pass scope object, or arguments
+ * 	-	setTimeout(func, 0) is really 3ms - 16ms depending on the browser,
+ * 		and it's not implied that it's allowed to use a "faster" method
+ * 		like an asynchronous postMessage.
+ * 	We should probably make our own API.
+ *
+ * 2) The skeleton code below was designed only to correct for backwards
+ * 		time jumps that prevent timeouts from firing at all.  Perhaps we
+ * 		also need to work around timeouts firing too early, by splitting a
+ * 		timeout into many subtimeouts.  In fact, we could even reuse
+ * 		JumpDetector's interval.
+ *
+ * 3) JumpDetectingClock not be worth it in the first place, because by using
+ * 		more frequent timeouts, we're draining many users' batteries, just to
+ * 		prevent a very rare problem.  We might want to use it only for
+ * 		critical applications, demos, and when we know we're not running
+ * 		on battery power.  Or we might selectively enable JumpDetector
+ * 		at critical moments - for example, when a computer is waking up
+ * 		from sleep (and might very soon adjust its clock).  At least, if we
+ * 		can even detect these "critical moments".
+ */
+
 // TODO XXX: JumpDetectingClock is going to want to check *all*
 // of the timers when prodded, because perhaps just one got
 // mischeduled by the browser.
