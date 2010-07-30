@@ -135,4 +135,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'WithoutLastTests').methods(
 
 
 
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'Regexps').methods(
+
+	function test_strictNonNegIntegerRe(self) {
+		self.assertTrue(cw.string.strictNonNegIntegerRe.test('0'));
+		self.assertTrue(cw.string.strictNonNegIntegerRe.test('1'));
+		self.assertTrue(cw.string.strictNonNegIntegerRe.test('10'));
+		self.assertFalse(cw.string.strictNonNegIntegerRe.test('-0'));
+		self.assertFalse(cw.string.strictNonNegIntegerRe.test('03'));
+		self.assertFalse(cw.string.strictNonNegIntegerRe.test('033'));
+		self.assertFalse(cw.string.strictNonNegIntegerRe.test('00'));
+	}
+);
+
+
+
 })(); // end anti-clobbering for JScript
