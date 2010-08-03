@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+</head>
+<body>
+
+<div id="doc">
+See <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=577648">https://bugzilla.mozilla.org/show_bug.cgi?id=577648</a>.<br><br>
+</div>
+
+<div id="log">Is caller the `doThing` method?</div>
+
+<script>
+
+var checkCaller = function(me) {
+	var caller = arguments.callee.caller;
+	var callerIsMethod = (caller === me['doThing']);
+	document.write(callerIsMethod);
+};
+
+var MyObj = function() {
+};
+
+MyObj.prototype.doThing = function() {
+	checkCaller(this);
+};
+
+(new MyObj()).doThing();
+
+</script>
+</body>
+</html>
