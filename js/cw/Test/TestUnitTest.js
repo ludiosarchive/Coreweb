@@ -412,10 +412,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 
 
 	/**
-	 * Check that issubclass returns true when the first parameter is a subclass
-	 * of the second, and false otherwise.
+	 * Check that subclassOf returns true when the first parameter is a
+	 * subclass of the second, and false otherwise.
 	 */
-	function test_issubclass(self) {
+	function test_subclassOf(self) {
 		self.assertTrue(
 			self.__class__.subclassOf(self.__class__),
 			"Thing should subclass itself");
