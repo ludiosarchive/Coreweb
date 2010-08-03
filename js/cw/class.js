@@ -120,8 +120,17 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 	}
 
 	/**
-	 * upcall is similar to Python super(). Use upcall like this:
-	 * cw.Defer.FirstError.upcall(self, '__init__', []);
+	 * upcall is similar to Python super().  Use upcall like this, with an
+	 * explicit class name:
+	 * 	cw.Defer.FirstError.upcall(self, '__init__', []);
+	 *
+	 * Do *not* use __class__ when upcalling:
+	 * 	 WRONG: self.__class__.upcall(self, '__init__', []);
+	 * because you will have problems when the inheritance level is higher
+	 * than 1.  __class__ refers to the instance's class, not the class where
+	 * the method is defined.  Thus you may see infinite recursion if you
+	 * use self.__class__.upcall(...)
+	 *
 	 * @return {*}
 	 */
 	subClass.upcall = function _cw_Class_subClass_upcall(otherThis, methodName, funcArgs) {

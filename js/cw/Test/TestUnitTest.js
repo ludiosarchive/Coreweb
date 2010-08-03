@@ -428,7 +428,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 
 cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestD').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.TestCaseTestD.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DMock;
 	}
 );
@@ -437,7 +437,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestD'
 
 cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestDS').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.TestCaseTestDS.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DSMock;
 	}
 );
@@ -627,7 +627,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest ,'LoaderTests').methods(
 
 cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsD').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.LoaderTestsD.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DMock;
 	}
 );
@@ -636,7 +636,7 @@ cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsD').
 
 cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsDS').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.LoaderTestsDS.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DSMock;
 	}
 );
@@ -753,7 +753,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 
 cw.Test.TestUnitTest.RunnerTest.subclass(cw.Test.TestUnitTest, 'RunnerTestD').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.RunnerTestD.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DMock;
 	}
 );
@@ -762,7 +762,7 @@ cw.Test.TestUnitTest.RunnerTest.subclass(cw.Test.TestUnitTest, 'RunnerTestD').me
 
 cw.Test.TestUnitTest.RunnerTest.subclass(cw.Test.TestUnitTest, 'RunnerTestDS').methods(
 	function setUp(self) {
-		self.__class__.upcall(self, 'setUp', []);
+		cw.Test.TestUnitTest.RunnerTestDS.upcall(self, 'setUp', []);
 		self.mockModule = cw.Test.DSMock;
 	}
 );
