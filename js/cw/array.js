@@ -50,8 +50,10 @@ cw.array.uniq = function(a) {
 
 	// slice to copy
 	var sorted = a.slice(0).sort(function(a, b) {
-		goog.asserts.assert(typeToPrefix[goog.typeOf(a)] !== undefined, "no typeToPrefix for " + goog.typeOf(a));
-		goog.asserts.assert(typeToPrefix[goog.typeOf(b)] !== undefined, "no typeToPrefix for " + goog.typeOf(b));
+		goog.asserts.assert(typeToPrefix[goog.typeOf(a)] !== undefined,
+			"no typeToPrefix for " + goog.typeOf(a));
+		goog.asserts.assert(typeToPrefix[goog.typeOf(b)] !== undefined,
+			"no typeToPrefix for " + goog.typeOf(b));
 		return (
 			typeToPrefix[goog.typeOf(a)] + a <
 			typeToPrefix[goog.typeOf(b)] + b) ? -1 : 1;
