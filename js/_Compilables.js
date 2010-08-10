@@ -27,3 +27,5 @@ goog.require('cw.net.UsableXDR');
 goog.require('cw.net.ResponseTextBencodeDecoder');
 goog.require('cw.net.demo.loadFlashConnector');
 goog.require('cw.net.setupXDRFrame');
+// Browsernode
+goog.require('whiteboard');
