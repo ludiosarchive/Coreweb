@@ -786,7 +786,7 @@ cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 			this.clock.clearTimeout(Number(ticket));
 		}
 	}
-	1/0
+	throw Error("NIY");
 };
 
 /**
@@ -802,8 +802,9 @@ cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
 	// and user code assumes that timeouts are called directly from some
 	// kind of event loop (never under its current stack).
 
-	var adjustment = 1/0;
-	this.rescheduleCalls_(adjustment);
+	throw Error("NIY");
+	//var adjustment = 1/0;
+	//this.rescheduleCalls_(adjustment);
 };
 
 /**
