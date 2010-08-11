@@ -370,12 +370,15 @@ cw.clock.IWindowTimeIntervalOptional = goog.typedef;
 
 
 /**
- * JumpDetector's event types
+ * JumpDetector's event types.
+ *
+ * {@code getUniqueId} is used to allow Compiler to obfuscate the names.
+ * See "Closure: The Definitive Guide", heading "setIdGenerators".
  * @enum {string}
  */
-cw.clock.EventType = { // TODO: maybe obfuscate these names
-	TIME_JUMP: 'time_jump',
-	TIME_COLLECTION_OVERFLOW: 'time_collection_overflow'
+cw.clock.EventType = {
+	TIME_JUMP: goog.events.getUniqueId('time_jump'),
+	TIME_COLLECTION_OVERFLOW: goog.events.getUniqueId('time_collection_overflow')
 };
 
 
