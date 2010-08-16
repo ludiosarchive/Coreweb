@@ -117,8 +117,17 @@ TestRunnerPage.timers.scriptLoadStart = +new Date; /* scripts begin */
 TestRunnerPage._abortExecution = false;
 
 </script>
+<script>CLOSURE_NO_DEPS = true;</script>
 <script src="/JSPATH/closure/goog/base.js"></script>
-<script src="/JSPATH/nongoog_deps.js"></script>
+<script>
+// This sucks, but cw.UnitTest needs __name__s.
+goog.__origProvide = goog.provide;
+goog.provide = function(name) {
+	goog.__origProvide(name);
+	goog.getObjectByName(name).__name__ = name;
+};
+</script>
+<script src="/JSPATH/all_deps.js"></script>
 <script>
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.LogManager');
