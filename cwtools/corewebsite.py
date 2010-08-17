@@ -1,14 +1,16 @@
 import os
 import cgi
-import tempfile
+import time
 
-from twisted.web import resource, static, server
+from twisted.web import resource
 from twisted.python.filepath import FilePath
 
-from cwtools import testing, htmltools, jsimp
-from ecmaster import closurecompiler
+import cwtools
+from cwtools import testing, htmltools
 from lytics.endpoint import Analytics
 from webmagic.untwist import BetterResource, BetterFile, ConnectionTrackingSite
+
+here = FilePath(cwtools.__path__[0])
 
 
 class Compiler(BetterResource):
@@ -20,15 +22,11 @@ class Compiler(BetterResource):
 
 
 	def render_GET(self, request):
-		o = tempfile.mkstemp(suffix='.js', prefix='_Compilables_')
-		outputFile = FilePath(o[1])
-
-		d = closurecompiler.advancedCompile(
-			self._reactor, self.JSPATH.child('_Compilables.js'), self.JSPATH, outputFile, {})
-
-		def write(output):
-			# TODO: only write if not aborted already
-			request.write('''\
+		ewFile = here.child('compiled').child('_Compilables.js.ew')
+		ewContent = ewFile.getContent()
+		# We assume filesystem timestamps closely match reality.
+		age = time.time() - ewFile.getModificationTime()
+		return '''\
 <!doctype html>
 <head>
 	<title>_Compilables.js warnings and errors</title>
@@ -37,33 +35,29 @@ class Compiler(BetterResource):
 	</style>
 </head>
 <body>
-Output file is:<br>
-<pre>%s</pre>
-Output from Closure Compiler:<br>
+_Compilables was last compiled %.1f second(s) ago.
+<ul>
+	<li><a href="/compiled/_Compilables.js">output file</a></li>
+	<li><a href="/compiled/_Compilables.js.log">log file</a></li>
+</ul>
+Errors and warnings from Closure Compiler:<br>
 <pre>%s</pre>
 </body>
 </html>
-''' % (cgi.escape(outputFile.path), cgi.escape(output),))
-			request.finish()
-
-		d.addCallback(write)
-
-		return server.NOT_DONE_YET
+''' % (age, cgi.escape(ewContent),)
 
 
 
 class Root(BetterResource):
 
 	def __init__(self, reactor, testPackages):
-		import cwtools
-		
-		resource.Resource.__init__(self)
 
-		here = FilePath(cwtools.__path__[0])
+		resource.Resource.__init__(self)
 
 		JSPATH = FilePath(os.environ['JSPATH'])
 
 		self.putChild('', BetterFile(here.child('index.html').path))
+		self.putChild('compiled', BetterFile(here.child('compiled').path))
 		self.putChild('JSPATH', BetterFile(JSPATH.path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH))
 		self.putChild('compiler', Compiler(reactor, JSPATH))
