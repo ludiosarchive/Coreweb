@@ -20,6 +20,7 @@ goog.require('cw.whoami');
 // in Minerva - one .require() per file, picked arbitrarily
 goog.require('cw.net.Queue');
 goog.require('cw.net.Stream');
+goog.require('cw.net.XHRMaster');
 goog.require('cw.net.XHRSlave');
 goog.require('cw.net.FlashSocket');
 goog.require('cw.net.SackFrame');
