@@ -30,3 +30,5 @@ goog.require('cw.net.demo.loadFlashConnector');
 goog.require('cw.net.setupXDRFrame');
 // Browsernode
 goog.require('whiteboard');
+// Websand
+goog.require('websand');
