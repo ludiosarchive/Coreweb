@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<title>iframe_open_window</title>
+
+<style type="text/css">
+#debug {
+	font-size: 11px;
+	font-family: Tahoma, sans-serif;
+}
+</style>
+
+</head>
+
+<body>
+
+<p>
+If an iframe opens a named window that does not exist, and it is blocked
+by the popup blocker, we can make the browser's popup infobar disappear
+by changing the iframe's src.  This method was discovered accidentally, after
+using Closure Library's all_tests.html.
+</p>
+<p>
+This applies only to Firefox.
+</p>
+
+<iframe src="iframe_open_window_subframe.html" id="subframe"></iframe>
+
+<script>
+
+var removeIframe = function() {
+	// Does not work
+	//document.body.removeChild(document.getElementById('subframe'));
+
+	// Does work
+	document.getElementById('subframe').src = 'about:blank';
+};
+
+window.setTimeout(removeIframe, 200);
+
+</script>
+
+</body>
+</html>
