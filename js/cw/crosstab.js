@@ -19,6 +19,15 @@
  * you have to check the return value of window.open(): it will be null if the
  * window wasn't allowed to open. However, for most other popup blockers,
  * there is no reliable way."
+ *
+ *
+ * TODO: instead of cookie pointing to one master, point to one or more masters.
+ * The cookie should also contain describe each master's document.domain and
+ * port, so that a slave can choose a master it can actually connect to (if one
+ * exists).  If it knows it can't connect, it avoids the popup dialog.
+ *
+ * We need the above because we might have both an HTTP site and an HTTPS
+ * site with the same domain (or sites on the same domain but different ports).
  */
 
 goog.provide('cw.crosstab');
