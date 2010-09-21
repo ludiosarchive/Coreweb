@@ -22,8 +22,10 @@
 goog.provide('cw.crosstab');
 
 goog.require('cw.string');
+goog.require('goog.asserts');
 goog.require('goog.array');
 goog.require('goog.events');
+goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
 goog.require('goog.net.cookies');
 
@@ -33,7 +35,8 @@ goog.require('goog.net.cookies');
  * @enum {string}
  */
 cw.crosstab.EventType = {
-	BECAME_SLAVE: goog.events.getUniqueId('became_slave'),
+	GOT_MASTER: goog.events.getUniqueId('got_master'),
+	LOST_MASTER: goog.events.getUniqueId('lost_master'),
 	BECAME_MASTER: goog.events.getUniqueId('became_master'),
 	NEW_SLAVE: goog.events.getUniqueId('new_slave'),
 	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
@@ -68,6 +71,12 @@ cw.crosstab.CrossNamedWindow = function(cookieName) {
 goog.inherits(cw.crosstab.CrossNamedWindow, goog.events.EventTarget);
 
 /**
+ * @type {?number}
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.listenKey_ = null;
+
+/**
  * A reference to the master, or null if I am the master.
  * @type {cw.crosstab.CrossNamedWindow}
  * @private
@@ -82,6 +91,21 @@ cw.crosstab.CrossNamedWindow.prototype.master_ = null;
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.domain_ = "";
+
+/**
+ * @private
+ * @return {boolean} Whether this instance is a master (or unstarted).
+ */
+cw.crosstab.CrossNamedWindow.prototype.isMaster = function() {
+	return !this.master_;
+};
+
+/**
+ * @return {string}
+ */
+cw.crosstab.CrossNamedWindow.prototype.getWindowName = function() {
+	return window.name;
+};
 
 /**
  * @private
@@ -103,6 +127,7 @@ cw.crosstab.CrossNamedWindow.prototype.setDomain = function(domain) {
  * @param {!cw.crosstab.CrossNamedWindow} slave
  */
 cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
+	goog.asserts.assert(this.isMaster(), "addSlave: not master");
 	this.slaves_.push(slave);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.NEW_SLAVE,
@@ -114,6 +139,7 @@ cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
  * @param {!cw.crosstab.CrossNamedWindow} slave
  */
 cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
+	goog.asserts.assert(this.isMaster(), "removeSlave: not master");
 	var ret = goog.array.remove(this.slaves_, slave);
 	if(!ret) {
 		throw Error("I didn't know about slave " + slave);
@@ -138,9 +164,10 @@ cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 };
 
 /**
+ * @param {string} masterName The window name of the master that probably exists.
  * @private
  */
-cw.crosstab.CrossNamedWindow.prototype.becomeSlave_ = function(masterName) {
+cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 	var ret = window.open('', masterName,
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
@@ -156,9 +183,21 @@ cw.crosstab.CrossNamedWindow.prototype.becomeSlave_ = function(masterName) {
 			ret['__theCrossNamedWindow']);
 		this.master_.addSlave(this);
 		this.dispatchEvent({
-			type: cw.crosstab.EventType.BECAME_SLAVE
+			type: cw.crosstab.EventType.GOT_MASTER
 		});
 	}
+};
+
+/**
+ * @param {string} masterName The window name of the master that probably exists.
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.getNewMaster_ = function(masterName) {
+	goog.asserts.assert(!this.isMaster(), "getNewMaster_: not slave");
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.LOST_MASTER
+	});
+	this.getMaster_(masterName);
 };
 
 /**
@@ -184,14 +223,47 @@ cw.crosstab.CrossNamedWindow.prototype.messageSelf = function(object) {
 };
 
 /**
- *
+ * @param {Object} event
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.unloadFired_ = function(event) {
+	this.dispose();
+};
+
+/**
+ * Become a master or a slave.  If becoming a master, this will mutate
+ * {@code window.name} and set a session cookie.
  */
 cw.crosstab.CrossNamedWindow.prototype.start = function() {
+	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
+		this.unloadFired_, false, this);
 	var masterName = goog.net.cookies.get(this.cookieName_);
 	if(!masterName) {
 		this.becomeMaster_();
 	} else {
-		this.becomeSlave_(masterName);
+		this.getMaster_(masterName);
+	}
+};
+
+cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
+	if(this.listenKey_) {
+		goog.events.unlistenByKey(this.listenKey_);
+	}
+	if(this.isMaster()) {
+		// Make the oldest slave the master, and tell the others to connect
+		// to it.
+		if(this.slaves_.length) {
+			// pop the 0th slave
+			var oldest = this.slaves_.splice(0, 1)[0];
+			oldest.becomeMaster_();
+			var newWindowName = oldest.getWindowName();
+
+			while(this.slaves_.length) {
+				this.slaves_.pop().getNewMaster_(newWindowName);
+			}
+		}
+	} else {
+		this.master_.removeSlave(this);
 	}
 };
 
