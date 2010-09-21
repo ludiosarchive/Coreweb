@@ -91,7 +91,7 @@ cw.crosstab.CrossNamedWindow = function(cookieName) {
 	this.cookieName_ = cookieName;
 
 	/**
-	 * @type {!Array.<cw.crosstab.CrossNamedWindow>}
+	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
 	 */
 	this.slaves_ = [];
 };
