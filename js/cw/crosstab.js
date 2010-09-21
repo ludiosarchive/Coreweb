@@ -67,16 +67,34 @@ goog.inherits(cw.crosstab.CrossNamedWindow, goog.events.EventTarget);
 
 /**
  * A reference to the master, or null if I am the master.
- * @type {?Object}
+ * @type {cw.crosstab.CrossNamedWindow}
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.master_ = null;
 
 /**
+ * Domain name to use for the cookie.  If you want cross-tab sharing
+ * to work between mydomain.com and www.mydomain.com, call
+ * {@code .setDomain("mydomain.com")} before calling {@code .start()}
+ * @type {string}
  * @private
  */
-cw.crosstab.CrossNamedWindow.prototype.setWindowName_ = function() {
-	window.name = '_CNW_' + cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
+cw.crosstab.CrossNamedWindow.prototype.domain_ = "";
+
+/**
+ * @private
+ * @return {string}
+ */
+cw.crosstab.CrossNamedWindow.prototype.makeWindowName_ = function() {
+	return '_CNW_' + cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
+};
+
+/**
+ * @param {string} domain
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.setDomain = function(domain) {
+	this.domain_ = domain;
 };
 
 /**
@@ -84,6 +102,10 @@ cw.crosstab.CrossNamedWindow.prototype.setWindowName_ = function() {
  */
 cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
 	this.slaves_.push(slave);
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.GOT_NEW_SLAVE,
+		slave: slave
+	});
 };
 
 /**
@@ -100,7 +122,9 @@ cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
-	this.setWindowName_();
+	var windowName = this.makeWindowName_();
+	window.name = windowName;
+	goog.net.cookies.set(this.cookieName_, windowName, -1, "", this.domain_);
 	this.master_ = null;
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.BECAME_MASTER
@@ -115,10 +139,15 @@ cw.crosstab.CrossNamedWindow.prototype.becomeSlave_ = function(masterName) {
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
 	if(!ret || !ret['__theCrossNameWindow'] || ret.closed) {
-		// TODO: close window we might have opened
+		try {
+			ret.close();
+		} catch(e) {
+
+		}
 		this.becomeMaster_();
 	} else {
-		this.master_ = ret;
+		this.master_ = /** @type {!cw.crosstab.CrossNamedWindow} */ (
+			ret['__theCrossNamedWindow']);
 		this.master_.addSlave(this);
 		this.dispatchEvent({
 			type: cw.crosstab.EventType.BECAME_SLAVE
