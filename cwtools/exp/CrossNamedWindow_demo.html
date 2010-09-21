@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+</head>
+<body>
+
+<div id="doc">
+
+</div>
+
+<div id="log"></div>
+
+<script>CLOSURE_NO_DEPS = true;</script>
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/all_deps.js"></script>
+
+<script>
+goog.provide('cnwdemo');
+
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+
+goog.require('cw.autoTitle');
+goog.require('cw.repr');
+goog.require('cw.crosstab');
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+
+/**
+ * @constructor
+ */
+cnwdemo.Demo = function() {
+
+};
+
+cnwdemo.Demo.prototype.gotMaster_ = function(ev) {
+	logger.info('Got master: ' + cw.repr.repr(ev.master));
+};
+
+cnwdemo.Demo.prototype.lostMaster_ = function(ev) {
+	logger.info('Lost master');
+};
+
+cnwdemo.Demo.prototype.becameMaster_ = function(ev) {
+	logger.info('Became master');
+};
+
+cnwdemo.Demo.prototype.newSlave_ = function(ev) {
+	logger.info('New slave: ' + cw.repr.repr(ev.slave));
+};
+
+cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
+	logger.info('Lost slave: ' + cw.repr.repr(ev.slave));
+};
+
+cnwdemo.Demo.prototype.message_ = function(ev) {
+	logger.info('Got message: ' + cw.repr.repr(ev.message));
+};
+
+cnwdemo.Demo.prototype.start = function() {
+	var cnw = cw.crosstab.theCrossNamedWindow;
+	cnw.addEventListener(cw.crosstab.EventType.GOT_MASTER, this.gotMaster_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.LOST_MASTER, this.lostMaster_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.BECAME_MASTER, this.becameMaster_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.NEW_SLAVE, this.newSlave_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.LOST_SLAVE, this.lostSlave_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
+
+	cnw.start();
+};
+
+
+cnwdemo.start = function() {
+	var demo = new cnwdemo.Demo();
+	demo.start();
+};
+
+cnwdemo.start();
+
+</script>
+</body>
+</html>

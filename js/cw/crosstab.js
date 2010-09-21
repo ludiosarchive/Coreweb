@@ -1,6 +1,8 @@
 /**
  * @fileoverview Utilities for sending information across already-open browser
  * 	tabs (or windows).
+ *
+ * See CrossNamedWindow_demo.html to see this in action.
  */
 
 /**
@@ -35,11 +37,34 @@ goog.require('goog.net.cookies');
  * @enum {string}
  */
 cw.crosstab.EventType = {
+	/**
+	 * When you receive this event, you should keep a reference to the master
+	 * (event property "master"), so that you can send it messages.
+	 */
 	GOT_MASTER: goog.events.getUniqueId('got_master'),
+	/**
+	 * When you receive this event, you must delete your reference to the
+	 * master.
+	 */
 	LOST_MASTER: goog.events.getUniqueId('lost_master'),
+	/**
+	 * Dispatched when the CrossNamedWindow becomes a master.  Note that
+	 * this can happen after being a slave for a while.
+	 */
 	BECAME_MASTER: goog.events.getUniqueId('became_master'),
+	/**
+	 * When you receive this event, you should keep a reference to the slave
+	 * (event property "slave"), so that you can send it messages.
+	 */
 	NEW_SLAVE: goog.events.getUniqueId('new_slave'),
+	/**
+	 * When you receive this event, you must delete your reference to the
+	 * slave (which one? check event property "slave").
+	 */
 	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
+	/**
+	 * The actual message is contained in event property "message".
+	 */
 	MESSAGE: goog.events.getUniqueId('message')
 };
 
@@ -105,6 +130,17 @@ cw.crosstab.CrossNamedWindow.prototype.isMaster = function() {
  */
 cw.crosstab.CrossNamedWindow.prototype.getWindowName = function() {
 	return window.name;
+};
+
+/**
+ * @param {!Array.<string>} sb
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
+	sb.push('<CrossNamedWindow isMaster()=' + this.isMaster() +
+		' getWindowName()=');
+	cw.repr.reprToPieces(this.getWindowName(), sb);
+	sb.push('>');
 };
 
 /**
@@ -183,7 +219,8 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 			ret['__theCrossNamedWindow']);
 		this.master_.addSlave(this);
 		this.dispatchEvent({
-			type: cw.crosstab.EventType.GOT_MASTER
+			type: cw.crosstab.EventType.GOT_MASTER,
+			master: this.master_
 		});
 	}
 };
@@ -201,21 +238,10 @@ cw.crosstab.CrossNamedWindow.prototype.getNewMaster_ = function(masterName) {
 };
 
 /**
- * Send a message to the master.
+ * Send a message to myself.
  * @param {*} object The message to send.
  */
-cw.crosstab.CrossNamedWindow.prototype.messageMaster = function(object) {
-	if(!this.master_) {
-		throw Error("No master.");
-	}
-	this.master_.messageSelf(object);
-};
-
-/**
- * Send a message to myself.  Typically called by the master.
- * @param {*} object The message to send.
- */
-cw.crosstab.CrossNamedWindow.prototype.messageSelf = function(object) {
+cw.crosstab.CrossNamedWindow.prototype.message = function(object) {
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.MESSAGE,
 		message: object
