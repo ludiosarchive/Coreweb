@@ -320,7 +320,7 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 };
 
 /**
- * @type {cw.crosstab.CrossNamedWindow}
+ * @type {!cw.crosstab.CrossNamedWindow}
  */
 cw.crosstab.theCrossNamedWindow = new cw.crosstab.CrossNamedWindow();
 
