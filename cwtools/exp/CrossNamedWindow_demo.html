@@ -107,6 +107,7 @@ cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
 		var slave = this.slaves_[i];
 		slave.message(text);
 	};
+	logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
 };
 
 /**
@@ -114,6 +115,7 @@ cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
  */
 cnwdemo.Demo.prototype.sendTextToMaster = function(text) {
 	this.master_.message(text);
+	logger.info('Sent ' + cw.repr.repr(text) + ' to master');
 };
 
 cnwdemo.Demo.prototype.start = function() {
