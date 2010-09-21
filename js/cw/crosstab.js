@@ -35,7 +35,9 @@ goog.require('goog.net.cookies');
 cw.crosstab.EventType = {
 	BECAME_SLAVE: goog.events.getUniqueId('became_slave'),
 	BECAME_MASTER: goog.events.getUniqueId('became_master'),
-	GOT_NEW_SLAVE: goog.events.getUniqueId('got_new_slave')
+	NEW_SLAVE: goog.events.getUniqueId('new_slave'),
+	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
+	MESSAGE: goog.events.getUniqueId('message')
 };
 
 
@@ -103,7 +105,7 @@ cw.crosstab.CrossNamedWindow.prototype.setDomain = function(domain) {
 cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
 	this.slaves_.push(slave);
 	this.dispatchEvent({
-		type: cw.crosstab.EventType.GOT_NEW_SLAVE,
+		type: cw.crosstab.EventType.NEW_SLAVE,
 		slave: slave
 	});
 };
@@ -116,6 +118,10 @@ cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
 	if(!ret) {
 		throw Error("I didn't know about slave " + slave);
 	}
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.LOST_SLAVE,
+		slave: slave
+	});
 };
 
 /**
@@ -138,7 +144,7 @@ cw.crosstab.CrossNamedWindow.prototype.becomeSlave_ = function(masterName) {
 	var ret = window.open('', masterName,
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
-	if(!ret || !ret['__theCrossNameWindow'] || ret.closed) {
+	if(!ret || !ret['__theCrossNamedWindow'] || ret.closed) {
 		try {
 			ret.close();
 		} catch(e) {
@@ -153,6 +159,28 @@ cw.crosstab.CrossNamedWindow.prototype.becomeSlave_ = function(masterName) {
 			type: cw.crosstab.EventType.BECAME_SLAVE
 		});
 	}
+};
+
+/**
+ * Send a message to the master.
+ * @param {*} object The message to send.
+ */
+cw.crosstab.CrossNamedWindow.prototype.messageMaster = function(object) {
+	if(!this.master_) {
+		throw Error("No master.");
+	}
+	this.master_.messageSelf(object);
+};
+
+/**
+ * Send a message to myself.  Typically called by the master.
+ * @param {*} object The message to send.
+ */
+cw.crosstab.CrossNamedWindow.prototype.messageSelf = function(object) {
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.MESSAGE,
+		message: object
+	});
 };
 
 /**
