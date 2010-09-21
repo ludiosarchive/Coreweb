@@ -24,7 +24,6 @@
 goog.provide('cw.crosstab');
 
 goog.require('cw.string');
-goog.require('goog.asserts');
 goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
@@ -70,9 +69,12 @@ cw.crosstab.EventType = {
 
 
 /**
- * CrossNamedWindow is safe to use only in browsers that load all pages in a
- * single process.  Do not use with Chrome or Chromium or IE8 or IE9.  Do not
- * use with Safari because window.open(...) switches tabs in Safari.
+ * Do not use with Chrome or Chromium or IE8 or IE9, because
+ * CrossNamedWindow does not work in multi-process browsers.
+ *
+ * Do not use with Safari because window.open(...) switches tabs in Safari.
+ *
+ * Do not use with Opera because it fails to fire unload events.
  *
  * @param {string} cookieName Name of the cookie that might contain the window
  * 	name of the master tab.
@@ -163,7 +165,9 @@ cw.crosstab.CrossNamedWindow.prototype.setDomain = function(domain) {
  * @param {!cw.crosstab.CrossNamedWindow} slave
  */
 cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
-	goog.asserts.assert(this.isMaster(), "addSlave: not master");
+	if(!this.isMaster()) {
+		throw Error("addSlave: this only works when master");
+	}
 	this.slaves_.push(slave);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.NEW_SLAVE,
@@ -175,7 +179,9 @@ cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
  * @param {!cw.crosstab.CrossNamedWindow} slave
  */
 cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
-	goog.asserts.assert(this.isMaster(), "removeSlave: not master");
+	if(!this.isMaster()) {
+		throw Error("removeSlave: this only works when master");
+	}
 	var ret = goog.array.remove(this.slaves_, slave);
 	if(!ret) {
 		throw Error("I didn't know about slave " + slave);
@@ -192,8 +198,8 @@ cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
 cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 	var windowName = this.makeWindowName_();
 	window.name = windowName;
-	goog.net.cookies.set(this.cookieName_, windowName, -1, "", this.domain_);
 	this.master_ = null;
+	goog.net.cookies.set(this.cookieName_, windowName, -1, "", this.domain_);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.BECAME_MASTER
 	});
@@ -217,7 +223,17 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 	} else {
 		this.master_ = /** @type {!cw.crosstab.CrossNamedWindow} */ (
 			ret['__theCrossNamedWindow']);
-		this.master_.addSlave(this);
+		try {
+			this.master_.addSlave(this);
+		} catch(e) {
+			// An error is thrown in at least this case:
+			// 1) We managed to grab a reference to the "master",
+			// but the window was actually closed, and for some reason
+			// it thinks it's a slave.  (This happened in Firefox 3.6.10
+			// on 2010-09-21).
+			this.becomeMaster_();
+			return;
+		}
 		this.dispatchEvent({
 			type: cw.crosstab.EventType.GOT_MASTER,
 			master: this.master_
@@ -230,7 +246,9 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.getNewMaster_ = function(masterName) {
-	goog.asserts.assert(!this.isMaster(), "getNewMaster_: not slave");
+	if(this.isMaster()) {
+		throw Error("getNewMaster_: this only works when slave");
+	}
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.LOST_MASTER
 	});

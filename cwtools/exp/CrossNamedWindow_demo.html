@@ -9,9 +9,18 @@
 </head>
 <body>
 
-<div id="doc">
-
+<div id="doc">This page is a demo of <code>cw.crosstab.CrossNamedWindow</code>.
+You'll want to open multiple tabs/windows to this page to see anything useful.
 </div>
+
+<br>
+
+Send text to master, or to all slaves:
+<input type="text" name="textinput" id="textinput">
+<input type="submit" value="Send"
+	onclick="cnwdemo.sendText(document.getElementById('textinput').value);return false">
+
+<br><br>
 
 <div id="log"></div>
 
@@ -83,6 +92,13 @@ cnwdemo.Demo.prototype.start = function() {
 	cnw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
 
 	cnw.start();
+};
+
+/**
+ * @param {string} text
+ */
+cnwdemo.sendText = function(text) {
+
 };
 
 
