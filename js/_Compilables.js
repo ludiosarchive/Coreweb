@@ -4,6 +4,7 @@ goog.require('cw.autoTitle');
 goog.require('cw.Class');
 goog.require('cw.clock');
 goog.require('cw.checktype');
+goog.require('cw.crosstab');
 goog.require('cw.env');
 goog.require('cw.eq');
 goog.require('cw.eventual');
