@@ -31,6 +31,7 @@ Send text to master, or to all slaves:
 <script>
 goog.provide('cnwdemo');
 
+goog.require('goog.array');
 goog.require('goog.debug.DivConsole');
 goog.require('goog.debug.Logger');
 goog.require('goog.string');
@@ -55,15 +56,25 @@ logger.info('Logger works.');
  * @constructor
  */
 cnwdemo.Demo = function() {
+	/**
+	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
+	 */
+	this.slaves_ = [];
 
+	/**
+	 * @type {cw.crosstab.CrossNamedWindow}
+	 */
+	this.master_ = null;
 };
 
 cnwdemo.Demo.prototype.gotMaster_ = function(ev) {
 	logger.info('Got master: ' + cw.repr.repr(ev.master));
+	this.master_ = ev.master;
 };
 
 cnwdemo.Demo.prototype.lostMaster_ = function(ev) {
 	logger.info('Lost master');
+	this.master_ = null;
 };
 
 cnwdemo.Demo.prototype.becameMaster_ = function(ev) {
@@ -72,14 +83,37 @@ cnwdemo.Demo.prototype.becameMaster_ = function(ev) {
 
 cnwdemo.Demo.prototype.newSlave_ = function(ev) {
 	logger.info('New slave: ' + cw.repr.repr(ev.slave));
+	this.slaves_.push(ev.slave);
 };
 
 cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
 	logger.info('Lost slave: ' + cw.repr.repr(ev.slave));
+		this.slaves_.push(ev.slave);
+	var ret = goog.array.remove(this.slaves_, ev.slave);
+	if(!ret) {
+		throw Error("cnwdemo.Demo didn't know about slave " + ev.slave);
+	}
 };
 
 cnwdemo.Demo.prototype.message_ = function(ev) {
 	logger.info('Got message: ' + cw.repr.repr(ev.message));
+};
+
+/**
+ * @param {string} text
+ */
+cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
+	for(var i=0; i < this.slaves_.length; i++) {
+		var slave = this.slaves_[i];
+		slave.message(text);
+	};
+};
+
+/**
+ * @param {string} text
+ */
+cnwdemo.Demo.prototype.sendTextToMaster = function(text) {
+	this.master_.message(text);
 };
 
 cnwdemo.Demo.prototype.start = function() {
@@ -98,13 +132,17 @@ cnwdemo.Demo.prototype.start = function() {
  * @param {string} text
  */
 cnwdemo.sendText = function(text) {
-
+	if(cw.crosstab.theCrossNamedWindow.isMaster()) {
+		cnwdemo.lastDemo.sendTextToSlaves(text);
+	} else {
+		cnwdemo.lastDemo.sendTextToMaster(text);
+	}
 };
 
 
 cnwdemo.start = function() {
-	var demo = new cnwdemo.Demo();
-	demo.start();
+	cnwdemo.lastDemo = new cnwdemo.Demo();
+	cnwdemo.lastDemo.start();
 };
 
 cnwdemo.start();
