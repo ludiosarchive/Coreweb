@@ -19,15 +19,6 @@
  * you have to check the return value of window.open(): it will be null if the
  * window wasn't allowed to open. However, for most other popup blockers,
  * there is no reliable way."
- *
- *
- * TODO: instead of cookie pointing to one master, point to one or more masters.
- * The cookie should also contain describe each master's document.domain and
- * port, so that a slave can choose a master it can actually connect to (if one
- * exists).  If it knows it can't connect, it avoids the popup dialog.
- *
- * We need the above because we might have both an HTTP site and an HTTPS
- * site with the same domain (or sites on the same domain but different ports).
  */
 
 goog.provide('cw.crosstab');
@@ -85,19 +76,11 @@ cw.crosstab.EventType = {
  *
  * Do not use with Opera because it fails to fire unload events.
  *
- * @param {string} cookieName Name of the cookie that might contain the window
- * 	name of the master tab.
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-cw.crosstab.CrossNamedWindow = function(cookieName) {
+cw.crosstab.CrossNamedWindow = function() {
 	goog.events.EventTarget.call(this);
-
-	/**
-	 * @type {string}
-	 * @private
-	 */
-	this.cookieName_ = cookieName;
 
 	/**
 	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
@@ -202,13 +185,29 @@ cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
 };
 
 /**
+ * Get the appropriate cookie name.
+ *
+ * Note that cookie security is much less strict than same-origin policy.  Cookie
+ * visibility is controlled by (domain name, secure flag), while SOP requires
+ * (protocol, document.domain, port) to match.  We add those three parameters
+ * to the cookie name, so that we don't attempt to window.open(...) windows
+ * that we can't access anyway.
+ * @return {string}
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.getCookieName_ = function() {
+	return '__CrossNamedWindow_' + window.location.port + '_' +
+		window.location.protocol.replace(':', '') + '_' + document.domain;
+};
+
+/**
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 	var windowName = this.makeWindowName_();
 	window.name = windowName;
 	this.master_ = null;
-	goog.net.cookies.set(this.cookieName_, windowName, -1, "", this.domain_);
+	goog.net.cookies.set(this.getCookieName_(), windowName, -1, "", this.domain_);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.BECAME_MASTER
 	});
@@ -290,7 +289,7 @@ cw.crosstab.CrossNamedWindow.prototype.unloadFired_ = function(event) {
 cw.crosstab.CrossNamedWindow.prototype.start = function() {
 	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
 		this.unloadFired_, false, this);
-	var masterName = goog.net.cookies.get(this.cookieName_);
+	var masterName = goog.net.cookies.get(this.getCookieName_());
 	if(!masterName) {
 		this.becomeMaster_();
 	} else {
@@ -323,7 +322,6 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 /**
  * @type {cw.crosstab.CrossNamedWindow}
  */
-cw.crosstab.theCrossNamedWindow =
-	new cw.crosstab.CrossNamedWindow('__CrossNamedWindow');
+cw.crosstab.theCrossNamedWindow = new cw.crosstab.CrossNamedWindow();
 
 goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
