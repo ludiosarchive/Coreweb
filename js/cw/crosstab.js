@@ -246,9 +246,6 @@ cw.crosstab.CrossNamedWindow.prototype.start = function() {
 };
 
 cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
-	if(this.listenKey_) {
-		goog.events.unlistenByKey(this.listenKey_);
-	}
 	if(this.isMaster()) {
 		// Make the oldest slave the master, and tell the others to connect
 		// to it.
@@ -264,6 +261,9 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 		}
 	} else {
 		this.master_.removeSlave(this);
+	}
+	if(this.listenKey_) {
+		goog.events.unlistenByKey(this.listenKey_);
 	}
 };
 
