@@ -112,8 +112,8 @@ cw.crosstab.CrossNamedWindow.prototype.master_ = null;
 cw.crosstab.CrossNamedWindow.prototype.domain_ = "";
 
 /**
- * @private
  * @return {boolean} Whether this instance is a master (or unstarted).
+ * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.isMaster = function() {
 	return !this.master_;
@@ -138,8 +138,8 @@ cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
 };
 
 /**
- * @private
  * @return {string}
+ * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.makeWindowName_ = function() {
 	return '_CNW_' + cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
