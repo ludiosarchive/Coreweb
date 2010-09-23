@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+</head>
+<body>
+
+<div id="doc">This page tests what happens when you try to start a
+<code>SharedWorker</code> but you've hit the process limit for workers.
+</div>
+
+<br>
+
+Send text to master, or to all slaves:
+<input type="text" name="textinput" id="textinput">
+<input type="submit" value="Send"
+	onclick="swproclimit.sendText(document.getElementById('textinput').value);return false">
+
+<br><br>
+
+<div id="log"></div>
+
+<script>CLOSURE_NO_DEPS = true;</script>
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/all_deps.js"></script>
+
+<script>
+goog.provide('swproclimit');
+
+goog.require('goog.array');
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+
+goog.require('cw.autoTitle');
+goog.require('cw.repr');
+goog.require('cw.crosstab');
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+window.onerror = function(msg, url, lineNumber) {
+	logger.severe('window.onerror: message: ' + cw.repr.repr(msg) +
+		'\nURL: ' + url + '\nLine Number: ' + lineNumber)
+};
+
+
+/**
+ * @constructor
+ */
+swproclimit.Demo = function() {
+	this.numWorkers_ = 0;
+	this.workers_ = [];
+};
+
+swproclimit.Demo.prototype.startAnother_ = function() {
+	this.numWorkers_++;
+	//var id = 'worker_' + String(this.numWorkers_);
+	var id = goog.string.getRandomString();
+	var worker = new SharedWorker(
+		'SharedWorker_hit_process_limit.js', id);
+	worker.port.onmessage = function(e) {
+		logger.info('Message from SharedWorker: ' + e.data);
+	};
+	this.workers_.push(worker);
+	window.setTimeout(goog.bind(this.startAnother_, this), 20);
+};
+
+swproclimit.Demo.prototype.start = function() {
+	this.startAnother_();
+};
+
+/**
+ * @param {string} text
+ */
+swproclimit.sendText = function(text) {
+
+};
+
+
+swproclimit.start = function() {
+	swproclimit.lastDemo = new swproclimit.Demo();
+	swproclimit.lastDemo.start();
+};
+
+swproclimit.start();
+
+</script>
+</body>
+</html>

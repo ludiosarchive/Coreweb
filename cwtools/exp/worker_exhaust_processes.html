@@ -1,0 +1,14 @@
+<!doctype html>
+<div id="log"></div>
+<script>
+var workers = [];
+for(var i=0; i < 17; i++) {
+  try {
+    workers.push(new Worker('empty.js'));
+    document.getElementById('log').innerHTML +=
+        'Worker #' + i + ' instantiated.<br>';
+  } catch(e) {
+    document.getElementById('log').innerHTML += e.toString() + '<br>';
+  }
+}
+</script>

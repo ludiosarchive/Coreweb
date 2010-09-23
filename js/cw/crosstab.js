@@ -69,6 +69,12 @@ cw.crosstab.EventType = {
 
 
 /**
+ * An object that automatically sets up synchronous connections
+ * between tabs/windows.  Each tab is either a master or a slave.
+ * There is one master per (scheme, port, document.domain, port).
+ * If a master dies, another tab automatically becomes the master,
+ * and all slaves attach to it.
+ *
  * Do not use with Chrome or Chromium or IE8 or IE9, because
  * CrossNamedWindow does not work in multi-process browsers.
  *
@@ -325,3 +331,63 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 cw.crosstab.theCrossNamedWindow = new cw.crosstab.CrossNamedWindow();
 
 goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
+
+
+
+/**
+ * An object that automatically sets up asynchronous connections
+ * between tabs/windows, using a SharedWorker only to facilitate
+ * the connections.
+ *
+ * Do not use with Opera because it doesn't fire onunload reliably.
+ *
+ * @constructor
+ * @extends {goog.events.EventTarget}
+ */
+cw.crosstab.CrossSharedWorker = function() {
+	goog.events.EventTarget.call(this);
+
+	/**
+	 * @type {!Array.<!XXX>}
+	 */
+	this.slaves_ = [];
+};
+goog.inherits(cw.crosstab.CrossSharedWorker, goog.events.EventTarget);
+
+/**
+ * @type {?number}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.listenKey_ = null;
+
+/**
+ * A reference to the master, or null if I am the master.
+ * @type {cw.crosstab.CrossNamedWindow}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.master_ = null;
+
+/**
+ * @param {Object} event
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.unloadFired_ = function(event) {
+	this.dispose();
+};
+
+/**
+ * Become a master or a slave.  The three possible outcomes are:
+ * 	- Become master, and start/connect to a SharedWorker
+ * 	- Become master, without being able to start/connect to a SharedWorker
+ * 	- Become slave, and start/connect to a SharedWorker
+ */
+cw.crosstab.CrossSharedWorker.prototype.start = function() {
+	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
+		this.unloadFired_, false, this);
+};
+
+cw.crosstab.CrossSharedWorker.prototype.disposeInternal = function() {
+	if(this.listenKey_) {
+		goog.events.unlistenByKey(this.listenKey_);
+	}
+};
