@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+</head>
+<body>
+
+<div id="doc">This page is a demo of <code>cw.crosstab.CrossSharedWorker</code> (which doesn't exist yet).
+You'll want to open multiple tabs/windows to this page to see anything useful.
+</div>
+
+<br>
+
+Send text to master, or to all slaves:
+<input type="text" name="textinput" id="textinput">
+<input type="submit" value="Send"
+	onclick="swdemo.sendText(document.getElementById('textinput').value);return false">
+
+<br><br>
+
+<div id="log"></div>
+
+<script>CLOSURE_NO_DEPS = true;</script>
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/all_deps.js"></script>
+
+<script>
+goog.provide('swdemo');
+
+goog.require('goog.array');
+goog.require('goog.debug.DivConsole');
+goog.require('goog.debug.Logger');
+goog.require('goog.string');
+
+goog.require('cw.autoTitle');
+goog.require('cw.repr');
+goog.require('cw.crosstab');
+</script>
+
+<script>
+var logDiv = document.getElementById('log');
+var divConsole = new goog.debug.DivConsole(logDiv);
+divConsole.setCapturing(true);
+
+var logger = goog.debug.Logger.getLogger('logger');
+logger.setLevel(goog.debug.Logger.Level.ALL);
+
+logger.info('Logger works.');
+
+window.onerror = function(msg, url, lineNumber) {
+	logger.severe('window.onerror: message: ' + cw.repr.repr(msg) +
+		'\nURL: ' + url + '\nLine Number: ' + lineNumber)
+};
+
+/**
+ * @constructor
+ */
+swdemo.Demo = function() {
+	/**
+	 * @type {?SharedWorker}
+	 */
+	this.worker_ = null;
+
+	this.slaves_ = [];
+
+	this.master_ = null;
+};
+
+swdemo.Demo.prototype.isMaster = function() {
+	return !this.master_;
+};
+
+swdemo.Demo.prototype.start = function() {
+	this.worker_ = new SharedWorker('worker.js');
+	var that = this;
+	this.worker_.port.onmessage = function(e) {
+		var numPorts = e.ports && e.ports.length || 0
+		logger.info('Got message: ' + cw.repr.repr(e.data) + ' with ' + numPorts + ' port(s)');
+		if(e.data == "You are the master") {
+
+		} else if(e.data == "Port for slave to master:") {
+			that.master_ = e.ports[0];
+			that.master_.onmessage = function(m) {
+				logger.info('Text from master: ' + m.data);
+			}
+		} else if(e.data == "Port for master to slave:") {
+			var slave = e.ports[0];
+			that.slaves_.push(slave);
+			slave.onmessage = function(s) {
+				logger.info('Text from slave #TODO: ' + s.data);
+			}
+		}
+	}
+};
+
+/**
+ * @param {string} text
+ */
+swdemo.Demo.prototype.sendTextToSlaves = function(text) {
+	for(var i=0; i < this.slaves_.length; i++) {
+		var slave = this.slaves_[i];
+		slave.postMessage(text);
+	};
+	logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
+};
+
+/**
+ * @param {string} text
+ */
+swdemo.Demo.prototype.sendTextToMaster = function(text) {
+	this.master_.postMessage(text);
+	logger.info('Sent ' + cw.repr.repr(text) + ' to master');
+};
+
+
+/**
+ * @param {string} text
+ */
+swdemo.sendText = function(text) {
+	if(swdemo.lastDemo.isMaster()) {
+		swdemo.lastDemo.sendTextToSlaves(text);
+	} else {
+		swdemo.lastDemo.sendTextToMaster(text);
+	}
+};
+
+
+swdemo.start = function() {
+	swdemo.lastDemo = new swdemo.Demo();
+	swdemo.lastDemo.start();
+};
+
+swdemo.start();
+
+</script>
+</body>
+</html>
