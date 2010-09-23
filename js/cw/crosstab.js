@@ -341,16 +341,55 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  *
  * Do not use with Opera because it doesn't fire onunload reliably.
  *
+ * @param {number} initialDecisionTime Maximum time in ms to make an initial
+ * 	decision about whether to be master or worker.  Why might it take a while?
+ * 	Because spawning a Worker in Chrome could take a second or more.
+ *
+ * @param {boolean} allowMaster2Slave Whether to allow a master -> slave
+ * 	transition.  Such a transition might happen if CrossSharedWorker decides to
+ * 	be master before getting a response from the SharedWorker.
+ *
+ * Possible event orderings:
+ * 1)
+ * - get response from S.W. before initialDecisionTime, become master
+ *
+ * 2)
+ * - get response from S.W. before initialDecisionTime, become slave
+ *
+ * 3)
+ * - don't get response from S.W. before initialDecisionTime, become master
+ *
+ * 4)
+ * - don't get response from S.W. before initialDecisionTime, become master
+ * - get response from S.W.; it says to be master.  Woohoo!  We guessed right!
+ *
+ * 5)
+ * - don't get response from S.W. before initialDecisionTime, become master
+ * - get response from S.W.; it says to be slave
+ * - (if allowMaster2Slave) become slave (else) stay master
+ *
+ * And any time, slave may become master.
+ *
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-cw.crosstab.CrossSharedWorker = function() {
+cw.crosstab.CrossSharedWorker = function(initialDecisionTime, allowMaster2Slave) {
 	goog.events.EventTarget.call(this);
 
 	/**
 	 * @type {!Array.<!XXX>}
 	 */
 	this.slaves_ = [];
+
+	/**
+	 * @type {number}
+	 */
+	this.initialDecisionTime_ = initialDecisionTime;
+
+	/**
+	 * @type {boolean}
+	 */
+	this.allowMaster2Slave_ = allowMaster2Slave;
 };
 goog.inherits(cw.crosstab.CrossSharedWorker, goog.events.EventTarget);
 
