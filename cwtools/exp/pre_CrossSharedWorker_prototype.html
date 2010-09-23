@@ -75,7 +75,7 @@ swdemo.Demo.prototype.isMaster = function() {
 };
 
 swdemo.Demo.prototype.start = function() {
-	this.worker_ = new SharedWorker('worker.js');
+	this.worker_ = new SharedWorker('pre_CrossSharedWorker_prototype.js');
 	var that = this;
 	this.worker_.port.onmessage = function(e) {
 		var numPorts = e.ports && e.ports.length || 0
