@@ -1,14 +1,17 @@
 <!doctype html>
+
+This crashes Chrome on XP SP3 in just a few minutes.  It dies completely - no crash dialog, nothing.
+
 <div id="log"></div>
 <script>
 var workers = [];
 for(var i=0; i < 99999999999; i++) {
 	try {
-		new SharedWorker('empty.js');
-		if(i % 1000 == 0) {
+		new SharedWorker('/emptyjs_cached');
+		/*if(i % 1000 == 0) {
 			document.getElementById('log').innerHTML =
 				i + ' SharedWorkers instantiated.<br>';
-		}
+		}*/
 	} catch(e) {
 		document.getElementById('log').innerHTML += e.toString() + '<br>Stopped.<br>';
 		break;

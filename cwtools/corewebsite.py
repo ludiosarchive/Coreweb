@@ -48,6 +48,16 @@ Errors and warnings from Closure Compiler:<br>
 
 
 
+class CachedFile(BetterFile):
+	isLeaf = True
+
+	def render_GET(self, request):
+		request.responseHeaders.setRawHeaders('Expires', ['Sat, 30 Dec 2034 16:00:00 GMT'])
+		request.responseHeaders.setRawHeaders('Cache-Control', ['max-age=99999999'])
+		return BetterFile.render_GET(self, request)
+
+
+
 class Root(BetterResource):
 
 	def __init__(self, reactor, testPackages):
@@ -60,6 +70,7 @@ class Root(BetterResource):
 		self.putChild('compiled', BetterFile(here.child('compiled').path))
 		self.putChild('JSPATH', BetterFile(JSPATH.path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH))
+		self.putChild('emptyjs_cached', CachedFile(here.child('exp').child('empty.js').path, JSPATH))
 		self.putChild('compiler', Compiler(reactor, JSPATH))
 		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/
 		self.putChild('@tests', testing.TestPage(testPackages, JSPATH))
