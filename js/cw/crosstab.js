@@ -340,15 +340,7 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  * the connections.
  *
  * Do not use with Opera because it doesn't fire onunload reliably.
- *
- * @param {number} initialDecisionTime Maximum time in ms to make an initial
- * 	decision about whether to be master or worker.  Why might it take a while?
- * 	Because spawning a Worker in Chrome could take a second or more.
- *
- * @param {boolean} allowMaster2Slave Whether to allow a master -> slave
- * 	transition.  Such a transition might happen if CrossSharedWorker decides to
- * 	be master before getting a response from the SharedWorker.
- *
+
  * Possible event orderings:
  * 1)
  * - get response from S.W. before initialDecisionTime, become master
@@ -369,6 +361,14 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  * - (if allowMaster2Slave) become slave (else) stay master
  *
  * And any time, slave may become master.
+ *
+ * @param {number} initialDecisionTime Maximum time in ms to make an initial
+ * 	decision about whether to be master or worker.  Why might it take a while?
+ * 	Because spawning a Worker in Chrome could take a second or more.
+ *
+ * @param {boolean} allowMaster2Slave Whether to allow a master -> slave
+ * 	transition.  Such a transition might happen if CrossSharedWorker decides to
+ * 	be master before getting a response from the SharedWorker.
  *
  * @constructor
  * @extends {goog.events.EventTarget}
