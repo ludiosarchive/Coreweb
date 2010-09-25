@@ -1,8 +1,7 @@
-// Note: cannot prefix with 'var '!
-
 var slaves = [];
 var master = null;
 
+// Note: cannot prefix with 'var '!
 onerror = function(e) {
 	master.postMessage('Error in worker: ' + e);
 };

@@ -3,5 +3,8 @@
 
 targets = [
 	{"inputs": ["_Compilables.js"],
-	"output": "cwtools/compiled/_Compilables.js"}
+	"output": "cwtools/compiled/_Compilables.js"},
+
+	{"inputs": ["cw/crossSharedWorker.js"],
+	"output": "cwtools/compiled/crossSharedWorker.js"},
 ]

@@ -25,6 +25,7 @@ goog.provide('cw.crosstab');
 
 goog.require('cw.string');
 goog.require('goog.array');
+goog.require('goog.debug.Logger');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
@@ -362,6 +363,8 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  *
  * And any time, slave may become master.
  *
+ * @param {!cw.clock.IWindowTimeIntervalOptional} clock
+ *
  * @param {number} initialDecisionTime Maximum time in ms to make an initial
  * 	decision about whether to be master or worker.  Why might it take a while?
  * 	Because spawning a Worker in Chrome could take a second or more.
@@ -373,13 +376,18 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  * @constructor
  * @extends {goog.events.EventTarget}
  */
-cw.crosstab.CrossSharedWorker = function(initialDecisionTime, allowMaster2Slave) {
+cw.crosstab.CrossSharedWorker = function(clock, initialDecisionTime, allowMaster2Slave) {
 	goog.events.EventTarget.call(this);
 
 	/**
 	 * @type {!Array.<!XXX>}
 	 */
 	this.slaves_ = [];
+
+	/**
+	 * @type {!cw.clock.IWindowTimeIntervalOptional}
+	 */
+	this.clock_ = clock;
 
 	/**
 	 * @type {number}
@@ -394,10 +402,29 @@ cw.crosstab.CrossSharedWorker = function(initialDecisionTime, allowMaster2Slave)
 goog.inherits(cw.crosstab.CrossSharedWorker, goog.events.EventTarget);
 
 /**
+ * @type {!goog.debug.Logger}
+ * @protected
+ */
+cw.crosstab.CrossSharedWorker.prototype.logger_ =
+	goog.debug.Logger.getLogger('cw.crosstab.CrossSharedWorker');
+
+/**
+ * @type {!SharedWorker}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.worker_;
+
+/**
  * @type {?number}
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.listenKey_ = null;
+
+/**
+ * @type {?number}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.timeoutTicket_ = null;
 
 /**
  * A reference to the master, or null if I am the master.
@@ -407,11 +434,91 @@ cw.crosstab.CrossSharedWorker.prototype.listenKey_ = null;
 cw.crosstab.CrossSharedWorker.prototype.master_ = null;
 
 /**
+ * @return {boolean} Whether this instance is a master (or no response
+ * 	from SharedWorker yet).
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.isMaster = function() {
+	return !this.master_;
+};
+
+/**
+ * @param {!Array.<string>} sb
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb) {
+	sb.push('<CrossSharedWorker isMaster()=' + this.isMaster());
+	sb.push('>');
+};
+
+/**
  * @param {Object} event
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.unloadFired_ = function(event) {
 	this.dispose();
+};
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.becomeMaster_ = function() {
+	1/0
+};
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.becomeSlave_ = function(masterPort) {
+	this.master_ = masterPort;
+};
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.timedOut_ = function() {
+	this.becomeMaster_();
+};
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.clearTimeout_ = function() {
+	if(this.timeoutTicket_) {
+		this.clock_.clearTimeout(this.timeoutTicket_);
+	};
+};
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.onMessageFromPeer_ = function(e) {
+
+};
+
+
+/**
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.onMessageFromWorker_ = function(e) {
+	this.clearTimeout_();
+
+	var numPorts = e.ports && e.ports.length || 0
+	this.logger_.finest('Got message: ' + cw.repr.repr(e.data) +
+		' with ' + numPorts + ' port(s)');
+	if(e.data == "umaster") {
+		this.becomeMaster_();
+	} else if(e.data == "port2master") {
+		var masterPort = e.ports[0];
+		this.becomeSlave_(masterPort);
+		this.master_.onmessage = goog.bind(this.onMessageFromPeer_, this);
+	} else if(e.data == "port2slave") {
+		var slave = e.ports[0];
+		this.slaves_.push(slave);
+		slave.onmessage = function(s) {
+			this.logger_.finest('Text from slave #TODO: ' + s.data);
+		}
+	}
 };
 
 /**
@@ -423,9 +530,24 @@ cw.crosstab.CrossSharedWorker.prototype.unloadFired_ = function(event) {
 cw.crosstab.CrossSharedWorker.prototype.start = function() {
 	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
 		this.unloadFired_, false, this);
+
+	try {
+		this.worker_ = new SharedWorker('/compiled/crossSharedWorker.js');
+	} catch(e) {
+		// In Opera 10.70 (9049), if the worker cannot be instantiated
+		// because it has reached the limit for the number of workers,
+		// it throws "Error: QUOTA_EXCEEDED_ERR".
+		this.logger_.warning('Failed to instantiate SharedWorker: ' + e);
+	}
+
+	this.timeoutTicket_ = this.clock_.setTimeout(goog.bind(this.timedOut_, this), this.initialDecisionTime_);
+
+	this.worker_.port.onmessage = goog.bind(this.onMessageFromWorker_, this);
 };
 
 cw.crosstab.CrossSharedWorker.prototype.disposeInternal = function() {
+	this.clearTimeout_();
+
 	if(this.listenKey_) {
 		goog.events.unlistenByKey(this.listenKey_);
 	}
