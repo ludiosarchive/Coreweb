@@ -18,7 +18,7 @@ cw.crossSharedWorker.Client = function(port) {
 	/**
 	 * @type {number} Unique ID for this client.
 	 */
-	this.id = ++Client.counter_;
+	this.id = ++cw.crossSharedWorker.Client.counter_;
 
 	/**
 	 * @type {!MessagePort} port
@@ -29,11 +29,16 @@ cw.crossSharedWorker.Client = function(port) {
 };
 
 /**
- * @type {*} data
- * @type {!Array.<!MessagePort>} ports
+ * @param {*} data
+ * @param {!Array.<!MessagePort>} ports
  */
 cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(data, ports) {
-
+	if(goog.isArray(data)) {
+		if(data[0] == 'dying') {
+			var evacuatedData = data[1];
+			// XXX DO SOMETHING
+		}
+	}
 };
 
 /**
@@ -51,6 +56,7 @@ cw.crossSharedWorker.Client.prototype.becomeMaster = function(evacuatedData) {
 };
 
 /**
+ * @param {!cw.crossSharedWorker.Client} slave
  * @param {!MessagePort} portToSlave
  */
 cw.crossSharedWorker.Client.prototype.addSlave = function(slave, portToSlave) {
@@ -65,7 +71,8 @@ cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
 };
 
 /**
- * @param {!MessagePort} master
+ * @param {!cw.crossSharedWorker.Client} master
+ * @param {!MessagePort} portToMaster
  */
 cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaster) {
 	this.port_.postMessage_(['become_slave', master.id], [portToMaster]);
@@ -78,7 +85,10 @@ cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaste
 cw.crossSharedWorker.Client.counter_ = 0;
 
 
-
+/**
+ * The object that collects clients and decides which should be master.
+ * @constructor
+ */
 cw.crossSharedWorker.Decider = function() {
 	/**
 	 * @type {!Array.<!cw.crossSharedWorker.Client>}
@@ -91,7 +101,7 @@ cw.crossSharedWorker.Decider = function() {
  * @param {!MessagePort} port
  */
 cw.crossSharedWorker.Decider.prototype.gotNewPort = function(port) {
-	var client = new Client(port);
+	var client = new cw.crossSharedWorker.Client(port);
 	this.clients_.push(client);
 	if(!this.master_) { // Tell client to become master
 		this.master_ = client;
@@ -106,8 +116,8 @@ cw.crossSharedWorker.Decider.prototype.gotNewPort = function(port) {
 		// second postMessage in a setTimeout(..., 5000).  The message
 		// was still received after a delay on Chrome 6.0.472.62 beta and
 		// an Opera 10.70 build on 2010-09-22.
-		client.becomeSlave(this.master_, channel.port1);
-		this.master_.addSlave(client, channel.port2);
+		client.becomeSlave(this.master_, /** @type {!MessagePort} */(channel.port1));
+		this.master_.addSlave(client, /** @type {!MessagePort} */(channel.port2));
 	}
 };
 
@@ -121,16 +131,18 @@ cw.crossSharedWorker.Decider.prototype.sendErrorIfPossible = function(e) {
 };
 
 /**
- * @type {!cw.crossSharedWorker.Client}
+ * @type {cw.crossSharedWorker.Client}
  * @private
  */
 cw.crossSharedWorker.Decider.prototype.master_ = null;
+
 
 
 /**
  * @type {!cw.crossSharedWorker.Decider}
  */
 cw.crossSharedWorker.theDecider = new cw.crossSharedWorker.Decider();
+
 
 
 /**
@@ -154,6 +166,6 @@ cw.crossSharedWorker.onConnectHandler = function(e) {
 	cw.crossSharedWorker.theDecider.gotNewPort(port);
 };
 
-// Cannot start with 'var '!
-onerror = cw.crossSharedWorker.onErrorHandler;
-onconnect = cw.crossSharedWorker.onConnectHandler;
+
+goog.exportSymbol('onerror', cw.crossSharedWorker.onErrorHandler);
+goog.exportSymbol('onconnect', cw.crossSharedWorker.onConnectHandler);
