@@ -29,7 +29,6 @@ goog.require('goog.debug.Logger');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
-goog.require('goog.structs.Map');
 goog.require('goog.net.cookies');
 
 
@@ -62,71 +61,12 @@ cw.crosstab.EventType = {
 	 * When you receive this event, you must delete your reference to the
 	 * slave (which one? check event property "slave").
 	 */
-	LOST_SLAVE: goog.events.getUniqueId('lost_slave')
-};
-
-
-/**
- * @type {(MessagePort|cw.crosstab.CrossNamedWindow)}
- */
-cw.crosstab.Sendable = goog.typedef;
-
-
-
-/**
- * This is the object that we give to users of {@link cw.crosstab}, so that
- * they never directly touch objects from another window.
- *
- * @param {string|number} id
- * @param {!cw.crosstab.Sendable} sendable
- * @constructor
- */
-cw.crosstab.Client = function(id, sendable) {
+	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
 	/**
-	 * @type {string|number}
+	 * The actual message is contained in event property "message".
 	 */
-	this.id = id;
-
-	/**
-	 * @type {!cw.crosstab.Sendable}
-	 * @private
-	 */
-	this.sendable_ = sendable;
+	MESSAGE: goog.events.getUniqueId('message')
 };
-
-/**
- * @param {!Array.<string>} sb
- * @private
- */
-cw.crosstab.Client.prototype.__reprToPieces__ = function(sb) {
-	sb.push('<Client id=');
-	cw.repr.reprToPieces(this.id, sb);
-	sb.push('>');
-};
-
-/**
- * Received a message from my peer (a slave if I am master, or the master
- * 	if I am a slave).
- * @param {string|number} from
- * @param {*} message
- */
-cw.crosstab.Client.prototype.onmessage = function(from, message) {
-	throw Error("Set onmessage earlier!");
-};
-
-///**
-// * Send a message
-// * @param {*} message
-// */
-//cw.crosstab.Client.prototype.sendMessage = function(recipient, message) {
-//	if(this.sendable_.postMessage) { // It's a MessagePort
-//		this.sendable_.postMessage(['message', this.id, message])
-//	} else { // It's a CrossNamedWindow
-//		this.sendable_.message(this.id, message);
-//	}
-//};
-
-
 
 
 /**
@@ -150,19 +90,9 @@ cw.crosstab.CrossNamedWindow = function() {
 	goog.events.EventTarget.call(this);
 
 	/**
-	 * @type {!goog.structs.Map}
+	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
 	 */
-	this.slaves_ = new goog.structs.Map();
-
-	/**
-	 * @type {string}
-	 */
-	this.id = cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
-
-	/**
-	 * @type {!cw.crosstab.Client}
-	 */
-	this.myClient_ = new cw.crosstab.Client(this.id, this);
+	this.slaves_ = [];
 };
 goog.inherits(cw.crosstab.CrossNamedWindow, goog.events.EventTarget);
 
@@ -174,7 +104,7 @@ cw.crosstab.CrossNamedWindow.prototype.listenKey_ = null;
 
 /**
  * A reference to the master, or null if I am the master.
- * @type {cw.crosstab.Client}
+ * @type {cw.crosstab.CrossNamedWindow}
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.master_ = null;
@@ -231,36 +161,33 @@ cw.crosstab.CrossNamedWindow.prototype.setDomain = function(domain) {
 };
 
 /**
- * @param {!cw.crosstab.CrossNamedWindow} cnw
+ * @param {!cw.crosstab.CrossNamedWindow} slave
  */
-cw.crosstab.CrossNamedWindow.prototype.addSlave = function(cnw) {
+cw.crosstab.CrossNamedWindow.prototype.addSlave = function(slave) {
 	if(!this.isMaster()) {
 		throw Error("addSlave: this only works when master");
 	}
-	var client = new cw.crosstab.Client(cnw.id, cnw);
-	this.slaves_.set(cnw.id, client);
+	this.slaves_.push(slave);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.NEW_SLAVE,
-		slave: client
+		slave: slave
 	});
 };
 
 /**
- * @param {!cw.crosstab.CrossNamedWindow} cnw
+ * @param {!cw.crosstab.CrossNamedWindow} slave
  */
-cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(cnw) {
+cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
 	if(!this.isMaster()) {
 		throw Error("removeSlave: this only works when master");
 	}
-	var client = this.slaves_.get(cnw.id);
-	if(!client) {
-		throw Error("I didn't know about slave " + cw.repr.repr(cnw));
+	var ret = goog.array.remove(this.slaves_, slave);
+	if(!ret) {
+		throw Error("I didn't know about slave " + slave);
 	}
-	this.slaves_.remove(cnw.id);
-
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.LOST_SLAVE,
-		slave: client
+		slave: slave
 	});
 };
 
@@ -289,8 +216,7 @@ cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 	this.master_ = null;
 	goog.net.cookies.set(this.getCookieName_(), windowName, -1, "", this.domain_);
 	this.dispatchEvent({
-		type: cw.crosstab.EventType.BECAME_MASTER,
-		master: this.myClient_
+		type: cw.crosstab.EventType.BECAME_MASTER
 	});
 };
 
@@ -303,8 +229,6 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
 	if(!ret || !ret['__theCrossNamedWindow'] || ret.closed) {
-		// It's not going to work, so try to close the window and become
-		// the master instead.
 		try {
 			ret.close();
 		} catch(e) {
@@ -312,12 +236,10 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 		}
 		this.becomeMaster_();
 	} else {
-		var masterCnw = /** @type {!cw.crosstab.CrossNamedWindow} */(
+		this.master_ = /** @type {!cw.crosstab.CrossNamedWindow} */ (
 			ret['__theCrossNamedWindow']);
-		this.master_ = new cw.crosstab.Client(masterCnw.id, masterCnw);
-		// Tell the master about us.
 		try {
-			this.master_.sendable_.addSlave(this);
+			this.master_.addSlave(this);
 		} catch(e) {
 			// An error is thrown in at least this case:
 			// 1) We managed to grab a reference to the "master",
@@ -349,12 +271,14 @@ cw.crosstab.CrossNamedWindow.prototype.getNewMaster_ = function(masterName) {
 };
 
 /**
- * Send a message
- * @param {!cw.crosstab.Client} recipient
- * @param {*} message
+ * Send a message to myself.
+ * @param {*} object The message to send.
  */
-cw.crosstab.CrossNamedWindow.prototype.sendMessage = function(recipient, message) {
-	recipient.onmessage(this.id, message);
+cw.crosstab.CrossNamedWindow.prototype.message = function(object) {
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.MESSAGE,
+		message: object
+	});
 };
 
 /**
@@ -395,7 +319,7 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 			}
 		}
 	} else {
-		this.master_.sendable_.removeSlave(this);
+		this.master_.removeSlave(this);
 	}
 	if(this.listenKey_) {
 		goog.events.unlistenByKey(this.listenKey_);
@@ -409,6 +333,24 @@ cw.crosstab.theCrossNamedWindow = new cw.crosstab.CrossNamedWindow();
 
 goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
 
+
+/**
+ * @param {number} id
+ * @param {!MessagePort} port
+ * @constructor
+ */
+cw.crosstab.Client = function(id, port) {
+	/**
+	 * @type {number}
+	 */
+	this.id = id;
+
+	/**
+	 * @type {!MessagePort}
+	 * @private
+	 */
+	this.port_ = port;
+};
 
 
 /**

@@ -19,8 +19,6 @@ goog.require('cw.repr');
 goog.require('cw.string');
 goog.require('cw.uri');
 goog.require('cw.whoami');
-// Corweb demos
-goog.require('cnwdemo');
 // in Minerva - one .require() per file, picked arbitrarily
 goog.require('cw.net.Queue');
 goog.require('cw.net.Stream');
