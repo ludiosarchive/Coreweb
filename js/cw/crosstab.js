@@ -90,7 +90,14 @@ cw.crosstab.CrossNamedWindow = function() {
 	goog.events.EventTarget.call(this);
 
 	/**
+	 * @type {string}
+	 * @private
+	 */
+	this.id_ = cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
+
+	/**
 	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
+	 * @private
 	 */
 	this.slaves_ = [];
 };
@@ -135,7 +142,6 @@ cw.crosstab.CrossNamedWindow.prototype.getWindowName = function() {
 
 /**
  * @param {!Array.<string>} sb
- * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
 	sb.push('<CrossNamedWindow isMaster()=' + this.isMaster() +
@@ -465,7 +471,6 @@ cw.crosstab.CrossSharedWorker.prototype.isMaster = function() {
 
 /**
  * @param {!Array.<string>} sb
- * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb) {
 	sb.push('<CrossSharedWorker isMaster()=' + this.isMaster());
