@@ -334,6 +334,24 @@ cw.crosstab.theCrossNamedWindow = new cw.crosstab.CrossNamedWindow();
 goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
 
 
+/**
+ * @param {number} id
+ * @param {!MessagePort} port
+ * @constructor
+ */
+cw.crosstab.Client = function(id, port) {
+	/**
+	 * @type {number}
+	 */
+	this.id = id;
+
+	/**
+	 * @type {!MessagePort}
+	 * @private
+	 */
+	this.port_ = port;
+};
+
 
 /**
  * An object that automatically sets up asynchronous connections
@@ -380,7 +398,7 @@ cw.crosstab.CrossSharedWorker = function(clock, initialDecisionTime, allowMaster
 	goog.events.EventTarget.call(this);
 
 	/**
-	 * @type {!Array.<!XXX>}
+	 * @type {!Array.<!cw.crosstab.Client>}
 	 */
 	this.slaves_ = [];
 
@@ -460,9 +478,10 @@ cw.crosstab.CrossSharedWorker.prototype.unloadFired_ = function(event) {
 };
 
 /**
+ * @param {*} evacuatedData
  * @private
  */
-cw.crosstab.CrossSharedWorker.prototype.becomeMaster_ = function() {
+cw.crosstab.CrossSharedWorker.prototype.becomeMaster_ = function(evacuatedData) {
 	1/0
 };
 
@@ -477,7 +496,7 @@ cw.crosstab.CrossSharedWorker.prototype.becomeSlave_ = function(masterPort) {
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.timedOut_ = function() {
-	this.becomeMaster_();
+	this.becomeMaster_(null);
 };
 
 /**
@@ -490,10 +509,12 @@ cw.crosstab.CrossSharedWorker.prototype.clearTimeout_ = function() {
 };
 
 /**
+ * @param {number} peerId
+ * @param {!MessageEvent} e
  * @private
  */
-cw.crosstab.CrossSharedWorker.prototype.onMessageFromPeer_ = function(e) {
-
+cw.crosstab.CrossSharedWorker.prototype.onMessageFromPeer_ = function(peerId, e) {
+	1/0
 };
 
 
@@ -506,17 +527,28 @@ cw.crosstab.CrossSharedWorker.prototype.onMessageFromWorker_ = function(e) {
 	var numPorts = e.ports && e.ports.length || 0
 	this.logger_.finest('Got message: ' + cw.repr.repr(e.data) +
 		' with ' + numPorts + ' port(s)');
-	if(e.data == "umaster") {
-		this.becomeMaster_();
-	} else if(e.data == "port2master") {
-		var masterPort = e.ports[0];
-		this.becomeSlave_(masterPort);
-		this.master_.onmessage = goog.bind(this.onMessageFromPeer_, this);
-	} else if(e.data == "port2slave") {
-		var slave = e.ports[0];
-		this.slaves_.push(slave);
-		slave.onmessage = function(s) {
-			this.logger_.finest('Text from slave #TODO: ' + s.data);
+	var data = e.data;
+	if(goog.isArray(data)) {
+		var command = data[0];
+		if(command == 'become_master') {
+			var evacuatedData = data[1];
+			this.becomeMaster_(evacuatedData);
+		} else if(command == 'become_slave') {
+			var masterId = data[1];
+			var masterPort = e.ports[0];
+			this.becomeSlave_(masterPort);
+			masterPort.onmessage = goog.bind(this.onMessageFromPeer_, this, masterId);
+		} else if(command == 'add_slave') {
+			var slaveId = data[1];
+			var slavePort = e.ports[0];
+			this.slaves_.push(new cw.crosstab.Client(slaveId, slavePort));
+			slavePort.onmessage = goog.bind(this.onMessageFromPeer_, this, slaveId);
+		} else if(command == 'remove_slave') {
+			var slaveId = data[1];
+			// XXX TODO
+		} else if(command == 'error_in_worker') {
+			var error = data[1];
+			this.logger_.severe('Error in worker: ' + error);
 		}
 	}
 };
