@@ -146,8 +146,8 @@ cw.crosstab.CrossNamedWindow.prototype.getWindowName = function() {
  */
 cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
 	sb.push('<CrossNamedWindow isMaster()=' + this.isMaster() +
-		' getWindowName()=');
-	cw.repr.reprToPieces(this.getWindowName(), sb);
+		' id_=');
+	cw.repr.reprToPieces(this.id_, sb);
 	sb.push('>');
 };
 
