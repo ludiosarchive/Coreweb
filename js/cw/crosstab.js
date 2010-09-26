@@ -229,19 +229,22 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
 	if(!ret || !ret['__theCrossNamedWindow'] || ret.closed) {
+		// Could not get a reference to the window, or got a bad window,
+		// so try to close it, then become the master instead.
 		try {
 			ret.close();
 		} catch(e) {
-
 		}
 		this.becomeMaster_();
 	} else {
 		this.master_ = /** @type {!cw.crosstab.CrossNamedWindow} */ (
 			ret['__theCrossNamedWindow']);
+		// Tell the master about us.
 		try {
 			this.master_.addSlave(this);
 		} catch(e) {
-			// An error is thrown in at least this case:
+			// An error was thrown, so become the master instead.
+			// The error is thrown in at least this case:
 			// 1) We managed to grab a reference to the "master",
 			// but the window was actually closed, and for some reason
 			// it thinks it's a slave.  (This happened in Firefox 3.6.10
