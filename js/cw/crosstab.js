@@ -93,7 +93,8 @@ cw.crosstab.CrossNamedWindow = function() {
 	 * @type {string}
 	 * @private
 	 */
-	this.id_ = cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
+	this.id_ = '_CNW_' + cw.string.getCleanRandomString() +
+		cw.string.getCleanRandomString();
 
 	/**
 	 * @type {!Array.<!cw.crosstab.CrossNamedWindow>}
@@ -148,14 +149,6 @@ cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
 		' getWindowName()=');
 	cw.repr.reprToPieces(this.getWindowName(), sb);
 	sb.push('>');
-};
-
-/**
- * @return {string}
- * @private
- */
-cw.crosstab.CrossNamedWindow.prototype.makeWindowName_ = function() {
-	return '_CNW_' + cw.string.getCleanRandomString() + cw.string.getCleanRandomString();
 };
 
 /**
@@ -217,10 +210,9 @@ cw.crosstab.CrossNamedWindow.prototype.getCookieName_ = function() {
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
-	var windowName = this.makeWindowName_();
-	window.name = windowName;
+	window.name = this.id_;
 	this.master_ = null;
-	goog.net.cookies.set(this.getCookieName_(), windowName, -1, "", this.domain_);
+	goog.net.cookies.set(this.getCookieName_(), this.id_, -1, "", this.domain_);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.BECAME_MASTER
 	});
