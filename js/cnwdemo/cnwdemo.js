@@ -57,7 +57,8 @@ cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
 };
 
 cnwdemo.Demo.prototype.message_ = function(ev) {
-	cnwdemo.logger.info('Got message: ' + cw.repr.repr(ev.message));
+	cnwdemo.logger.info('Got message from ' + cw.repr.repr(ev.sender) +
+		': ' + cw.repr.repr(ev.message));
 };
 
 /**
@@ -66,7 +67,7 @@ cnwdemo.Demo.prototype.message_ = function(ev) {
 cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
 	for(var i=0; i < this.slaves_.length; i++) {
 		var slave = this.slaves_[i];
-		slave.message(text);
+		cw.crosstab.theCrossNamedWindow.messageTo(slave, text);
 	};
 	cnwdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
 };
@@ -75,7 +76,10 @@ cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
  * @param {string} text
  */
 cnwdemo.Demo.prototype.sendTextToMaster = function(text) {
-	this.master_.message(text);
+	if(!this.master_) {
+		throw Error("sendTextToMaster: master_ is null");
+	}
+	cw.crosstab.theCrossNamedWindow.messageTo(this.master_, text);
 	cnwdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to master');
 };
 

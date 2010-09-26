@@ -63,7 +63,8 @@ cw.crosstab.EventType = {
 	 */
 	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
 	/**
-	 * The actual message is contained in event property "message".
+	 * The actual message is contained in event property "message",
+	 * and the sender in event property "sender".
 	 */
 	MESSAGE: goog.events.getUniqueId('message')
 };
@@ -272,12 +273,14 @@ cw.crosstab.CrossNamedWindow.prototype.getNewMaster_ = function(masterName) {
 };
 
 /**
- * Send a message to myself.
+ * Send a message to a recipient.
+ * @param {!cw.crosstab.CrossNamedWindow} recipient
  * @param {*} object The message to send.
  */
-cw.crosstab.CrossNamedWindow.prototype.message = function(object) {
-	this.dispatchEvent({
+cw.crosstab.CrossNamedWindow.prototype.messageTo = function(recipient, object) {
+	recipient.dispatchEvent({
 		type: cw.crosstab.EventType.MESSAGE,
+		sender: this,
 		message: object
 	});
 };
