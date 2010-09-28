@@ -66,9 +66,25 @@ var onMessageRecorder = function(log) {
 };
 
 
+// TODO: move this somewhere else.
+/**
+ * Based on minerva.mocks._MockMixin
+ */
+var arrayGetNew = function() {
+	if(!goog.isDef(this._returnNext)) {
+		this._returnNext = 0;
+	}
+	var old = this._returnNext;
+	this._returnNext = this.length;
+
+	return this.slice(old, this.length);
+};
+
+
 var DummyMessageChannelWithLoggedPort1 = function() {
 	var channel = new DummyMessageChannel();
 	channel.port1log = [];
+	channel.port1log.getNew = arrayGetNew;
 	channel.port1.onmessage = onMessageRecorder(channel.port1log);
 	return channel;
 };
@@ -76,7 +92,7 @@ var DummyMessageChannelWithLoggedPort1 = function() {
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').methods(
 
-	function test_firstClientBecomesMaster(self) {
+	function test_scenario(self) {
 		var decider = new cw.crossSharedWorker.Decider();
 
 		// The first client to connect gets a 'become_master' message.
@@ -84,20 +100,37 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').meth
 		decider.gotNewPort_(channel0.port2, newDummyMessageChannel);
 		self.assertEqual([
 			cw.eq.plainObject({'data': ['become_master', null]})
-		], channel0.port1log);
+		], channel0.port1log.getNew());
 
-		// The second and third clients to connect get a 'become_slave' message.
+		// The second client to connect get a 'become_slave' message.
 		var channel1 = DummyMessageChannelWithLoggedPort1();
 		decider.gotNewPort_(channel1.port2, newDummyMessageChannel);
-		self.assertEqual(1, channel1.port1log.length);
-		self.assertEqual(['become_slave', 1/*master.id*/], channel1.port1log[0].data);
-		self.assertEqual(1, channel1.port1log[0].ports.length);
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['become_slave', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel1.port1log.getNew());
 
+		// Master is notified about the second client.
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['new_slave', 2/*slave.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel0.port1log.getNew());
+
+		// The third client to connect get a 'become_slave' message.
 		var channel2 = DummyMessageChannelWithLoggedPort1();
 		decider.gotNewPort_(channel2.port2, newDummyMessageChannel);
-		self.assertEqual(1, channel2.port1log.length);
-		self.assertEqual(['become_slave', 1/*master.id*/], channel2.port1log[0].data);
-		self.assertEqual(1, channel2.port1log[0].ports.length);
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['become_slave', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel2.port1log.getNew());
+
+		// Master is notified about the third client.
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['new_slave', 3/*slave.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel0.port1log.getNew());
+
+		// If the first slave dies, master is notified.
+		channel1.port1.postMessage(['dying']);
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['lost_slave', 2]})
+		], channel0.port1log.getNew());
 	}
 
 );
