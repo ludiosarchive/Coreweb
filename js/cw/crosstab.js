@@ -113,6 +113,12 @@ cw.crosstab.CrossNamedWindow.prototype.logger_ =
 	goog.debug.Logger.getLogger('cw.crosstab.CrossNamedWindow');
 
 /**
+ * @type {?string}
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.cookieName_ = null;
+
+/**
  * @type {?number}
  * @private
  */
@@ -221,7 +227,10 @@ cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 	this.logger_.info('Becoming master.');
 	window.name = this.id_;
 	this.master_ = null;
-	goog.net.cookies.set(this.getCookieName_(), this.id_, -1, "", this.domain_);
+	if(!this.cookieName_) {
+		throw Error("No cookieName_? Forgot to start()?");
+	}
+	goog.net.cookies.set(this.cookieName_, this.id_, -1, "", this.domain_);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.BECAME_MASTER
 	});
@@ -309,11 +318,11 @@ cw.crosstab.CrossNamedWindow.prototype.unloadFired_ = function(event) {
  * {@code window.name} and set a session cookie.
  */
 cw.crosstab.CrossNamedWindow.prototype.start = function() {
+	this.cookieName_ = this.getCookieName_();
 	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
 		this.unloadFired_, false, this);
-	var cookieName = this.getCookieName_();
-	var masterName = goog.net.cookies.get(cookieName);
-	this.logger_.info('Existing cookie ' + cw.repr.repr(cookieName) + '=' +
+	var masterName = goog.net.cookies.get(this.cookieName_);
+	this.logger_.info('Existing cookie ' + cw.repr.repr(this.cookieName_) + '=' +
 		cw.repr.repr(masterName));
 	if(!masterName) {
 		this.becomeMaster_();
@@ -324,6 +333,10 @@ cw.crosstab.CrossNamedWindow.prototype.start = function() {
 
 cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 	if(this.isMaster()) {
+		// Remove the cookie.
+		if(this.cookieName_) {
+			goog.net.cookies.set(this.cookieName_, "", 0, "", this.domain_);
+		}
 		// Make the oldest slave the master, and tell the others to connect
 		// to it.
 		if(this.slaves_.length) {
