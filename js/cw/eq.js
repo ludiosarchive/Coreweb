@@ -35,6 +35,16 @@ cw.eq.plainObject = function(object) {
 
 
 /**
+ * {@link cw.eq.equals} treats {@link cw.eq.Wildcard} as equal to anything.
+ * @type {!Object}
+ */
+cw.eq.Wildcard = {};
+cw.eq.Wildcard.toString = function() {
+	return '<cw.eq.Wildcard>';
+};
+
+
+/**
  * Like {@link cw.eq.plainObject}, except recursively mark everything that
  * is {@code goog.typeOf(...) == 'object'} as a plain object.
  *
@@ -170,9 +180,11 @@ cw.eq.eqAny_ = function(one, two, eqLog) {
 	var typeOne = goog.typeOf(one);
 	var typeTwo = goog.typeOf(two);
 
+	if(one == cw.eq.Wildcard || two == cw.eq.Wildcard) {
+		return true;
 	// See the JSDoc for cw.eq.equals. We let `equals` on either side to
 	// claim the object is equal to a primitive object.
-	if(one != null && typeof one.equals == 'function') {
+	} else if(one != null && typeof one.equals == 'function') {
 		if(eqLog) {
 			eqLog.push('running custom equals function on left object');
 		}
@@ -239,6 +251,10 @@ cw.eq.eqAny_ = function(one, two, eqLog) {
  * If you want to deep-compare objects by iterating through their properties,
  * first call {@link cw.eq.plainObject} on both objects to mark them as plain
  * objects.
+ *
+ * Also, you can use {@link cw.eq.Wildcard} to avoid comparing certain objects,
+ * like this:
+ * cw.eq.equals({'a': 1, 'b': 2}, {'a': 1, 'b': cw.eq.Wildcard}) -> true
  *
  * @param {*} one The first object to compare.
  * @param {*} two The second object to compare.

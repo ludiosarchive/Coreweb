@@ -212,6 +212,24 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 		var two = [[1], [3, 4]];
 		var equal = cw.eq.equals(one, two);
 		self.assertFalse(equal);
+	},
+
+	function test_wildcard(self) {
+		self.assertTrue(cw.eq.equals('hello', cw.eq.Wildcard));
+		self.assertTrue(cw.eq.equals(cw.eq.Wildcard, 'hello'));
+		self.assertTrue(cw.eq.equals(cw.eq.Wildcard, cw.eq.Wildcard));
+	},
+
+	function test_wildcardInObject(self) {
+		var one = plainObject({'hello': 1});
+		var two = plainObject({'hello': cw.eq.Wildcard});
+		self.assertTrue(cw.eq.equals(one, two));
+		self.assertTrue(cw.eq.equals(two, one));
+	},
+
+	function test_wildcardInArray(self) {
+		self.assertTrue(cw.eq.equals([1], [cw.eq.Wildcard]));
+		self.assertTrue(cw.eq.equals([cw.eq.Wildcard], [1]));
 	}
 
 	// TODO: IE6-IE8 [[DontEnum]] shadowing tests
