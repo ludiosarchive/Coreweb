@@ -106,6 +106,13 @@ cw.crosstab.CrossNamedWindow = function() {
 goog.inherits(cw.crosstab.CrossNamedWindow, goog.events.EventTarget);
 
 /**
+ * @type {!goog.debug.Logger}
+ * @protected
+ */
+cw.crosstab.CrossNamedWindow.prototype.logger_ =
+	goog.debug.Logger.getLogger('cw.crosstab.CrossNamedWindow');
+
+/**
  * @type {?number}
  * @private
  */
@@ -211,6 +218,7 @@ cw.crosstab.CrossNamedWindow.prototype.getCookieName_ = function() {
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
+	this.logger_.info('Becoming master.');
 	window.name = this.id_;
 	this.master_ = null;
 	goog.net.cookies.set(this.getCookieName_(), this.id_, -1, "", this.domain_);
@@ -224,10 +232,12 @@ cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
+	this.logger_.info('Trying to grab master.');
 	var ret = window.open('', masterName,
 		'height=1,width=1,location=0,menubar=0,scrollbars=0,' +
 		'titlebar=0,toolbar=0,top=10000,left=10000');
 	if(!ret || !ret['__theCrossNamedWindow'] || ret.closed) {
+		this.logger_.info('Failed to grab window, or bad window.');
 		// Could not get a reference to the window, or got a bad window,
 		// so try to close it, then become the master instead.
 		try {
@@ -248,6 +258,7 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 			// but the window was actually closed, and for some reason
 			// it thinks it's a slave.  (This happened in Firefox 3.6.10
 			// on 2010-09-21).
+			this.logger_.warning('master_.addSlave threw Error: ' + e);
 			this.becomeMaster_();
 			return;
 		}
@@ -300,7 +311,10 @@ cw.crosstab.CrossNamedWindow.prototype.unloadFired_ = function(event) {
 cw.crosstab.CrossNamedWindow.prototype.start = function() {
 	this.listenKey_ = goog.events.listen(window, goog.events.EventType.UNLOAD,
 		this.unloadFired_, false, this);
-	var masterName = goog.net.cookies.get(this.getCookieName_());
+	var cookieName = this.getCookieName_();
+	var masterName = goog.net.cookies.get(cookieName);
+	this.logger_.info('Existing cookie ' + cw.repr.repr(cookieName) + '=' +
+		cw.repr.repr(masterName));
 	if(!masterName) {
 		this.becomeMaster_();
 	} else {
