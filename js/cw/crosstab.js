@@ -157,11 +157,12 @@ cw.crosstab.CrossNamedWindow.prototype.getWindowName = function() {
 
 /**
  * @param {!Array.<string>} sb
+ * @param {!Array.<*>} stack
  */
-cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb) {
+cw.crosstab.CrossNamedWindow.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('<CrossNamedWindow isMaster()=' + this.isMaster() +
 		' id_=');
-	cw.repr.reprToPieces(this.id_, sb);
+	cw.repr.reprToPieces(this.id_, sb, stack);
 	sb.push('>');
 };
 
@@ -493,8 +494,9 @@ cw.crosstab.CrossSharedWorker.prototype.isMaster = function() {
 
 /**
  * @param {!Array.<string>} sb
+ * @param {!Array.<*>} stack
  */
-cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb) {
+cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('<CrossSharedWorker isMaster()=' + this.isMaster());
 	sb.push('>');
 };

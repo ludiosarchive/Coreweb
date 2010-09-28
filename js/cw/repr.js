@@ -30,15 +30,16 @@ goog.require('goog.object');
  * Serializes an array to a string representation.
  * @param {!Array} arr The array to serialize.
  * @param {!Array.<string>} sb Array used as a string builder.
+ * @param {!Array.<*>} stack Array used to stop at a reference cycle.
  * @private
  */
-cw.repr.serializeArray_ = function(arr, sb) {
+cw.repr.serializeArray_ = function(arr, sb, stack) {
 	var l = arr.length;
 	sb.push('[');
 	var sep = '';
 	for (var i = 0; i < l; i++) {
 		sb.push(sep)
-		cw.repr.serializeAny_(arr[i], sb);
+		cw.repr.serializeAny_(arr[i], sb, stack);
 		sep = ', ';
 	}
 	sb.push(']');
@@ -50,9 +51,10 @@ cw.repr.serializeArray_ = function(arr, sb) {
  * Serializes an object to a string representation.
  * @param {!Object} obj The object to serialize.
  * @param {!Array.<string>} sb Array used as a string builder.
+ * @param {!Array.<*>} stack Array used to stop at a reference cycle.
  * @private
  */
-cw.repr.serializeObject_ = function(obj, sb) {
+cw.repr.serializeObject_ = function(obj, sb, stack) {
 	// For IE the for-in-loop (in getKeys) does not find any properties
 	// that are not enumerable on the prototype object, so concat
 	// PROTOTYPE_FIELDS_. See goog.object.extend for information.
@@ -70,7 +72,7 @@ cw.repr.serializeObject_ = function(obj, sb) {
 			sb.push(sep);
 			goog.json.Serializer.prototype.serializeString_(key, sb);
 			sb.push(': ');
-			cw.repr.serializeAny_(value, sb);
+			cw.repr.serializeAny_(value, sb, stack);
 			sep = ', ';
 		}
 	}
@@ -95,9 +97,15 @@ cw.repr.serializeDate_ = function(obj, sb) {
  * Serializes anything to a string representation.
  * @param {*} obj The object to serialize.
  * @param {!Array.<string>} sb Array used as a string builder.
+ * @param {!Array.<*>} stack Array used to stop at a reference cycle.
  * @private
  */
-cw.repr.serializeAny_ = function(obj, sb) {
+cw.repr.serializeAny_ = function(obj, sb, stack) {
+	if(goog.array.contains(stack, obj)) {
+		sb.push('#REFCYCLE#');
+		return;
+	}
+	stack.push(obj);
 	var type = goog.typeOf(obj);
 	if(type == 'boolean' || type == 'number' || type == 'null' || type == 'undefined') {
 		sb.push(String(obj));
@@ -105,24 +113,25 @@ cw.repr.serializeAny_ = function(obj, sb) {
 		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
 		if(typeof obj.__reprToPieces__ == 'function') {
-			obj.__reprToPieces__(sb);
+			obj.__reprToPieces__(sb, stack);
 		} else if(typeof obj.__repr__ == 'function') {
-			sb.push(obj.__repr__());
+			sb.push(obj.__repr__(stack));
 		} else if(obj instanceof RegExp) {
 			sb.push(obj.toString());
 		} else if(type == 'array') {
-			cw.repr.serializeArray_(/** @type {!Array} */ (obj), sb)
+			cw.repr.serializeArray_(/** @type {!Array} */ (obj), sb, stack);
 		} else if(type == 'object') {
 			// `getFullYear' check is identical to the one in goog.isDateLike
 			if(goog.isDateLike(obj) && typeof obj.valueOf == 'function') {
 				cw.repr.serializeDate_(/** @type {! {valueOf: !Function} } */ (obj), sb);
 			} else {
-				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb);
+				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb, stack);
 			}
-		} else { // ('function' or 'unknown') with no (__reprToPieces __ or __repr__)
+		} else { // ('function' or 'unknown') with no (__reprToPieces__ or __repr__)
 			sb.push(obj.toString());
 		}
 	}
+	stack.pop();
 };
 
 
@@ -136,9 +145,13 @@ cw.repr.serializeAny_ = function(obj, sb) {
  * @param {*} obj The object to serialize to a string representation.
  * @param {!Array.<string>} sb Array to use as a string builder.
  * 	May already have string values.
+ * @param {!Array.<*>=} stack Array used to stop at a reference cycle.
  */
-cw.repr.reprToPieces = function(obj, sb) {
-	cw.repr.serializeAny_(obj, sb);
+cw.repr.reprToPieces = function(obj, sb, stack) {
+	if(!stack) {
+		stack = [];
+	}
+	cw.repr.serializeAny_(obj, sb, stack);
 };
 
 
@@ -147,10 +160,11 @@ cw.repr.reprToPieces = function(obj, sb) {
  * Python's builtin repr() function.
  *
  * @param {*} obj The object to serialize to a string representation.
+ * @param {!Array.<*>=} stack Array used to stop at a reference cycle.
  * @return {string} The string representation.
  */
-cw.repr.repr = function(obj) {
+cw.repr.repr = function(obj, stack) {
 	var sb = [];
-	cw.repr.reprToPieces(obj, sb);
+	cw.repr.reprToPieces(obj, sb, stack);
 	return sb.join('');
 };

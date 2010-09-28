@@ -93,7 +93,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 
 	function test_customReprWorksForAllNonPrimitives(self) {
 		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
-			obj.__repr__ = function() { return 'custom'; };
+			obj.__repr__ = function(stack) { return 'custom'; };
 			self.assertIdentical(repr(obj), 'custom');
 		});
 	},
@@ -103,8 +103,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	 */
 	function test_customReprToPiecesPriority(self) {
 		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
-			obj.__reprToPieces__ = function(sb) { sb.push('a', 'b'); };
-			obj.__repr__ = function() { return 'custom'; };
+			obj.__reprToPieces__ = function(sb, stack) { sb.push('a', 'b'); };
+			obj.__repr__ = function(stack) { return 'custom'; };
 			self.assertIdentical(repr(obj), 'ab');
 		});
 	},
@@ -114,7 +114,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	 */
 	function test_customReprOutputNotEscaped(self) {
 		var a = [];
-		a.__repr__ = function() { return '\uffff'; };
+		a.__repr__ = function(stack) { return '\uffff'; };
 		self.assertIdentical(repr(a), "\uffff");
 	},
 
@@ -136,6 +136,25 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		// Make sure we have 8 pieces
 		var split = serialized.split(",");
 		self.assertIdentical(8, split.length);
+	},
+
+	/**
+	 * Runaway recursion is avoided and a #REFCYCLE# marker is used.
+	 */
+	function test_recursion(self) {
+		var a = {};
+		var b = {};
+		a.to_b = b;
+		b.to_a = a;
+		self.assertIdentical(repr(a), '{"to_b": {"to_a": #REFCYCLE#}}');
+	},
+
+	/**
+	 * Two references to the same object don't result in a #REFCYCLE# marker.
+	 */
+	function test_notRecursion(self) {
+		var a = {};
+		self.assertIdentical(repr([a, a, [a]]), '[{}, {}, [{}]]');
 	}
 );
 

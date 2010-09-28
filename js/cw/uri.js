@@ -379,9 +379,10 @@ cw.uri.URL.prototype.toString = function() {
 
 /**
  * @param {!Array.<string>} sb
+ * @param {!Array.<*>} stack
  */
-cw.uri.URL.prototype.__reprToPieces__ = function(sb) {
+cw.uri.URL.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('cw.uri.URL(');
-	cw.repr.reprToPieces(this.toString(), sb);
+	cw.repr.reprToPieces(this.toString(), sb, stack);
 	sb.push(')');
 };
