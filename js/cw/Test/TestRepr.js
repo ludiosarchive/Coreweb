@@ -139,18 +139,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
-	 * Runaway recursion is avoided and a #REFCYCLE# marker is used.
+	 * Runaway recursion is avoided and a #CYCLETO:n# marker is used.
 	 */
 	function test_recursion(self) {
 		var a = {};
 		var b = {};
 		a.to_b = b;
 		b.to_a = a;
-		self.assertIdentical(repr(a), '{"to_b": {"to_a": #REFCYCLE#}}');
+		self.assertIdentical(repr(a), '{"to_b": {"to_a": #CYCLETO:0#}}');
+		self.assertIdentical(repr([a]), '[{"to_b": {"to_a": #CYCLETO:1#}}]');
 	},
 
 	/**
-	 * Two references to the same object don't result in a #REFCYCLE# marker.
+	 * Two references to the same object don't result in a #CYCLETO:n# marker.
 	 */
 	function test_notRecursion(self) {
 		var a = {};

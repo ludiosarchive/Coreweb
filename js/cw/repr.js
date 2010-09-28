@@ -101,8 +101,9 @@ cw.repr.serializeDate_ = function(obj, sb) {
  * @private
  */
 cw.repr.serializeAny_ = function(obj, sb, stack) {
-	if(goog.array.contains(stack, obj)) {
-		sb.push('#REFCYCLE#');
+	var stackPos = goog.array.indexOf(stack, obj);
+	if(stackPos != -1) {
+		sb.push('#CYCLETO:' + stackPos + '#');
 		return;
 	}
 	stack.push(obj);
