@@ -66,18 +66,38 @@ var onMessageRecorder = function(log) {
 };
 
 
+var DummyMessageChannelWithLoggedPort1 = function() {
+	var channel = new DummyMessageChannel();
+	channel.port1log = [];
+	channel.port1.onmessage = onMessageRecorder(channel.port1log);
+	return channel;
+};
+
+
 cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').methods(
 
 	function test_firstClientBecomesMaster(self) {
 		var decider = new cw.crossSharedWorker.Decider();
-		var workerChannel = new DummyMessageChannel();
-		var log = [];
-		workerChannel.port1.onmessage = onMessageRecorder(log);
-		decider.gotNewPort_(workerChannel.port2, newDummyMessageChannel);
 
+		// The first client to connect gets a 'become_master' message.
+		var channel0 = DummyMessageChannelWithLoggedPort1();
+		decider.gotNewPort_(channel0.port2, newDummyMessageChannel);
 		self.assertEqual([
 			cw.eq.plainObject({'data': ['become_master', null]})
-		], log);
+		], channel0.port1log);
+
+		// The second and third clients to connect get a 'become_slave' message.
+		var channel1 = DummyMessageChannelWithLoggedPort1();
+		decider.gotNewPort_(channel1.port2, newDummyMessageChannel);
+		self.assertEqual(1, channel1.port1log.length);
+		self.assertEqual(['become_slave', 1/*master.id*/], channel1.port1log[0].data);
+		self.assertEqual(1, channel1.port1log[0].ports.length);
+
+		var channel2 = DummyMessageChannelWithLoggedPort1();
+		decider.gotNewPort_(channel2.port2, newDummyMessageChannel);
+		self.assertEqual(1, channel2.port1log.length);
+		self.assertEqual(['become_slave', 1/*master.id*/], channel2.port1log[0].data);
+		self.assertEqual(1, channel2.port1log[0].ports.length);
 	}
 
 );
