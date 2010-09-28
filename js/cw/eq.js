@@ -39,7 +39,7 @@ cw.eq.plainObject = function(object) {
  * @type {!Object}
  */
 cw.eq.Wildcard = {};
-cw.eq.Wildcard.toString = function() {
+cw.eq.Wildcard.__repr__ = function() {
 	return '<cw.eq.Wildcard>';
 };
 

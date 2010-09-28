@@ -6,6 +6,7 @@ goog.provide('cw.Test.TestEq');
 
 goog.require('cw.UnitTest');
 goog.require('cw.eq');
+goog.require('cw.repr');
 goog.require('goog.array');
 
 
@@ -230,6 +231,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 	function test_wildcardInArray(self) {
 		self.assertTrue(cw.eq.equals([1], [cw.eq.Wildcard]));
 		self.assertTrue(cw.eq.equals([cw.eq.Wildcard], [1]));
+	},
+
+	/**
+	 * The cw.repr.repr(Wildcard) is good.
+	 */
+	function test_wildcardRepr(self) {
+		self.assertIdentical('<cw.eq.Wildcard>', cw.repr.repr(cw.eq.Wildcard));
 	}
 
 	// TODO: IE6-IE8 [[DontEnum]] shadowing tests
