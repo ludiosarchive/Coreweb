@@ -8,13 +8,22 @@
 
 goog.provide('cw.crossSharedWorker');
 
+goog.require('goog.asserts');
+goog.require('cw.repr');
+
 
 /**
  * @param {!MessagePort} port
  *
  * @constructor
  */
-cw.crossSharedWorker.Client = function(port) {
+cw.crossSharedWorker.Client = function(decider, port) {
+	/**
+	 * @type {!cw.crossSharedWorker.Decider}
+	 * @private
+	 */
+	this.decider_ = decider;
+
 	/**
 	 * @type {number} Unique ID for this client.
 	 */
@@ -22,10 +31,20 @@ cw.crossSharedWorker.Client = function(port) {
 
 	/**
 	 * @type {!MessagePort} port
+	 * @private
 	 */
 	this.port_ = port;
 
 	this.port_.onmessage = goog.bind(this.onMessageFromClient_, this);
+};
+
+/**
+ * @param {!Array.<string>} sb
+ */
+cw.crossSharedWorker.Client.prototype.__reprToPieces__ = function(sb) {
+	sb.push('<Client id=');
+	cw.repr.reprToPieces(this.id_, sb);
+	sb.push('>');
 };
 
 /**
@@ -36,7 +55,7 @@ cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(data, port
 	if(goog.isArray(data)) {
 		if(data[0] == 'dying') {
 			var evacuatedData = data[1];
-			// XXX DO SOMETHING
+			this.decider_.clientDied_(this, evacuatedData);
 		}
 	}
 };
@@ -45,14 +64,14 @@ cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(data, port
  * @param {*} e
  */
 cw.crossSharedWorker.Client.prototype.sendError = function(e) {
-	this.port_.postMessage_(['error_in_worker', e]);
+	this.port_.postMessage(['error_in_worker', e]);
 };
 
 /**
  * @param {*} evacuatedData
  */
 cw.crossSharedWorker.Client.prototype.becomeMaster = function(evacuatedData) {
-	this.port_.postMessage_(['become_master', evacuatedData]);
+	this.port_.postMessage(['become_master', evacuatedData]);
 };
 
 /**
@@ -60,14 +79,14 @@ cw.crossSharedWorker.Client.prototype.becomeMaster = function(evacuatedData) {
  * @param {!MessagePort} portToSlave
  */
 cw.crossSharedWorker.Client.prototype.addSlave = function(slave, portToSlave) {
-	this.port_.postMessage_(['add_slave', slave.id], [portToSlave]);
+	this.port_.postMessage(['add_slave', slave.id], [portToSlave]);
 };
 
 /**
  * @param {!cw.crossSharedWorker.Client} slave
  */
 cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
-	this.port_.postMessage_(['remove_slave', slave.id]);
+	this.port_.postMessage(['remove_slave', slave.id]);
 };
 
 /**
@@ -75,7 +94,7 @@ cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
  * @param {!MessagePort} portToMaster
  */
 cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaster) {
-	this.port_.postMessage_(['become_slave', master.id], [portToMaster]);
+	this.port_.postMessage(['become_slave', master.id], [portToMaster]);
 };
 
 /**
@@ -97,18 +116,30 @@ cw.crossSharedWorker.Decider = function() {
 };
 
 /**
+ * @param {!Array.<string>} sb
+ */
+cw.crossSharedWorker.Client.prototype.__reprToPieces__ = function(sb) {
+	sb.push('<Client id=');
+	cw.repr.reprToPieces(this.id_, sb);
+	sb.push('>');
+};
+
+/**
  * A client has connected.
  * @param {!MessagePort} port
+ * @param {!Function} messageChannelCtor A function that returns a new
+ * 	{@code MessageChannel}.
+ * @private
  */
-cw.crossSharedWorker.Decider.prototype.gotNewPort = function(port) {
-	var client = new cw.crossSharedWorker.Client(port);
+cw.crossSharedWorker.Decider.prototype.gotNewPort_ = function(port, messageChannelCtor) {
+	var client = new cw.crossSharedWorker.Client(this, port);
 	this.clients_.push(client);
 	if(!this.master_) { // Tell client to become master
 		this.master_ = client;
 		this.master_.becomeMaster(null);
 	} else { // Tell client to become slave
 		this.clients_.push(client);
-		var channel = new MessageChannel();
+		var channel = messageChannelCtor();
 
 		// It is safe to do both postMessages without any waiting/confirmation
 		// from one side.  Messages are queued by the browser if the other
@@ -118,6 +149,24 @@ cw.crossSharedWorker.Decider.prototype.gotNewPort = function(port) {
 		// an Opera 10.70 build on 2010-09-22.
 		client.becomeSlave(this.master_, /** @type {!MessagePort} */(channel.port1));
 		this.master_.addSlave(client, /** @type {!MessagePort} */(channel.port2));
+	}
+};
+
+/**
+ * @param {!cw.crossSharedWorker.Client} client
+ * @param {*} evacuatedData
+ * @private
+ */
+cw.crossSharedWorker.Decider.prototype.clientDied_ = function(client, evacuatedData) {
+	var isMaster = this.master_ == client;
+	var ret = goog.array.remove(this.clients_, client);
+	goog.asserts.assert(ret, "Client " + cw.repr.repr(client) +
+		" not removed from clients_?");
+	if(!isMaster) {
+		this.master_.removeSlave(client);
+	} else if(this.clients_.length) {
+		this.master_ = this.clients_[0];
+		this.master_.becomeMaster(evacuatedData);
 	}
 };
 
@@ -163,7 +212,8 @@ cw.crossSharedWorker.onErrorHandler = function(e) {
  */
 cw.crossSharedWorker.onConnectHandler = function(e) {
 	var port = e.ports[0];
-	cw.crossSharedWorker.theDecider.gotNewPort(port);
+	cw.crossSharedWorker.theDecider.gotNewPort_(port,
+		function() { return new MessageChannel(); });
 };
 
 
