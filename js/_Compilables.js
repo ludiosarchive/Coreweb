@@ -21,6 +21,7 @@ goog.require('cw.uri');
 goog.require('cw.whoami');
 // Coreweb demos
 goog.require('cnwdemo');
+goog.require('cswdemo');
 // in Minerva - one .require() per file, picked arbitrarily
 goog.require('cw.net.Queue');
 goog.require('cw.net.Stream');

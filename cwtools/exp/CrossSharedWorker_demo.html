@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="charset" content="text/html; charset=utf-8">
+	<title></title>
+	<style>
+		{{ getTestPageCSS() }}
+	</style>
+</head>
+<body>
+
+<div id="doc">This page is a demo of <code>cw.crosstab.CrossSharedWorker</code>.
+You'll want to open multiple tabs/windows to this page to see anything useful.
+</div>
+
+<br>
+
+Send text to master, or to all slaves:
+<input type="text" name="textinput" id="textinput">
+<input type="submit" value="Send"
+	onclick="cnwdemo.sendText(document.getElementById('textinput').value);return false">
+
+<br><br>
+
+<div id="log"></div>
+
+<script>CLOSURE_NO_DEPS = true;</script>
+<script src="/JSPATH/closure/goog/base.js"></script>
+<script src="/JSPATH/all_deps.js"></script>
+
+<script>
+goog.require('cswdemo');
+</script>
+<script>
+__cswdemo_start();
+</script>
+</body>
+</html>
