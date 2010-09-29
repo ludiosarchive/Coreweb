@@ -21,7 +21,18 @@ cw.Test.TestCrossSharedWorker.DummyMessagePort = function() {
 };
 
 /**
- * @constructor
+ * @type {!DummyMessagePort}
+ */
+cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.peer_;
+
+/**
+ * @type {boolean}
+ */
+cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.closed = false;
+
+/**
+ * @param {*} message
+ * @param {!Array} ports
  */
 cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.receiveMessage_ = function(message, ports) {
 	// TODO: buffer data if no `onmessage` yet.
@@ -33,10 +44,19 @@ cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.receiveMessage_ = funct
 };
 
 /**
- * @constructor
+ * @param {*} message
+ * @param {!Array} ports
  */
 cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.postMessage = function(message, ports) {
 	this.peer_.receiveMessage_(message, ports);
+};
+
+/**
+ * Close the DummyMessagePort.
+ */
+cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.close = function() {
+	this.closed = true;
+	delete this.peer_;
 };
 
 
@@ -95,7 +115,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').meth
 
 	function test_repr(self) {
 		var decider = new cw.crossSharedWorker.Decider(newDummyMessageChannel);
-		self.assertEqual('<Decider clients', cw.repr.repr(decider));
+		self.assertEqual('<Decider clients_=[]>', cw.repr.repr(decider));
 	},
 
 	function test_scenario(self) {
@@ -157,6 +177,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').meth
 			cw.eq.plainObject({'data': ['connect_to_master', 3/*master.id*/], 'ports': [cw.eq.Wildcard]})
 		], channel3.port1log.getNew());
 	}
+
+	// TODO: test that it closes ports
 
 );
 
