@@ -64,6 +64,7 @@ cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(e) {
 	if(goog.isArray(data)) {
 		if(data[0] == 'dying') {
 			var evacuatedData = data[1];
+			this.port_.close();
 			this.decider_.clientDied_(this, evacuatedData);
 		}
 	}

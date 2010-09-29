@@ -594,6 +594,7 @@ cw.crosstab.CrossSharedWorker.prototype.messageTo = function(recipient, object) 
  */
 cw.crosstab.CrossSharedWorker.prototype.getMaster_ = function(masterId, masterPort) {
 	if(this.masterCount_) {
+		this.master_.port_.close();
 		this.dispatchEvent({
 			type: cw.crosstab.EventType.LOST_MASTER
 		});
@@ -635,6 +636,7 @@ cw.crosstab.CrossSharedWorker.prototype.removeSlave_ = function(slaveId) {
 		throw Error("I didn't know about slave " + cw.repr.repr(slaveId));
 	}
 	this.slaves_.remove(slaveId);
+	slave.port_.close();
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.LOST_SLAVE,
 		slave: slave
@@ -703,5 +705,17 @@ cw.crosstab.CrossSharedWorker.prototype.disposeInternal = function() {
 
 	if(this.listenKey_) {
 		goog.events.unlistenByKey(this.listenKey_);
+	}
+
+	// TODO: dispatch DYING, send evacuated data instead of null
+	this.worker_.port.postMessage(['dying', null]);
+	this.worker_.port.close();
+
+	if(this.master_) {
+		this.master_.port_.close();
+	}
+	var slaves = this.slaves_.getValues();
+	while(slaves.length) {
+		slaves.pop().port_.close();
 	}
 };
