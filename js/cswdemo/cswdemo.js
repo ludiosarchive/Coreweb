@@ -49,7 +49,6 @@ cswdemo.Demo.prototype.newSlave_ = function(ev) {
 
 cswdemo.Demo.prototype.lostSlave_ = function(ev) {
 	cswdemo.logger.info('Lost slave: ' + cw.repr.repr(ev.slave));
-		this.slaves_.push(ev.slave);
 	var ret = goog.array.remove(this.slaves_, ev.slave);
 	if(!ret) {
 		throw Error("cswdemo.Demo didn't know about slave " + ev.slave);
