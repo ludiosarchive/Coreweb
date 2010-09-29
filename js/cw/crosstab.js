@@ -561,8 +561,7 @@ cw.crosstab.CrossSharedWorker.prototype.isMaster = function() {
  * @param {!Array.<*>} stack
  */
 cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb, stack) {
-	sb.push('<CrossSharedWorker isMaster()=', String(this.isMaster()),
-		', masterCount_=', this.masterCount_, '>');
+	sb.push('<CrossSharedWorker isMaster()=', String(this.isMaster()), '>');
 };
 
 /**
@@ -637,13 +636,13 @@ cw.crosstab.CrossSharedWorker.prototype.messageTo = function(recipient, object) 
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.getMaster_ = function(masterId, masterPort) {
-	if(this.masterCount_) {
+	if(this.master_) {
 		this.master_.port_.close();
+		this.master_ = null;
 		this.dispatchEvent({
 			type: cw.crosstab.EventType.LOST_MASTER
 		});
 	}
-	this.masterCount_++;
 	this.master_ = new cw.crosstab.Peer(masterId, masterPort);
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.GOT_MASTER,
