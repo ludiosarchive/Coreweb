@@ -46,7 +46,9 @@ cswdemo.Demo.prototype.lostMaster_ = function(ev) {
 };
 
 cswdemo.Demo.prototype.becameMaster_ = function(ev) {
-	this.logger_.info('Became master');
+	var evacuatedData = ev.evacuatedData;
+	this.logger_.info('Became master with evacuatedData: ' +
+		cw.repr.repr(evacuatedData));
 };
 
 cswdemo.Demo.prototype.newSlave_ = function(ev) {
@@ -65,6 +67,11 @@ cswdemo.Demo.prototype.lostSlave_ = function(ev) {
 cswdemo.Demo.prototype.message_ = function(ev) {
 	this.logger_.info('Got message from ' + cw.repr.repr(ev.sender) +
 		': ' + cw.repr.repr(ev.message));
+};
+
+cswdemo.Demo.prototype.dying_ = function(ev) {
+	this.csw.setDataToEvacuate(goog.now());
+	this.logger_.info('Dying');
 };
 
 /**
@@ -97,6 +104,7 @@ cswdemo.Demo.prototype.start = function() {
 	this.csw.addEventListener(cw.crosstab.EventType.NEW_SLAVE, this.newSlave_, false, this);
 	this.csw.addEventListener(cw.crosstab.EventType.LOST_SLAVE, this.lostSlave_, false, this);
 	this.csw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.DYING, this.dying_, false, this);
 
 	this.csw.start();
 };

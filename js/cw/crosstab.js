@@ -28,26 +28,39 @@ cw.crosstab.EventType = {
 	 * (event property "master"), so that you can send it messages.
 	 */
 	GOT_MASTER: goog.events.getUniqueId('got_master'),
+
 	/**
 	 * When you receive this event, you must delete your reference to the
 	 * master.
 	 */
 	LOST_MASTER: goog.events.getUniqueId('lost_master'),
+
 	/**
 	 * Dispatched when the CrossNamedWindow becomes a master.  Note that
-	 * this can happen after being a slave for a while.
+	 * this can happen after being a slave for a while.  For evacuated data,
+	 * read event property "evacuatedData".
 	 */
 	BECAME_MASTER: goog.events.getUniqueId('became_master'),
+
+	/**
+	 * Dispatched right before a CrossNamedWindow or CrossSharedWorker dies.
+	 * If a master, you may want to call .setDataToEvacuate(...) under the
+	 * stack frame of the dispatched event.
+	 */
+	DYING: goog.events.getUniqueId('dying'),
+
 	/**
 	 * When you receive this event, you should keep a reference to the slave
 	 * (event property "slave"), so that you can send it messages.
 	 */
 	NEW_SLAVE: goog.events.getUniqueId('new_slave'),
+
 	/**
 	 * When you receive this event, you must delete your reference to the
 	 * slave (which one? check event property "slave").
 	 */
 	LOST_SLAVE: goog.events.getUniqueId('lost_slave'),
+
 	/**
 	 * The actual message is contained in event property "message",
 	 * and the sender in event property "sender".
@@ -132,6 +145,13 @@ cw.crosstab.CrossNamedWindow.prototype.listenKey_ = null;
  * @private
  */
 cw.crosstab.CrossNamedWindow.prototype.master_ = null;
+
+/**
+ * If this master dies, this data is sent to the next master.
+ * @type {*}
+ * @private
+ */
+cw.crosstab.CrossNamedWindow.prototype.dataToEvacuate_ = null;
 
 /**
  * Domain name to use for the cookie.  If you want cross-tab sharing
@@ -224,9 +244,10 @@ cw.crosstab.CrossNamedWindow.prototype.getCookieName_ = function() {
 };
 
 /**
+ * @param {*} evacuatedData
  * @private
  */
-cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
+cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function(evacuatedData) {
 	this.logger_.info('Becoming master.');
 	window.name = this.id_;
 	this.master_ = null;
@@ -235,7 +256,8 @@ cw.crosstab.CrossNamedWindow.prototype.becomeMaster_ = function() {
 	}
 	goog.net.cookies.set(this.cookieName_, this.id_, -1, "", this.domain_);
 	this.dispatchEvent({
-		type: cw.crosstab.EventType.BECAME_MASTER
+		type: cw.crosstab.EventType.BECAME_MASTER,
+		evacuatedData: evacuatedData
 	});
 };
 
@@ -256,7 +278,7 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 			ret.close();
 		} catch(e) {
 		}
-		this.becomeMaster_();
+		this.becomeMaster_(null);
 	} else {
 		this.master_ = /** @type {!cw.crosstab.CrossNamedWindow} */ (
 			ret['__theCrossNamedWindow']);
@@ -271,7 +293,7 @@ cw.crosstab.CrossNamedWindow.prototype.getMaster_ = function(masterName) {
 			// it thinks it's a slave.  (This happened in Firefox 3.6.10
 			// on 2010-09-21).
 			this.logger_.warning('master_.addSlave threw Error: ' + e);
-			this.becomeMaster_();
+			this.becomeMaster_(null);
 			return;
 		}
 		this.dispatchEvent({
@@ -328,13 +350,23 @@ cw.crosstab.CrossNamedWindow.prototype.start = function() {
 	this.logger_.info('Existing cookie ' + cw.repr.repr(this.cookieName_) + '=' +
 		cw.repr.repr(masterName));
 	if(!masterName) {
-		this.becomeMaster_();
+		this.becomeMaster_(null);
 	} else {
 		this.getMaster_(masterName);
 	}
 };
 
+/**
+ * @param {*} data
+ */
+cw.crosstab.CrossNamedWindow.prototype.setDataToEvacuate = function(data) {
+	this.dataToEvacuate_ = data;
+};
+
 cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.DYING
+	});
 	if(this.isMaster()) {
 		// Remove the cookie.
 		if(this.cookieName_) {
@@ -345,7 +377,7 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 		if(this.slaves_.length) {
 			// pop the 0th slave
 			var oldest = this.slaves_.splice(0, 1)[0];
-			oldest.becomeMaster_();
+			oldest.becomeMaster_(this.dataToEvacuate_);
 			var newWindowName = oldest.getWindowName();
 
 			while(this.slaves_.length) {
@@ -358,6 +390,9 @@ cw.crosstab.CrossNamedWindow.prototype.disposeInternal = function() {
 	if(this.listenKey_) {
 		goog.events.unlistenByKey(this.listenKey_);
 	}
+
+	// This must be done after DYING is dispatched above.
+	cw.crosstab.CrossNamedWindow.superClass_.disposeInternal.call(this);
 };
 
 /**
@@ -506,6 +541,13 @@ cw.crosstab.CrossSharedWorker.prototype.masterCount_ = 0;
 cw.crosstab.CrossSharedWorker.prototype.master_ = null;
 
 /**
+ * If this master dies, this data is sent to the next master.
+ * @type {*}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.dataToEvacuate_ = null;
+
+/**
  * @return {boolean} Whether this instance is a master (or no response
  * 	from SharedWorker yet).
  * @private
@@ -539,7 +581,8 @@ cw.crosstab.CrossSharedWorker.prototype.becomeMaster_ = function(evacuatedData) 
 	this.logger_.info('Becoming master.');
 	this.master_ = null;
 	this.dispatchEvent({
-		type: cw.crosstab.EventType.BECAME_MASTER
+		type: cw.crosstab.EventType.BECAME_MASTER,
+		evacuatedData: evacuatedData
 	});
 };
 
@@ -678,6 +721,13 @@ cw.crosstab.CrossSharedWorker.prototype.onMessageFromWorker_ = function(e) {
 };
 
 /**
+ * @param {*} data
+ */
+cw.crosstab.CrossSharedWorker.prototype.setDataToEvacuate = function(data) {
+	this.dataToEvacuate_ = data;
+};
+
+/**
  * Become a master or a slave.  The three possible outcomes are:
  * 	- Become master, and start/connect to a SharedWorker
  * 	- Become master, without being able to start/connect to a SharedWorker
@@ -708,8 +758,10 @@ cw.crosstab.CrossSharedWorker.prototype.disposeInternal = function() {
 		goog.events.unlistenByKey(this.listenKey_);
 	}
 
-	// TODO: dispatch DYING, send evacuated data instead of null
-	this.worker_.port.postMessage(['dying', null]);
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.DYING
+	});
+	this.worker_.port.postMessage(['dying', this.dataToEvacuate_]);
 	this.worker_.port.close();
 
 	if(this.master_) {
@@ -719,4 +771,7 @@ cw.crosstab.CrossSharedWorker.prototype.disposeInternal = function() {
 	while(slaves.length) {
 		slaves.pop().port_.close();
 	}
+
+	// This must be done after DYING is dispatched above.
+	cw.crosstab.CrossSharedWorker.superClass_.disposeInternal.call(this);
 };

@@ -46,7 +46,9 @@ cnwdemo.Demo.prototype.lostMaster_ = function(ev) {
 };
 
 cnwdemo.Demo.prototype.becameMaster_ = function(ev) {
-	this.logger_.info('Became master');
+	var evacuatedData = ev.evacuatedData;
+	this.logger_.info('Became master with evacuatedData: ' +
+		cw.repr.repr(evacuatedData));
 };
 
 cnwdemo.Demo.prototype.newSlave_ = function(ev) {
@@ -65,6 +67,11 @@ cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
 cnwdemo.Demo.prototype.message_ = function(ev) {
 	this.logger_.info('Got message from ' + cw.repr.repr(ev.sender) +
 		': ' + cw.repr.repr(ev.message));
+};
+
+cnwdemo.Demo.prototype.dying_ = function(ev) {
+	cw.crosstab.theCrossNamedWindow.setDataToEvacuate(goog.now());
+	this.logger_.info('Dying');
 };
 
 /**
@@ -97,6 +104,7 @@ cnwdemo.Demo.prototype.start = function() {
 	cnw.addEventListener(cw.crosstab.EventType.NEW_SLAVE, this.newSlave_, false, this);
 	cnw.addEventListener(cw.crosstab.EventType.LOST_SLAVE, this.lostSlave_, false, this);
 	cnw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
+	cnw.addEventListener(cw.crosstab.EventType.DYING, this.dying_, false, this);
 
 	cnw.start();
 };
