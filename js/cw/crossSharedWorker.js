@@ -4,6 +4,14 @@
  *
  * It's okay to use goog.require(...) in this file, because we only load
  * the compiled version in the SharedWorker.
+ *
+ * How this works: clients connect to the SharedWorker, which decides
+ * whether a client should be master or slave.  For each slave that
+ * connects, it helps creates a direct connection between the master and
+ * the slave (messages are *not* proxied through the SharedWorker).
+ *
+ * A client can announce that it is dying.  If it is master, it can pass some
+ * data for argument `evacuatedData`, which is given to the next master.
  */
 
 goog.provide('cw.crossSharedWorker');
@@ -80,14 +88,14 @@ cw.crossSharedWorker.Client.prototype.becomeMaster = function(evacuatedData) {
  * @param {!MessagePort} portToSlave
  */
 cw.crossSharedWorker.Client.prototype.addSlave = function(slave, portToSlave) {
-	this.port_.postMessage(['new_slave', slave.id], [portToSlave]);
+	this.port_.postMessage(['add_slave', slave.id], [portToSlave]);
 };
 
 /**
  * @param {!cw.crossSharedWorker.Client} slave
  */
 cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
-	this.port_.postMessage(['lost_slave', slave.id]);
+	this.port_.postMessage(['remove_slave', slave.id]);
 };
 
 /**
@@ -95,7 +103,7 @@ cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
  * @param {!MessagePort} portToMaster
  */
 cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaster) {
-	this.port_.postMessage(['become_slave', master.id], [portToMaster]);
+	this.port_.postMessage(['connect_to_master', master.id], [portToMaster]);
 };
 
 /**
@@ -107,13 +115,24 @@ cw.crossSharedWorker.Client.counter_ = 0;
 
 /**
  * The object that collects clients and decides which should be master.
+ *
+ * @param {function():!Object} messageChannelCtor A function that returns a
+ * 	new {@code MessageChannel}.
  * @constructor
  */
-cw.crossSharedWorker.Decider = function() {
+cw.crossSharedWorker.Decider = function(messageChannelCtor) {
+	/**
+	 * @type {function():!Object}
+	 * @private
+	 */
+	this.messageChannelCtor_ = messageChannelCtor;
+
 	/**
 	 * @type {!Array.<!cw.crossSharedWorker.Client>}
+	 * @private
 	 */
 	this.clients_ = [];
+
 };
 
 /**
@@ -127,30 +146,35 @@ cw.crossSharedWorker.Decider.prototype.__reprToPieces__ = function(sb, stack) {
 };
 
 /**
- * A client has connected.
- * @param {!MessagePort} port
- * @param {!Function} messageChannelCtor A function that returns a new
- * 	{@code MessageChannel}.
+ * @param {!cw.crossSharedWorker.Client} slave
  * @private
  */
-cw.crossSharedWorker.Decider.prototype.gotNewPort_ = function(port, messageChannelCtor) {
+cw.crossSharedWorker.Decider.prototype.connectSlave_ = function(slave) {
+	var channel = this.messageChannelCtor_();
+
+	// It is safe to do both postMessages without any waiting/confirmation
+	// from one side.  Messages are queued by the browser if the other
+	// port hasn't been listened on yet.  I tested by wrapping the
+	// second postMessage in a setTimeout(..., 5000).  The message
+	// was still received after a delay on Chrome 6.0.472.62 beta and
+	// an Opera 10.70 build on 2010-09-22.
+	slave.becomeSlave(this.master_, /** @type {!MessagePort} */(channel.port1));
+	this.master_.addSlave(slave, /** @type {!MessagePort} */(channel.port2));
+};
+
+/**
+ * A client has connected.
+ * @param {!MessagePort} port
+ * @private
+ */
+cw.crossSharedWorker.Decider.prototype.gotNewPort_ = function(port) {
 	var client = new cw.crossSharedWorker.Client(this, port);
 	this.clients_.push(client);
 	if(!this.master_) { // Tell client to become master
 		this.master_ = client;
 		this.master_.becomeMaster(null);
 	} else { // Tell client to become slave
-		this.clients_.push(client);
-		var channel = messageChannelCtor();
-
-		// It is safe to do both postMessages without any waiting/confirmation
-		// from one side.  Messages are queued by the browser if the other
-		// port hasn't been listened on yet.  I tested by wrapping the
-		// second postMessage in a setTimeout(..., 5000).  The message
-		// was still received after a delay on Chrome 6.0.472.62 beta and
-		// an Opera 10.70 build on 2010-09-22.
-		client.becomeSlave(this.master_, /** @type {!MessagePort} */(channel.port1));
-		this.master_.addSlave(client, /** @type {!MessagePort} */(channel.port2));
+		this.connectSlave_(client);
 	}
 };
 
@@ -169,6 +193,11 @@ cw.crossSharedWorker.Decider.prototype.clientDied_ = function(client, evacuatedD
 	} else if(this.clients_.length) {
 		this.master_ = this.clients_[0];
 		this.master_.becomeMaster(evacuatedData);
+		// Connect the slaves to the new master.
+		var slaves = this.clients_.slice(1);
+		for(var i=0; i < slaves.length; i++) {
+			this.connectSlave_(slaves[i]);
+		}
 	}
 };
 

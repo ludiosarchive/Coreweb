@@ -93,44 +93,63 @@ var DummyMessageChannelWithLoggedPort1 = function() {
 cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').methods(
 
 	function test_scenario(self) {
-		var decider = new cw.crossSharedWorker.Decider();
+		var decider = new cw.crossSharedWorker.Decider(newDummyMessageChannel);
 
 		// The first client to connect gets a 'become_master' message.
 		var channel0 = DummyMessageChannelWithLoggedPort1();
-		decider.gotNewPort_(channel0.port2, newDummyMessageChannel);
+		decider.gotNewPort_(channel0.port2);
 		self.assertEqual([
 			cw.eq.plainObject({'data': ['become_master', null]})
 		], channel0.port1log.getNew());
 
-		// The second client to connect get a 'become_slave' message.
+		// The second client to connect get a 'connect_to_master' message.
 		var channel1 = DummyMessageChannelWithLoggedPort1();
-		decider.gotNewPort_(channel1.port2, newDummyMessageChannel);
+		decider.gotNewPort_(channel1.port2);
 		self.assertEqual([
-			cw.eq.plainObject({'data': ['become_slave', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
+			cw.eq.plainObject({'data': ['connect_to_master', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
 		], channel1.port1log.getNew());
 
 		// Master is notified about the second client.
 		self.assertEqual([
-			cw.eq.plainObject({'data': ['new_slave', 2/*slave.id*/], 'ports': [cw.eq.Wildcard]})
+			cw.eq.plainObject({'data': ['add_slave', 2/*slave.id*/], 'ports': [cw.eq.Wildcard]})
 		], channel0.port1log.getNew());
 
-		// The third client to connect get a 'become_slave' message.
+		// The third client to connect get a 'connect_to_master' message.
 		var channel2 = DummyMessageChannelWithLoggedPort1();
-		decider.gotNewPort_(channel2.port2, newDummyMessageChannel);
+		decider.gotNewPort_(channel2.port2);
 		self.assertEqual([
-			cw.eq.plainObject({'data': ['become_slave', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
+			cw.eq.plainObject({'data': ['connect_to_master', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
 		], channel2.port1log.getNew());
 
 		// Master is notified about the third client.
 		self.assertEqual([
-			cw.eq.plainObject({'data': ['new_slave', 3/*slave.id*/], 'ports': [cw.eq.Wildcard]})
+			cw.eq.plainObject({'data': ['add_slave', 3/*slave.id*/], 'ports': [cw.eq.Wildcard]})
 		], channel0.port1log.getNew());
 
 		// If the first slave dies, master is notified.
-		channel1.port1.postMessage(['dying']);
+		channel1.port1.postMessage(['dying', null]);
 		self.assertEqual([
-			cw.eq.plainObject({'data': ['lost_slave', 2]})
+			cw.eq.plainObject({'data': ['remove_slave', 2]})
 		], channel0.port1log.getNew());
+
+		// Connect another slave.
+		var channel3 = DummyMessageChannelWithLoggedPort1();
+		decider.gotNewPort_(channel3.port2);
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['connect_to_master', 1/*master.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel3.port1log.getNew());
+
+		// If master dies, the oldest slave becomes master, and the other
+		// slave connects to it.
+		channel0.port1.postMessage(['dying', ['some_data']]);
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['become_master', ['some_data']]}),
+			cw.eq.plainObject({'data': ['add_slave', 4/*slave.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel2.port1log.getNew());
+
+		self.assertEqual([
+			cw.eq.plainObject({'data': ['connect_to_master', 3/*master.id*/], 'ports': [cw.eq.Wildcard]})
+		], channel3.port1log.getNew());
 	}
 
 );
