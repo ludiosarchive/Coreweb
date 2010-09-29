@@ -5,21 +5,6 @@
  * See CrossNamedWindow_demo.html to see this in action.
  */
 
-/**
- * Notes:
- *
- * https://developer.mozilla.org/en/DOM/window.open
- * http://msdn.microsoft.com/en-us/library/ms536651%28VS.85%29.aspx
- *
- * (At least in FF) "You can test for the existence of the window object
- * reference which is the returned value in case of success of the window.open()
- * call and then verify that windowObjectReference.closed return value is false."
- *
- * "With the built-in popup blockers of Mozilla/Firefox and Internet Explorer 6 SP2,
- * you have to check the return value of window.open(): it will be null if the
- * window wasn't allowed to open. However, for most other popup blockers,
- * there is no reliable way."
- */
 
 goog.provide('cw.crosstab');
 
@@ -70,6 +55,22 @@ cw.crosstab.EventType = {
 	MESSAGE: goog.events.getUniqueId('message')
 };
 
+
+/**
+ * Notes:
+ *
+ * https://developer.mozilla.org/en/DOM/window.open
+ * http://msdn.microsoft.com/en-us/library/ms536651%28VS.85%29.aspx
+ *
+ * (At least in FF) "You can test for the existence of the window object
+ * reference which is the returned value in case of success of the window.open()
+ * call and then verify that windowObjectReference.closed return value is false."
+ *
+ * "With the built-in popup blockers of Mozilla/Firefox and Internet Explorer 6 SP2,
+ * you have to check the return value of window.open(): it will be null if the
+ * window wasn't allowed to open. However, for most other popup blockers,
+ * there is no reliable way."
+ */
 
 /**
  * An object that automatically sets up synchronous connections
