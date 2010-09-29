@@ -153,6 +153,10 @@ cw.crossSharedWorker.Decider.prototype.__reprToPieces__ = function(sb, stack) {
 cw.crossSharedWorker.Decider.prototype.connectSlave_ = function(slave) {
 	var channel = this.messageChannelCtor_();
 
+	if(!this.master_) {
+		// I don't think this can ever happen, but Compiler is not that smart.
+		throw Error("connectSlave_: No master_?");
+	}
 	// It is safe to do both postMessages without any waiting/confirmation
 	// from one side.  Messages are queued by the browser if the other
 	// port hasn't been listened on yet.  I tested by wrapping the
