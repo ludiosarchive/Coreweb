@@ -21,6 +21,7 @@
 
 goog.provide('cw.repr');
 
+goog.require('cw.func');
 goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
@@ -113,9 +114,9 @@ cw.repr.serializeAny_ = function(obj, sb, stack) {
 	} else if(type == 'string') {
 		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
-		if(typeof obj.__reprToPieces__ == 'function') {
+		if(cw.func.isCallable(obj.__reprToPieces__)) {
 			obj.__reprToPieces__(sb, stack);
-		} else if(typeof obj.__repr__ == 'function') {
+		} else if(cw.func.isCallable(obj.__repr__)) {
 			sb.push(obj.__repr__(stack));
 		} else if(obj instanceof RegExp) {
 			sb.push(obj.toString());
