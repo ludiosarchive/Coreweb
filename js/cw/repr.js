@@ -103,7 +103,7 @@ cw.repr.serializeDate_ = function(obj, sb) {
 cw.repr.serializeAny_ = function(obj, sb, stack) {
 	var stackPos = goog.array.indexOf(stack, obj);
 	if(stackPos != -1) {
-		sb.push('#CYCLETO:' + stackPos + '#');
+		sb.push('#CYCLETO:' + (stack.length - stackPos) + '#');
 		return;
 	}
 	stack.push(obj);

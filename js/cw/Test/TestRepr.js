@@ -146,8 +146,18 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 		var b = {};
 		a.to_b = b;
 		b.to_a = a;
-		self.assertIdentical(repr(a), '{"to_b": {"to_a": #CYCLETO:0#}}');
-		self.assertIdentical(repr([a]), '[{"to_b": {"to_a": #CYCLETO:1#}}]');
+		self.assertIdentical(repr(a), '{"to_b": {"to_a": #CYCLETO:2#}}');
+		self.assertIdentical(repr([a]), '[{"to_b": {"to_a": #CYCLETO:2#}}]');
+	},
+
+	/**
+	 * The `n` in the #CYCLETO:n# marker tells you how many levels up
+	 * the cycled-to object is.
+	 */
+	function test_cycleToDepth(self) {
+		var a = [{'b': [null]}];
+		a[0]['b'][0] = a;
+		self.assertIdentical(repr(a), '[{"b": [#CYCLETO:3#]}]');
 	},
 
 	/**
