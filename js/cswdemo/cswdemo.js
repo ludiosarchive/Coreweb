@@ -28,27 +28,34 @@ cswdemo.Demo = function() {
 	this.master_ = null;
 };
 
+/**
+ * @type {!goog.debug.Logger}
+ * @protected
+ */
+cswdemo.Demo.prototype.logger_ =
+	goog.debug.Logger.getLogger('cswdemo.Demo');
+
 cswdemo.Demo.prototype.gotMaster_ = function(ev) {
-	cswdemo.logger.info('Got master: ' + cw.repr.repr(ev.master));
+	this.logger_.info('Got master: ' + cw.repr.repr(ev.master));
 	this.master_ = ev.master;
 };
 
 cswdemo.Demo.prototype.lostMaster_ = function(ev) {
-	cswdemo.logger.info('Lost master');
+	this.logger_.info('Lost master');
 	this.master_ = null;
 };
 
 cswdemo.Demo.prototype.becameMaster_ = function(ev) {
-	cswdemo.logger.info('Became master');
+	this.logger_.info('Became master');
 };
 
 cswdemo.Demo.prototype.newSlave_ = function(ev) {
-	cswdemo.logger.info('New slave: ' + cw.repr.repr(ev.slave));
+	this.logger_.info('New slave: ' + cw.repr.repr(ev.slave));
 	this.slaves_.push(ev.slave);
 };
 
 cswdemo.Demo.prototype.lostSlave_ = function(ev) {
-	cswdemo.logger.info('Lost slave: ' + cw.repr.repr(ev.slave));
+	this.logger_.info('Lost slave: ' + cw.repr.repr(ev.slave));
 	var ret = goog.array.remove(this.slaves_, ev.slave);
 	if(!ret) {
 		throw Error("cswdemo.Demo didn't know about slave " + ev.slave);
@@ -56,7 +63,7 @@ cswdemo.Demo.prototype.lostSlave_ = function(ev) {
 };
 
 cswdemo.Demo.prototype.message_ = function(ev) {
-	cswdemo.logger.info('Got message from ' + cw.repr.repr(ev.sender) +
+	this.logger_.info('Got message from ' + cw.repr.repr(ev.sender) +
 		': ' + cw.repr.repr(ev.message));
 };
 
@@ -68,7 +75,7 @@ cswdemo.Demo.prototype.sendTextToSlaves = function(text) {
 		var slave = this.slaves_[i];
 		this.csw.messageTo(slave, text);
 	};
-	cswdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
+	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
 };
 
 /**
@@ -79,7 +86,7 @@ cswdemo.Demo.prototype.sendTextToMaster = function(text) {
 		throw Error("sendTextToMaster: master_ is null");
 	}
 	this.csw.messageTo(this.master_, text);
-	cswdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to master');
+	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to master');
 };
 
 cswdemo.Demo.prototype.start = function() {

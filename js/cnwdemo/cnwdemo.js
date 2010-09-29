@@ -28,27 +28,34 @@ cnwdemo.Demo = function() {
 	this.master_ = null;
 };
 
+/**
+ * @type {!goog.debug.Logger}
+ * @protected
+ */
+cnwdemo.Demo.prototype.logger_ =
+	goog.debug.Logger.getLogger('cnwdemo.Demo');
+
 cnwdemo.Demo.prototype.gotMaster_ = function(ev) {
-	cnwdemo.logger.info('Got master: ' + cw.repr.repr(ev.master));
+	this.logger_.info('Got master: ' + cw.repr.repr(ev.master));
 	this.master_ = ev.master;
 };
 
 cnwdemo.Demo.prototype.lostMaster_ = function(ev) {
-	cnwdemo.logger.info('Lost master');
+	this.logger_.info('Lost master');
 	this.master_ = null;
 };
 
 cnwdemo.Demo.prototype.becameMaster_ = function(ev) {
-	cnwdemo.logger.info('Became master');
+	this.logger_.info('Became master');
 };
 
 cnwdemo.Demo.prototype.newSlave_ = function(ev) {
-	cnwdemo.logger.info('New slave: ' + cw.repr.repr(ev.slave));
+	this.logger_.info('New slave: ' + cw.repr.repr(ev.slave));
 	this.slaves_.push(ev.slave);
 };
 
 cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
-	cnwdemo.logger.info('Lost slave: ' + cw.repr.repr(ev.slave));
+	this.logger_.info('Lost slave: ' + cw.repr.repr(ev.slave));
 	var ret = goog.array.remove(this.slaves_, ev.slave);
 	if(!ret) {
 		throw Error("cnwdemo.Demo didn't know about slave " + ev.slave);
@@ -56,7 +63,7 @@ cnwdemo.Demo.prototype.lostSlave_ = function(ev) {
 };
 
 cnwdemo.Demo.prototype.message_ = function(ev) {
-	cnwdemo.logger.info('Got message from ' + cw.repr.repr(ev.sender) +
+	this.logger_.info('Got message from ' + cw.repr.repr(ev.sender) +
 		': ' + cw.repr.repr(ev.message));
 };
 
@@ -68,7 +75,7 @@ cnwdemo.Demo.prototype.sendTextToSlaves = function(text) {
 		var slave = this.slaves_[i];
 		cw.crosstab.theCrossNamedWindow.messageTo(slave, text);
 	};
-	cnwdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
+	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
 };
 
 /**
@@ -79,7 +86,7 @@ cnwdemo.Demo.prototype.sendTextToMaster = function(text) {
 		throw Error("sendTextToMaster: master_ is null");
 	}
 	cw.crosstab.theCrossNamedWindow.messageTo(this.master_, text);
-	cnwdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to master');
+	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to master');
 };
 
 cnwdemo.Demo.prototype.start = function() {
