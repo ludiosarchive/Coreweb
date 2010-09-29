@@ -18,12 +18,12 @@ goog.require('cw.crosstab');
  */
 cswdemo.Demo = function() {
 	/**
-	 * @type {!Array.<!cw.crosstab.CrossSharedWorker>}
+	 * @type {!Array.<!cw.crosstab.Peer>}
 	 */
 	this.slaves_ = [];
 
 	/**
-	 * @type {cw.crosstab.CrossSharedWorker}
+	 * @type {cw.crosstab.Peer}
 	 */
 	this.master_ = null;
 };
@@ -67,7 +67,7 @@ cswdemo.Demo.prototype.message_ = function(ev) {
 cswdemo.Demo.prototype.sendTextToSlaves = function(text) {
 	for(var i=0; i < this.slaves_.length; i++) {
 		var slave = this.slaves_[i];
-		cw.crosstab.theCrossSharedWorker.messageTo(slave, text);
+		this.csw.messageTo(slave, text);
 	};
 	cswdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
 };
@@ -79,32 +79,33 @@ cswdemo.Demo.prototype.sendTextToMaster = function(text) {
 	if(!this.master_) {
 		throw Error("sendTextToMaster: master_ is null");
 	}
-	cw.crosstab.theCrossSharedWorker.messageTo(this.master_, text);
+	this.csw.messageTo(this.master_, text);
 	cswdemo.logger.info('Sent ' + cw.repr.repr(text) + ' to master');
 };
 
 cswdemo.Demo.prototype.start = function() {
-	var csw = cw.crosstab.theCrossSharedWorker;
-	csw.addEventListener(cw.crosstab.EventType.GOT_MASTER, this.gotMaster_, false, this);
-	csw.addEventListener(cw.crosstab.EventType.LOST_MASTER, this.lostMaster_, false, this);
-	csw.addEventListener(cw.crosstab.EventType.BECAME_MASTER, this.becameMaster_, false, this);
-	csw.addEventListener(cw.crosstab.EventType.NEW_SLAVE, this.newSlave_, false, this);
-	csw.addEventListener(cw.crosstab.EventType.LOST_SLAVE, this.lostSlave_, false, this);
-	csw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
+	this.csw = new cw.crosstab.CrossSharedWorker(window, 3000, false);
+	this.csw.addEventListener(cw.crosstab.EventType.GOT_MASTER, this.gotMaster_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.LOST_MASTER, this.lostMaster_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.BECAME_MASTER, this.becameMaster_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.NEW_SLAVE, this.newSlave_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.LOST_SLAVE, this.lostSlave_, false, this);
+	this.csw.addEventListener(cw.crosstab.EventType.MESSAGE, this.message_, false, this);
 
-	csw.start();
+	this.csw.start();
 };
 
 /**
  * @param {string} text
  */
-cswdemo.sendText = function(text) {
-	if(cw.crosstab.theCrossSharedWorker.isMaster()) {
-		cswdemo.lastDemo.sendTextToSlaves(text);
+cswdemo.Demo.prototype.sendText = function(text) {
+	if(this.csw.isMaster()) {
+		this.sendTextToSlaves(text);
 	} else {
-		cswdemo.lastDemo.sendTextToMaster(text);
+		this.sendTextToMaster(text);
 	}
 };
+
 
 cswdemo.start = function() {
 	new goog.debug.DivConsole(document.getElementById('log')).setCapturing(true);

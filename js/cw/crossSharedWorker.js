@@ -221,7 +221,11 @@ cw.crossSharedWorker.Decider.prototype.master_ = null;
 /**
  * @type {!cw.crossSharedWorker.Decider}
  */
-cw.crossSharedWorker.theDecider = new cw.crossSharedWorker.Decider();
+cw.crossSharedWorker.theDecider = new cw.crossSharedWorker.Decider(
+	function() {
+		return new MessageChannel();
+	}
+);
 
 
 
@@ -243,8 +247,7 @@ cw.crossSharedWorker.onErrorHandler = function(e) {
  */
 cw.crossSharedWorker.onConnectHandler = function(e) {
 	var port = e.ports[0];
-	cw.crossSharedWorker.theDecider.gotNewPort_(port,
-		function() { return new MessageChannel(); });
+	cw.crossSharedWorker.theDecider.gotNewPort_(port);
 };
 
 

@@ -29,6 +29,7 @@ goog.require('goog.debug.Logger');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
+goog.require('goog.structs.Map');
 goog.require('goog.net.cookies');
 
 
@@ -197,7 +198,7 @@ cw.crosstab.CrossNamedWindow.prototype.removeSlave = function(slave) {
 	}
 	var ret = goog.array.remove(this.slaves_, slave);
 	if(!ret) {
-		throw Error("I didn't know about slave " + slave);
+		throw Error("I didn't know about slave " + cw.repr.repr(slave));
 	}
 	this.dispatchEvent({
 		type: cw.crosstab.EventType.LOST_SLAVE,
@@ -371,7 +372,7 @@ goog.global['__theCrossNamedWindow'] = cw.crosstab.theCrossNamedWindow;
  * @param {!MessagePort} port
  * @constructor
  */
-cw.crosstab.Client = function(id, port) {
+cw.crosstab.Peer = function(id, port) {
 	/**
 	 * @type {number}
 	 */
@@ -383,6 +384,18 @@ cw.crosstab.Client = function(id, port) {
 	 */
 	this.port_ = port;
 };
+
+
+/**
+ * @param {!Array.<string>} sb
+ * @param {!Array.<*>} stack
+ */
+cw.crosstab.Peer.prototype.__reprToPieces__ = function(sb, stack) {
+	sb.push('<Peer id=');
+	cw.repr.reprToPieces(this.id, sb, stack);
+	sb.push('>');
+};
+
 
 
 /**
@@ -430,9 +443,9 @@ cw.crosstab.CrossSharedWorker = function(clock, initialDecisionTime, allowMaster
 	goog.events.EventTarget.call(this);
 
 	/**
-	 * @type {!Array.<!cw.crosstab.Client>}
+	 * @type {!goog.structs.Map}
 	 */
-	this.slaves_ = [];
+	this.slaves_ = new goog.structs.Map();
 
 	/**
 	 * @type {!cw.clock.IWindowTimeIntervalOptional}
@@ -477,8 +490,16 @@ cw.crosstab.CrossSharedWorker.prototype.listenKey_ = null;
 cw.crosstab.CrossSharedWorker.prototype.timeoutTicket_ = null;
 
 /**
- * A reference to the master, or null if I am the master.
- * @type {cw.crosstab.CrossNamedWindow}
+ * How many masters I have ever connected to.
+ * @type {number}
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.masterCount_ = 0;
+
+/**
+ * A reference to the master, or null if I am the master (or never connected
+ * 	to one).
+ * @type {cw.crosstab.Peer}
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.master_ = null;
@@ -497,8 +518,8 @@ cw.crosstab.CrossSharedWorker.prototype.isMaster = function() {
  * @param {!Array.<*>} stack
  */
 cw.crosstab.CrossSharedWorker.prototype.__reprToPieces__ = function(sb, stack) {
-	sb.push('<CrossSharedWorker isMaster()=' + this.isMaster());
-	sb.push('>');
+	sb.push('<CrossSharedWorker isMaster()=', String(this.isMaster()),
+		', masterCount_=', this.masterCount_, '>');
 };
 
 /**
@@ -514,20 +535,18 @@ cw.crosstab.CrossSharedWorker.prototype.unloadFired_ = function(event) {
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.becomeMaster_ = function(evacuatedData) {
-	1/0
-};
-
-/**
- * @private
- */
-cw.crosstab.CrossSharedWorker.prototype.becomeSlave_ = function(masterPort) {
-	this.master_ = masterPort;
+	this.logger_.info('Becoming master.');
+	this.master_ = null;
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.BECAME_MASTER
+	});
 };
 
 /**
  * @private
  */
 cw.crosstab.CrossSharedWorker.prototype.timedOut_ = function() {
+	this.logger_.info('Timed out waiting for SharedWorker.');
 	this.becomeMaster_(null);
 };
 
@@ -541,14 +560,86 @@ cw.crosstab.CrossSharedWorker.prototype.clearTimeout_ = function() {
 };
 
 /**
- * @param {number} peerId
+ * @param {!cw.crosstab.Peer} peer
  * @param {!MessageEvent} e
  * @private
  */
-cw.crosstab.CrossSharedWorker.prototype.onMessageFromPeer_ = function(peerId, e) {
-	1/0
+cw.crosstab.CrossSharedWorker.prototype.onMessageFromPeer_ = function(peer, e) {
+	var data = e.data;
+	if(goog.isArray(data)) {
+		if(data[0] == 'payload') {
+			var payload = data[1];
+			this.dispatchEvent({
+				type: cw.crosstab.EventType.MESSAGE,
+				sender: peer,
+				message: payload
+			});
+		}
+	}
 };
 
+/**
+ * Send a message to a recipient.
+ * @param {!cw.crosstab.Peer} recipient
+ * @param {*} object The message to send.
+ */
+cw.crosstab.CrossSharedWorker.prototype.messageTo = function(recipient, object) {
+	recipient.port_.postMessage(['payload', object]);
+};
+
+/**
+ * @param {number} masterId
+ * @param {!MessagePort} masterPort
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.getMaster_ = function(masterId, masterPort) {
+	if(this.masterCount_) {
+		this.dispatchEvent({
+			type: cw.crosstab.EventType.LOST_MASTER
+		});
+	}
+	this.masterCount_++;
+	this.master_ = new cw.crosstab.Peer(masterId, masterPort);
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.GOT_MASTER,
+		master: this.master_
+	});
+	masterPort.onmessage = goog.bind(this.onMessageFromPeer_, this, this.master_);
+};
+
+/**
+ * @param {number} slaveId
+ * @param {!MessagePort} slavePort
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.addSlave_ = function(slaveId, slavePort) {
+	if(!this.isMaster()) {
+		throw Error("addSlave: this only works when master");
+	}
+	var slave = new cw.crosstab.Peer(slaveId, slavePort);
+	this.slaves_.set(slaveId, slave);
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.NEW_SLAVE,
+		slave: slave
+	});
+	slavePort.onmessage = goog.bind(this.onMessageFromPeer_, this, slave);
+};
+
+/**
+ * @param {number} slaveId
+ * @private
+ */
+cw.crosstab.CrossSharedWorker.prototype.removeSlave_ = function(slaveId) {
+	var slave = this.slaves_.get(slaveId);
+	if(!slave) {
+		throw Error("I didn't know about slave " + cw.repr.repr(slaveId));
+	}
+	this.slaves_.remove(slaveId);
+	this.dispatchEvent({
+		type: cw.crosstab.EventType.LOST_SLAVE,
+		slave: slave
+	});
+};
 
 /**
  * @private
@@ -565,19 +656,17 @@ cw.crosstab.CrossSharedWorker.prototype.onMessageFromWorker_ = function(e) {
 		if(command == 'become_master') {
 			var evacuatedData = data[1];
 			this.becomeMaster_(evacuatedData);
-		} else if(command == 'become_slave') {
-			var masterId = data[1];
+		} else if(command == 'connect_to_master') {
+			var masterId = /** @type {number} */(data[1]);
 			var masterPort = e.ports[0];
-			this.becomeSlave_(masterPort);
-			masterPort.onmessage = goog.bind(this.onMessageFromPeer_, this, masterId);
+			this.getMaster_(masterId, masterPort);
 		} else if(command == 'add_slave') {
-			var slaveId = data[1];
+			var slaveId = /** @type {number} */(data[1]);
 			var slavePort = e.ports[0];
-			this.slaves_.push(new cw.crosstab.Client(slaveId, slavePort));
-			slavePort.onmessage = goog.bind(this.onMessageFromPeer_, this, slaveId);
+			this.addSlave_(slaveId, slavePort);
 		} else if(command == 'remove_slave') {
-			var slaveId = data[1];
-			// XXX TODO
+			var slaveId = /** @type {number} */(data[1]);
+			this.removeSlave_(slaveId);
 		} else if(command == 'error_in_worker') {
 			var error = data[1];
 			this.logger_.severe('Error in worker: ' + error);
