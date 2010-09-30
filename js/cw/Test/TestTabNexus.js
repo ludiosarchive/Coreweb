@@ -2,7 +2,7 @@
  * @fileoverview Tests for cw.tabnexus
  */
 
-goog.provide('cw.Test.TestCrossSharedWorker');
+goog.provide('cw.Test.TestTabNexus');
 
 goog.require('cw.UnitTest');
 goog.require('cw.eq');
@@ -16,25 +16,25 @@ goog.require('cw.tabnexus');
 /**
  * @constructor
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort = function() {
+cw.Test.TestTabNexus.DummyMessagePort = function() {
 
 };
 
 /**
  * @type {!DummyMessagePort}
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.peer_;
+cw.Test.TestTabNexus.DummyMessagePort.prototype.peer_;
 
 /**
  * @type {boolean}
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.closed = false;
+cw.Test.TestTabNexus.DummyMessagePort.prototype.closed = false;
 
 /**
  * @param {*} message
  * @param {!Array} ports
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.receiveMessage_ = function(message, ports) {
+cw.Test.TestTabNexus.DummyMessagePort.prototype.receiveMessage_ = function(message, ports) {
 	// TODO: buffer data if no `onmessage` yet.
 	var event = cw.eq.plainObject({'data': message});
 	if(ports && ports.length) {
@@ -47,14 +47,14 @@ cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.receiveMessage_ = funct
  * @param {*} message
  * @param {!Array} ports
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.postMessage = function(message, ports) {
+cw.Test.TestTabNexus.DummyMessagePort.prototype.postMessage = function(message, ports) {
 	this.peer_.receiveMessage_(message, ports);
 };
 
 /**
  * Close the DummyMessagePort.
  */
-cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.close = function() {
+cw.Test.TestTabNexus.DummyMessagePort.prototype.close = function() {
 	this.closed = true;
 	delete this.peer_;
 };
@@ -64,17 +64,17 @@ cw.Test.TestCrossSharedWorker.DummyMessagePort.prototype.close = function() {
 /**
  * @constructor
  */
-cw.Test.TestCrossSharedWorker.DummyMessageChannel = function() {
-	this.port1 = new cw.Test.TestCrossSharedWorker.DummyMessagePort();
-	this.port2 = new cw.Test.TestCrossSharedWorker.DummyMessagePort();
+cw.Test.TestTabNexus.DummyMessageChannel = function() {
+	this.port1 = new cw.Test.TestTabNexus.DummyMessagePort();
+	this.port2 = new cw.Test.TestTabNexus.DummyMessagePort();
 	this.port1.peer_ = this.port2;
 	this.port2.peer_ = this.port1;
 };
 
 
 
-var DummyMessagePort = cw.Test.TestCrossSharedWorker.DummyMessagePort;
-var DummyMessageChannel = cw.Test.TestCrossSharedWorker.DummyMessageChannel;
+var DummyMessagePort = cw.Test.TestTabNexus.DummyMessagePort;
+var DummyMessageChannel = cw.Test.TestTabNexus.DummyMessageChannel;
 
 var newDummyMessageChannel = function() {
 	return new DummyMessageChannel();
@@ -111,7 +111,7 @@ var DummyMessageChannelWithLoggedPort1 = function() {
 };
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.TestTabNexus, 'TestDecider').methods(
 
 	function test_repr(self) {
 		var decider = new cw.tabnexus.Decider(newDummyMessageChannel);
