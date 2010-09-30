@@ -5,6 +5,6 @@ targets = [
 	{"inputs": ["_Compilables.js"],
 	"output": "cwtools/compiled/_Compilables.js"},
 
-	{"inputs": ["cw/crossSharedWorker.js"],
-	"output": "cwtools/compiled/crossSharedWorker.js"},
+	{"inputs": ["cw/tabnexus_worker.js"],
+	"output": "cwtools/compiled/tabnexus_worker.js"},
 ]

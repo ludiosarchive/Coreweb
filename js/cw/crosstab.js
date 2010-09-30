@@ -737,7 +737,7 @@ cw.crosstab.CrossSharedWorker.prototype.start = function() {
 		this.unloadFired_, false, this);
 
 	try {
-		this.worker_ = new SharedWorker('/compiled/crossSharedWorker.js');
+		this.worker_ = new SharedWorker('/compiled/tabnexus_worker.js');
 	} catch(e) {
 		// In Opera 10.70 (9049), if the worker cannot be instantiated
 		// because it has reached the limit for the number of workers,

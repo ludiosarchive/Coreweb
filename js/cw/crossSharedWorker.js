@@ -14,7 +14,7 @@
  * data for argument `evacuatedData`, which is given to the next master.
  */
 
-goog.provide('cw.crossSharedWorker');
+goog.provide('cw.tabnexus');
 
 goog.require('goog.asserts');
 goog.require('cw.repr');
@@ -25,9 +25,9 @@ goog.require('cw.repr');
  *
  * @constructor
  */
-cw.crossSharedWorker.Client = function(decider, port) {
+cw.tabnexus.Client = function(decider, port) {
 	/**
-	 * @type {!cw.crossSharedWorker.Decider}
+	 * @type {!cw.tabnexus.Decider}
 	 * @private
 	 */
 	this.decider_ = decider;
@@ -35,7 +35,7 @@ cw.crossSharedWorker.Client = function(decider, port) {
 	/**
 	 * @type {number} Unique ID for this client.
 	 */
-	this.id = ++cw.crossSharedWorker.Client.counter_;
+	this.id = ++cw.tabnexus.Client.counter_;
 
 	/**
 	 * @type {!MessagePort} port
@@ -50,7 +50,7 @@ cw.crossSharedWorker.Client = function(decider, port) {
  * @param {!Array.<string>} sb
  * @param {!Array.<*>} stack
  */
-cw.crossSharedWorker.Client.prototype.__reprToPieces__ = function(sb, stack) {
+cw.tabnexus.Client.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('<Client id=');
 	cw.repr.reprToPieces(this.id_, sb, stack);
 	sb.push('>');
@@ -59,7 +59,7 @@ cw.crossSharedWorker.Client.prototype.__reprToPieces__ = function(sb, stack) {
 /**
  * @param {!MessageEvent} e
  */
-cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(e) {
+cw.tabnexus.Client.prototype.onMessageFromClient_ = function(e) {
 	var data = e.data;
 	if(goog.isArray(data)) {
 		if(data[0] == 'dying') {
@@ -73,37 +73,37 @@ cw.crossSharedWorker.Client.prototype.onMessageFromClient_ = function(e) {
 /**
  * @param {*} e
  */
-cw.crossSharedWorker.Client.prototype.sendError = function(e) {
+cw.tabnexus.Client.prototype.sendError = function(e) {
 	this.port_.postMessage(['error_in_worker', e]);
 };
 
 /**
  * @param {*} evacuatedData
  */
-cw.crossSharedWorker.Client.prototype.becomeMaster = function(evacuatedData) {
+cw.tabnexus.Client.prototype.becomeMaster = function(evacuatedData) {
 	this.port_.postMessage(['become_master', evacuatedData]);
 };
 
 /**
- * @param {!cw.crossSharedWorker.Client} slave
+ * @param {!cw.tabnexus.Client} slave
  * @param {!MessagePort} portToSlave
  */
-cw.crossSharedWorker.Client.prototype.addSlave = function(slave, portToSlave) {
+cw.tabnexus.Client.prototype.addSlave = function(slave, portToSlave) {
 	this.port_.postMessage(['add_slave', slave.id], [portToSlave]);
 };
 
 /**
- * @param {!cw.crossSharedWorker.Client} slave
+ * @param {!cw.tabnexus.Client} slave
  */
-cw.crossSharedWorker.Client.prototype.removeSlave = function(slave) {
+cw.tabnexus.Client.prototype.removeSlave = function(slave) {
 	this.port_.postMessage(['remove_slave', slave.id]);
 };
 
 /**
- * @param {!cw.crossSharedWorker.Client} master
+ * @param {!cw.tabnexus.Client} master
  * @param {!MessagePort} portToMaster
  */
-cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaster) {
+cw.tabnexus.Client.prototype.becomeSlave = function(master, portToMaster) {
 	this.port_.postMessage(['connect_to_master', master.id], [portToMaster]);
 };
 
@@ -111,7 +111,7 @@ cw.crossSharedWorker.Client.prototype.becomeSlave = function(master, portToMaste
  * @type {number}
  * @private
  */
-cw.crossSharedWorker.Client.counter_ = 0;
+cw.tabnexus.Client.counter_ = 0;
 
 
 /**
@@ -121,7 +121,7 @@ cw.crossSharedWorker.Client.counter_ = 0;
  * 	new {@code MessageChannel}.
  * @constructor
  */
-cw.crossSharedWorker.Decider = function(messageChannelCtor) {
+cw.tabnexus.Decider = function(messageChannelCtor) {
 	/**
 	 * @type {function():!Object}
 	 * @private
@@ -129,7 +129,7 @@ cw.crossSharedWorker.Decider = function(messageChannelCtor) {
 	this.messageChannelCtor_ = messageChannelCtor;
 
 	/**
-	 * @type {!Array.<!cw.crossSharedWorker.Client>}
+	 * @type {!Array.<!cw.tabnexus.Client>}
 	 * @private
 	 */
 	this.clients_ = [];
@@ -140,17 +140,17 @@ cw.crossSharedWorker.Decider = function(messageChannelCtor) {
  * @param {!Array.<string>} sb
  * @param {!Array.<*>} stack
  */
-cw.crossSharedWorker.Decider.prototype.__reprToPieces__ = function(sb, stack) {
+cw.tabnexus.Decider.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('<Decider clients_=');
 	cw.repr.reprToPieces(this.clients_, sb, stack);
 	sb.push('>');
 };
 
 /**
- * @param {!cw.crossSharedWorker.Client} slave
+ * @param {!cw.tabnexus.Client} slave
  * @private
  */
-cw.crossSharedWorker.Decider.prototype.connectSlave_ = function(slave) {
+cw.tabnexus.Decider.prototype.connectSlave_ = function(slave) {
 	var channel = this.messageChannelCtor_();
 
 	if(!this.master_) {
@@ -172,8 +172,8 @@ cw.crossSharedWorker.Decider.prototype.connectSlave_ = function(slave) {
  * @param {!MessagePort} port
  * @private
  */
-cw.crossSharedWorker.Decider.prototype.gotNewPort_ = function(port) {
-	var client = new cw.crossSharedWorker.Client(this, port);
+cw.tabnexus.Decider.prototype.gotNewPort_ = function(port) {
+	var client = new cw.tabnexus.Client(this, port);
 	this.clients_.push(client);
 	if(!this.master_) { // Tell client to become master
 		this.master_ = client;
@@ -184,11 +184,11 @@ cw.crossSharedWorker.Decider.prototype.gotNewPort_ = function(port) {
 };
 
 /**
- * @param {!cw.crossSharedWorker.Client} client
+ * @param {!cw.tabnexus.Client} client
  * @param {*} evacuatedData
  * @private
  */
-cw.crossSharedWorker.Decider.prototype.clientDied_ = function(client, evacuatedData) {
+cw.tabnexus.Decider.prototype.clientDied_ = function(client, evacuatedData) {
 	var isMaster = this.master_ == client;
 	var ret = goog.array.remove(this.clients_, client);
 	goog.asserts.assert(ret, "Client " + cw.repr.repr(client) +
@@ -209,24 +209,24 @@ cw.crossSharedWorker.Decider.prototype.clientDied_ = function(client, evacuatedD
 /**
  * @param {*} e
  */
-cw.crossSharedWorker.Decider.prototype.sendErrorIfPossible = function(e) {
+cw.tabnexus.Decider.prototype.sendErrorIfPossible = function(e) {
 	if(this.clients_.length) {
 		this.clients_[0].sendError(e);
 	}
 };
 
 /**
- * @type {cw.crossSharedWorker.Client}
+ * @type {cw.tabnexus.Client}
  * @private
  */
-cw.crossSharedWorker.Decider.prototype.master_ = null;
+cw.tabnexus.Decider.prototype.master_ = null;
 
 
 
 /**
- * @type {!cw.crossSharedWorker.Decider}
+ * @type {!cw.tabnexus.Decider}
  */
-cw.crossSharedWorker.theDecider = new cw.crossSharedWorker.Decider(
+cw.tabnexus.theDecider = new cw.tabnexus.Decider(
 	function() {
 		return new MessageChannel();
 	}
@@ -237,24 +237,20 @@ cw.crossSharedWorker.theDecider = new cw.crossSharedWorker.Decider(
 /**
  * @type {*}
  */
-cw.crossSharedWorker.lastError = null;
+cw.tabnexus.lastError = null;
 
 /**
  * @param {*} e
  */
-cw.crossSharedWorker.onErrorHandler = function(e) {
-	cw.crossSharedWorker.lastError = e;
-	cw.crossSharedWorker.theDecider.sendErrorIfPossible(e);
+cw.tabnexus.onErrorHandler = function(e) {
+	cw.tabnexus.lastError = e;
+	cw.tabnexus.theDecider.sendErrorIfPossible(e);
 };
 
 /**
  * @param {*} e
  */
-cw.crossSharedWorker.onConnectHandler = function(e) {
+cw.tabnexus.onConnectHandler = function(e) {
 	var port = e.ports[0];
-	cw.crossSharedWorker.theDecider.gotNewPort_(port);
+	cw.tabnexus.theDecider.gotNewPort_(port);
 };
-
-
-goog.exportSymbol('onerror', cw.crossSharedWorker.onErrorHandler);
-goog.exportSymbol('onconnect', cw.crossSharedWorker.onConnectHandler);

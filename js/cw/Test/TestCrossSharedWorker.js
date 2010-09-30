@@ -1,5 +1,5 @@
 /**
- * @fileoverview Tests for cw.crossSharedWorker
+ * @fileoverview Tests for cw.tabnexus
  */
 
 goog.provide('cw.Test.TestCrossSharedWorker');
@@ -7,7 +7,7 @@ goog.provide('cw.Test.TestCrossSharedWorker');
 goog.require('cw.UnitTest');
 goog.require('cw.eq');
 goog.require('cw.repr');
-goog.require('cw.crossSharedWorker');
+goog.require('cw.tabnexus');
 
 
 // anti-clobbering for JScript; aliases
@@ -114,12 +114,12 @@ var DummyMessageChannelWithLoggedPort1 = function() {
 cw.UnitTest.TestCase.subclass(cw.Test.TestCrossSharedWorker, 'TestDecider').methods(
 
 	function test_repr(self) {
-		var decider = new cw.crossSharedWorker.Decider(newDummyMessageChannel);
+		var decider = new cw.tabnexus.Decider(newDummyMessageChannel);
 		self.assertEqual('<Decider clients_=[]>', cw.repr.repr(decider));
 	},
 
 	function test_scenario(self) {
-		var decider = new cw.crossSharedWorker.Decider(newDummyMessageChannel);
+		var decider = new cw.tabnexus.Decider(newDummyMessageChannel);
 
 		// The first client to connect gets a 'become_master' message.
 		var channel0 = DummyMessageChannelWithLoggedPort1();
