@@ -97,7 +97,7 @@ cswdemo.Demo.prototype.sendTextToMaster = function(text) {
 };
 
 cswdemo.Demo.prototype.start = function() {
-	this.csw = new cw.crosstab.CrossSharedWorker(window, 3000, false);
+	this.csw = new cw.crosstab.CrossSharedWorker(goog.global['window'], 3000, false);
 	this.csw.addEventListener(cw.crosstab.EventType.GOT_MASTER, this.gotMaster_, false, this);
 	this.csw.addEventListener(cw.crosstab.EventType.LOST_MASTER, this.lostMaster_, false, this);
 	this.csw.addEventListener(cw.crosstab.EventType.BECAME_MASTER, this.becameMaster_, false, this);
