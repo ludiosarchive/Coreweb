@@ -68,6 +68,7 @@ cw.crosstab.EventType = {
 	 * Note that for CrossSharedWorker, you may continue receiving
 	 * messages from a master that has gone offline!  This is because
 	 * the MESSAGEs arrive over a separate MessageChannel.
+	 * See Coreweb/docs/CrossSharedWorker-master-race-condition-*.png
 	 */
 	MESSAGE: goog.events.getUniqueId('message')
 };
