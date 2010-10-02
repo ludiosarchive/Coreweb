@@ -64,6 +64,10 @@ cw.crosstab.EventType = {
 	/**
 	 * The actual message is contained in event property "message",
 	 * and the sender in event property "sender".
+	 *
+	 * Note that for CrossSharedWorker, you may continue receiving
+	 * messages from a master that has gone offline!  This is because
+	 * the MESSAGEs arrive over a separate MessageChannel.
 	 */
 	MESSAGE: goog.events.getUniqueId('message')
 };

@@ -7,6 +7,7 @@ goog.require('goog.array');
 goog.require('goog.debug.DivConsole');
 goog.require('goog.debug.Logger');
 goog.require('goog.string');
+goog.require('goog.Uri');
 
 goog.require('cw.autoTitle');
 goog.require('cw.repr');
@@ -26,6 +27,11 @@ cswdemo.Demo = function() {
 	 * @type {cw.crosstab.Peer}
 	 */
 	this.master_ = null;
+
+	/**
+	 * @type {boolean}
+	 */
+	this.sendBig_ = this.shouldSendBigData_();
 };
 
 /**
@@ -34,6 +40,16 @@ cswdemo.Demo = function() {
  */
 cswdemo.Demo.prototype.logger_ =
 	goog.debug.Logger.getLogger('cswdemo.Demo');
+
+/**
+ * @return {boolean}
+ * @private
+ */
+cswdemo.Demo.prototype.shouldSendBigData_ = function() {
+	var url = new goog.Uri(document.location);
+	var queryData = url.getQueryData();
+	return Boolean(Number(queryData.get('bigdata', '0')));
+};
 
 cswdemo.Demo.prototype.gotMaster_ = function(ev) {
 	this.logger_.info('Got master: ' + cw.repr.repr(ev.master));
@@ -48,7 +64,7 @@ cswdemo.Demo.prototype.lostMaster_ = function(ev) {
 cswdemo.Demo.prototype.becameMaster_ = function(ev) {
 	var evacuatedData = ev.evacuatedData;
 	this.logger_.info('Became master with evacuatedData: ' +
-		cw.repr.repr(evacuatedData));
+		this.describeObject_(evacuatedData));
 };
 
 cswdemo.Demo.prototype.newSlave_ = function(ev) {
@@ -66,34 +82,75 @@ cswdemo.Demo.prototype.lostSlave_ = function(ev) {
 
 cswdemo.Demo.prototype.message_ = function(ev) {
 	this.logger_.info('Got message from ' + cw.repr.repr(ev.sender) +
-		': ' + cw.repr.repr(ev.message));
+		': ' + this.describeObject_(ev.message));
+};
+
+/**
+ * Return a string that describes the object, without repr'ing the whole
+ * thing if it's an Array (because it may be very big).
+ * @param {*} obj
+ * @return {string}
+ */
+cswdemo.Demo.prototype.describeObject_ = function(obj) {
+	if(goog.isArray(obj)) {
+		return '<Array of length ' + obj.length + '>';
+	} else {
+		return cw.repr.repr(obj);
+	}
+};
+
+/**
+ * @return {!Array} an Array that serializes to about ~40MB of JSON.
+ */
+cswdemo.Demo.prototype.getBigObject_ = function() {
+	var string = Array(1024 + 1).join('x');
+	var a = [];
+	// ~40MB and Chrome is fine; ~100MB and the message somehow gets lost.
+	for(var i=0; i < 40000; i++) {
+		a.push(string);
+	}
+	return a;
 };
 
 cswdemo.Demo.prototype.dying_ = function(ev) {
-	this.csw.setDataToEvacuate(goog.now());
+	if(this.csw.isMaster()) {
+		var data = this.sendBig_ ? this.getBigObject_() : goog.now();
+		// Send objects to all of the slaves, to confirm that data is
+		// received even if this tab is closing.
+		this.sendObjectToSlaves('small object');
+		this.sendObjectToSlaves(data);
+		for(var i=0; i < 40; i++) {
+			this.sendObjectToSlaves('another small object #' + i);
+		}
+	} else {
+		var data = 'this is not used for anything';
+	}
+
+	this.csw.setDataToEvacuate(data);
 	this.logger_.info('Dying');
 };
 
 /**
- * @param {string} text
+ * @param {*} obj
  */
-cswdemo.Demo.prototype.sendTextToSlaves = function(text) {
+cswdemo.Demo.prototype.sendObjectToSlaves = function(obj) {
 	for(var i=0; i < this.slaves_.length; i++) {
 		var slave = this.slaves_[i];
-		this.csw.messageTo(slave, text);
+		this.csw.messageTo(slave, obj);
 	};
-	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to ' + this.slaves_.length + ' slave(s)');
+	this.logger_.info('Sent ' + this.describeObject_(obj) +
+		' to ' + this.slaves_.length + ' slave(s)');
 };
 
 /**
- * @param {string} text
+ * @param {*} obj
  */
-cswdemo.Demo.prototype.sendTextToMaster = function(text) {
+cswdemo.Demo.prototype.sendObjectToMaster = function(obj) {
 	if(!this.master_) {
-		throw Error("sendTextToMaster: master_ is null");
+		throw Error("sendObjectToMaster: master_ is null");
 	}
-	this.csw.messageTo(this.master_, text);
-	this.logger_.info('Sent ' + cw.repr.repr(text) + ' to master');
+	this.csw.messageTo(this.master_, obj);
+	this.logger_.info('Sent ' + this.describeObject_(obj) + ' to master');
 };
 
 cswdemo.Demo.prototype.start = function() {
