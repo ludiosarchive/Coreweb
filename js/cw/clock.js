@@ -80,7 +80,7 @@ cw.clock.Clock = function() {
 	 *
 	 * @constructor
 	 */
-	this.Date = function() {}
+	this.Date = function() {};
 
 	var that = this;
 
