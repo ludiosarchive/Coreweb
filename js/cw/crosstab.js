@@ -104,6 +104,13 @@ cw.crosstab.EventType = {
  *
  * Do not use with Opera because it fails to fire unload events.
  *
+ * TODO:
+ * - Don't connect to master tab if it's wrong a different version of the
+ * 	code, or find another solution to this problem.
+ *
+ * - Make this work in Chrome by allowing multiple masters, or by trying to
+ * 	connect to window.opener.
+ *
  * @constructor
  * @extends {goog.events.EventTarget}
  */
@@ -445,27 +452,24 @@ cw.crosstab.Peer.prototype.__reprToPieces__ = function(sb, stack) {
  * the connections.
  *
  * Do not use with Opera because it doesn't fire onunload reliably.
-
- * Possible event orderings:
- * 1)
- * - get response from S.W. before initialDecisionTime, become master
  *
- * 2)
- * - get response from S.W. before initialDecisionTime, become slave
+ * CrossSharedWorker is not reliable yet!  Don't use it.  We might have
+ * to abandon it and have the SharedWorker itself do all of the hard work.
+ * This was the TODO before ivank stopped working on it:
  *
- * 3)
- * - don't get response from S.W. before initialDecisionTime, become master
+ * - Make sure our use of postMessage is safe (other sites can't send msg)
  *
- * 4)
- * - don't get response from S.W. before initialDecisionTime, become master
- * - get response from S.W.; it says to be master.  Woohoo!  We guessed right!
+ * - Make CrossSharedWorker / tabnexus work properly if master crashes,
+ * 	and also detect slave crashes.
  *
- * 5)
- * - don't get response from S.W. before initialDecisionTime, become master
- * - get response from S.W.; it says to be slave
- * - (if allowMaster2Slave) become slave (else) stay master
+ * - Figure out if all messages over MessageChannel delivered even as
+ *	tab is closing.  If not, we may have to scrap CrossSharedWorker.
+ * 	Experiments show that they're not always delivered in Chrome
+ * 	if very large.  Also, a tab may become a new master before all
+ * 	messages from the old master are delivered.
  *
- * And any time, slave may become master.
+ * - Figure out if we want a master->slave transition.  Probably yes, because
+ * 	opening that worker could take a really long time.
  *
  * @param {!cw.clock.IWindowTimeIntervalOptional} clock
  *
@@ -750,6 +754,28 @@ cw.crosstab.CrossSharedWorker.prototype.start = function() {
 		this.logger_.warning('Failed to instantiate SharedWorker: ' + e);
 	}
 
+	/**
+	 * Possible event orderings:
+	 * 1)
+	 * - get response from S.W. before initialDecisionTime, become master
+	 *
+	 * 2)
+	 * - get response from S.W. before initialDecisionTime, become slave
+	 *
+	 * 3)
+	 * - don't get response from S.W. before initialDecisionTime, become master
+	 *
+	 * 4)
+	 * - don't get response from S.W. before initialDecisionTime, become master
+	 * - get response from S.W.; it says to be master.  Woohoo!  We guessed right!
+	 *
+	 * 5)
+	 * - don't get response from S.W. before initialDecisionTime, become master
+	 * - get response from S.W.; it says to be slave
+	 * - (if allowMaster2Slave) become slave (else) stay master
+	 *
+	 * And any time, slave may become master.
+	 */
 	this.timeoutTicket_ = this.clock_.setTimeout(goog.bind(this.timedOut_, this), this.initialDecisionTime_);
 
 	this.worker_.port.onmessage = goog.bind(this.onMessageFromWorker_, this);
