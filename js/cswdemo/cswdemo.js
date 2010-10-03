@@ -171,9 +171,9 @@ cswdemo.Demo.prototype.start = function() {
  */
 cswdemo.Demo.prototype.sendText = function(text) {
 	if(this.csw.isMaster()) {
-		this.sendTextToSlaves(text);
+		this.sendObjectToSlaves(text);
 	} else {
-		this.sendTextToMaster(text);
+		this.sendObjectToMaster(text);
 	}
 };
 
