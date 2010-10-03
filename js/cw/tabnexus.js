@@ -52,7 +52,7 @@ cw.tabnexus.Client = function(decider, port) {
  */
 cw.tabnexus.Client.prototype.__reprToPieces__ = function(sb, stack) {
 	sb.push('<Client id=');
-	cw.repr.reprToPieces(this.id_, sb, stack);
+	cw.repr.reprToPieces(this.id, sb, stack);
 	sb.push('>');
 };
 
