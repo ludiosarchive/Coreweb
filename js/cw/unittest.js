@@ -1540,7 +1540,7 @@ cw.UnitTest.installMonkeys = function() {
 			fn.apply(null, []);
 		}
 
-		if (originalSetTimeout.call) {
+		if(!goog.userAgent.IE && originalSetTimeout.call) {
 			var ticket = originalSetTimeout.call(this, function(){replacementCallable(ticket)}, time);
 		} else {
 			var ticket = originalSetTimeout(function(){replacementCallable(ticket)}, time);
@@ -1556,7 +1556,7 @@ cw.UnitTest.installMonkeys = function() {
 		// interval callable repeats forever until we clearInterval,
 		// so we don't need any fancy replacementCallable.
 
-		if (originalSetInterval.call) {
+		if(!goog.userAgent.IE && originalSetInterval.call) {
 			var ticket = originalSetInterval.call(this, fn, time);
 		} else {
 			var ticket = originalSetInterval(fn, time);
@@ -1567,7 +1567,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	window.clearTimeout = function(ticket) {
 		//cw.UnitTest.logger.finest('Inside replacement window.clearTimeout. ticket: ' + ticket);
-		if (originalClearTimeout.call) {
+		if(!goog.userAgent.IE && originalClearTimeout.call) {
 			var output = originalClearTimeout.call(this, ticket);
 		} else {
 			var output = originalClearTimeout(ticket);
@@ -1579,7 +1579,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	window.clearInterval = function(ticket) {
 		//cw.UnitTest.logger.finest('Inside replacement window.clearInterval. ticket: ' + ticket);
-		if (originalClearInterval.call) {
+		if(!goog.userAgent.IE && originalClearInterval.call) {
 			var output = originalClearInterval.call(this, ticket);
 		} else {
 			var output = originalClearInterval(ticket);
