@@ -52,9 +52,6 @@ there';
 			self.assertNotIdentical('', func());
 		} else {
 			self.assertThrows(Error, func, "Unterminated string constant");
-			if(goog.userAgent.IE && goog.userAgent.isVersion('9.0')) {
-				self.assertThrows(EvalError, func, "Unterminated string constant");
-			}
 		}
 	},
 
