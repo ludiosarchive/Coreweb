@@ -36,5 +36,6 @@ goog.require('cw.net.setupXDRFrame');
 // Browsernode
 goog.require('whiteboard');
 goog.require('forum');
+goog.require('ljstream');
 // Websand
 goog.require('websand');
