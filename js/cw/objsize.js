@@ -16,10 +16,8 @@ goog.provide('cw.objsize');
 cw.objsize.totalSizeOf = function(obj) {
 	var type = goog.typeOf(obj);
 	if(type == 'string') {
-		// We don't know if the UTF-16 string has mostly has 2-byte
-		// characters, or 4-byte characters. Split the difference.
-		// and not 4-byte characters.
-		return 21 + 3 * obj.length;
+		// Assume the UTF-16 string is using 2 bytes per codepoint.
+		return 21 + 2 * obj.length;
 	} else if(type == 'number') {
 		return 16;
 	} else if(type == 'boolean') {
