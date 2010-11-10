@@ -28,6 +28,51 @@ goog.inherits(cw.clock.ClockAdvanceError, goog.debug.Error);
 cw.clock.ClockAdvanceError.prototype.name = 'cw.clock.ClockAdvanceError';
 
 
+
+/**
+ * A deterministic Date object that works sort of like a standard
+ * {@code window.Date}.
+ *
+ * @param {!cw.clock.Clock} clock
+ * @constructor
+ */
+cw.clock.FakeDate_ = function(clock) {
+	/**
+	 * @type {!cw.clock.Clock}
+	 * @private
+	 */
+	this.clock_ = clock;
+};
+
+/**
+ * The deterministic version of {@code Date.getTime}.
+ *
+ * @return {number} "Milliseconds since epoch", but really just
+ * the {@code Clock}'s time.
+ */
+cw.clock.FakeDate_.prototype.getTime = function() {
+	return this.clock_.getTime();
+};
+
+// TODO: more Date functions, in case anything needs them.
+// The general strategy to implement `someMethod' would be:
+//    return new Date(thisClock.rightNow).someMethod();
+
+
+/**
+ * @param {!cw.clock.Clock} clock
+ * @return {function(): !cw.clock.FakeDate_}
+ *
+ * @private
+ */
+cw.clock.getFakeDateConstructor_ = function(clock) {
+	return function() {
+		return new cw.clock.FakeDate_(clock);
+	};
+};
+
+
+
 /**
  * Provide a deterministic, easily-controlled browser {@code window}.
  * This is useful for writing deterministic unit tests for code which
@@ -75,28 +120,9 @@ cw.clock.Clock = function() {
 	this.calls_ = [];
 
 	/**
-	 * A deterministic Date object that works sort of like a standard
-	 * {@code window.Date}.
-	 *
-	 * @constructor
+	 * @type {!Function}
 	 */
-	this.Date = function() {};
-
-	var that = this;
-
-	/**
-	 * The deterministic version of {@code Date.getTime}.
-	 * 
-	 * @return {number} "Milliseconds since epoch", but really just
-	 * 	the {@code Clock}'s time.
-	 */
-	this.Date.prototype.getTime = function() {
-		return that.getTime();
-	}
-
-	// TODO: more Date functions, in case anything needs them.
-	// The general strategy to implement `someMethod' would be:
-	//    return new Date(thisClock.rightNow).someMethod();
+	this.Date = cw.clock.getFakeDateConstructor_(this);
 };
 
 /**
