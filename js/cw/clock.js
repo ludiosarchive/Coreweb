@@ -689,7 +689,8 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 		this.clock.clearTimeout(this.pollerTicket_);
 	}
 
-	this.clock = this.pollerTicket_ = null;
+	delete this.clock;
+	delete this.pollerTicket_;
 
 	// elsewhere
 	//this.dispatchEvent({type: evt.type, target: image});
