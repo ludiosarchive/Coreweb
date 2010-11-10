@@ -146,6 +146,8 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 		var args = event[2];
 		try {
 			cb.apply(scope, args);
+			// Note: The callback may have called .eventually(...),
+			// which mutates events_ and timer_.
 		} catch(e) {
 			this.clock.setTimeout(function() {
 				// Rethrow the unhandled error after a timeout.
@@ -155,10 +157,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 			}, 0);
 		}
 	}
-	// TODO: add test to prove (this.timer_ == null) check is necessary?
-	if(this.events_.length && this.timer_ == null) {
-		this.timer_ = this.clock.setTimeout(this.boundTurn_, 0);
-	}
+
 	if(this.events_.length == 0) {
 		var observers = this.emptyObservers_;
 		this.emptyObservers_ = [];
