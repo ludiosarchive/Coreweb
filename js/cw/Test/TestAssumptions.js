@@ -194,15 +194,15 @@ there';
 
 	/**
 	 * IE6 and IE7 cannot eval a string array with 65536 or more items;
-	 * other browsers can.
-	 *
-	 * TODO: Test IE8 in IE7 compatibility mode.
+	 * other browsers can.  IE8 and IE8 in IE7 compatibility mode can.
 	 */
 	function test_arrayEvalLimit(self) {
 		var size = 65536;
 		var stringedArray = self._makeStringedArray(size);
 
-		var IE6or7 = goog.userAgent.IE && !goog.userAgent.isVersion('8');
+		// Cannot use goog.userAgent.isVersion('8') because that is false
+		// when IE8 is emulating IE7.
+		var IE6or7 = goog.userAgent.IE && !goog.global.XDomainRequest;
 
 		if(!IE6or7) {
 			var result = eval(stringedArray);
