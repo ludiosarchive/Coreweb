@@ -21,7 +21,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').method
 		var normal = new Date().getTime();
 		var shortForm = +new Date;
 
-		// Can't compare normal and shortForm directly because time changes between calls.
+		// Can't compare normal and shortForm directly because the time
+		// changes between calls.
 
 		self.assertIdentical(String(normal).length, String(shortForm).length);
 		self.assertIdentical(String(normal).substr(0, 7), String(shortForm).substr(0, 7));
@@ -56,7 +57,8 @@ there';
 	},
 
 	/**
-	 * Test that eval("\\u0000\\u0001\\u0002...\\uFFFF") results in "\u0000\u0001\u0002...\uFFFF"
+	 * Test that eval("\\u0000\\u0001\\u0002...\\uFFFF") results in
+	 * "\u0000\u0001\u0002...\uFFFF"
 	 */
 	function test_evalRainbow(self) {
 		var expectedBuffer = [];
@@ -191,7 +193,8 @@ there';
 	},
 
 	/**
-	 * IE6 and IE7 cannot eval a string array with 65536 or more items; other browsers can
+	 * IE6 and IE7 cannot eval a string array with 65536 or more items;
+	 * other browsers can.
 	 *
 	 * TODO: Test IE8 in IE7 compatibility mode.
 	 */
@@ -210,7 +213,9 @@ there';
 		} else {
 			try {
 				eval(stringedArray);
-				self.fail("This line should not be reached; eval should have thrown an Error with 'Out of memory' message");
+				self.fail("This line should not be reached; eval " +
+					"should have thrown an Error " +
+					"with 'Out of memory' message");
 			} catch(e) {
 				self.assertIdentical("Out of memory", e.message);
 			}
@@ -232,8 +237,8 @@ there';
 	 * for-in, it is not possible to transfer them from a one object to another
 	 * using for-in."
 	 *
-	 * Paraphrased in [MS-ES3]: Internet Explorer ECMA-262 ECMAScript Language
-	 * Specification Standards Support Document (2010-03-26):
+	 * Paraphrased in [MS-ES3]: Internet Explorer ECMA-262 ECMAScript
+	 * Language Specification Standards Support Document (2010-03-26):
 	 *
 	 * "Note that JScript 5.x defines properties (see [ECMA-262] section
 	 * 6.6.2.2) such that their DontEnum attribute is inherited from prototype
@@ -276,7 +281,8 @@ there';
 		self.assertEqual(3, Math.max(3, null));
 		self.assertEqual(3, Math.max(null, 3));
 
-		// Different from Python! Python returns -1 for max(None, -1) and max(-1, None).
+		// JS is different from Python here!  Python returns -1 for both
+		// max(None, -1) and max(-1, None).
 		self.assertEqual(0, Math.max(-1, null));
 		self.assertEqual(0, Math.max(null, -1));
 	},
