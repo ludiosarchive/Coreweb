@@ -67,7 +67,7 @@ class TestPage(resource.Resource):
 		# ...but don't run the tests on the dependency modules
 		moduleString = dumps(modules)
 
-		template = FilePath(__file__).parent().child('TestRunnerPage.html').getContent().decode('utf-8')
+		template = FilePath(__file__).sibling('TestRunnerPage.html').getContent().decode('utf-8')
 		dictionary = dict(
 			moduleString=moduleString,
 			pageTitle=','.join(self.testPackages))
