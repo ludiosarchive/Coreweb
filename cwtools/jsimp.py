@@ -47,7 +47,7 @@ def _extractOneArgFromFuncall(line, prefix):
 	"""
 	assert not '(' in prefix, prefix
 	# len(prefix) + 1 because C{prefix} doesn't include the "("
-	quotedString = line[len(prefix) + 1:line.find(')')]
+	quotedString = line[len(prefix) + 1:line.index(')')]
 	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
 	if quotedString[0] == "'" and quotedString[-1] == "'":
 		quotedString = '"' + quotedString[1:-1] + '"'
