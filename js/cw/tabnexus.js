@@ -50,9 +50,9 @@ cw.tabnexus.Client = function(decider, port) {
  * @param {!Array.<string>} sb
  * @param {!Array.<*>} stack
  */
-cw.tabnexus.Client.prototype.__reprToPieces__ = function(sb, stack) {
+cw.tabnexus.Client.prototype.__reprPush__ = function(sb, stack) {
 	sb.push('<Client id=');
-	cw.repr.reprToPieces(this.id, sb, stack);
+	cw.repr.reprPush(this.id, sb, stack);
 	sb.push('>');
 };
 
@@ -140,9 +140,9 @@ cw.tabnexus.Decider = function(messageChannelCtor) {
  * @param {!Array.<string>} sb
  * @param {!Array.<*>} stack
  */
-cw.tabnexus.Decider.prototype.__reprToPieces__ = function(sb, stack) {
+cw.tabnexus.Decider.prototype.__reprPush__ = function(sb, stack) {
 	sb.push('<Decider clients_=');
-	cw.repr.reprToPieces(this.clients_, sb, stack);
+	cw.repr.reprPush(this.clients_, sb, stack);
 	sb.push('>');
 };
 

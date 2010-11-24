@@ -6,12 +6,12 @@
  * 	- cw.repr internals
  *
  * For non-primitive objects that cw.repr understands, the priority is:
- * 	- .__reprToPieces__(sb)
+ * 	- .__reprPush__(sb)
  * 	- .__repr__()
  * 	- cw.repr internals
  *
  * For non-primitive objects that cw.repr doesn't understand, the priority is:
- * 	- .__reprToPieces__(sb)
+ * 	- .__reprPush__(sb)
  * 	- .__repr__()
  * 	- .toString()
  *
@@ -114,8 +114,8 @@ cw.repr.serializeAny_ = function(obj, sb, stack) {
 	} else if(type == 'string') {
 		goog.json.Serializer.prototype.serializeString_(/** @type {string} */ (obj), sb);
 	} else {
-		if(cw.func.isCallable(obj.__reprToPieces__)) {
-			obj.__reprToPieces__(sb, stack);
+		if(cw.func.isCallable(obj.__reprPush__)) {
+			obj.__reprPush__(sb, stack);
 		} else if(cw.func.isCallable(obj.__repr__)) {
 			sb.push(obj.__repr__(stack));
 		} else if(obj instanceof RegExp) {
@@ -129,7 +129,7 @@ cw.repr.serializeAny_ = function(obj, sb, stack) {
 			} else {
 				cw.repr.serializeObject_(/** @type {!Object} */ (obj), sb, stack);
 			}
-		} else { // ('function' or 'unknown') with no (__reprToPieces__ or __repr__)
+		} else { // ('function' or 'unknown') with no (__reprPush__ or __repr__)
 			sb.push(obj.toString());
 		}
 	}
@@ -149,7 +149,7 @@ cw.repr.serializeAny_ = function(obj, sb, stack) {
  * 	May already have string values.
  * @param {!Array.<*>=} stack Array used to stop at a reference cycle.
  */
-cw.repr.reprToPieces = function(obj, sb, stack) {
+cw.repr.reprPush = function(obj, sb, stack) {
 	if(!stack) {
 		stack = [];
 	}
@@ -167,6 +167,6 @@ cw.repr.reprToPieces = function(obj, sb, stack) {
  */
 cw.repr.repr = function(obj, stack) {
 	var sb = [];
-	cw.repr.reprToPieces(obj, sb, stack);
+	cw.repr.reprPush(obj, sb, stack);
 	return sb.join('');
 };

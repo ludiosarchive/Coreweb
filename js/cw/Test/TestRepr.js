@@ -14,7 +14,7 @@ goog.require('goog.array');
 (function(){
 
 var repr = cw.repr.repr;
-var reprToPieces = cw.repr.reprToPieces;
+var reprPush = cw.repr.reprPush;
 
 /**
  * Tests for L{cw.repr.repr}.
@@ -62,16 +62,16 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
-	 * Test {@code cw.repr.reprToPieces}
+	 * Test {@code cw.repr.reprPush}
 	 */
-	function test_reprToPieces(self) {
+	function test_reprPush(self) {
 		var sb = [];
-		reprToPieces([5, true], sb);
+		reprPush([5, true], sb);
 		self.assertEqual(sb, ['[', '', '5', ', ', 'true', ']']);
 
 		// With existing values already
 		var sb = ['x', 'yz'];
-		reprToPieces([5, true], sb);
+		reprPush([5, true], sb);
 		self.assertEqual(sb, ['x', 'yz', '[', '', '5', ', ', 'true', ']']);
 	},
 
@@ -99,11 +99,11 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
-	 * a __reprToPieces__ is higher-priority than a __repr__
+	 * a __reprPush__ is higher-priority than a __repr__
 	 */
-	function test_customReprToPiecesPriority(self) {
+	function test_customReprPushPriority(self) {
 		goog.array.forEach([function() {}, {}, [], new Date(2009, 0, 1), /a/], function(obj) {
-			obj.__reprToPieces__ = function(sb, stack) { sb.push('a', 'b'); };
+			obj.__reprPush__ = function(sb, stack) { sb.push('a', 'b'); };
 			obj.__repr__ = function(stack) { return 'custom'; };
 			self.assertIdentical(repr(obj), 'ab');
 		});
