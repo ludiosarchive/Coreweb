@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="charset" content="text/html; charset=utf-8">
+<style>
+#log { background-color: #eee; }
+</style>
+</head>
+<body>
+This page makes an XMLHttpRequest after a setTimeout(..., 200) fires, which is set up in
+the window's <code>onload</code> handler. The requested resource takes 4 seconds to load.
+In Firefox, pressing <code>ESC</code> will abort the XHR request.  This doesn't happen
+in any other browser that I know of.
+<noscript><strong>JS is off. This needs JavaScript enabled to work.</strong></noscript>
+<br><br>
+<div id="log"></div>
+<script>
+function onLoadFired() {
+	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
+}
+
+function makeRequest() {
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/analytics/wait_resource/?wait=4', true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4) {
+			document.getElementById('log').innerHTML += 'Got response: ' + xhr.responseText;
+		}
+	}
+	xhr.send('POST body is ignored');
+	document.getElementById('log').innerHTML += 'Sent XHR request, please wait...<br>';
+}
+
+window.onload = function() {
+	onLoadFired();
+	setTimeout(makeRequest, 200);
+};
+</script>
+</body>
+</html>
