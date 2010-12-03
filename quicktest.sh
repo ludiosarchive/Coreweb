@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-python -N `which trial` cwtools
+python -N -W all `which trial` cwtools
