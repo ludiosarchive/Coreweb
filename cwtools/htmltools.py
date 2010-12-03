@@ -8,6 +8,7 @@ applications made of dozens of JavaScript files. Tools like Firebug
 work better when JavaScript is loaded from many files.
 """
 
+import sys
 import struct
 import jinja2
 from webmagic import uriparse
@@ -178,5 +179,10 @@ class LiveBox(static.File):
 
 
 
-from pypycpyo import optimizer
-optimizer.bind_all_many(vars(), _postImportVars)
+try:
+	from mypy import refbinder
+except ImportError:
+	pass
+else:
+	refbinder.bindRecursive(sys.modules[__name__], _postImportVars)
+	del refbinder

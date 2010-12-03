@@ -27,6 +27,7 @@ with a separate <script> per file, the page load slows down by at least a second
 # goog.require(...) lines will use the provided->file dict to determine the Script.
 
 
+import sys
 import jinja2
 import simplejson
 
@@ -654,5 +655,10 @@ class VirtualScript(_BaseScript):
 
 
 
-from pypycpyo import optimizer
-optimizer.bind_all_many(vars(), _postImportVars)
+try:
+	from mypy import refbinder
+except ImportError:
+	pass
+else:
+	refbinder.bindRecursive(sys.modules[__name__], _postImportVars)
+	del refbinder
