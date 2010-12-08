@@ -369,7 +369,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestMethodNoOverwrite').method
 		);
 
 		var makeSameMethodName = function() {
-			TempClass.pmethods({aMethod: function(){ return 2 }})
+			TempClass.pmethods({aMethod: function() { return 2; }})
 		}
 
 		self.assertThrows(Error, makeSameMethodName);
@@ -391,7 +391,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestMethodNoOverwrite').method
 		 * see comment above
 		 */
 
-		TempClass.pmethods({aMethod: function(){ return 1 }});
+		TempClass.pmethods({aMethod: function() { return 1; }});
 
 		var makeSameMethodName = function() {
 			TempClass.methods(
@@ -530,11 +530,11 @@ cw.Test.TestClass._WithTemporary.subclass(cw.Test.TestClass, 'TestPmethodsIsLeni
 
 	function test_cannotNameMethodErroneousName(self) {
 		var attachBadMethod1 = function() {
-			cw.Test.__TestBadMethodNames_Temporary.pmethods({window: function(){}});
+			cw.Test.__TestBadMethodNames_Temporary.pmethods({window: function() {}});
 		}
 
 		var attachBadMethod2 = function() {
-			cw.Test.__TestBadMethodNames_Temporary.pmethods({cw: function(){}});
+			cw.Test.__TestBadMethodNames_Temporary.pmethods({cw: function() {}});
 		}
 
 		cw.Class.subclass(cw.Test, '__TestBadMethodNames_Temporary');

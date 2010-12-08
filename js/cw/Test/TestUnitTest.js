@@ -508,7 +508,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	 */
 	function test_setTimeoutLooseNested(self) {
 		// the loose call in this "parent" test
-		var looseTimeout = setTimeout(function(){}, 60);
+		var looseTimeout = setTimeout(function() {}, 60);
 
 		var suite = cw.UnitTest.TestSuite();
 		// "child" test will have a loose call, too.
@@ -814,7 +814,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 			self.assertIdentical(0, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
 		});
 
-		setTimeout(function(){d.callback(null)}, 30);
+		setTimeout(function() { d.callback(null); }, 30);
 
 		return d;
 	},
@@ -863,7 +863,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 			self.assertIdentical(0, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
 		});
 
-		setTimeout(function(){d.callback(null)}, 35);
+		setTimeout(function() { d.callback(null); }, 35);
 
 		return d;
 	},

@@ -1550,9 +1550,9 @@ cw.UnitTest.installMonkeys = function() {
 		}
 
 		if(!goog.userAgent.IE && originalSetTimeout.call) {
-			var ticket = originalSetTimeout.call(this, function(){replacementCallable(ticket)}, time);
+			var ticket = originalSetTimeout.call(this, function() { replacementCallable(ticket); }, time);
 		} else {
-			var ticket = originalSetTimeout(function(){replacementCallable(ticket)}, time);
+			var ticket = originalSetTimeout(function() { replacementCallable(ticket); }, time);
 		}
 
 		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;

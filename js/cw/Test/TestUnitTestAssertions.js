@@ -89,7 +89,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 
 	function test_assertFailureDelayed(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(Error("Throwing an Error."));}, 10);
+		setTimeout(function() { d.errback(Error("Throwing an Error.")); }, 10);
 		self.assertFailure(d, [Error]);
 		return d;
 	},

@@ -29,32 +29,32 @@ cw.UnitTest.TestCase.subclass(cw.Test.DMock, '_WasRun').methods(
 
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'setUp '; d.callback(null); }, 0);
 		return d;
 	},
 
 	function test_good(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'test '; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'test '; d.callback(null); }, 0);
 		//CW.msg('installed the setTimeout.');
 		return d;
 	},
 
 	function test_bad(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(self.getFailError("fail this test deliberately")); }, 0);
+		setTimeout(function() { d.errback(self.getFailError("fail this test deliberately")); }, 0);
 		return d;
 	},
 
 	function test_error(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new Error("error")); }, 0);
+		setTimeout(function() { d.errback(new Error("error")); }, 0);
 		return d;
 	},
 
 	function test_skip(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new cw.UnitTest.SkipTest("skip")); }, 0);
+		setTimeout(function() { d.errback(new cw.UnitTest.SkipTest("skip")); }, 0);
 		return d;
 	},
 
@@ -62,7 +62,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.DMock, '_WasRun').methods(
 
 	function tearDown(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'tearDown'; d.callback(null); }, 0);
 		return d;
 	}
 );
@@ -77,19 +77,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.DMock, '_BadSetUp').methods(
 
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new Error("failed setup"));}, 0);
+		setTimeout(function() { d.errback(new Error("failed setup")); }, 0);
 		return d;
 	},
 
 	function test_method(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'test_method '; d.callback(null); }, 0);
 		return d;
 	},
 
 	function tearDown(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'tearDown'; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'tearDown'; d.callback(null); }, 0);
 		return d;
 	}
 );
@@ -99,7 +99,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.DMock, '_BadSetUp').methods(
 cw.Test.DMock._BadSetUp.subclass(cw.Test.DMock, '_SkipTestInSetUp').methods(
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(new cw.UnitTest.SkipTest("skip in setUp"));}, 0);
+		setTimeout(function() { d.errback(new cw.UnitTest.SkipTest("skip in setUp")); }, 0);
 		return d;
 	}
 );
@@ -114,19 +114,19 @@ cw.UnitTest.TestCase.subclass(cw.Test.DMock, '_BadTearDown').methods(
 
 	function setUp(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'setUp '; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'setUp '; d.callback(null); }, 0);
 		return d;
 	},
 
 	function test_method(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){self.log += 'test_method '; d.callback(null);}, 0);
+		setTimeout(function() { self.log += 'test_method '; d.callback(null); }, 0);
 		return d;
 	},
 
 	function tearDown(self) {
 		var d = new goog.async.Deferred();
-		setTimeout(function(){d.errback(self.getFailError('deliberate fail in tearDown')); }, 0);
+		setTimeout(function() { d.errback(self.getFailError('deliberate fail in tearDown')); }, 0);
 		return d;
 	}
 );

@@ -40,10 +40,10 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	function test_setWhateverUseGlobalCounter(self) {
 		var clock = new cw.clock.Clock();
 		var tickets = [
-			clock.setTimeout(function(){}, 0),
-			clock.setTimeout(function(){}, 0),
-			clock.setInterval(function(){}, 1),
-			clock.setInterval(function(){}, 1)
+			clock.setTimeout(function() {}, 0),
+			clock.setTimeout(function() {}, 0),
+			clock.setInterval(function() {}, 1),
+			clock.setInterval(function() {}, 1)
 		];
 
 		self.assertEqual(4, cw.array.uniq(tickets).length);
@@ -54,9 +54,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	 */
 	function test_clearTimeout(self) {
 		var clock = new cw.clock.Clock();
-		var ticket1 = clock.setTimeout(function(){}, 0);
-		var ticket2 = clock.setTimeout(function(){}, 0);
-		var ticket3 = clock.setTimeout(function(){}, 0);
+		var ticket1 = clock.setTimeout(function() {}, 0);
+		var ticket2 = clock.setTimeout(function() {}, 0);
+		var ticket3 = clock.setTimeout(function() {}, 0);
 		self.assertEqual(3, clock.getCallsArray_().length);
 
 		// "clear" some bogus ticket ID, make sure nothing changed.
@@ -87,7 +87,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 	function test_clearTimeoutCanClearInterval(self) {
 		var clock = new cw.clock.Clock();
-		var ticket1 = clock.setInterval(function(){}, 1);
+		var ticket1 = clock.setInterval(function() {}, 1);
 		self.assertEqual(1, clock.getCallsArray_().length);
 		clock.clearTimeout(ticket1);
 		self.assertEqual(0, clock.getCallsArray_().length);
@@ -98,8 +98,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var clock = new cw.clock.Clock();
 		var called1 = false;
 		var called2 = false;
-		clock.setTimeout(function(){called1 = true}, 3);
-		clock.setTimeout(function(){called2 = true}, 4);
+		clock.setTimeout(function() { called1 = true; }, 3);
+		clock.setTimeout(function() { called2 = true; }, 4);
 
 		clock.advance(1);
 		clock.advance(1);
@@ -117,8 +117,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var clock = new cw.clock.Clock();
 		var called1 = false;
 		var called2 = false;
-		clock.setTimeout(function(){called1 = true}, 2);
-		clock.setTimeout(function(){called2 = true}, 2);
+		clock.setTimeout(function() { called1 = true; }, 2);
+		clock.setTimeout(function() { called2 = true; }, 2);
 		self.assertEqual(false, called1);
 		self.assertEqual(false, called2);
 
@@ -133,8 +133,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 		var clock = new cw.clock.Clock();
 		var called1 = 0;
 		var called2 = 0;
-		clock.setInterval(function(){called1 += 1}, 2);
-		clock.setInterval(function(){called2 += 1}, 3);
+		clock.setInterval(function() { called1 += 1; }, 2);
+		clock.setInterval(function() { called2 += 1; }, 3);
 
 		clock.advance(2);
 		self.assertEqual(1, called1);
@@ -310,8 +310,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 	function test_clockAdvanceError(self) {
 		var clock = new cw.clock.Clock();
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){ clock.advance(-1); });
-		self.assertThrows(cw.clock.ClockAdvanceError, function(){ clock.advance(-0.5); });
+		self.assertThrows(cw.clock.ClockAdvanceError, function() { clock.advance(-1); });
+		self.assertThrows(cw.clock.ClockAdvanceError, function() { clock.advance(-0.5); });
 	},
 
 	/**

@@ -149,7 +149,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		d.addCallback(function() {
 			notified = true;
 			cq.eventually(function() {}, this, []);
-			cq.notifyEmpty().addCallback(function(){ notified2 = true; });
+			cq.notifyEmpty().addCallback(function() { notified2 = true; });
 		});
 
 		self.assertEqual(false, notified);
@@ -177,7 +177,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 		var d = cq.notifyEmpty();
 		d.addCallback(function() {
 			notified = true;
-			cq.notifyEmpty().addCallback(function(){ notified2 = true; });
+			cq.notifyEmpty().addCallback(function() { notified2 = true; });
 		});
 
 		self.assertEqual(false, notified);

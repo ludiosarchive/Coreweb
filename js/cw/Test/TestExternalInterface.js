@@ -87,7 +87,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 	function test_functionsEncodedToNull(self) {
 		self.assertIdentical(
 			self._func1('<null/>'),
-			cw.externalinterface.request('func1', function(){}));
+			cw.externalinterface.request('func1', function() {}));
 
 		function named_function() {};
 		self.assertIdentical(
@@ -99,14 +99,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 	function test_functionsInArrayEncodedToNull(self) {
 		self.assertIdentical(
 			self._func1('<array><property id="0"><null/></property></array>'),
-			cw.externalinterface.request('func1', [function(){}]));
+			cw.externalinterface.request('func1', [function() {}]));
 	},
 
 
 	function test_functionsInObjectSkipped(self) {
 		self.assertIdentical(
 			self._func1('<object></object>'),
-			cw.externalinterface.request('func1', {"afunc": function(){}}));
+			cw.externalinterface.request('func1', {"afunc": function() {}}));
 	},
 
 

@@ -104,7 +104,7 @@ cw.Class.subclass(CW.Neptune, "XHRStream").methods(
 		 */
 
 		if(window.opera) {
-			self.forceReadInterval = setInterval(function(){self._dataReceived.apply(self, []);},50);
+			self.forceReadInterval = setInterval(function() { self._dataReceived.apply(self, []); },50);
 		}
 		self.connStatus = "maybealive";
 		self.xhr.send('');
