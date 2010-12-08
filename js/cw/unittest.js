@@ -41,7 +41,7 @@ goog.require('goog.debug.Error');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 
 /**
@@ -1411,7 +1411,7 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 				if(syncCallOkay) {
 					self._traverse(visitor, tests, completionDeferred, nowOn + 1);
 				} else {
-					goog.global.setTimeout(function(){
+					goog.global.setTimeout(function() {
 						self._traverse(visitor, tests, completionDeferred, nowOn + 1);
 					}, 0);
 				}

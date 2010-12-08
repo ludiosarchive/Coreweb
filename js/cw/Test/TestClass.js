@@ -9,7 +9,7 @@ goog.require('cw.Class');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestClass, 'TestClass').methods(
 

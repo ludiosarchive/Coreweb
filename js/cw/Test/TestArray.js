@@ -9,7 +9,7 @@ goog.require('cw.array');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 /**
  * Tests for L{cw.array.uniq}

@@ -10,7 +10,7 @@ goog.require('cw.checktype');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 
 /**

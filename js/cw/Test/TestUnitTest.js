@@ -18,7 +18,7 @@ goog.require('goog.async.DeferredList');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'IsTestCaseTests').methods(
@@ -106,7 +106,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._WasRun("test_good");
 		self.assertIdentical(test.log, '');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(test.log, 'setUp test tearDown');
 		});
 		return d;
@@ -118,7 +118,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_tearDownCalled(self) {
 		var test = self.mockModule._WasRun("test_bad");
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(test.log, 'setUp tearDown');
 		});
 		return d;
@@ -131,7 +131,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_goodResult(self) {
 		var test = self.mockModule._WasRun('test_good');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 0]);
 			self.assertTrue(self.result.wasSuccessful());
 		});
@@ -146,7 +146,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_badResult(self) {
 		var test = self.mockModule._WasRun('test_bad');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 1, 0, 0]);
 			self.assertFalse(self.result.wasSuccessful());
 		});
@@ -161,7 +161,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_errorResult(self) {
 		var test = self.mockModule._WasRun('test_error');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertFalse(self.result.wasSuccessful());
 		});
@@ -182,7 +182,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		suite.addTests([bad, good, error, skip]);
 
 		var d = suite.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [4, 1, 1, 1]);
 
 			// check the failure
@@ -222,7 +222,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._BadSetUp('test_method');
 		self.assertIdentical(test.log, '');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(test.log, '');
 		});
 		return d;
@@ -237,7 +237,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var test = self.mockModule._SkipTestInSetUp('test_method');
 		self.assertIdentical(test.log, '');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(test.log, '');
 		});
 		return d;
@@ -251,7 +251,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_failureInSetUpReported(self) {
 		var test = self.mockModule._BadSetUp('test_method');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 		});
 		return d;
@@ -265,7 +265,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_skipTestInSetUpReported(self) {
 		var test = self.mockModule._SkipTestInSetUp('test_method');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 0, 1]);
 		});
 		return d;
@@ -279,7 +279,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_failureInTearDownReported(self) {
 		var test = self.mockModule._BadTearDown('test_method');
 		var d = test.run(self.result);
-		d.addBoth(function(){
+		d.addBoth(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 		});
 		return d;
@@ -293,7 +293,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function test_badTearDownNotSuccess(self) {
 		var test = self.mockModule._BadTearDown('test_method');
 		var d = test.run(self.result);
-		d.addBoth(function(){
+		d.addBoth(function() {
 			self.assertIdentical(self.result.successes.length, 0);
 		});
 		return d;
@@ -309,7 +309,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		var id = test.id();
 		var result = cw.Test.TestUnitTest.MockResult();
 		var d = test.run(result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				result.log,
 				'startTest ' + id + ' addSuccess ' + id + ' stopTest ' + id);
@@ -328,7 +328,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		suite.addTest(self.mockModule._WasRun('test_bad'));
 
 		var d = suite.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [2, 1, 0, 0]);
 			self.assertFalse(self.result.wasSuccessful());
 		});
@@ -394,13 +394,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 		}
 		var d = cw.UnitTest.TestSuite().visit(visitor);
 
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(log, []);
 			var tests = [self.mockModule._WasRun('test_good1'), self.mockModule._WasRun('test_good2')];
 			var suite = cw.UnitTest.TestSuite(tests);
 
 			var d2 = suite.visit(visitor);
-			d2.addCallback(function(){
+			d2.addCallback(function() {
 				self.assertArraysEqual(log, tests);
 			});
 
@@ -460,7 +460,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
@@ -481,7 +481,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
@@ -489,7 +489,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 				self.result.errors[0][1],
 				"Test ended with 1 pending call(s): setInterval_pending");
 		});
-		d.addBoth(function(){
+		d.addBoth(function() {
 			// Cleanup
 			clearInterval(error._interval);
 		});
@@ -516,7 +516,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
@@ -671,7 +671,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 		var test = self.mockModule._WasRun('test_good');
 
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				cw.UnitTest.formatSummary(self.result),
 				"PASSED (tests=1)"
@@ -688,7 +688,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 	function test_formatSummaryFailed(self) {
 		var test = self.mockModule._WasRun('test_bad');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=1, failures=1)"
@@ -705,7 +705,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 	function test_formatSummarySkipped(self) {
 		var test = self.mockModule._WasRun('test_skip');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				cw.UnitTest.formatSummary(self.result),
 				"PASSED (tests=1, skips=1)"
@@ -721,7 +721,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 	function test_formatSummaryError(self) {
 		var test = self.mockModule._WasRun('test_error');
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=1, errors=1)"
@@ -739,7 +739,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 		var test = cw.UnitTest.loadFromClass(self.mockModule._WasRun);
 
 		var d = test.run(self.result);
-		d.addCallback(function(){
+		d.addCallback(function() {
 			self.assertIdentical(
 				cw.UnitTest.formatSummary(self.result),
 				"FAILED (tests=4, errors=1, failures=1, skips=1)"

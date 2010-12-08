@@ -11,7 +11,7 @@ goog.require('goog.userAgent');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestAssumptions, 'TestAssumptions').methods(
 	/**

@@ -9,7 +9,7 @@ goog.require('cw.UnitTest');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 /**
  * L{TestCase} subclass that we use as the primary subject of our tests in

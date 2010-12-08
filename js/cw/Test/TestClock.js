@@ -11,7 +11,7 @@ goog.require('goog.object');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 /**
  * @return {boolean} Whether the {@code ticket} is in {@code calls}.

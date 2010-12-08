@@ -11,7 +11,7 @@ goog.require('goog.object');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 var plainObject = cw.eq.plainObject;
 

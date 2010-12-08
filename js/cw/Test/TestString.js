@@ -9,7 +9,7 @@ goog.require('cw.string');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 /**
  * Check that split works as expected.

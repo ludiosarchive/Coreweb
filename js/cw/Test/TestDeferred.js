@@ -10,7 +10,7 @@ goog.require('cw.deferred');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 var maybeDeferred = cw.deferred.maybeDeferred;
 

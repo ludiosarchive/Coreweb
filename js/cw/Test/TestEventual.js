@@ -10,7 +10,7 @@ goog.require('cw.eventual');
 
 
 // anti-clobbering for JScript
-(function(){
+(function() {
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestEventual, 'TestCallQueue').methods(
 	/**

@@ -12,7 +12,7 @@ goog.require('goog.debug.Error');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 var plainObject = cw.eq.plainObject;
 

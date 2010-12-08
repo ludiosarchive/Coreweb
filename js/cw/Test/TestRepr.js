@@ -11,7 +11,7 @@ goog.require('goog.array');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 var repr = cw.repr.repr;
 var reprPush = cw.repr.reprPush;

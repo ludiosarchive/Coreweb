@@ -11,7 +11,7 @@ goog.require('cw.tabnexus');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 /**
  * @constructor

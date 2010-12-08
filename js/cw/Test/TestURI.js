@@ -10,7 +10,7 @@ goog.require('cw.uri');
 
 
 // anti-clobbering for JScript; aliases
-(function(){
+(function() {
 
 var repr = cw.repr.repr;
 
