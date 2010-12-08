@@ -25,6 +25,7 @@
 goog.provide('cw.UnitTest');
 
 goog.require('cw.Class');
+goog.require('cw.deferred');
 goog.require('cw.repr');
 goog.require('cw.eq');
 goog.require('goog.array');
@@ -613,6 +614,7 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 				if (typeof CollectGarbage != 'undefined') {
 					CollectGarbage();
 				}
+				return null;
 			});
 			return d;
 		});
@@ -1003,6 +1005,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		var d = deferred.addCallbacks(
 			function(result) {
 				self.fail("Deferred reached callback; expected an errback.");
+				return null;
 			},
 			function(err) {
 				for (var i = 0; i < errorTypes.length; ++i) {
@@ -1011,6 +1014,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 					}
 				}
 				self.fail("Expected " + errorTypes + ", got " + err);
+				return null;
 			}
 		);
 		// TODO: is this really the best place to increment the counter? maybe it should be in the function(err)?
@@ -1057,7 +1061,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 		result.startTest(self);
 
-		setUpD = goog.async.Deferred.maybeDeferred(
+		setUpD = cw.deferred.maybeDeferred(
 			function _TestCase_run_wrap_setUp(){ return self.setUp(); }
 		);
 
@@ -1065,7 +1069,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			/* callback */
 			function _TestCase_run_setUpD_callback(){
 
-				methodD = goog.async.Deferred.maybeDeferred(
+				methodD = cw.deferred.maybeDeferred(
 					function _TestCase_run_wrap_method(){ return self[self._methodName](); }
 				);
 
@@ -1080,6 +1084,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 						result.addError(self, anError);
 					}
 					success = false;
+					return null;
 				});
 
 				// even if the test_ method fails, we must run tearDown.
@@ -1088,7 +1093,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 					// for some debugging, prepend the closure with
 					// console.log("in teardown after", self._methodName);
 
-					tearDownD = goog.async.Deferred.maybeDeferred(
+					tearDownD = cw.deferred.maybeDeferred(
 						function _TestCase_run_wrap_tearDown(){ return self.tearDown(); }
 					);
 
@@ -1099,6 +1104,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 						// because an error in both the method *and* tearDown is possible. 
 						result.addError(self, anError);
 						success = false;
+						return null;
 					});
 
 					tearDownD.addBoth(function _TestCase_run_tearDownD_finally() {
@@ -1130,6 +1136,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 						}
 
 						result.stopTest(self);
+						return null;
 					});
 
 					return tearDownD;
@@ -1148,6 +1155,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 				} else {
 					result.addError(self, anError);
 				}
+				return null;
 			}
 		);
 
@@ -1454,6 +1462,7 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 //			result = testCase.visit(visitor);
 //			result.addCallback(function(ignored) {
 //				self._traverse(visitor, tests, completionDeferred);
+//				return null;
 //			});
 //		} else {
 //			completionDeferred.callback(null);
