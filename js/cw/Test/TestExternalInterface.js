@@ -229,6 +229,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 				function(applet) {
 					self._object = applet;
 					cw.Test.TestExternalInterface.__existingFlashApplet = applet;
+					return null;
 				},
 				function(err) {
 					cw.Test.TestExternalInterface.__existingFlashApplet = null;
@@ -238,6 +239,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 						// Timed out, or other Error
 						throw err;
 					}
+					return null;
 				});
 			return d;
 		}
@@ -254,6 +256,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 		d.addCallback(function(data) {
 			plainObjectRecursive(data);
 			self.assertEqual(original, data);
+			return null;
 		});
 		goog.global['__CW_TestRealFlash_response'] = function(data) {
 			// setTimeout to get out from under the Flash->JS stack frame.
