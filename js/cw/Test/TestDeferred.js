@@ -34,7 +34,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').method
 			function(err) {
 				E.push(err);
 				return null;
-			}, [], []);
+			});
 
 		self.assertEqual([], E);
 		self.assertEqual([15], S);
@@ -63,7 +63,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestDeferred, 'MaybeDeferredTests').method
 			function(err){
 				E.push(err);
 				return null;
-			}, [], []);
+			});
 
 		self.assertEqual([], S);
 		self.assertEqual(1, E.length);
