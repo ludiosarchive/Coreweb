@@ -21,7 +21,8 @@ goog.require('goog.debug');
  */
 cw.env.getScrollbarThickness = function() {
 	var div = goog.dom.createDom('div',
-		{'style': 'overflow:scroll;position:absolute;visibility:hidden;'});
+		{'style': 'visibility:hidden;overflow:scroll;position:absolute;' +
+			'top:0;width:100px;height:100px'});
 	goog.dom.appendChild(goog.dom.getDocument().body, div);
 	try {
 		return div.offsetWidth - div.clientWidth;
