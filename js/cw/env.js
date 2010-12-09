@@ -5,31 +5,9 @@
 goog.provide('cw.env');
 
 goog.require('goog.dom');
+goog.require('goog.style');
 goog.require('goog.userAgent');
 goog.require('goog.debug');
-
-
-/**
- * Gets the scrollbar width from the browser.
- * The implementation is inspired by
- * {@code goog.editor.SeamlessField.getScrollbarThickness_}.
- *
- * Note: This is buggy in at least XP SP2 IE6 (both 32 and 64-bit), where it
- * returns 0.
- *
- * @return {number} The scrollbar width in pixels.
- */
-cw.env.getScrollbarThickness = function() {
-	var div = goog.dom.createDom('div',
-		{'style': 'visibility:hidden;overflow:scroll;position:absolute;' +
-			'top:0;width:100px;height:100px'});
-	goog.dom.appendChild(goog.dom.getDocument().body, div);
-	try {
-		return div.offsetWidth - div.clientWidth;
-	} finally {
-		goog.dom.removeNode(div);
-	}
-};
 
 
 /**
@@ -392,7 +370,7 @@ cw.env.makeReport = function() {
 	// If you make even the slightest change to how the report is generated,
 	// you MUST increment this to the current date and time, and
 	// you MUST use UTC, not your local time.
-	report['_version'] = 20100625.0010;
+	report['_version'] = 20101209.0420;
 
 	report['_type'] = 'browser-environment-initial';
 
@@ -455,7 +433,7 @@ cw.env.makeReport = function() {
 		}
 	}
 
-	report['scrollbarThickness'] = cw.env.getScrollbarThickness();
+	report['scrollbarThickness'] = goog.style.getScrollbarWidth();
 	report['XHR.withCredentials'] = cw.env.getXHRDefaultWithCredentials();
 
 	report['new Date().getTime()'] = +date;

@@ -28,12 +28,6 @@ cw.Test.TestEnv.samplePlugins_ = [{
  * Tests for L{cw.env}
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestEnv, 'EnvTests').methods(
-	function test_getScrollbarThickness(self) {
-		var thickness = cw.env.getScrollbarThickness();
-		self.assertTrue(goog.isNumber(thickness));
-		self.assertTrue(thickness > 0, thickness);
-	},
-
 	function test_getActiveXFlashVersion(self) {
 		var version = cw.env.getActiveXFlashVersion();
 		self.assertTrue(goog.isString(version) || goog.isNull(version));
