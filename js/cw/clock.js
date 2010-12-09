@@ -1,7 +1,5 @@
 /**
  * @fileoverview Deterministic clock; jump-detecting clock
- *
- * This file uses goog.Timer.getTime from our Closure Library branch `prime`.
  */
 
 goog.provide('cw.clock');
@@ -11,6 +9,30 @@ goog.require('goog.events');
 goog.require('goog.debug.Error');
 goog.require('goog.Timer');
 goog.require('goog.functions');
+
+
+/**
+ * Get the current time from {@code timerObject}.
+ * @param {!Object} timerObject An object that is either
+ *	{@code goog.Timer.defaultTimerObject} or has a {@code getTime} method
+ * 	that returns a number.
+ * @return {number} The current time (from either a real or mock clock).
+ */
+cw.clock.getTime = function(timerObject) {
+	// If timerObject is the default timer object, get the time using
+	// goog.now(), because goog.now may be overriden by an installed
+	// goog.testing.MockClock.
+	if(timerObject === goog.Timer.defaultTimerObject) {
+		return goog.now();
+	} else {
+		// Clocks like cw.clock.JumpDetectingClock implement getTime
+		// directly instead of having a fake Date.  This is so that you
+		// don't have to instantiate a dummy Date just to get the time.
+		// Design note: window.Date.prototype.getTime() returns NaN
+		return timerObject.getTime();
+	}
+};
+
 
 
 /**
@@ -646,8 +668,8 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
 	// We also prefer setTimeout because we're interested in timeCollection_,
 	// and browsers are likely to automatically correct setInterval timers.
 
-	// Trust goog.Timer.getTime to work all of the time.
-	var now = goog.Timer.getTime(this.clock);
+	// Trust cw.clock.getTime to work all of the time.
+	var now = cw.clock.getTime(this.clock);
 
 	try {
 		if(this.monoTime == null) {
@@ -674,7 +696,7 @@ cw.clock.JumpDetector.prototype.poll_ = function() {
  * You don't want users' laptop fans to spin up.
  */
 cw.clock.JumpDetector.prototype.prod = function() {
-	var now = goog.Timer.getTime(this.clock);
+	var now = cw.clock.getTime(this.clock);
 	this.checkTimeJump_(now, true/* prodded */);
 	this.timeLast_ = now;
 };
@@ -796,7 +818,7 @@ cw.clock.JumpDetectingClock = function(jumpDetector) {
  * @return {number} The current time.
  */
 cw.clock.JumpDetectingClock.prototype.getTime = function() {
-	return goog.Timer.getTime(this.clock);
+	return cw.clock.getTime(this.clock);
 };
 
 /**
