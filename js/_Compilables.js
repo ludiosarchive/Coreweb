@@ -1,5 +1,4 @@
 // in Coreweb
-goog.require('cw.array');
 goog.require('cw.autoTitle');
 goog.require('cw.Class');
 goog.require('cw.clock');

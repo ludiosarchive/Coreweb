@@ -5,8 +5,8 @@
 goog.provide('cw.Test.TestClock');
 
 goog.require('cw.UnitTest');
-goog.require('cw.array');
 goog.require('cw.clock');
+goog.require('goog.array');
 goog.require('goog.object');
 
 
@@ -46,7 +46,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 			clock.setInterval(function() {}, 1)
 		];
 
-		self.assertEqual(4, cw.array.uniq(tickets).length);
+		goog.array.removeDuplicates(tickets);
+		self.assertEqual(4, tickets.length);
 	},
 
 	/**
