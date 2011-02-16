@@ -485,6 +485,7 @@ cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
 /**
  * Represents a collection of tests. Implements the Composite pattern.
  *
+ * @param {!Array.<!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)>=} tests
  * @constructor
  */
 cw.UnitTest.TestSuite = function(tests) {
@@ -498,8 +499,7 @@ cw.UnitTest.TestSuite = function(tests) {
 /**
  * Add the given test to the suite.
  *
- * @param test: The test to add.
- * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
+ * @param {!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)} test The test to add.
  */
 cw.UnitTest.TestSuite.prototype.addTest = function(test) {
 	this.tests.push(test);
@@ -509,8 +509,7 @@ cw.UnitTest.TestSuite.prototype.addTest = function(test) {
 /**
  * Add the given tests to the suite.
  *
- * @param tests: An array of tests to add.
- * @type tests: [L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}]
+ * @param {!Array.<!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)>} tests An array of tests to add.
  */
 cw.UnitTest.TestSuite.prototype.addTests = function(tests) {
 	for (var i = 0; i < tests.length; ++i) {
@@ -600,9 +599,8 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
  * from the user's test_ method (and not of my own methods).
  *
  * @constructor
- * 	 * @type methodName: string
-	 * @param methodName: The name of a method on this object that contains
-	 * the unit test.
+ * @param {string} methodName The name of a method on this object that contains
+ *	the unit test.
  */
 cw.UnitTest.TestCase = function(methodName) {
 	this._methodName = methodName;
@@ -611,7 +609,7 @@ cw.UnitTest.TestCase = function(methodName) {
 
 
 /**
- * Return a string which identifies this test.
+ * @return {string} a string which identifies this test.
  */
 cw.UnitTest.TestCase.prototype.id = function() {
 	return this.__class__.__name__ + '.' + this._methodName;
@@ -619,8 +617,8 @@ cw.UnitTest.TestCase.prototype.id = function() {
 
 
 /**
- * Count the number of test cases in this test. Always 1, because an
- * instance represents a single test.
+ * @return {number} The number of test cases in this test.
+ * 	Always 1, because an instance represents a single test.
  */
 cw.UnitTest.TestCase.prototype.countTestCases = function() {
 	return 1; /* get this only with SynchronousTestVisitor */
@@ -630,7 +628,7 @@ cw.UnitTest.TestCase.prototype.countTestCases = function() {
 /**
  * Visit this test case.
  *
- * @param visitor: A callable which takes one argument (a test case).
+ * @param {!Function} visitor A callable which takes one argument (a test case). TODOTYPE
  */
 cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 	return visitor(this);
@@ -640,7 +638,7 @@ cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 /**
  * Visit this test case synchronously.
  *
- * @param visitor: A callable which takes one argument (a test case).
+ * @param {!Function} visitor A callable which takes one argument (a test case). TODOTYPE
  */
 cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
 	visitor(this);
@@ -651,10 +649,10 @@ cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
  * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
  *
  * @param {string} reason Why the test is being failed.
- * @return {cw.UnitTest.AssertionError}
+ * @return {!cw.UnitTest.AssertionError}
  */
 cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
-	return new cw.UnitTest.AssertionError("[" + this._assertCounter + "] " + reason, []);
+	return new cw.UnitTest.AssertionError("[" + this._assertCounter + "] " + reason);
 }
 
 
