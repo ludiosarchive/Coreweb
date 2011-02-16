@@ -190,33 +190,47 @@ cw.UnitTest.browserAddsCrapToErrorMessages = (
 /**
  * Represents the results of a run of unit tests.
  *
- * @type testsRun: integer
- * @ivar testsRun: The number of tests that have been run using this as the
- *				 result.
- *
- * @type successes: Array of L{TestCase}
- * @ivar successes: A list of tests that succeeded.
- *
- * @type failures: Array of [L{TestCase}, L{cw.UnitTest.AssertionError}] pairs
- * @ivar failures: The assertion failures that have occurred in this test run,
- *				 paired with the tests that generated them.
- *
- * @type errors: Array of [L{TestCase}, L{Error}] pairs
- * @ivar errors: The errors that were raised by tests in this test run, paired
- *			   with the tests that generated them.
- *
- * @type skips: Array of [L{TestCase}, L{cw.UnitTest.SkipTest}] pairs
- * @ivar skips: The SkipTest exceptions that were raised by tests in this test run,
- * 				paired with the tests that generated them.
- *
  * @constructor
  */
 cw.UnitTest.TestResult = function() {
+	/**
+	 * @type {number} The number of tests that have been run using
+	 * this as the result.
+	 */
 	this.testsRun = 0;
+
+	/**
+	 * @type {!Array.<!cw.UnitTest.TestCase>} A list of tests that succeeded.
+	 */
 	this.successes = [];
+
+	/**
+	 * @type {!Array.<!Array>} TODOTYPE
+	 * An array of [{TestCase}, {cw.UnitTest.AssertionError}] pairs.
+	 * i.e. the assertion failures that have occurred in this test run,
+	 * paired with the tests that generated them.
+	 */
 	this.failures = [];
+
+	/**
+	 * @type {!Array.<!Array>} TODOTYPE
+	 * An array of [{TestCase}, {Error}] pairs.
+	 * i.e. the errors that were raised by tests in this test run, paired
+	 * with the tests that generated them.
+	 */
 	this.errors = [];
+
+	/**
+	 * @type {!Array.<!Array>} TODOTYPE
+	 * An array of [{TestCase}, {cw.UnitTest.SkipTest}] pairs.
+	 * i.e. the SkipTest exceptions that were raised by tests in this test run,
+	 * paired with the tests that generated them.
+	 */
 	this.skips = [];
+
+	/**
+	 * @type {null|number}
+	 */
 	this.timeStarted = null;
 }
 
@@ -572,7 +586,7 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 		 */
 		d.addBoth(function _TestSuite_run_CollectGarbage(){
 			if (goog.isFunction(goog.global['CollectGarbage'])) {
-				goog.global.CollectGarbage();
+				goog.global['CollectGarbage']();
 			}
 			return null;
 		});
@@ -935,16 +949,15 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
  *
  * This "Failure" has to do with the "Failure" objects, not the assert failures.
  *
- * @param deferred: The L{goog.async.Deferred} which is expected to fail.
+ * @param {!goog.async.Deferred} deferred The Deferred which is expected to fail.
  *
- * @param errorTypes: An C{Array} of L{Error} subclasses which are
- * the allowed failure types for the given Deferred.
+ * @param {!Array.<!Error>} errorTypes An C{Array} of L{Error} subclasses
+ * 	which are the allowed failure types for the given Deferred.
  *
  * @throw Error: Thrown if C{errorTypes} has a length of 0.
  *
- * @rtype: L{goog.async.Deferred}
  *
- * @return:
+ * @return {goog.async.Deferred}
  *    if the input Deferred fails with one of the types specified in C{errorTypes},
  *          a Deferred which will fire callback with a 1 item list: [the error object]
  *          with which the input Deferred failed
