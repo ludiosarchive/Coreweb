@@ -633,7 +633,7 @@ cw.UnitTest.TestCase = function(methodName) {
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
 	cw.UnitTest.TestCase.prototype.visit = function(visitor) {
-		return visitor(self);
+		return visitor(this);
 	}
 
 
@@ -643,7 +643,7 @@ cw.UnitTest.TestCase = function(methodName) {
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
 	cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
-		visitor(self);
+		visitor(this);
 	}
 
 
@@ -1009,16 +1009,17 @@ cw.UnitTest.TestCase = function(methodName) {
 	 * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
 	 */
 	cw.UnitTest.TestCase.prototype.run = function(result) {
+		var that = this;
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
 		cw.UnitTest.logger.info('---------------------------------------');
-		cw.UnitTest.logger.info('Starting ' + self.id());
+		cw.UnitTest.logger.info('Starting ' + that.id());
 
-		result.startTest(self);
+		result.startTest(that);
 
 		setUpD = cw.deferred.maybeDeferred(
-			function _TestCase_run_wrap_setUp(){ return self.setUp(); }
+			function _TestCase_run_wrap_setUp(){ return that.setUp(); }
 		);
 
 		setUpD.addCallbacks(
@@ -1026,10 +1027,10 @@ cw.UnitTest.TestCase = function(methodName) {
 			function _TestCase_run_setUpD_callback(){
 
 				methodD = cw.deferred.maybeDeferred(
-					function _TestCase_run_wrap_method(){ return self[self._methodName](); }
+					function _TestCase_run_wrap_method(){ return that[that._methodName](); }
 				);
 
-				//console.log("From " + self._methodName + " got a ", methodD);
+				//console.log("From " + that._methodName + " got a ", methodD);
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
 					if (anError instanceof cw.UnitTest.AssertionError) {
@@ -1047,10 +1048,10 @@ cw.UnitTest.TestCase = function(methodName) {
 				methodD.addBoth(function _TestCase_run_methodD_finally(){
 
 					// for some debugging, prepend the closure with
-					// console.log("in teardown after", self._methodName);
+					// console.log("in teardown after", that._methodName);
 
 					tearDownD = cw.deferred.maybeDeferred(
-						function _TestCase_run_wrap_tearDown(){ return self.tearDown(); }
+						function _TestCase_run_wrap_tearDown(){ return that.tearDown(); }
 					);
 
 					// Approaching the end of our journey...
@@ -1076,7 +1077,7 @@ cw.UnitTest.TestCase = function(methodName) {
 							if(whichProblems.length > 0) {
 								success = false;
 
-								result.addError(self,
+								result.addError(that,
 									new Error(
 										"Test ended with " + whichProblems.length +
 										" pending call(s): " + whichProblems));
@@ -1087,11 +1088,11 @@ cw.UnitTest.TestCase = function(methodName) {
 							}
 
 							if(success) {
-								result.addSuccess(self);
+								result.addSuccess(that);
 							}
 						}
 
-						result.stopTest(self);
+						result.stopTest(that);
 						return null;
 					});
 
