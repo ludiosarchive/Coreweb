@@ -672,8 +672,9 @@ cw.UnitTest.TestCase.prototype.fail = function(reason) {
  *
  * @param {*} ok Any value.
  * @param {string=} message An error message for the AssertionError.
+ * @param {boolean=} _internalCall Private.  Don't use.
  */
-cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall) {
 	if (!ok) {
 		this.fail(message);
 	}
@@ -688,8 +689,9 @@ cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall 
  *
  * @param {*} ok Any value.
  * @param {string=} message An error message for the AssertionError.
+ * @param {boolean=} _internalCall Private.  Don't use.
  */
-cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall) {
 	if (ok) {
 		this.fail(message);
 	}
@@ -709,33 +711,29 @@ cw.UnitTest.TestCase.prototype.neverHappen = function() {
 
 
 /**
- * Compare C{a} and C{b} using the provided predicate.
+ * Compare {@code a} and {@code b} using the provided predicate.
  *
- * @type predicate: A callable that accepts two parameters.
- * @param predicate: Returns either C{true} or C{false}.
+ * @param {function(*, *): boolean} predicate A callable that accepts
+ * 	two parameters and returns a boolean.
  *
- * @type description: text
- * @param description: Describes the inverse of the comparison. This is
- *					 used in the L{AssertionError} if the comparison
- *					 fails.
+ * @param {string} description Describes the inverse of the comparison.  This is
+ *	used in the L{AssertionError} if the comparison fails.
  *
- * @type a: any
- * @param a: The thing to be compared with C{b}. Passed as the first
- *		   parameter to C{predicate}.
+ * @param {*} a The thing to be compared with {@code b}.  Passed as the first
+ *	parameter to {@code predicate}.
  *
- * @type b: any
- * @param b: The thing to be compared with C{a}. Passed as the second
- *		   parameter to C{predicate}.
+ * @param {*} b The thing to be compared with {@code a}.  Passed as the second
+ *	parameter to {@code predicate}.
  *
- * @type message: text
- * @param message: An optional message to be included in the raised
- *				 L{AssertionError}.
+ * @param {string=} message An optional message to be included in the raised
+ *	L{AssertionError}.
  *
- * @raises L{cw.UnitTest.AssertionError} if C{predicate} returns
- * C{false}.
+ * @param {boolean=} _internalCall Private.  Don't use.
+ *
+ * Throws {@code cw.UnitTest.AssertionError} if {@code predicate} returns
+ * false.
  */
-cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b,
-				 /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b, message, _internalCall) {
 	var repr = cw.repr.repr;
 	if (!predicate(a, b)) {
 		var msg = repr(a) + " " + description + " " + repr(b);
@@ -753,8 +751,14 @@ cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b,
 /**
  * Assert that Arrays C{a} and C{b} are equal.
  * Uses a shallow comparison of items, strict equality (===).
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, message, _internalCall) {
 	this.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
@@ -765,8 +769,14 @@ cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, /*optional*/ m
 /**
  * Assert that Arrays C{a} and C{b} are not equal.
  * Uses a shallow comparison of items, strict inequality (!==).
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, message, _internalCall) {
 	var invert = function(func) {
 		return function _inverter(){
 			return !func.apply(this, arguments);
@@ -782,8 +792,14 @@ cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, /*optional*
 
 /**
  * Assert that C{a} and C{b} are ===.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, message, _internalCall) {
 	this.compare(function (x, y) { return x === y; },
 				 '`!==´', a, b, message, true);
 	if(_internalCall !== true) {
@@ -794,8 +810,14 @@ cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, /*optional*/ mes
 
 /**
  * Assert that C{a} and C{b} are !==.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _internalCall) {
 	this.compare(function (x, y) { return !(x === y); },
 				 '`===´', a, b, message, true);
 	if(_internalCall !== true) {
@@ -807,8 +829,14 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, /*optional*/ 
 /**
  * Assert that C{a} is "in" C{b}. Remember that JavaScript "in" only
  * checks if a property exists.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
- cw.UnitTest.TestCase.prototype.assertIn = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+ cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
@@ -819,8 +847,14 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, /*optional*/ 
 /**
  * Assert that C{a} is not "in" C{b}. Remember that JavaScript "in"
  * only checks if a property exists.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
- cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+ cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
@@ -834,8 +868,14 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, /*optional*/ 
  *
  * If you give this function circularly-referenced objects, it will overflow
  * the stack.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCall) {
 	var messages = [];
 	if(!cw.eq.equals(a, b, messages)) {
 		var failMsg = goog.string.subs(
@@ -856,8 +896,14 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, /*optional*/ message
  *
  * If you give this function circularly-referenced objects, it will overflow
  * the stack.
+ *
+ * See {@link #compare} for documentation on parameters.
+ * @param {*} a
+ * @param {*} b
+ * @param {string=} message
+ * @param {boolean=} _internalCall
  */
-cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _internalCall) {
 	var messages = [];
 	if(cw.eq.equals(a, b, messages)) {
 		var failMsg = goog.string.subs(
@@ -872,7 +918,12 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, /*optional*/ mess
 }
 
 
-cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage, _internalCall /*=false*/) {
+/**
+ * @param {!Object} e
+ * @param {string} expectedMessage
+ * @param {boolean=} _internalCall
+ */
+cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage, _internalCall) {
 	var errorMessage = e.message;
 	if(!cw.UnitTest.browserAddsCrapToErrorMessages) {
 		this.assertIdentical(errorMessage, expectedMessage,
@@ -901,16 +952,15 @@ cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage,
  * to have. If you pass this argument, the {@code expectedError}
  * must be of type {!Error} or a subclass of it.
  *
- * @param {boolean} _internalCall Private.  Don't use.
+ * @param {boolean=} _internalCall Private.  Don't use.
  *
- * @throw {cw.UnitTest.AssertionError} Thrown if the callable doesn't throw
+ * Throws {cw.UnitTest.AssertionError} if the callable doesn't throw
  * an {@code expectedError}.  This could be because it threw a different error or
  * because it didn't throw any errors.
  *
  * @return {*} The error that was thrown by callable. TODOTYPE
  */
-cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
-/*optional*/expectedMessage, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable, expectedMessage, _internalCall) {
 	var threw = null;
 	try {
 		callable();
@@ -943,17 +993,18 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
  * @param {!Array.<!Error>} errorTypes An Array of Error subclasses
  * 	which are the allowed failure types for the given Deferred.
  *
- * @throw Error: Thrown if C{errorTypes} has a length of 0.
+ * @param {boolean=} _internalCall Private.  Don't use.
  *
+ * Throws {Error} if {@code errorTypes} has a length of 0.
  *
  * @return {goog.async.Deferred}
- *    if the input Deferred fails with one of the types specified in C{errorTypes},
+ *    if the input Deferred fails with one of the types specified in {@code errorTypes},
  *          a Deferred which will fire callback with a 1 item list: [the error object]
  *          with which the input Deferred failed
  *    else,
- *          a Deferred which will fire errback with a L{cw.UnitTest.AssertionError}.
+ *          a Deferred which will fire errback with a {@code cw.UnitTest.AssertionError}.
  */
-cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
+cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, _internalCall) {
 	if (errorTypes.length == 0) {
 		throw Error("Specify at least one error class to assertFailure");
 	}
@@ -1006,7 +1057,7 @@ cw.UnitTest.TestCase.prototype.tearDown = function() {
 
 
 /**
- * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
+ * Actually run this test. This is designed to operate very much like {@code twisted.trial.unittest}
  */
 cw.UnitTest.TestCase.prototype.run = function(result) {
 	var that = this;
@@ -1057,7 +1108,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 				// Approaching the end of our journey...
 
 				tearDownD.addErrback(function _TestCase_run_tearDownD_errback(anError) {
-					// This might be the second time C{result.addError} is called,
+					// This might be the second time `result.addError` is called,
 					// because an error in both the method *and* tearDown is possible.
 					result.addError(anError);
 					success = false;
@@ -1106,7 +1157,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 
 		/* errback */
 		function _TestCase_run_setUpD_errback(anError){
-			// Assertions are not allowed in C{setUp}, so we'll treat them an error.
+			// Assertions are not allowed in `setUp`, so we'll treat them an error.
 			if (anError instanceof cw.UnitTest.SkipTest) {
 				result.addSkip(anError);
 			} else {
