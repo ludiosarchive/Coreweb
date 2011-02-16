@@ -448,34 +448,34 @@ cw.UnitTest.ConsoleTestResult = function() {
 
 	cw.UnitTest.ConsoleTestResult.prototype.startTest = function(test) {
 		cw.UnitTest.ConsoleTestResult.upcall('startTest', [test]);
-		print(test.id());
+		goog.global.print(test.id());
 	}
 
 
 	cw.UnitTest.ConsoleTestResult.prototype.addError = function(test, error) {
 		cw.UnitTest.ConsoleTestResult.upcall('addError', [test, error]);
-		print('... ERROR\n');
-		print('\n' + error.toString() + '\n\n');
+		goog.global.print('... ERROR\n');
+		goog.global.print('\n' + error.toString() + '\n\n');
 	}
 
 
 	cw.UnitTest.ConsoleTestResult.prototype.addFailure = function(test, failure) {
 		cw.UnitTest.ConsoleTestResult.upcall('addFailure', [test, failure]);
-		print('... FAILURE\n');
-		print('\n' + failure.toString() + '\n\n');
+		goog.global.print('... FAILURE\n');
+		goog.global.print('\n' + failure.toString() + '\n\n');
 	}
 
 
 	cw.UnitTest.ConsoleTestResult.prototype.addSkip = function(test, skip) {
 		cw.UnitTest.ConsoleTestResult.upcall('addSkip', [test, skip]);
-		print('... SKIP\n');
-		print('\n' + skip.toString() + '\n\n');
+		goog.global.print('... SKIP\n');
+		goog.global.print('\n' + skip.toString() + '\n\n');
 	}
 
 
 	cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
 		cw.UnitTest.ConsoleTestResult.upcall('addSuccess', [test]);
-		print('... OK\n');
+		goog.global.print('... OK\n');
 	}
 
 
@@ -487,7 +487,7 @@ cw.UnitTest.ConsoleTestResult = function() {
  *
  * @constructor
  */
-cw.UnitTest.TestSuite = function() {
+cw.UnitTest.TestSuite = function(tests) {
 		this.tests = [];
 		if (goog.isDef(tests)) {
 			this.addTests(tests);
@@ -528,7 +528,7 @@ cw.UnitTest.TestSuite = function() {
 		var total = 0;
 		var visitor = function (test) { total += test.countTestCases(); };
 
-		var countVisitor = cw.UnitTest.DeferredIgnoringVisitor();
+		var countVisitor = new cw.UnitTest.DeferredIgnoringVisitor();
 		countVisitor.traverse(visitor, this.tests);
 
 		return total;
@@ -540,7 +540,7 @@ cw.UnitTest.TestSuite = function() {
 	 */
 	cw.UnitTest.TestSuite.prototype.visit = function(visitor) {
 		// safari has serious maximum recursion problems
-		var sVisitor = cw.UnitTest.SerialVisitor();
+		var sVisitor = new cw.UnitTest.SerialVisitor();
 		return sVisitor.traverse(visitor, this.tests);
 	}
 
@@ -552,7 +552,7 @@ cw.UnitTest.TestSuite = function() {
 	 * Useful for counting the # of tests and not much else.
 	 */
 	cw.UnitTest.TestSuite.prototype.visitSync = function(visitor) {
-		var testVisitor = cw.UnitTest.DeferredIgnoringVisitor();
+		var testVisitor = new cw.UnitTest.DeferredIgnoringVisitor();
 		testVisitor.traverse(visitor, this.tests);
 	}
 
@@ -572,8 +572,8 @@ cw.UnitTest.TestSuite = function() {
 			 * Not really needed, especially because sIEve does this for us on the blank page.
 			 */
 			d.addBoth(function _TestSuite_run_CollectGarbage(){
-				if (typeof CollectGarbage != 'undefined') {
-					CollectGarbage();
+				if (goog.isFunction(goog.global['CollectGarbage'])) {
+					goog.global.CollectGarbage();
 				}
 				return null;
 			});
@@ -1292,9 +1292,9 @@ cw.UnitTest.runConsole = function(test) {
 	d.addCallback(function _UnitTest_after_run(){
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
-		print(cw.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
+		goog.global.print(cw.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
 		// If you forget the newline at the end of this line, Node.js will drop the line completely.
-		print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
+		goog.global.print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
 	});
 	return d;
 };
@@ -1423,7 +1423,7 @@ cw.UnitTest.SynchronousSerialVisitor = function() {
 		var result;
 		var that = this;
 		if (this.runTestNum--) {
-			testCase = tests[this.runTestNum];
+			var testCase = tests[this.runTestNum];
 			result = testCase.visit(visitor);
 			result.addCallback(function(ignored) {
 				that._traverse(visitor, tests, completionDeferred);
@@ -1577,7 +1577,7 @@ cw.UnitTest.installMonkeys = function() {
 	if(goog.userAgent.IE) {
 		cw.UnitTest.__window_setTimeout = window.setTimeout;
 
-		execScript("\
+		goog.global.execScript("\
 		function setTimeout(fn, callable) {\
 			return cw.UnitTest.__window_setTimeout(fn, callable);\
 		}", 'JavaScript');
