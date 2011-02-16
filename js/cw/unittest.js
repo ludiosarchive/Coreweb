@@ -384,11 +384,8 @@ cw.UnitTest.DIVTestResult = function(div) {
 }
 goog.inherits(cw.UnitTest.DIVTestResult, cw.UnitTest.TestResult);
 
-
-
-
 cw.UnitTest.DIVTestResult.prototype.startTest = function(test) {
-	cw.UnitTest.DIVTestResult.upcall('startTest', [test]);
+	goog.base(this, 'startTest', test);
 	var textnode = document.createTextNode(test.id());
 	this._div.appendChild(textnode);
 }
@@ -396,7 +393,7 @@ cw.UnitTest.DIVTestResult.prototype.startTest = function(test) {
 
 cw.UnitTest.DIVTestResult.prototype.addError = function(test, error) {
 	//console.log(error);
-	cw.UnitTest.DIVTestResult.upcall('addError', [test, error]);
+	goog.base(this, 'addError', test, error);
 	var br = document.createElement("br");
 	var textnode = document.createTextNode('... ERROR');
 	var pre = cw.UnitTest.makeErrorElementForError_(error);
@@ -406,28 +403,28 @@ cw.UnitTest.DIVTestResult.prototype.addError = function(test, error) {
 }
 
 
-cw.UnitTest.DIVTestResult.prototype.addFailure = function(test, error) {
-	cw.UnitTest.DIVTestResult.upcall('addFailure', [test, error]);
+cw.UnitTest.DIVTestResult.prototype.addFailure = function(test, failure) {
+	goog.base(this, 'addFailure', test, failure);
 	var br = document.createElement("br");
 	var textnode = document.createTextNode('... FAILURE');
-	var pre = cw.UnitTest.makeErrorElementForError_(error);
+	var pre = cw.UnitTest.makeErrorElementForError_(failure);
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
 	this._div.appendChild(pre);
 }
 
 
-cw.UnitTest.DIVTestResult.prototype.addSkip = function(test, error) {
-	cw.UnitTest.DIVTestResult.upcall('addSkip', [test, error]);
+cw.UnitTest.DIVTestResult.prototype.addSkip = function(test, skip) {
+	goog.base(this, 'addSkip', test, skip);
 	var br = document.createElement("br");
-	var textnode = document.createTextNode('... SKIP: ' + error.message);
+	var textnode = document.createTextNode('... SKIP: ' + skip.message);
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
 }
 
 
 cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
-	cw.UnitTest.DIVTestResult.upcall('addSuccess', [test]);
+	goog.base(this, 'addSuccess', test);
 	var br = document.createElement("br");
 	var textnode = document.createTextNode('... OK');
 	this._div.appendChild(textnode);
@@ -451,34 +448,34 @@ goog.inherits(cw.UnitTest.ConsoleTestResult, cw.UnitTest.TestResult);
 
 
 cw.UnitTest.ConsoleTestResult.prototype.startTest = function(test) {
-	cw.UnitTest.ConsoleTestResult.upcall('startTest', [test]);
+	goog.base(this, 'startTest', test);
 	goog.global.print(test.id());
 }
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addError = function(test, error) {
-	cw.UnitTest.ConsoleTestResult.upcall('addError', [test, error]);
+	goog.base(this, 'addError', test, error);
 	goog.global.print('... ERROR\n');
 	goog.global.print('\n' + error.toString() + '\n\n');
 }
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addFailure = function(test, failure) {
-	cw.UnitTest.ConsoleTestResult.upcall('addFailure', [test, failure]);
+	goog.base(this, 'addFailure', test, failure);
 	goog.global.print('... FAILURE\n');
 	goog.global.print('\n' + failure.toString() + '\n\n');
 }
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addSkip = function(test, skip) {
-	cw.UnitTest.ConsoleTestResult.upcall('addSkip', [test, skip]);
+	goog.base(this, 'addSkip', test, skip);
 	goog.global.print('... SKIP\n');
 	goog.global.print('\n' + skip.toString() + '\n\n');
 }
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
-	cw.UnitTest.ConsoleTestResult.upcall('addSuccess', [test]);
+	goog.base(this, 'addSuccess', test);
 	goog.global.print('... OK\n');
 }
 
