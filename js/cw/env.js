@@ -158,8 +158,8 @@ cw.env.getXHRDefaultWithCredentials = function() {
 
 
 /**
- * Compress the signature string returned by the {@link cw.env.getAllPlugins_}
- * into a smaller string.
+ * Lossy-compress the signature string returned by the
+ * {@link cw.env.getAllPlugins_} into a smaller string.
  *
  * @param {string} psig The plugin signature string.
  * @return {string} The compressed signature.
@@ -177,7 +177,7 @@ cw.env.compressPluginSignature = function(psig) {
 			continue;
 		}
 
-		// Confirm the math in {ython with:
+		// Confirm the math in Python with:
 		// 	for i in xrange(1000): print (i % (122-65+1)) + 65 ### = 58
 		checksum.push(String.fromCharCode(
 			parseInt(psig.substr(pos - 2, 2), 10) % 58 + 65));
