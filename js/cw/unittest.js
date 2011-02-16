@@ -24,7 +24,6 @@
 
 goog.provide('cw.UnitTest');
 
-goog.require('cw.Class');
 goog.require('cw.deferred');
 goog.require('cw.repr');
 goog.require('cw.eq');
@@ -238,8 +237,7 @@ cw.UnitTest.TestResult = function() {
 /**
  * Called by C{TestCase.run} at the start of the test.
  *
- * @param test: The test that just started.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test that just started.
  */
 cw.UnitTest.TestResult.prototype.startTest = function(test) {
 	if(this.timeStarted === null) {
@@ -252,8 +250,7 @@ cw.UnitTest.TestResult.prototype.startTest = function(test) {
 /**
  * Called by C{TestCase.run} at the end of the test run.
  *
- * @param test: The test that just finished.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test that just finished.
  */
 cw.UnitTest.TestResult.prototype.stopTest = function(test) {
 }
@@ -262,12 +259,10 @@ cw.UnitTest.TestResult.prototype.stopTest = function(test) {
 /**
  * Report an error that occurred while running the given test.
  *
- * @param test: The test that had an error.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test that had an error.
  *
- * @param error: The error that occurred.
- * @type error: Generally an L{Error} instance, but could be
- * 				any throwable object (all of them).
+ * @param {*} error The error that occurred.  Generally an {!Error},
+ * 	but could be any throwable object (all of them).
  */
 cw.UnitTest.TestResult.prototype.addError = function(test, error) {
 	this.errors.push([test, error]);
@@ -279,11 +274,9 @@ cw.UnitTest.TestResult.prototype.addError = function(test, error) {
  *
  * This is unrelated to Failure objects.
  *
- * @param test: The test with the failed assertion.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test with the failed assertion.
  *
- * @param error: The failure that occurred.
- * @type error: A L{cw.UnitTest.AssertionError} instance.
+ * @param {!cw.UnitTest.AssertionError} error The failure that occurred.
  */
 cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
 	this.failures.push([test, error]);
@@ -293,11 +286,9 @@ cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
 /**
  * Report a skipped test.
  *
- * @param test: The test that was skipped.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test that was skipped.
  *
- * @param error: The SkipTest exception that occurred.
- * @type error: A L{cw.UnitTest.SkipTest} instance.
+ * @param {!cw.UnitTest.SkipTest} error The SkipTest exception that occurred.
  */
 cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
 	this.skips.push([test, error]);
@@ -307,8 +298,7 @@ cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
 /**
  * Report that the given test succeeded.
  *
- * @param test: The test that succeeded.
- * @type test: L{cw.UnitTest.TestCase}
+ * @param {!cw.UnitTest.TestCase} test The test that succeeded.
  */
 cw.UnitTest.TestResult.prototype.addSuccess = function(test) {
 	this.successes.push(test);
@@ -316,7 +306,8 @@ cw.UnitTest.TestResult.prototype.addSuccess = function(test) {
 
 
 /**
- * Return a triple of (tests run, number of failures, number of errors)
+ * @return {!Array.<number>} an Array with four numbers:
+ * 	[tests run, number of failures, number of errors, number of skips]
  */
 cw.UnitTest.TestResult.prototype.getSummary = function() {
 	return [this.testsRun, this.failures.length, this.errors.length, this.skips.length];
@@ -324,8 +315,7 @@ cw.UnitTest.TestResult.prototype.getSummary = function() {
 
 
 /**
- * Return C{true} if there have been no failures or errors. Return C{false}
- * if there have been.
+ * @return {boolean} True if there were no failures or errors.
  */
 cw.UnitTest.TestResult.prototype.wasSuccessful = function() {
 	return this.failures.length == 0 && this.errors.length == 0;
@@ -602,7 +592,7 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 /**
  * I represent a single unit test. Subclass me for your own tests.
  *
- * I will be instantiated once per your own test_ method, by L{cw.UnitTest.loadFromClass}.
+ * I will be instantiated once per your own test_ method, by {@link cw.UnitTest.loadFromClass}.
  *
  * I know which asserts/compares are "internal" (called by my own logic) because:
  * some browsers don't have tracebacks in JS,
@@ -904,21 +894,23 @@ cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage,
 /**
  * Assert that C{callable} throws C{expectedError}
  *
- * @param expectedError: The error type (class or prototype) which is
- * expected to be thrown.
+ * @param {!Object} expectedError The error type (class or prototype) which is
+ *	expected to be thrown.
  *
- * @param callable: A no-argument callable which is expected to throw
- * C{expectedError}.
+ * @param {function()} callable A zero-argument callable which is expected
+ * 	to throw an {@code expectedError}.
  *
- * @param expectedMessage: The message which the error is expected
- * to have. If you pass this argument, the C{expectedError}
- * must be of type L{Error} or a subclass of it.
+ * @param {string} expectedMessage The message which the error is expected
+ * to have. If you pass this argument, the {@code expectedError}
+ * must be of type {!Error} or a subclass of it.
  *
- * @throw AssertionError: Thrown if the callable doesn't throw
- * C{expectedError}. This could be because it threw a different error or
+ * @param {boolean} _internalCall Private.  Don't use.
+ *
+ * @throw {cw.UnitTest.AssertionError} Thrown if the callable doesn't throw
+ * an {@code expectedError}.  This could be because it threw a different error or
  * because it didn't throw any errors.
  *
- * @return: The exception that was raised by callable.
+ * @return {*} The error that was thrown by callable. TODOTYPE
  */
 cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
 /*optional*/expectedMessage, /*optional*/ _internalCall /*=false*/) {
@@ -928,7 +920,7 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
 	} catch (e) {
 		threw = e;
 		this.assertTrue(e instanceof expectedError,
-					"Wrong error type thrown: " + e, true);
+			"Wrong error type thrown: " + e, true);
 		if(expectedMessage !== undefined) {
 			this.assertErrorMessage(e, expectedMessage, true);
 		}
@@ -951,7 +943,7 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
  *
  * @param {!goog.async.Deferred} deferred The Deferred which is expected to fail.
  *
- * @param {!Array.<!Error>} errorTypes An C{Array} of L{Error} subclasses
+ * @param {!Array.<!Error>} errorTypes An Array of Error subclasses
  * 	which are the allowed failure types for the given Deferred.
  *
  * @throw Error: Thrown if C{errorTypes} has a length of 0.
@@ -1262,7 +1254,7 @@ cw.UnitTest.makeSummaryDiv = function(result) {
  * 	information is displayed.
  */
 cw.UnitTest.runWeb = function(test, div) {
-	var result = cw.UnitTest.DIVTestResult(div);
+	var result = new cw.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){	
 		var timeTaken = new Date().getTime() - result.timeStarted;
