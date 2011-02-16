@@ -18,7 +18,8 @@ goog.require('goog.asserts');
  * @return {!Array.<string>} The splitted string, as an array.
  */
 cw.string.split = function(s, sep, maxsplit) {
-	goog.asserts.assert(goog.isDef(sep), "arguments[1] of CW.split must be a separator string");
+	goog.asserts.assert(goog.isDef(sep),
+		"arguments[1] of cw.string.split must be a separator string");
 	if(maxsplit === undefined || maxsplit < 0) {
 		return s.split(sep);
 	}
