@@ -40,9 +40,6 @@ goog.require('goog.debug.Logger');
 goog.require('goog.debug.Error');
 
 
-// anti-clobbering for JScript
-(function() {
-
 
 /**
  * @type {!goog.debug.Logger}
@@ -214,15 +211,14 @@ cw.UnitTest.browserAddsCrapToErrorMessages = (
  *
  * @constructor
  */
-cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
-	function __init__(self) {
-		self.testsRun = 0;
-		self.successes = [];
-		self.failures = [];
-		self.errors = [];
-		self.skips = [];
-		self.timeStarted = null;
-	},
+cw.UnitTest.TestResult = function() {
+	this.testsRun = 0;
+	this.successes = [];
+	this.failures = [];
+	this.errors = [];
+	this.skips = [];
+	this.timeStarted = null;
+}
 
 
 	/**
@@ -231,12 +227,12 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param test: The test that just started.
 	 * @type test: L{cw.UnitTest.TestCase}
 	 */
-	function startTest(self, test) {
-		if(self.timeStarted === null) {
-			self.timeStarted = new Date().getTime();
+cw.UnitTest.TestResult.prototype.startTest = function(test) {
+		if(this.timeStarted === null) {
+			this.timeStarted = new Date().getTime();
 		}
-		self.testsRun++;
-	},
+		this.testsRun++;
+	}
 
 
 	/**
@@ -245,8 +241,8 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param test: The test that just finished.
 	 * @type test: L{cw.UnitTest.TestCase}
 	 */
-	function stopTest(self, test) {
-	},
+cw.UnitTest.TestResult.prototype.stopTest = function(test) {
+	}
 
 
 	/**
@@ -259,9 +255,9 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @type error: Generally an L{Error} instance, but could be
 	 * 				any throwable object (all of them).
 	 */
-	function addError(self, test, error) {
-		self.errors.push([test, error]);
-	},
+cw.UnitTest.TestResult.prototype.addError = function(test, error) {
+		this.errors.push([test, error]);
+	}
 
 
 	/**
@@ -275,9 +271,9 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param error: The failure that occurred.
 	 * @type error: A L{cw.UnitTest.AssertionError} instance.
 	 */
-	function addFailure(self, test, error) {
-		self.failures.push([test, error]);
-	},
+cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
+		this.failures.push([test, error]);
+	}
 
 
 	/**
@@ -289,9 +285,9 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param error: The SkipTest exception that occurred.
 	 * @type error: A L{cw.UnitTest.SkipTest} instance.
 	 */
-	function addSkip(self, test, error) {
-		self.skips.push([test, error]);
-	},
+cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
+		this.skips.push([test, error]);
+	}
 
 
 	/**
@@ -300,27 +296,27 @@ cw.Class.subclass(cw.UnitTest, 'TestResult').methods(
 	 * @param test: The test that succeeded.
 	 * @type test: L{cw.UnitTest.TestCase}
 	 */
-	function addSuccess(self, test) {
-		self.successes.push(test);
-	},
+cw.UnitTest.TestResult.prototype.addSuccess = function(test) {
+		this.successes.push(test);
+	}
 
 
 	/**
 	 * Return a triple of (tests run, number of failures, number of errors)
 	 */
-	function getSummary(self) {
-		return [self.testsRun, self.failures.length, self.errors.length, self.skips.length];
-	},
+cw.UnitTest.TestResult.prototype.getSummary = function() {
+		return [this.testsRun, this.failures.length, this.errors.length, this.skips.length];
+	}
 
 
 	/**
 	 * Return C{true} if there have been no failures or errors. Return C{false}
 	 * if there have been.
 	 */
-	function wasSuccessful(self) {
-		return self.failures.length == 0 && self.errors.length == 0;
+cw.UnitTest.TestResult.prototype.wasSuccessful = function() {
+		return this.failures.length == 0 && this.errors.length == 0;
 	}
-);
+
 
 
 /**
@@ -378,61 +374,62 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
  *
  * @constructor
  */
-cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
-	function __init__(self, div) {
-		cw.UnitTest.DIVTestResult.upcall(self, '__init__', []);
-		self._div = div;
-	},
+	cw.UnitTest.DIVTestResult = function(div) {
+		cw.UnitTest.TestResult.call(this);
+		this._div = div;
+	}
+goog.inherits(cw.UnitTest.DIVTestResult, cw.UnitTest.TestResult);
 
 
-	function startTest(self, test) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'startTest', [test]);
+
+
+	cw.UnitTest.DIVTestResult.prototype.startTest = function(test) {
+		cw.UnitTest.DIVTestResult.upcall('startTest', [test]);
 		var textnode = document.createTextNode(test.id());
-		self._div.appendChild(textnode);
-	},
+		this._div.appendChild(textnode);
+	}
 
 
-	function addError(self, test, error) {
+	cw.UnitTest.DIVTestResult.prototype.addError = function(test, error) {
 		//console.log(error);
-		cw.UnitTest.DIVTestResult.upcall(self, 'addError', [test, error]);
+		cw.UnitTest.DIVTestResult.upcall('addError', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... ERROR');
 		var pre = cw.UnitTest.makeErrorElementForError_(error);
-		self._div.appendChild(textnode);
-		self._div.appendChild(br);
-		self._div.appendChild(pre);
+		this._div.appendChild(textnode);
+		this._div.appendChild(br);
+		this._div.appendChild(pre);
+	}
 
-	},
 
-
-	function addFailure(self, test, error) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'addFailure', [test, error]);
+	cw.UnitTest.DIVTestResult.prototype.addFailure = function(test, error) {
+		cw.UnitTest.DIVTestResult.upcall('addFailure', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... FAILURE');
 		var pre = cw.UnitTest.makeErrorElementForError_(error);
-		self._div.appendChild(textnode);
-		self._div.appendChild(br);
-		self._div.appendChild(pre);
-	},
+		this._div.appendChild(textnode);
+		this._div.appendChild(br);
+		this._div.appendChild(pre);
+	}
 
 
-	function addSkip(self, test, error) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'addSkip', [test, error]);
+	cw.UnitTest.DIVTestResult.prototype.addSkip = function(test, error) {
+		cw.UnitTest.DIVTestResult.upcall('addSkip', [test, error]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... SKIP: ' + error.message);
-		self._div.appendChild(textnode);
-		self._div.appendChild(br);
-	},
+		this._div.appendChild(textnode);
+		this._div.appendChild(br);
+	}
 
 
-	function addSuccess(self, test) {
-		cw.UnitTest.DIVTestResult.upcall(self, 'addSuccess', [test]);
+	cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
+		cw.UnitTest.DIVTestResult.upcall('addSuccess', [test]);
 		var br = document.createElement("br");
 		var textnode = document.createTextNode('... OK');
-		self._div.appendChild(textnode);
-		self._div.appendChild(br);
+		this._div.appendChild(textnode);
+		this._div.appendChild(br);
 	}
-);
+
 
 
 
@@ -443,81 +440,46 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'DIVTestResult').methods(
  *
  * @constructor
  */
-cw.UnitTest.TestResult.subclass(cw.UnitTest, 'ConsoleTestResult').methods(
-	function __init__(self) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, '__init__', []);
-	},
+cw.UnitTest.ConsoleTestResult = function() {
+		cw.UnitTest.TestResult.call(this);
+	}
+	goog.inherits(cw.UnitTest.ConsoleTestResult, cw.UnitTest.TestResult);
 
 
-	function startTest(self, test) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, 'startTest', [test]);
+	cw.UnitTest.ConsoleTestResult.prototype.startTest = function(test) {
+		cw.UnitTest.ConsoleTestResult.upcall('startTest', [test]);
 		print(test.id());
-	},
+	}
 
 
-	function addError(self, test, error) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, 'addError', [test, error]);
+	cw.UnitTest.ConsoleTestResult.prototype.addError = function(test, error) {
+		cw.UnitTest.ConsoleTestResult.upcall('addError', [test, error]);
 		print('... ERROR\n');
 		print('\n' + error.toString() + '\n\n');
-	},
+	}
 
 
-	function addFailure(self, test, failure) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, 'addFailure', [test, failure]);
+	cw.UnitTest.ConsoleTestResult.prototype.addFailure = function(test, failure) {
+		cw.UnitTest.ConsoleTestResult.upcall('addFailure', [test, failure]);
 		print('... FAILURE\n');
 		print('\n' + failure.toString() + '\n\n');
-	},
+	}
 
 
-	function addSkip(self, test, skip) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, 'addSkip', [test, skip]);
+	cw.UnitTest.ConsoleTestResult.prototype.addSkip = function(test, skip) {
+		cw.UnitTest.ConsoleTestResult.upcall('addSkip', [test, skip]);
 		print('... SKIP\n');
 		print('\n' + skip.toString() + '\n\n');
-	},
+	}
 
 
-	function addSuccess(self, test) {
-		cw.UnitTest.ConsoleTestResult.upcall(self, 'addSuccess', [test]);
+	cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
+		cw.UnitTest.ConsoleTestResult.upcall('addSuccess', [test]);
 		print('... OK\n');
 	}
-);
 
 
 
-
-// no more subunit/spidermonkey
-/*
-cw.UnitTest.TestResult.subclass(cw.UnitTest, 'SubunitTestClient').methods(
-	function _write(self, string) {
-		print(string);
-	},
-
-	function _sendException(self, f) {
-		self._write(f.toPrettyText(f.filteredParseStack()));
-	},
-
-	function addError(self, test, error) {
-		self._write("error: " + test.id() + " [");
-		self._sendException(error);
-		self._write(']');
-	},
-
-	function addFailure(self, test, error) {
-		self._write("failure: " + test.id() + " [");
-		self._sendException(error);
-		self._write(']');
-	},
-
-	// TODO: needs addSkip if re-enabled
-
-	function addSuccess(self, test) {
-		self._write('successful: ' + test.id());
-	},
-
-	function startTest(self, test) {
-		self._write('test: ' + test.id());
-	});
-*/
 
 
 /**
@@ -525,13 +487,12 @@ cw.UnitTest.TestResult.subclass(cw.UnitTest, 'SubunitTestClient').methods(
  *
  * @constructor
  */
-cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
-	function __init__(self, /*optional*/ tests) {
-		self.tests = [];
-		if (tests != undefined) {
-			self.addTests(tests);
+cw.UnitTest.TestSuite = function() {
+		this.tests = [];
+		if (goog.isDef(tests)) {
+			this.addTests(tests);
 		}
-	},
+	}
 
 
 	/**
@@ -540,9 +501,9 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	 * @param test: The test to add.
 	 * @type test: L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}
 	 */
-	function addTest(self, test) {
-		self.tests.push(test);
-	},
+	cw.UnitTest.TestSuite.prototype.addTest = function(test) {
+		this.tests.push(test);
+	}
 
 
 	/**
@@ -551,11 +512,11 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	 * @param tests: An array of tests to add.
 	 * @type tests: [L{cw.UnitTest.TestCase} or L{cw.UnitTest.TestSuite}]
 	 */
-	function addTests(self, tests) {
+	cw.UnitTest.TestSuite.prototype.addTests = function(tests) {
 		for (var i = 0; i < tests.length; ++i) {
-			self.addTest(tests[i]);
+			this.addTest(tests[i]);
 		}
-	},
+	}
 
 
 	/**
@@ -563,25 +524,25 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	 *
 	 * Nothing appears to actually use countTestCases except for the unit tests for it.
 	 */
-	function countTestCases(self) {
+	cw.UnitTest.TestSuite.prototype.countTestCases = function() {
 		var total = 0;
 		var visitor = function (test) { total += test.countTestCases(); };
 
-		var countVisitor = cw.UnitTest.SynchronousVisitor();
-		countVisitor.traverse(visitor, self.tests);
+		var countVisitor = cw.UnitTest.DeferredIgnoringVisitor();
+		countVisitor.traverse(visitor, this.tests);
 
 		return total;
-	},
+	}
 
 
 	/**
 	 * Visit each test case in this suite with the given visitor function.
 	 */
-	function visit(self, visitor) {
+	cw.UnitTest.TestSuite.prototype.visit = function(visitor) {
 		// safari has serious maximum recursion problems
 		var sVisitor = cw.UnitTest.SerialVisitor();
-		return sVisitor.traverse(visitor, self.tests);
-	},
+		return sVisitor.traverse(visitor, this.tests);
+	}
 
 
 	/**
@@ -590,21 +551,21 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 	 *
 	 * Useful for counting the # of tests and not much else.
 	 */
-	function visitSync(self, visitor) {
-		var testVisitor = cw.UnitTest.SynchronousVisitor();
-		testVisitor.traverse(visitor, self.tests);
-	},
+	cw.UnitTest.TestSuite.prototype.visitSync = function(visitor) {
+		var testVisitor = cw.UnitTest.DeferredIgnoringVisitor();
+		testVisitor.traverse(visitor, this.tests);
+	}
 
 
 
 	/**
 	 * Run all of the tests in the suite.
 	 */
-	function run(self, result) {
+	cw.UnitTest.TestSuite.prototype.run = function(result) {
 		var installD = cw.UnitTest.installMonkeys();
 
 		installD.addCallback(function _TestSuite_run_visit_cases(){
-			var d = self.visit(function (test) { return test.run(result); });
+			var d = this.visit(function (test) { return test.run(result); });
 
 			/**
 			 * Possibly make it easier to figure out when IE is leaking memory.
@@ -621,7 +582,7 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
 		// Not needed, goog.async.Deferred will throw the error into the window if needed
 		//installD.addErrback(CW.err);
 		return installD;
-	});
+	}
 
 
 
@@ -639,36 +600,31 @@ cw.Class.subclass(cw.UnitTest, 'TestSuite').methods(
  * from the user's test_ method (and not of my own methods).
  *
  * @constructor
- */
-cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
-	/**
-	 * Construct a test.
-	 *
-	 * @type methodName: string
+ * 	 * @type methodName: string
 	 * @param methodName: The name of a method on this object that contains
 	 * the unit test.
-	 */
-	function __init__(self, methodName) {
-		self._methodName = methodName;
-		self._assertCounter = 0;
-	},
+ */
+cw.UnitTest.TestCase = function(methodName) {
+		this._methodName = methodName;
+		this._assertCounter = 0;
+	}
 
 
 	/**
 	 * Return a string which identifies this test.
 	 */
-	function id(self) {
-		return self.__class__.__name__ + '.' + self._methodName;
-	},
+	cw.UnitTest.TestCase.prototype.id = function() {
+		return this.__class__.__name__ + '.' + this._methodName;
+	}
 
 
 	/**
 	 * Count the number of test cases in this test. Always 1, because an
 	 * instance represents a single test.
 	 */
-	function countTestCases(self) {
+	cw.UnitTest.TestCase.prototype.countTestCases = function() {
 		return 1; /* get this only with SynchronousTestVisitor */
-	},
+	}
 
 
 	/**
@@ -676,9 +632,9 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
-	function visit(self, visitor) {
+	cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 		return visitor(self);
-	},
+	}
 
 
 	/**
@@ -686,9 +642,9 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @param visitor: A callable which takes one argument (a test case).
 	 */
-	function visitSync(self, visitor) {
+	cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
 		visitor(self);
-	},
+	}
 
 
 	/**
@@ -697,9 +653,9 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @param {string} reason Why the test is being failed.
 	 * @return {cw.UnitTest.AssertionError}
 	 */
-	function getFailError(self, reason) {
-		return new cw.UnitTest.AssertionError("[" + self._assertCounter + "] " + reason, []);
-	},
+	cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
+		return new cw.UnitTest.AssertionError("[" + this._assertCounter + "] " + reason, []);
+	}
 
 
 	/**
@@ -707,9 +663,9 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @param {string} reason Why the test is being failed.
 	 */
-	function fail(self, reason) {
-		throw self.getFailError(reason);
-	},
+	cw.UnitTest.TestCase.prototype.fail = function(reason) {
+		throw this.getFailError(reason);
+	}
 
 
 	/**
@@ -718,14 +674,14 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @param {*} ok Any value.
 	 * @param {string=} message An error message for the AssertionError.
 	 */
-	function assertTrue(self, ok, message, _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall /*=false*/) {
 		if (!ok) {
-			self.fail(message);
+			this.fail(message);
 		}
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
@@ -734,23 +690,23 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @param {*} ok Any value.
 	 * @param {string=} message An error message for the AssertionError.
 	 */
-	function assertFalse(self, ok, message, _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall /*=false*/) {
 		if (ok) {
-			self.fail(message);
+			this.fail(message);
 		}
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Used for marking a line that should never be reached.
 	 * The idea comes from Closure Library's tests.
 	 */
-	function neverHappen(self) {
-		self.fail("This line should never be reached.");
-	},
+	cw.UnitTest.TestCase.prototype.neverHappen = function() {
+		this.fail("This line should never be reached.");
+	}
 
 
 	/**
@@ -779,7 +735,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * @raises L{cw.UnitTest.AssertionError} if C{predicate} returns
 	 * C{false}.
 	 */
-	function compare(self, predicate, description, a, b,
+	cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b,
 					 /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var repr = cw.repr.repr;
 		if (!predicate(a, b)) {
@@ -787,90 +743,90 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			if (message != null) {
 				msg += ': ' + message;
 			}
-			self.fail(msg);
+			this.fail(msg);
 		}
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Assert that Arrays C{a} and C{b} are equal.
 	 * Uses a shallow comparison of items, strict equality (===).
 	 */
-	function assertArraysEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
+	cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+		this.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Assert that Arrays C{a} and C{b} are not equal.
 	 * Uses a shallow comparison of items, strict inequality (!==).
 	 */
-	function assertArraysNotEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var invert = function(func) {
 			return function _inverter(){
 				return !func.apply(this, arguments);
 			};
 		};
 		var arraysNotEqual = invert(goog.array.equals);
-		self.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
+		this.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Assert that C{a} and C{b} are ===.
 	 */
-	function assertIdentical(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(function (x, y) { return x === y; },
+	cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+		this.compare(function (x, y) { return x === y; },
 					 '`!==´', a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Assert that C{a} and C{b} are !==.
 	 */
-	function assertNotIdentical(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(function (x, y) { return !(x === y); },
+	cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+		this.compare(function (x, y) { return !(x === y); },
 					 '`===´', a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
 	 * Assert that C{a} is "in" C{b}. Remember that JavaScript "in" only
 	 * checks if a property exists.
 	 */
-	 function assertIn(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
+	 cw.UnitTest.TestCase.prototype.assertIn = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+		this.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	 },
+	 }
 
 
 	/**
 	 * Assert that C{a} is not "in" C{b}. Remember that JavaScript "in"
 	 * only checks if a property exists.
 	 */
-	 function assertNotIn(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
-		self.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
+	 cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+		this.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	 },
+	 }
 
 
 	/**
@@ -880,19 +836,19 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * If you give this function circularly-referenced objects, it will overflow
 	 * the stack.
 	 */
-	function assertEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var messages = [];
 		if(!cw.eq.equals(a, b, messages)) {
 			var failMsg = goog.string.subs(
 				"Objects not deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
 				cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
-			self.fail(failMsg);
+			this.fail(failMsg);
 		}
 
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
@@ -902,35 +858,35 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * If you give this function circularly-referenced objects, it will overflow
 	 * the stack.
 	 */
-	function assertNotEqual(self, a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, /*optional*/ message, /*optional*/ _internalCall /*=false*/) {
 		var messages = [];
 		if(cw.eq.equals(a, b, messages)) {
 			var failMsg = goog.string.subs(
 				"Objects are deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
 				cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
-			self.fail(failMsg);
+			this.fail(failMsg);
 		}
 
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
-	function assertErrorMessage(self, e, expectedMessage, _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage, _internalCall /*=false*/) {
 		var errorMessage = e.message;
 		if(!cw.UnitTest.browserAddsCrapToErrorMessages) {
-			self.assertIdentical(errorMessage, expectedMessage,
+			this.assertIdentical(errorMessage, expectedMessage,
 				"Error was of wrong message: " + errorMessage, true);
 		} else {
-			self.assertTrue(
+			this.assertTrue(
 				goog.string.startsWith(errorMessage, expectedMessage),
 				"Error started with wrong message: " + errorMessage, true);
 		}
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
-	},
+	}
 
 
 	/**
@@ -952,25 +908,25 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *
 	 * @return: The exception that was raised by callable.
 	 */
-	function assertThrows(self, expectedError, callable,
+	cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable,
 	/*optional*/expectedMessage, /*optional*/ _internalCall /*=false*/) {
 		var threw = null;
 		try {
 			callable();
 		} catch (e) {
 			threw = e;
-			self.assertTrue(e instanceof expectedError,
+			this.assertTrue(e instanceof expectedError,
 						"Wrong error type thrown: " + e, true);
 			if(expectedMessage !== undefined) {
-				self.assertErrorMessage(e, expectedMessage, true);
+				this.assertErrorMessage(e, expectedMessage, true);
 			}
 		}
-		self.assertTrue(threw != null, "Callable threw no error", true);
+		this.assertTrue(threw != null, "Callable threw no error", true);
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
 		return threw;
-	},
+	}
 
 
 	// assertFailure was copied from Nevow.Athena.Test; heavily modified
@@ -997,14 +953,14 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 *    else,
 	 *          a Deferred which will fire errback with a L{cw.UnitTest.AssertionError}.
 	 */
-	function assertFailure(self, deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
+	cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, /*optional*/ _internalCall /*=false*/) {
 		if (errorTypes.length == 0) {
 			throw Error("Specify at least one error class to assertFailure");
 		}
 
 		var d = deferred.addCallbacks(
 			function(result) {
-				self.fail("Deferred reached callback; expected an errback.");
+				this.fail("Deferred reached callback; expected an errback.");
 				return null;
 			},
 			function(err) {
@@ -1013,16 +969,16 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 						return [err];
 					}
 				}
-				self.fail("Expected " + errorTypes + ", got " + err);
+				this.fail("Expected " + errorTypes + ", got " + err);
 				return null;
 			}
 		);
 		// TODO: is this really the best place to increment the counter? maybe it should be in the function(err)?
 		if(_internalCall !== true) {
-			self._assertCounter += 1;
+			this._assertCounter += 1;
 		}
 		return d;
-	},
+	}
 
 
 
@@ -1034,8 +990,8 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * require a common base configuration. L{tearDown} is the complement of
 	 * L{setUp}.
 	 */
-	function setUp(self) {
-	},
+	cw.UnitTest.TestCase.prototype.setUp = function() {
+	}
 
 
 	/**
@@ -1045,14 +1001,14 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 	 * L{tearDown} is at its most useful when used to clean up resources that are
 	 * initialized/modified by L{setUp} or by the test method.
 	 */
-	function tearDown(self) {
-	},
+	cw.UnitTest.TestCase.prototype.tearDown = function() {
+	}
 
 
 	/**
 	 * Actually run this test. This is designed to operate very much like C{twisted.trial.unittest}
 	 */
-	function run(self, result) {
+	cw.UnitTest.TestCase.prototype.run = function(result) {
 		var success = true;
 		var setUpD, methodD, tearDownD;
 
@@ -1077,11 +1033,11 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 
 				methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
 					if (anError instanceof cw.UnitTest.AssertionError) {
-						result.addFailure(self, anError);
+						result.addFailure(anError);
 					} else if (anError instanceof cw.UnitTest.SkipTest) {
-						result.addSkip(self, anError);
+						result.addSkip(anError);
 					} else {
-						result.addError(self, anError);
+						result.addError(anError);
 					}
 					success = false;
 					return null;
@@ -1102,7 +1058,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 					tearDownD.addErrback(function _TestCase_run_tearDownD_errback(anError) {
 						// This might be the second time C{result.addError} is called,
 						// because an error in both the method *and* tearDown is possible. 
-						result.addError(self, anError);
+						result.addError(anError);
 						success = false;
 						return null;
 					});
@@ -1151,9 +1107,9 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 			function _TestCase_run_setUpD_errback(anError){
 				// Assertions are not allowed in C{setUp}, so we'll treat them an error.
 				if (anError instanceof cw.UnitTest.SkipTest) {
-					result.addSkip(self, anError);
+					result.addSkip(anError);
 				} else {
-					result.addError(self, anError);
+					result.addError(anError);
 				}
 				return null;
 			}
@@ -1162,6 +1118,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 		return setUpD;
 
 	}
+
 
 
 //   Reference Deferred-free implementation from original Divmod UnitTest.js
@@ -1207,7 +1164,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase').methods(
 //		result.stopTest(self);
 //	};
 
-);
+
 
 
 /**
@@ -1385,15 +1342,18 @@ cw.UnitTest.estimatedStackLimit = cw.UnitTest.calculateStackLimit();
  *
  * @constructor
  */
-cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
-	function traverse(self, visitor, tests) {
+cw.UnitTest.SerialVisitor = function() {
+};
+
+
+	cw.UnitTest.SerialVisitor.prototype.traverse = function(visitor, tests) {
 //		cw.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 		var completionDeferred = new goog.async.Deferred();
-		self._traverse(visitor, tests, completionDeferred, 0);
+		this._traverse(visitor, tests, completionDeferred, 0);
 		return completionDeferred;
 	},
 
-	function _traverse(self, visitor, tests, completionDeferred, nowOn) {
+	cw.UnitTest.SerialVisitor.prototype._traverse = function(visitor, tests, completionDeferred, nowOn) {
 		var result, testCase;
 
 		// Some browsers (maybe just IE6 x64) have a very low stack limit. If we estimate that
@@ -1404,15 +1364,17 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 		// so you'll have to do it right.
 		var syncCallOkay = cw.UnitTest.estimatedStackLimit > 800;
 
+		var that = this;
+
 		if (nowOn < tests.length) {
 			testCase = tests[nowOn];
 			result = testCase.visit(visitor);
 			result.addCallback(function(ignored) {
 				if(syncCallOkay) {
-					self._traverse(visitor, tests, completionDeferred, nowOn + 1);
+					that._traverse(visitor, tests, completionDeferred, nowOn + 1);
 				} else {
 					goog.global.setTimeout(function() {
-						self._traverse(visitor, tests, completionDeferred, nowOn + 1);
+						that._traverse(visitor, tests, completionDeferred, nowOn + 1);
 					}, 0);
 				}
 			});
@@ -1437,38 +1399,40 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
 			0);
 		}
 	}
-);
 
-// alt implementation (without the setTimeout)
-//
-//
-///**
-// * A visit-controller which applies a specified visitor to the methods of a
-// * suite, waiting for the Deferred from a visit to fire before proceeding to
-// * the next method.
-// */
-//cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
-//	function traverse(self, visitor, tests) {
-//		self.runTestNum = tests.length;
-//		var completionDeferred = new goog.async.Deferred();
-//		self._traverse(visitor, tests, completionDeferred);
-//		return completionDeferred;
-//	},
-//
-//	function _traverse(self, visitor, tests, completionDeferred) {
-//		var result;
-//		if (self.runTestNum--) {
-//			testCase = tests[self.runTestNum];
-//			result = testCase.visit(visitor);
-//			result.addCallback(function(ignored) {
-//				self._traverse(visitor, tests, completionDeferred);
-//				return null;
-//			});
-//		} else {
-//			completionDeferred.callback(null);
-//		}
-//	});
-//
+
+
+/**
+* A visit-controller which applies a specified visitor to the methods of a
+* suite, waiting for the Deferred from a visit to fire before proceeding to
+* the next method.  This visitor doesn't use setTimeout.  There's no reason
+ * to use it.
+*/
+cw.UnitTest.SynchronousSerialVisitor = function() {
+};
+
+	cw.UnitTest.SynchronousSerialVisitor.prototype.traverse = function(visitor, tests) {
+		this.runTestNum = tests.length;
+		var completionDeferred = new goog.async.Deferred();
+		this._traverse(visitor, tests, completionDeferred);
+		return completionDeferred;
+	}
+
+	cw.UnitTest.SynchronousSerialVisitor.prototype._traverse = function(visitor, tests, completionDeferred) {
+		var result;
+		var that = this;
+		if (this.runTestNum--) {
+			testCase = tests[this.runTestNum];
+			result = testCase.visit(visitor);
+			result.addCallback(function(ignored) {
+				that._traverse(visitor, tests, completionDeferred);
+				return null;
+			});
+		} else {
+			completionDeferred.callback(null);
+		}
+	}
+
 
 
 /* TODO: add tests for the 3 visitors.
@@ -1482,14 +1446,16 @@ cw.Class.subclass(cw.UnitTest, 'SerialVisitor').methods(
  *
  * @constructor
  */
-cw.Class.subclass(cw.UnitTest, 'SynchronousVisitor').methods(
-	function traverse(self, visitor, tests) {
+cw.UnitTest.DeferredIgnoringVisitor = function() {
+};
+
+	cw.UnitTest.DeferredIgnoringVisitor.prototype.traverse = function(visitor, tests) {
 		for (var i = 0; i < tests.length; ++i) {
 			// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
 			tests[i].visitSync(visitor);
 		}
 	}
-);
+
 
 
 /**
@@ -1618,7 +1584,4 @@ cw.UnitTest.installMonkeys = function() {
 
 	installD.callback(null);
 	return installD;
-};
-
-
-})(); // end anti-clobbering for JScript
+}

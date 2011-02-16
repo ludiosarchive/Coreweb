@@ -17,6 +17,7 @@ goog.require('cw.objsize');
 goog.require('cw.repr');
 goog.require('cw.string');
 goog.require('cw.uri');
+goog.require('cw.UnitTest');
 goog.require('cw.whoami');
 // Coreweb demos
 goog.require('cnwdemo');
