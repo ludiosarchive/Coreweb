@@ -150,7 +150,7 @@ cw.UnitTest.loadFromModules = function(testModules) {
 
 
 /**
- * Raised to indicate that a test has failed.
+ * Thrown to indicate that a test has failed.
  *
  * @param {string} msg Reason why the test failed.
  * @constructor
@@ -169,7 +169,7 @@ cw.UnitTest.AssertionError.prototype.toString = function() {
 
 
 /**
- * Raised to indicate that a test is being skipped.
+ * Thrown to indicate that a test is being skipped.
  *
  * @param {string} msg Reason why the test is being skipped.
  * @constructor
@@ -205,25 +205,22 @@ cw.UnitTest.TestResult = function() {
 	this.successes = [];
 
 	/**
-	 * @type {!Array.<!Array>} TODOTYPE
-	 * An array of [{TestCase}, {cw.UnitTest.AssertionError}] pairs.
-	 * i.e. the assertion failures that have occurred in this test run,
+	 * @type {!Array.<![!cw.UnitTest.TestCase, !cw.UnitTest.AssertionError]>}
+	 * The assertion failures that occurred in this test run,
 	 * paired with the tests that generated them.
 	 */
 	this.failures = [];
 
 	/**
-	 * @type {!Array.<!Array>} TODOTYPE
-	 * An array of [{TestCase}, {Error}] pairs.
-	 * i.e. the errors that were raised by tests in this test run, paired
-	 * with the tests that generated them.
+	 * @type {!Array.<![!cw.UnitTest.TestCase, Error]>}
+	 * The errors that were thrown by tests in this test run,
+	 * paired with the tests that generated them.
 	 */
 	this.errors = [];
 
 	/**
-	 * @type {!Array.<!Array>} TODOTYPE
-	 * An array of [{TestCase}, {cw.UnitTest.SkipTest}] pairs.
-	 * i.e. the SkipTest exceptions that were raised by tests in this test run,
+	 * @type {!Array.<![!cw.UnitTest.TestCase, !cw.UnitTest.SkipTest]>}
+	 * The SkipTest errors that were thrown by tests in this test run,
 	 * paired with the tests that generated them.
 	 */
 	this.skips = [];
@@ -277,10 +274,10 @@ cw.UnitTest.TestResult.prototype.addError = function(test, error) {
  *
  * @param {!cw.UnitTest.TestCase} test The test with the failed assertion.
  *
- * @param {!cw.UnitTest.AssertionError} error The failure that occurred.
+ * @param {!cw.UnitTest.AssertionError} failure The failure that occurred.
  */
-cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
-	this.failures.push([test, error]);
+cw.UnitTest.TestResult.prototype.addFailure = function(test, failure) {
+	this.failures.push([test, failure]);
 };
 
 
@@ -289,10 +286,10 @@ cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
  *
  * @param {!cw.UnitTest.TestCase} test The test that was skipped.
  *
- * @param {!cw.UnitTest.SkipTest} error The SkipTest exception that occurred.
+ * @param {!cw.UnitTest.SkipTest} skip The SkipTest error that occurred.
  */
-cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
-	this.skips.push([test, error]);
+cw.UnitTest.TestResult.prototype.addSkip = function(test, skip) {
+	this.skips.push([test, skip]);
 };
 
 
@@ -641,7 +638,8 @@ cw.UnitTest.TestCase.prototype.countTestCases = function() {
 /**
  * Visit this test case.
  *
- * @param {!Function} visitor A callable which takes one argument (a test case). TODOTYPE
+ * @param {function(!cw.UnitTest.TestCase):*} visitor A callable which takes
+ * 	one argument (a test case).
  */
 cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 	return visitor(this);
@@ -651,7 +649,8 @@ cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 /**
  * Visit this test case synchronously.
  *
- * @param {!Function} visitor A callable which takes one argument (a test case). TODOTYPE
+ * @param {function(!cw.UnitTest.TestCase):*} visitor A callable which takes
+ * 	one argument (a test case).
  */
 cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
 	visitor(this);
@@ -737,8 +736,8 @@ cw.UnitTest.TestCase.prototype.neverHappen = function() {
  * @param {*} b The thing to be compared with {@code a}.  Passed as the second
  *	parameter to {@code predicate}.
  *
- * @param {string=} message An optional message to be included in the raised
- *	L{AssertionError}.
+ * @param {string=} message An optional message to be included in the thrown
+ *	{@code cw.UnitTest.AssertionError}.
  *
  * @param {boolean=} _internalCall Private.  Don't use.
  *
@@ -971,7 +970,7 @@ cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage,
  * an {@code expectedError}.  This could be because it threw a different error or
  * because it didn't throw any errors.
  *
- * @return {*} The error that was thrown by callable. TODOTYPE
+ * @return {*} The error that was thrown by callable.
  */
 cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable, expectedMessage, _internalCall) {
 	var threw = null;
@@ -1375,7 +1374,7 @@ cw.UnitTest.calculateStackLimit = function(n) {
 		n = 0;
 	}
 	// Opera stops executing JavaScript when you blow the stack.
-	// All other known browsers raise an exception.
+	// All other known browsers throw an error.
 	if(goog.userAgent.OPERA || n >= 1000) {
 		return 1000; // In Opera 10.10, it's actually 5000, but return 1000 for consistency.
 	}
