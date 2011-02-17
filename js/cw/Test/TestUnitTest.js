@@ -33,7 +33,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'IsTestCaseTests').methods(
 				cw.Test.TestUnitTestAssertions.AssertionTests));
 		self.assertIdentical(
 			false, cw.UnitTest.isTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests()));
+				new cw.Test.TestUnitTestAssertions.AssertionTests()));
 		self.assertIdentical(
 			false, cw.UnitTest.isTestCaseClass(
 				1));
@@ -52,7 +52,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'IsTestCaseTests').methods(
 				cw.Test.TestUnitTestAssertions.AssertionTests));
 		self.assertIdentical(
 			false, cw.UnitTest.isRunnableTestCaseClass(
-				cw.Test.TestUnitTestAssertions.AssertionTests()));
+				new cw.Test.TestUnitTestAssertions.AssertionTests()));
 		self.assertIdentical(
 			false, cw.UnitTest.isRunnableTestCaseClass(
 				1));
@@ -95,7 +95,7 @@ cw.Class.subclass(cw.Test.TestUnitTest, 'MockResult').methods(
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	function setUp(self) {
-		self.result = cw.UnitTest.TestResult();
+		self.result = new cw.UnitTest.TestResult();
 		self.mockModule = cw.Test.Mock;
 	},
 
@@ -175,7 +175,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * succeeded.
 	 */
 	function test_resultAccumulation(self) {
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		var bad = self.mockModule._WasRun('test_bad');
 		var good = self.mockModule._WasRun('test_good');
 		var error = self.mockModule._WasRun('test_error');
@@ -324,7 +324,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	 * get the results of all of the tests.
 	 */
 	function test_testSuite(self) {
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		suite.addTest(self.mockModule._WasRun('test_good'));
 		suite.addTest(self.mockModule._WasRun('test_bad'));
 
@@ -343,7 +343,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 	 */
 	function test_countTestCases(self) {
 		self.assertIdentical(self.countTestCases(), 1);
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		self.assertIdentical(suite.countTestCases(), 0);
 		suite.addTest(self);
 		self.assertIdentical(suite.countTestCases(), 1);
@@ -393,12 +393,12 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestCaseTest').methods(
 			// for the async visit() that doesn't natively return a Deferred.
 			return goog.async.Deferred.succeed(null);
 		}
-		var d = cw.UnitTest.TestSuite().visit(visitor);
+		var d = new cw.UnitTest.TestSuite().visit(visitor);
 
 		d.addCallback(function() {
 			self.assertArraysEqual(log, []);
 			var tests = [self.mockModule._WasRun('test_good1'), self.mockModule._WasRun('test_good2')];
-			var suite = cw.UnitTest.TestSuite(tests);
+			var suite = new cw.UnitTest.TestSuite(tests);
 
 			var d2 = suite.visit(visitor);
 			d2.addCallback(function() {
@@ -447,7 +447,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestDS
 
 cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
 	function setUp(self) {
-		self.result = cw.UnitTest.TestResult();
+		self.result = new cw.UnitTest.TestResult();
 		// Only need to test this with L{Mock}, not DMock or DSMock.
 		self.mockModule = cw.Test.Mock;
 	},
@@ -456,7 +456,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setTimeoutLoose(self) {
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
 
@@ -477,7 +477,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
 	function test_setIntervalLoose(self) {
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		var error = self.mockModule._setIntervalLoose('test_method');
 		suite.addTests([error]);
 
@@ -511,7 +511,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 		// the loose call in this "parent" test
 		var looseTimeout = setTimeout(function() {}, 60);
 
-		var suite = cw.UnitTest.TestSuite();
+		var suite = new cw.UnitTest.TestSuite();
 		// "child" test will have a loose call, too.
 		var error = self.mockModule._setTimeoutLoose('test_method');
 		suite.addTests([error]);
@@ -552,7 +552,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest ,'LoaderTests').methods(
 		var ids = [];
 		var visitor = function (test) { ids.push(test.id()); };
 
-		var v = cw.UnitTest.SynchronousVisitor();
+		var v = new cw.UnitTest.DeferredIgnoringVisitor();
 		v.traverse(visitor, suite.tests);
 		
 		return ids;
@@ -575,14 +575,13 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest ,'LoaderTests').methods(
 	 */
 	function test_loadFromClass(self) {
 		var suite = cw.UnitTest.loadFromClass(self.mockModule._WasRun);
-		self.assertArraysEqual(
-			[
-				self.mockModule.__name__ + '._WasRun.test_bad',
-				self.mockModule.__name__ + '._WasRun.test_error',
-				self.mockModule.__name__ + '._WasRun.test_good',
-				self.mockModule.__name__ + '._WasRun.test_skip'
-			],
-			self.getTestIDs(suite));
+		self.assertArraysEqual([
+			self.mockModule.__name__ + '._WasRun.test_bad',
+			self.mockModule.__name__ + '._WasRun.test_error',
+			self.mockModule.__name__ + '._WasRun.test_good',
+			self.mockModule.__name__ + '._WasRun.test_skip'
+		],
+		self.getTestIDs(suite));
 	},
 
 
@@ -646,7 +645,7 @@ cw.Test.TestUnitTest.LoaderTests.subclass(cw.Test.TestUnitTest, 'LoaderTestsDS')
 
 cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'RunnerTest').methods(
 	function setUp(self) {
-		self.result = cw.UnitTest.TestResult();
+		self.result = new cw.UnitTest.TestResult();
 		self.mockModule = cw.Test.Mock;
 	},
 

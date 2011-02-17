@@ -32,9 +32,12 @@ cw.Class = function() {
  * @param {string=} subclassName: If {@code classNameOrModule} is a module
  * 	object, specify the name of the new subclass.
  *
+ * @param {boolean=} overwriteOkay Set true to allow overwriting an existing object
+ * 	with this new class object.  Don't use unless you're trying to trick Closure Compiler.
+ *
  * @return {!Function}
  */
-cw.Class.subclass = function(classNameOrModule, subclassName) {
+cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
 	/**
 	 * subclass() must always be called on cw.Class or an object returned
 	 * from subclass() - so in this execution context, {@code this} is the "class"
@@ -108,7 +111,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName) {
 	if (goog.isDef(subclassName)) { // implies new-style subclassing
 		className = classNameOrModule.__name__ + '.' + subclassName;
 
-		if(goog.DEBUG && goog.isDef(classNameOrModule[subclassName])) {
+		if(goog.DEBUG && !overwriteOkay && goog.isDef(classNameOrModule[subclassName])) {
 			throw Error("cw.Class.subclass: Won't overwrite " + className);
 		}
 
