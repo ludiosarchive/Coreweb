@@ -1354,22 +1354,14 @@ cw.UnitTest.runConsole = function(test) {
 
 
 
-
-// no more subunit/spidermonkey
-/*
-cw.UnitTest.runRemote = function runRemote(test) {
-	var result = cw.UnitTest.SubunitTestClient();
-	test.run(result);
-};*/
-
-
-
 /**
+ * @param {number=} n Private.  Don't use.
+ *
  * @return {number} The stack limit of the current environment.
  * 	If over 1000, just return 1000.
  */
 cw.UnitTest.calculateStackLimit = function(n) {
-	if(n === undefined) {
+	if(!goog.isDef(n)) {
 		n = 0;
 	}
 	// Opera stops executing JavaScript when you blow the stack.
@@ -1378,7 +1370,7 @@ cw.UnitTest.calculateStackLimit = function(n) {
 		return 1000; // In Opera 10.10, it's actually 5000, but return 1000 for consistency.
 	}
 	try {
-		return cw.UnitTest.calculateStackLimit(n+1);
+		return cw.UnitTest.calculateStackLimit(n + 1);
 	} catch(e) {
 		return n;
 	}
