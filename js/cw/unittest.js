@@ -231,7 +231,7 @@ cw.UnitTest.TestResult = function() {
 	 * @type {null|number}
 	 */
 	this.timeStarted = null;
-}
+};
 
 
 /**
@@ -244,7 +244,7 @@ cw.UnitTest.TestResult.prototype.startTest = function(test) {
 		this.timeStarted = new Date().getTime();
 	}
 	this.testsRun++;
-}
+};
 
 
 /**
@@ -253,7 +253,7 @@ cw.UnitTest.TestResult.prototype.startTest = function(test) {
  * @param {!cw.UnitTest.TestCase} test The test that just finished.
  */
 cw.UnitTest.TestResult.prototype.stopTest = function(test) {
-}
+};
 
 
 /**
@@ -266,7 +266,7 @@ cw.UnitTest.TestResult.prototype.stopTest = function(test) {
  */
 cw.UnitTest.TestResult.prototype.addError = function(test, error) {
 	this.errors.push([test, error]);
-}
+};
 
 
 /**
@@ -280,7 +280,7 @@ cw.UnitTest.TestResult.prototype.addError = function(test, error) {
  */
 cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
 	this.failures.push([test, error]);
-}
+};
 
 
 /**
@@ -292,7 +292,7 @@ cw.UnitTest.TestResult.prototype.addFailure = function(test, error) {
  */
 cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
 	this.skips.push([test, error]);
-}
+};
 
 
 /**
@@ -302,7 +302,7 @@ cw.UnitTest.TestResult.prototype.addSkip = function(test, error) {
  */
 cw.UnitTest.TestResult.prototype.addSuccess = function(test) {
 	this.successes.push(test);
-}
+};
 
 
 /**
@@ -311,7 +311,7 @@ cw.UnitTest.TestResult.prototype.addSuccess = function(test) {
  */
 cw.UnitTest.TestResult.prototype.getSummary = function() {
 	return [this.testsRun, this.failures.length, this.errors.length, this.skips.length];
-}
+};
 
 
 /**
@@ -319,7 +319,7 @@ cw.UnitTest.TestResult.prototype.getSummary = function() {
  */
 cw.UnitTest.TestResult.prototype.wasSuccessful = function() {
 	return this.failures.length == 0 && this.errors.length == 0;
-}
+};
 
 
 
@@ -382,14 +382,14 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
 cw.UnitTest.DIVTestResult = function(div) {
 	cw.UnitTest.TestResult.call(this);
 	this._div = div;
-}
+};
 goog.inherits(cw.UnitTest.DIVTestResult, cw.UnitTest.TestResult);
 
 cw.UnitTest.DIVTestResult.prototype.startTest = function(test) {
 	goog.base(this, 'startTest', test);
 	var textnode = document.createTextNode(test.id());
 	this._div.appendChild(textnode);
-}
+};
 
 
 cw.UnitTest.DIVTestResult.prototype.addError = function(test, error) {
@@ -401,7 +401,7 @@ cw.UnitTest.DIVTestResult.prototype.addError = function(test, error) {
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
 	this._div.appendChild(pre);
-}
+};
 
 
 cw.UnitTest.DIVTestResult.prototype.addFailure = function(test, failure) {
@@ -412,7 +412,7 @@ cw.UnitTest.DIVTestResult.prototype.addFailure = function(test, failure) {
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
 	this._div.appendChild(pre);
-}
+};
 
 
 cw.UnitTest.DIVTestResult.prototype.addSkip = function(test, skip) {
@@ -421,7 +421,7 @@ cw.UnitTest.DIVTestResult.prototype.addSkip = function(test, skip) {
 	var textnode = document.createTextNode('... SKIP: ' + skip.message);
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
-}
+};
 
 
 cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
@@ -430,7 +430,7 @@ cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
 	var textnode = document.createTextNode('... OK');
 	this._div.appendChild(textnode);
 	this._div.appendChild(br);
-}
+};
 
 
 
@@ -445,41 +445,41 @@ cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
  */
 cw.UnitTest.ConsoleTestResult = function() {
 	cw.UnitTest.TestResult.call(this);
-}
+};
 goog.inherits(cw.UnitTest.ConsoleTestResult, cw.UnitTest.TestResult);
 
 
 cw.UnitTest.ConsoleTestResult.prototype.startTest = function(test) {
 	goog.base(this, 'startTest', test);
 	goog.global.print(test.id());
-}
+};
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addError = function(test, error) {
 	goog.base(this, 'addError', test, error);
 	goog.global.print('... ERROR\n');
 	goog.global.print('\n' + error.toString() + '\n\n');
-}
+};
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addFailure = function(test, failure) {
 	goog.base(this, 'addFailure', test, failure);
 	goog.global.print('... FAILURE\n');
 	goog.global.print('\n' + failure.toString() + '\n\n');
-}
+};
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addSkip = function(test, skip) {
 	goog.base(this, 'addSkip', test, skip);
 	goog.global.print('... SKIP\n');
 	goog.global.print('\n' + skip.toString() + '\n\n');
-}
+};
 
 
 cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
 	goog.base(this, 'addSuccess', test);
 	goog.global.print('... OK\n');
-}
+};
 
 
 
@@ -496,7 +496,7 @@ cw.UnitTest.TestSuite = function(tests) {
 	if (goog.isDef(tests)) {
 		this.addTests(tests);
 	}
-}
+};
 
 
 /**
@@ -506,7 +506,7 @@ cw.UnitTest.TestSuite = function(tests) {
  */
 cw.UnitTest.TestSuite.prototype.addTest = function(test) {
 	this.tests.push(test);
-}
+};
 
 
 /**
@@ -518,7 +518,7 @@ cw.UnitTest.TestSuite.prototype.addTests = function(tests) {
 	for (var i = 0; i < tests.length; ++i) {
 		this.addTest(tests[i]);
 	}
-}
+};
 
 
 /**
@@ -534,7 +534,7 @@ cw.UnitTest.TestSuite.prototype.countTestCases = function() {
 	countVisitor.traverse(visitor, this.tests);
 
 	return total;
-}
+};
 
 
 /**
@@ -544,7 +544,7 @@ cw.UnitTest.TestSuite.prototype.visit = function(visitor) {
 	// safari has serious maximum recursion problems
 	var sVisitor = new cw.UnitTest.SerialVisitor();
 	return sVisitor.traverse(visitor, this.tests);
-}
+};
 
 
 /**
@@ -556,7 +556,7 @@ cw.UnitTest.TestSuite.prototype.visit = function(visitor) {
 cw.UnitTest.TestSuite.prototype.visitSync = function(visitor) {
 	var testVisitor = new cw.UnitTest.DeferredIgnoringVisitor();
 	testVisitor.traverse(visitor, this.tests);
-}
+};
 
 
 
@@ -584,7 +584,7 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 	// Not needed, goog.async.Deferred will throw the error into the window if needed
 	//installD.addErrback(CW.err);
 	return installD;
-}
+};
 
 
 
@@ -608,7 +608,7 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 cw.UnitTest.TestCase = function(methodName) {
 	this._methodName = methodName;
 	this._assertCounter = 0;
-}
+};
 
 
 /**
@@ -616,7 +616,7 @@ cw.UnitTest.TestCase = function(methodName) {
  */
 cw.UnitTest.TestCase.prototype.id = function() {
 	return this.__class__.__name__ + '.' + this._methodName;
-}
+};
 
 
 /**
@@ -625,7 +625,7 @@ cw.UnitTest.TestCase.prototype.id = function() {
  */
 cw.UnitTest.TestCase.prototype.countTestCases = function() {
 	return 1; /* get this only with SynchronousTestVisitor */
-}
+};
 
 
 /**
@@ -635,7 +635,7 @@ cw.UnitTest.TestCase.prototype.countTestCases = function() {
  */
 cw.UnitTest.TestCase.prototype.visit = function(visitor) {
 	return visitor(this);
-}
+};
 
 
 /**
@@ -645,7 +645,7 @@ cw.UnitTest.TestCase.prototype.visit = function(visitor) {
  */
 cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
 	visitor(this);
-}
+};
 
 
 /**
@@ -656,7 +656,7 @@ cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
  */
 cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
 	return new cw.UnitTest.AssertionError("[" + this._assertCounter + "] " + reason);
-}
+};
 
 
 /**
@@ -666,7 +666,7 @@ cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
  */
 cw.UnitTest.TestCase.prototype.fail = function(reason) {
 	throw this.getFailError(reason);
-}
+};
 
 
 /**
@@ -683,7 +683,7 @@ cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall)
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -700,7 +700,7 @@ cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -709,14 +709,14 @@ cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall
  */
 cw.UnitTest.TestCase.prototype.neverHappen = function() {
 	this.fail("This line should never be reached.");
-}
+};
 
 
 /**
  * Compare {@code a} and {@code b} using the provided predicate.
  *
- * @param {function(*, *): boolean} predicate A callable that accepts
- * 	two parameters and returns a boolean.
+ * @param {function(*, *, ...[*]): boolean} predicate A callable that accepts
+ * 	at least two arguments and returns a boolean.
  *
  * @param {string} description Describes the inverse of the comparison.  This is
  *	used in the L{AssertionError} if the comparison fails.
@@ -747,7 +747,7 @@ cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b, 
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -765,7 +765,7 @@ cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, message, _inte
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -789,7 +789,7 @@ cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, message, _i
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -807,7 +807,7 @@ cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, message, _intern
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -825,7 +825,7 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -838,12 +838,12 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
  * @param {string=} message
  * @param {boolean=} _internalCall
  */
- cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall) {
+cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
- }
+};
 
 
 /**
@@ -856,12 +856,12 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
  * @param {string=} message
  * @param {boolean=} _internalCall
  */
- cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCall) {
+cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
- }
+};
 
 
 /**
@@ -889,7 +889,7 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCa
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -917,7 +917,7 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -938,7 +938,7 @@ cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage,
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
-}
+};
 
 
 /**
@@ -979,7 +979,7 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable, 
 		this._assertCounter += 1;
 	}
 	return threw;
-}
+};
 
 
 // assertFailure was copied from Nevow.Athena.Test; heavily modified
@@ -1031,7 +1031,7 @@ cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, _i
 		this._assertCounter += 1;
 	}
 	return d;
-}
+};
 
 
 
@@ -1044,7 +1044,7 @@ cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, _i
  * L{setUp}.
  */
 cw.UnitTest.TestCase.prototype.setUp = function() {
-}
+};
 
 
 /**
@@ -1055,7 +1055,7 @@ cw.UnitTest.TestCase.prototype.setUp = function() {
  * initialized/modified by L{setUp} or by the test method.
  */
 cw.UnitTest.TestCase.prototype.tearDown = function() {
-}
+};
 
 
 /**
@@ -1170,8 +1170,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 	);
 
 	return setUpD;
-
-}
+};
 
 
 
@@ -1444,7 +1443,7 @@ cw.UnitTest.SerialVisitor.prototype._traverse = function(visitor, tests, complet
 			},
 		0);
 	}
-}
+};
 
 
 
@@ -1462,7 +1461,7 @@ cw.UnitTest.SynchronousSerialVisitor.prototype.traverse = function(visitor, test
 	var completionDeferred = new goog.async.Deferred();
 	this._traverse(visitor, tests, completionDeferred);
 	return completionDeferred;
-}
+};
 
 cw.UnitTest.SynchronousSerialVisitor.prototype._traverse = function(visitor, tests, completionDeferred) {
 	var result;
@@ -1477,7 +1476,7 @@ cw.UnitTest.SynchronousSerialVisitor.prototype._traverse = function(visitor, tes
 	} else {
 		completionDeferred.callback(null);
 	}
-}
+};
 
 
 
@@ -1500,7 +1499,7 @@ cw.UnitTest.DeferredIgnoringVisitor.prototype.traverse = function(visitor, tests
 		// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
 		tests[i].visitSync(visitor);
 	}
-}
+};
 
 
 
@@ -1570,7 +1569,7 @@ cw.UnitTest.installMonkeys = function() {
 		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
 
 		return ticket;
-	}
+	};
 
 	window.setInterval = function(fn, time) {
 		//cw.UnitTest.logger.finest('Inside replacement window.setInterval. fn: ' + fn + ' ; time: ' + time);
@@ -1584,7 +1583,7 @@ cw.UnitTest.installMonkeys = function() {
 		}
 		cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
 		return ticket;
-	}
+	};
 
 	window.clearTimeout = function(ticket) {
 		//cw.UnitTest.logger.finest('Inside replacement window.clearTimeout. ticket: ' + ticket);
@@ -1596,7 +1595,7 @@ cw.UnitTest.installMonkeys = function() {
 
 		delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 		return output;
-	}
+	};
 
 	window.clearInterval = function(ticket) {
 		//cw.UnitTest.logger.finest('Inside replacement window.clearInterval. ticket: ' + ticket);
@@ -1608,7 +1607,7 @@ cw.UnitTest.installMonkeys = function() {
 
 		delete cw.UnitTest.delayedCalls['setInterval_pending'][ticket];
 		return output;
-	}
+	};
 
 	// In non-IE browsers, the above overrides everything correctly,
 	// and both `setTimeout` and `window.setTimeout` use our special
@@ -1626,8 +1625,8 @@ cw.UnitTest.installMonkeys = function() {
 		function setTimeout(fn, callable) {\
 			return cw.UnitTest.__window_setTimeout(fn, callable);\
 		}", 'JavaScript');
-	}
+	};
 
 	installD.callback(null);
 	return installD;
-}
+};
