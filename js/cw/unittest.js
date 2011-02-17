@@ -342,7 +342,8 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 			canonical.push(s);
 			canonical.push('\n')
 			// Firefox, Chrome
-			if(goog.string.startsWith(s, 'test_') || goog.string.startsWith(s, '[object Object].test_')) {
+			if(goog.string.startsWith(s, 'test_') ||
+			goog.string.startsWith(s, '[object Object].test_')) {
 				// Any further frames are likely irrelevant.
 				last = i;
 				break;
@@ -361,7 +362,8 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
 	var pre = document.createElement("pre");
 	// JavaScript-based tracebacks are unfortunately worthless in
 	// our case, so right now we're out of luck in IE (and probably Safari and Opera).
-	error.stack = error.stack ? cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+	error.stack = error.stack ?
+		cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
 	pre.innerHTML =
 		goog.string.htmlEscape(error.name + ': ' + error.message) +
 		((error.stack ? '\n' + error.stack : ''));
@@ -510,7 +512,8 @@ cw.UnitTest.TestSuite.prototype.addTest = function(test) {
 /**
  * Add the given tests to the suite.
  *
- * @param {!Array.<!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)>} tests An array of tests to add.
+ * @param {!Array.<!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)>} tests An
+ * 	array of tests to add.
  */
 cw.UnitTest.TestSuite.prototype.addTests = function(tests) {
 	for (var i = 0; i < tests.length; ++i) {
@@ -590,7 +593,8 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 /**
  * I represent a single unit test. Subclass me for your own tests.
  *
- * I will be instantiated once per your own test_ method, by {@link cw.UnitTest.loadFromClass}.
+ * I will be instantiated once per your own test_ method, by
+ * {@link cw.UnitTest.loadFromClass}.
  *
  * I know which asserts/compares are "internal" (called by my own logic) because:
  * some browsers don't have tracebacks in JS,
@@ -744,7 +748,8 @@ cw.UnitTest.TestCase.prototype.neverHappen = function() {
  * Throws {@code cw.UnitTest.AssertionError} if {@code predicate} returns
  * false.
  */
-cw.UnitTest.TestCase.prototype.compare = function(predicate, description, a, b, message, _internalCall) {
+cw.UnitTest.TestCase.prototype.compare = function(
+predicate, description, a, b, message, _internalCall) {
 	var repr = cw.repr.repr;
 	if (!predicate(a, b)) {
 		var msg = repr(a) + " " + description + " " + repr(b);
@@ -890,7 +895,8 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCa
 	var messages = [];
 	if(!cw.eq.equals(a, b, messages)) {
 		var failMsg = goog.string.subs(
-			"Objects not deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
+			"Objects not deep-equal:\n%s\n%s\n" +
+			"Assert message: %s\nMessage log from cw.eq:\n%s\n",
 			cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
 		this.fail(failMsg);
 	}
@@ -918,7 +924,8 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
 	var messages = [];
 	if(cw.eq.equals(a, b, messages)) {
 		var failMsg = goog.string.subs(
-			"Objects are deep-equal:\n%s\n%s\nAssert message: %s\nMessage log from cw.eq:\n%s\n",
+			"Objects are deep-equal:\n%s\n%s\n" +
+			"Assert message: %s\nMessage log from cw.eq:\n%s\n",
 			cw.repr.repr(a), cw.repr.repr(b), message, messages.join('\n'));
 		this.fail(failMsg);
 	}
@@ -935,7 +942,8 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
  * 	different message, an AssertionError is thrown.
  * @param {boolean=} _internalCall Private.  Don't use.
  */
-cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage, _internalCall) {
+cw.UnitTest.TestCase.prototype.assertErrorMessage = function(
+e, expectedMessage, _internalCall) {
 	var errorMessage = e.message;
 	if(!cw.UnitTest.browserAddsCrapToErrorMessages) {
 		this.assertIdentical(errorMessage, expectedMessage,
@@ -972,7 +980,8 @@ cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage,
  *
  * @return {*} The error that was thrown by callable.
  */
-cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable, expectedMessage, _internalCall) {
+cw.UnitTest.TestCase.prototype.assertThrows = function(
+expectedError, callable, expectedMessage, _internalCall) {
 	var threw = null;
 	try {
 		callable();
@@ -1010,13 +1019,15 @@ cw.UnitTest.TestCase.prototype.assertThrows = function(expectedError, callable, 
  * Throws {Error} if {@code errorTypes} has a length of 0.
  *
  * @return {goog.async.Deferred}
- *    if the input Deferred fails with one of the types specified in {@code errorTypes},
- *          a Deferred which will fire callback with a 1 item list: [the error object]
- *          with which the input Deferred failed
+ *    if the input Deferred fails with one of the types specified in
+ *    	{@code errorTypes}, a Deferred which will fire callback with a
+ *    	1 item list: [the error object] with which the input Deferred failed.
  *    else,
- *          a Deferred which will fire errback with a {@code cw.UnitTest.AssertionError}.
+ *          a Deferred which will fire errback with a
+ *          {@code cw.UnitTest.AssertionError}.
  */
-cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, _internalCall) {
+cw.UnitTest.TestCase.prototype.assertFailure = function(
+deferred, errorTypes, _internalCall) {
 	if (errorTypes.length == 0) {
 		throw Error("Specify at least one error class to assertFailure");
 	}
@@ -1036,7 +1047,8 @@ cw.UnitTest.TestCase.prototype.assertFailure = function(deferred, errorTypes, _i
 			return null;
 		}
 	);
-	// TODO: is this really the best place to increment the counter? maybe it should be in the function(err)?
+	// TODO: is this really the best place to increment the counter?
+	// Maybe it should be in the function(err)?
 	if(_internalCall !== true) {
 		this._assertCounter += 1;
 	}
@@ -1069,7 +1081,8 @@ cw.UnitTest.TestCase.prototype.tearDown = function() {
 
 
 /**
- * Actually run this test. This is designed to operate very much like {@code twisted.trial.unittest}
+ * Actually run this test. This is designed to operate very much like
+ * {@code twisted.trial.unittest}
  */
 cw.UnitTest.TestCase.prototype.run = function(result) {
 	var that = this;
@@ -1132,7 +1145,10 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 						var whichProblems = [];
 						for(var pendingType in cw.UnitTest.delayedCalls) {
 							for(var ticket in cw.UnitTest.delayedCalls[pendingType]) {
-								cw.UnitTest.logger.severe(goog.string.subs("Leftover pending call: %s %s", pendingType, ticket));
+								cw.UnitTest.logger.severe(
+									goog.string.subs(
+										"Leftover pending call: %s %s",
+										pendingType, ticket));
 								whichProblems.push(pendingType);
 							}
 						}
@@ -1145,8 +1161,10 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 									"Test ended with " + whichProblems.length +
 									" pending call(s): " + whichProblems));
 
-							// Cleanup everything. If we don't do this, test output is impossible
-							// to decipher, because delayed calls "spill over" to future tests.
+							// Cleanup everything. If we don't do
+							// this, test output is impossible
+							// to decipher, because delayed calls
+							// "spill over" to future tests.
 							cw.UnitTest.stopTrackingDelayedCalls();
 						}
 
@@ -1208,10 +1226,12 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 //			self[self._methodName]();
 //		} catch (e) {
 //			if (e instanceof cw.UnitTest.AssertionError) {
-//				result.addFailure(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
+//				// NEW NOTE: (pass in Error, Failure() this if code re-enabled)
+//				result.addFailure(self, e);
 //                // NEW NOTE: check for SkipTest is code re-enabled 
 //			} else {
-//				result.addError(self, e); // NEW NOTE: (passing in Error, Failure() this if code re-enabled)
+//				// NEW NOTE: (pass in Error, Failure() this if code re-enabled)
+//				result.addError(self, e);
 //			}
 //			success = false;
 //		}
@@ -1289,7 +1309,8 @@ cw.UnitTest.makeSummaryDiv = function(result) {
 		additionalText += ' S=' + result.skips.length;
 	}
 	numberTestsDiv.innerHTML =
-		'<center style="color:white;font-weight:bold">'+result.testsRun+additionalText+'</center>';
+		'<center style="color:white;font-weight:bold">' +
+		result.testsRun + additionalText + '</center>';
 	summaryDiv.appendChild(numberTestsDiv);
 
 	summaryDiv.style.position = 'absolute';
@@ -1327,7 +1348,9 @@ cw.UnitTest.runWeb = function(test, div) {
 
 		div.appendChild(document.createElement('br'));
 
-		var machineNode = document.createTextNode('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|');
+		var machineNode = document.createTextNode(
+			'|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') +
+			' |*END-SUMMARY*|');
 		div.appendChild(machineNode);
 
 		var summaryDiv = cw.UnitTest.makeSummaryDiv(result);
@@ -1354,9 +1377,11 @@ cw.UnitTest.runConsole = function(test) {
 	d.addCallback(function _UnitTest_after_run(){
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
-		goog.global.print(cw.UnitTest.formatSummary(result) + ' in ' + timeTaken + ' ms\n');
-		// If you forget the newline at the end of this line, Node.js will drop the line completely.
-		goog.global.print('|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') + ' |*END-SUMMARY*|\n');
+		goog.global.print(cw.UnitTest.formatSummary(result) +
+			' in ' + timeTaken + ' ms\n');
+		goog.global.print(
+			'|*BEGIN-SUMMARY*| ' + result.getSummary().join(',') +
+			' |*END-SUMMARY*|\n');
 	});
 	return d;
 };
@@ -1376,7 +1401,8 @@ cw.UnitTest.calculateStackLimit = function(n) {
 	// Opera stops executing JavaScript when you blow the stack.
 	// All other known browsers throw an error.
 	if(goog.userAgent.OPERA || n >= 1000) {
-		return 1000; // In Opera 10.10, it's actually 5000, but return 1000 for consistency.
+		// In Opera 10.10, it's actually 5000, but return 1000 for consistency.
+		return 1000;
 	}
 	try {
 		return cw.UnitTest.calculateStackLimit(n + 1);
@@ -1401,22 +1427,25 @@ cw.UnitTest.SerialVisitor = function() {
 };
 
 
-cw.UnitTest.SerialVisitor.prototype.traverse = function(visitor, tests) {
+cw.UnitTest.SerialVisitor.prototype.traverse = function(
+visitor, tests) {
 	//cw.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 	var completionDeferred = new goog.async.Deferred();
 	this._traverse(visitor, tests, completionDeferred, 0);
 	return completionDeferred;
 },
 
-cw.UnitTest.SerialVisitor.prototype._traverse = function(visitor, tests, completionDeferred, nowOn) {
+cw.UnitTest.SerialVisitor.prototype._traverse = function(
+visitor, tests, completionDeferred, nowOn) {
 	var result, testCase;
 
-	// Some browsers (maybe just IE6 x64) have a very low stack limit. If we estimate that
-	// we might blow the stack limit, avoid calling into the next test case synchronously.
+	// Some browsers (maybe just IE6 x64) have a very low stack limit.
+	// If we estimate that we might blow the stack limit, avoid calling into
+	// the next test case synchronously.
 
-	// TODO: maybe a better estimate that takes into account how many tests there are.
-	// Keep in mind that IE6 x64 claims a stack limit of 129 but it might be lower in practice,
-	// so you'll have to do it right.
+	// TODO: maybe a better estimate that takes into account how many tests
+	// there are.  Keep in mind that IE6 x64 claims a stack limit of 129 but
+	// it might be lower in practice, so you'll have to do it right.
 	var syncCallOkay = cw.UnitTest.estimatedStackLimit > 800;
 
 	var that = this;
@@ -1434,14 +1463,15 @@ cw.UnitTest.SerialVisitor.prototype._traverse = function(visitor, tests, complet
 			}
 		});
 	} else {
-		// This setTimeout is absolutely necessary (instead of just `completionDeferred.callback(null);`)
-		// because we must reduce our stack depth.
-		// The test suite will halt (no error) in Safari 3/4 without this setTimeout replacement.
-		// Safari 3 reports its recursion limit as ~500; Safari 4 as ~30000
-		// (though the '30000' is a lie, because it breaks much earlier during real use).
+		// This setTimeout is absolutely necessary (instead of just
+		// `completionDeferred.callback(null);`) because we must reduce
+		// our stack depth.  The test suite will halt (no error) in Safari 3/4
+		// without this setTimeout replacement.  Safari 3 reports its
+		// recursion limit as ~500; Safari 4 as ~30000 (though the '30000'
+		// is a lie, because it breaks much earlier during real use).
 		//
-		// This setTimeout *is* tracked by our setTimeoutMonkey but only for a very short time.
-		// (it doesn't interfere with anything)
+		// This setTimeout *is* tracked by our setTimeoutMonkey but only
+		// for a very short time. (it doesn't interfere with anything)
 
 		// synchronous version (not safe for all browsers)
 		//// completionDeferred.callback(null);
@@ -1466,14 +1496,16 @@ cw.UnitTest.SerialVisitor.prototype._traverse = function(visitor, tests, complet
 cw.UnitTest.SynchronousSerialVisitor = function() {
 };
 
-cw.UnitTest.SynchronousSerialVisitor.prototype.traverse = function(visitor, tests) {
+cw.UnitTest.SynchronousSerialVisitor.prototype.traverse = function(
+visitor, tests) {
 	this.runTestNum = tests.length;
 	var completionDeferred = new goog.async.Deferred();
 	this._traverse(visitor, tests, completionDeferred);
 	return completionDeferred;
 };
 
-cw.UnitTest.SynchronousSerialVisitor.prototype._traverse = function(visitor, tests, completionDeferred) {
+cw.UnitTest.SynchronousSerialVisitor.prototype._traverse = function(
+visitor, tests, completionDeferred) {
 	var result;
 	var that = this;
 	if (this.runTestNum--) {
@@ -1506,7 +1538,8 @@ cw.UnitTest.DeferredIgnoringVisitor = function() {
 
 cw.UnitTest.DeferredIgnoringVisitor.prototype.traverse = function(visitor, tests) {
 	for (var i = 0; i < tests.length; ++i) {
-		// we need to keep the visitSync because TestCase and TestSuite have a different visitSync
+		// we need to keep the visitSync because TestCase and TestSuite
+		// have a different visitSync
 		tests[i].visitSync(visitor);
 	}
 };
@@ -1514,9 +1547,11 @@ cw.UnitTest.DeferredIgnoringVisitor.prototype.traverse = function(visitor, tests
 
 
 /**
- * Note that this doesn't actually cancel anything. It just stops tracking those delayed calls.
+ * Note that this doesn't actually cancel anything. It just stops tracking
+ * those delayed calls.
  *
- * This is called right before the tests start, and after the teardown of *any test* that ends dirty.
+ * This is called right before the tests start, and after the teardown of
+ * *any test* that ends dirty.
  */
 cw.UnitTest.stopTrackingDelayedCalls = function() {
 	cw.UnitTest.delayedCalls = {
@@ -1562,7 +1597,8 @@ cw.UnitTest.installMonkeys = function() {
 	var originalClearInterval = window.clearInterval;
 
 	window.setTimeout = function(fn, time) {
-		//cw.UnitTest.logger.finest('Inside replacement window.setTimeout. fn: ' + fn + ' ; time: ' + time);
+		//cw.UnitTest.logger.finest(
+		// 	'Inside replacement window.setTimeout. fn: ' + fn + ' ; time: ' + time);
 		function replacementCallable(ticket) {
 			delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
@@ -1571,9 +1607,13 @@ cw.UnitTest.installMonkeys = function() {
 		}
 
 		if(!goog.userAgent.IE && originalSetTimeout.call) {
-			var ticket = originalSetTimeout.call(this, function() { replacementCallable(ticket); }, time);
+			var ticket = originalSetTimeout.call(this, function() {
+				replacementCallable(ticket);
+			}, time);
 		} else {
-			var ticket = originalSetTimeout(function() { replacementCallable(ticket); }, time);
+			var ticket = originalSetTimeout(function() {
+				replacementCallable(ticket);
+			}, time);
 		}
 
 		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
@@ -1582,7 +1622,8 @@ cw.UnitTest.installMonkeys = function() {
 	};
 
 	window.setInterval = function(fn, time) {
-		//cw.UnitTest.logger.finest('Inside replacement window.setInterval. fn: ' + fn + ' ; time: ' + time);
+		//cw.UnitTest.logger.finest(
+		// 	'Inside replacement window.setInterval. fn: ' + fn + ' ; time: ' + time);
 		// interval callable repeats forever until we clearInterval,
 		// so we don't need any fancy replacementCallable.
 
@@ -1596,7 +1637,8 @@ cw.UnitTest.installMonkeys = function() {
 	};
 
 	window.clearTimeout = function(ticket) {
-		//cw.UnitTest.logger.finest('Inside replacement window.clearTimeout. ticket: ' + ticket);
+		//cw.UnitTest.logger.finest(
+		// 	'Inside replacement window.clearTimeout. ticket: ' + ticket);
 		if(!goog.userAgent.IE && originalClearTimeout.call) {
 			var output = originalClearTimeout.call(this, ticket);
 		} else {
@@ -1608,7 +1650,8 @@ cw.UnitTest.installMonkeys = function() {
 	};
 
 	window.clearInterval = function(ticket) {
-		//cw.UnitTest.logger.finest('Inside replacement window.clearInterval. ticket: ' + ticket);
+		//cw.UnitTest.logger.finest(
+		// 	'Inside replacement window.clearInterval. ticket: ' + ticket);
 		if(!goog.userAgent.IE && originalClearInterval.call) {
 			var output = originalClearInterval.call(this, ticket);
 		} else {
