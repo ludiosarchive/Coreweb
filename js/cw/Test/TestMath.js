@@ -4,6 +4,7 @@
 
 goog.provide('cw.Test.TestMath');
 
+goog.require('cw.Class');
 goog.require('cw.UnitTest');
 goog.require('cw.math');
 

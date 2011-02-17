@@ -24,6 +24,7 @@
 
 goog.provide('cw.UnitTest');
 
+goog.require('cw.Class');
 goog.require('cw.deferred');
 goog.require('cw.repr');
 goog.require('cw.eq');
@@ -564,10 +565,11 @@ cw.UnitTest.TestSuite.prototype.visitSync = function(visitor) {
  * Run all of the tests in the suite.
  */
 cw.UnitTest.TestSuite.prototype.run = function(result) {
+	var that = this;
 	var installD = cw.UnitTest.installMonkeys();
 
 	installD.addCallback(function _TestSuite_run_visit_cases(){
-		var d = this.visit(function (test) { return test.run(result); });
+		var d = that.visit(function (test) { return test.run(result); });
 
 		/**
 		 * Possibly make it easier to figure out when IE is leaking memory.
@@ -605,10 +607,18 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
  * @param {string} methodName The name of a method on this object that contains
  *	the unit test.
  */
-cw.UnitTest.TestCase = function(methodName) {
-	this._methodName = methodName;
-	this._assertCounter = 0;
-};
+cw.UnitTest.TestCase = function(methodName) {};
+
+/**
+ * Replace the above constructor with one defined by cw.Class.
+ * Test cases subclass cw.UnitTest.TestCase with cw.Class.
+ */
+cw.Class.subclass(cw.UnitTest, 'TestCase', true/*overwriteOkay*/).pmethods({
+	'__init__': function(methodName) {
+		this._methodName = methodName;
+		this._assertCounter = 0;
+	}
+});
 
 
 /**
@@ -921,9 +931,10 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
 
 
 /**
- * @param {!Object} e
- * @param {string} expectedMessage
- * @param {boolean=} _internalCall
+ * @param {!Object} e The error object.
+ * @param {string} expectedMessage The expected error message.  If error has a
+ * 	different message, an AssertionError is thrown.
+ * @param {boolean=} _internalCall Private.  Don't use.
  */
 cw.UnitTest.TestCase.prototype.assertErrorMessage = function(e, expectedMessage, _internalCall) {
 	var errorMessage = e.message;
@@ -1087,11 +1098,11 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 
 			methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
 				if (anError instanceof cw.UnitTest.AssertionError) {
-					result.addFailure(anError);
+					result.addFailure(that, anError);
 				} else if (anError instanceof cw.UnitTest.SkipTest) {
-					result.addSkip(anError);
+					result.addSkip(that, anError);
 				} else {
-					result.addError(anError);
+					result.addError(that, anError);
 				}
 				success = false;
 				return null;
@@ -1112,7 +1123,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 				tearDownD.addErrback(function _TestCase_run_tearDownD_errback(anError) {
 					// This might be the second time `result.addError` is called,
 					// because an error in both the method *and* tearDown is possible.
-					result.addError(anError);
+					result.addError(that, anError);
 					success = false;
 					return null;
 				});
@@ -1161,9 +1172,9 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 		function _TestCase_run_setUpD_errback(anError){
 			// Assertions are not allowed in `setUp`, so we'll treat them an error.
 			if (anError instanceof cw.UnitTest.SkipTest) {
-				result.addSkip(anError);
+				result.addSkip(that, anError);
 			} else {
-				result.addError(anError);
+				result.addError(that, anError);
 			}
 			return null;
 		}
@@ -1392,7 +1403,7 @@ cw.UnitTest.SerialVisitor = function() {
 
 
 cw.UnitTest.SerialVisitor.prototype.traverse = function(visitor, tests) {
-//		cw.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
+	//cw.UnitTest.logger.fine('Using SerialVisitor on ' + tests);
 	var completionDeferred = new goog.async.Deferred();
 	this._traverse(visitor, tests, completionDeferred, 0);
 	return completionDeferred;
