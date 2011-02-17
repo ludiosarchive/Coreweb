@@ -35,6 +35,9 @@ cw.Class = function() {
  * @param {boolean=} overwriteOkay Set true to allow overwriting an existing object
  * 	with this new class object.  Don't use unless you're trying to trick Closure Compiler.
  *
+ * This makes Closure Compiler not complain about `var superClass = this;`.
+ * @this {Function}
+ *
  * @return {!Function}
  */
 cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
