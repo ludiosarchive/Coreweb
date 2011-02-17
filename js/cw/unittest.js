@@ -613,6 +613,9 @@ cw.UnitTest.TestCase = function(methodName) {};
 /**
  * Replace the above constructor with one defined by cw.Class.
  * Test cases subclass cw.UnitTest.TestCase with cw.Class.
+ *
+ * TODO: Don't do this, or at least make cw.UnitTest.TestCase
+ * compile properly with ADVANCED_OPTIMIZATIONS.
  */
 cw.Class.subclass(cw.UnitTest, 'TestCase', true/*overwriteOkay*/).pmethods({
 	__init__:
