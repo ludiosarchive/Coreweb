@@ -26,6 +26,7 @@ goog.provide('cw.UnitTest');
 
 goog.require('cw.Class');
 goog.require('cw.deferred');
+goog.require('cw.func');
 goog.require('cw.repr');
 goog.require('cw.eq');
 goog.require('goog.array');
@@ -74,7 +75,7 @@ cw.UnitTest.loadFromClass = function(testClass) {
  * {@code cw.UnitTest.TestCase}.
  */
 cw.UnitTest.isTestCaseClass = function(klass) {
-	if (klass.subclassOf === undefined) {
+	if(!cw.func.isCallable(klass.subclassOf)) {
 		return false;
 	}
 	if(!klass.subclassOf(cw.UnitTest.TestCase)) {
