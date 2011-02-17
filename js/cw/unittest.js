@@ -616,8 +616,16 @@ cw.UnitTest.TestCase = function(methodName) {};
  */
 cw.Class.subclass(cw.UnitTest, 'TestCase', true/*overwriteOkay*/).pmethods({
 	'__init__': function(methodName) {
-		this._methodName = methodName;
-		this._assertCounter = 0;
+		/**
+		 * @type {string}
+		 * @private
+		 */
+		this.methodName_ = methodName;
+		/**
+		 * @type {number}
+		 * @private
+		 */
+		this.assertCounter_ = 0;
 	}
 });
 
@@ -626,7 +634,7 @@ cw.Class.subclass(cw.UnitTest, 'TestCase', true/*overwriteOkay*/).pmethods({
  * @return {string} a string which identifies this test.
  */
 cw.UnitTest.TestCase.prototype.id = function() {
-	return this.__class__.__name__ + '.' + this._methodName;
+	return this.__class__.__name__ + '.' + this.methodName_;
 };
 
 
@@ -668,7 +676,7 @@ cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
  * @return {!cw.UnitTest.AssertionError}
  */
 cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
-	return new cw.UnitTest.AssertionError("[" + this._assertCounter + "] " + reason);
+	return new cw.UnitTest.AssertionError("[" + this.assertCounter_ + "] " + reason);
 };
 
 
@@ -694,7 +702,7 @@ cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall)
 		this.fail(message);
 	}
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -711,7 +719,7 @@ cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall
 		this.fail(message);
 	}
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -759,7 +767,7 @@ predicate, description, a, b, message, _internalCall) {
 		this.fail(msg);
 	}
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -777,7 +785,7 @@ predicate, description, a, b, message, _internalCall) {
 cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, message, _internalCall) {
 	this.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -801,7 +809,7 @@ cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, message, _i
 	var arraysNotEqual = invert(goog.array.equals);
 	this.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -819,7 +827,7 @@ cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, message, _intern
 	this.compare(function (x, y) { return x === y; },
 				 '`!==´', a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -837,7 +845,7 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
 	this.compare(function (x, y) { return !(x === y); },
 				 '`===´', a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -855,7 +863,7 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
 cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -873,7 +881,7 @@ cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall)
 cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -902,7 +910,7 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCa
 	}
 
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -931,7 +939,7 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
 	}
 
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -954,7 +962,7 @@ e, expectedMessage, _internalCall) {
 			"Error started with wrong message: " + errorMessage, true);
 	}
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 };
 
@@ -995,7 +1003,7 @@ expectedError, callable, expectedMessage, _internalCall) {
 	}
 	this.assertTrue(threw != null, "Callable threw no error", true);
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 	return threw;
 };
@@ -1018,7 +1026,7 @@ expectedError, callable, expectedMessage, _internalCall) {
  *
  * Throws {Error} if {@code errorTypes} has a length of 0.
  *
- * @return {goog.async.Deferred}
+ * @return {!goog.async.Deferred}
  *    if the input Deferred fails with one of the types specified in
  *    	{@code errorTypes}, a Deferred which will fire callback with a
  *    	1 item list: [the error object] with which the input Deferred failed.
@@ -1050,7 +1058,7 @@ deferred, errorTypes, _internalCall) {
 	// TODO: is this really the best place to increment the counter?
 	// Maybe it should be in the function(err)?
 	if(_internalCall !== true) {
-		this._assertCounter += 1;
+		this.assertCounter_ += 1;
 	}
 	return d;
 };
@@ -1103,10 +1111,10 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 		function _TestCase_run_setUpD_callback(){
 
 			methodD = cw.deferred.maybeDeferred(
-				function _TestCase_run_wrap_method(){ return that[that._methodName](); }
+				function _TestCase_run_wrap_method(){ return that[that.methodName_](); }
 			);
 
-			//console.log("From " + that._methodName + " got a ", methodD);
+			//console.log("From " + that.methodName_ + " got a ", methodD);
 
 			methodD.addErrback(function _TestCase_run_methodD_errback(anError) {
 				if (anError instanceof cw.UnitTest.AssertionError) {
@@ -1124,7 +1132,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 			methodD.addBoth(function _TestCase_run_methodD_finally(){
 
 				// for some debugging, prepend the closure with
-				// console.log("in teardown after", that._methodName);
+				// console.log("in teardown after", that.methodName_);
 
 				tearDownD = cw.deferred.maybeDeferred(
 					function _TestCase_run_wrap_tearDown(){ return that.tearDown(); }
@@ -1223,7 +1231,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 //			return result;
 //		}
 //		try {
-//			self[self._methodName]();
+//			self[self.methodName_]();
 //		} catch (e) {
 //			if (e instanceof cw.UnitTest.AssertionError) {
 //				// NEW NOTE: (pass in Error, Failure() this if code re-enabled)
