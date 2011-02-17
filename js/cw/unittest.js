@@ -615,7 +615,11 @@ cw.UnitTest.TestCase = function(methodName) {};
  * Test cases subclass cw.UnitTest.TestCase with cw.Class.
  */
 cw.Class.subclass(cw.UnitTest, 'TestCase', true/*overwriteOkay*/).pmethods({
-	'__init__': function(methodName) {
+	'__init__':
+	/**
+	 * @this {cw.UnitTest.TestCase}
+	 */
+	function(methodName) {
 		/**
 		 * @type {string}
 		 * @private
