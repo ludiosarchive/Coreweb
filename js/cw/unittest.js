@@ -377,6 +377,7 @@ cw.UnitTest.makeErrorElementForError_ = function(error) {
  * Adds test results to a div, as they are run.
  *
  * @constructor
+ * @extends {cw.UnitTest.TestResult}
  */
 cw.UnitTest.DIVTestResult = function(div) {
 	cw.UnitTest.TestResult.call(this);
@@ -440,6 +441,7 @@ cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
  * dialog.
  *
  * @constructor
+ * @extends {cw.UnitTest.TestResult}
  */
 cw.UnitTest.ConsoleTestResult = function() {
 	cw.UnitTest.TestResult.call(this);
@@ -1338,7 +1340,7 @@ cw.UnitTest.runWeb = function(test, div) {
  * 	information is displayed.
  */
 cw.UnitTest.runConsole = function(test) {
-	var result = cw.UnitTest.ConsoleTestResult();
+	var result = new cw.UnitTest.ConsoleTestResult();
 	var d = test.run(result);
 	d.addCallback(function _UnitTest_after_run(){
 		var timeTaken = new Date().getTime() - result.timeStarted;
