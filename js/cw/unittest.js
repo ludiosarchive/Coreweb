@@ -705,6 +705,9 @@ cw.UnitTest.TestCase.prototype.fail = function(reason) {
  * @param {boolean=} _internalCall Private.  Don't use.
  */
 cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall) {
+	if(!goog.isDef(message)) {
+		message = "Expected truthy value";
+	}
 	if (!ok) {
 		this.fail(message);
 	}
@@ -722,6 +725,9 @@ cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall)
  * @param {boolean=} _internalCall Private.  Don't use.
  */
 cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall) {
+	if(!goog.isDef(message)) {
+		message = "Expected falsy value";
+	}
 	if (ok) {
 		this.fail(message);
 	}
