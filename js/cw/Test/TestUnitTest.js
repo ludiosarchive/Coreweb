@@ -12,6 +12,7 @@ goog.require('cw.UnitTest');
 goog.require('cw.Test.Mock');
 goog.require('cw.Test.DMock');
 goog.require('cw.Test.DSMock');
+goog.require('cw.Test.TestUnitTestAssertions');
 goog.require('goog.string');
 goog.require('goog.async.Deferred');
 goog.require('goog.async.DeferredList');
