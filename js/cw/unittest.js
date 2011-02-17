@@ -712,7 +712,7 @@ cw.UnitTest.TestCase.prototype.assertTrue = function(ok, message, _internalCall)
 	if (!ok) {
 		this.fail(message);
 	}
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -732,7 +732,7 @@ cw.UnitTest.TestCase.prototype.assertFalse = function(ok, message, _internalCall
 	if (ok) {
 		this.fail(message);
 	}
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -780,7 +780,7 @@ predicate, description, a, b, message, _internalCall) {
 		}
 		this.fail(msg);
 	}
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -798,7 +798,7 @@ predicate, description, a, b, message, _internalCall) {
  */
 cw.UnitTest.TestCase.prototype.assertArraysEqual = function(a, b, message, _internalCall) {
 	this.compare(goog.array.equals, '`not array-equal to´', a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -822,7 +822,7 @@ cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, message, _i
 	};
 	var arraysNotEqual = invert(goog.array.equals);
 	this.compare(arraysNotEqual, '`array-equal to´', a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -840,7 +840,7 @@ cw.UnitTest.TestCase.prototype.assertArraysNotEqual = function(a, b, message, _i
 cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, message, _internalCall) {
 	this.compare(function (x, y) { return x === y; },
 				 '`!==´', a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -858,7 +858,7 @@ cw.UnitTest.TestCase.prototype.assertIdentical = function(a, b, message, _intern
 cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _internalCall) {
 	this.compare(function (x, y) { return !(x === y); },
 				 '`===´', a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -876,7 +876,7 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
  */
 cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return x in y }, "`not in´", a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -894,7 +894,7 @@ cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall)
  */
 cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCall) {
 	this.compare(function(x, y){ return !(x in y) }, "`in´", a, b, message, true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -923,7 +923,7 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCa
 		this.fail(failMsg);
 	}
 
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -952,7 +952,7 @@ cw.UnitTest.TestCase.prototype.assertNotEqual = function(a, b, message, _interna
 		this.fail(failMsg);
 	}
 
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -975,7 +975,7 @@ e, expectedMessage, _internalCall) {
 			goog.string.startsWith(errorMessage, expectedMessage),
 			"Error started with wrong message: " + errorMessage, true);
 	}
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 };
@@ -1016,7 +1016,7 @@ expectedError, callable, expectedMessage, _internalCall) {
 		}
 	}
 	this.assertTrue(threw != null, "Callable threw no error", true);
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 	return threw;
@@ -1071,7 +1071,7 @@ deferred, errorTypes, _internalCall) {
 	);
 	// TODO: is this really the best place to increment the counter?
 	// Maybe it should be in the function(err)?
-	if(_internalCall !== true) {
+	if(!_internalCall) {
 		this.assertCounter_ += 1;
 	}
 	return d;
