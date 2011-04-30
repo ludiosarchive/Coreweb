@@ -4,5 +4,3 @@
 /twistd.pid
 /build
 dropin.cache
-/cwtools/exp/build_*.log
-/cwtools/exp/*.swf
