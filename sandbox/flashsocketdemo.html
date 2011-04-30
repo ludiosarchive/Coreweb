@@ -2,7 +2,6 @@
 	  "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<script src="/js/firebugEmptyObjects.js"></script>
 
 <style type="text/css">
 embed.hidden,
@@ -38,6 +37,13 @@ alreadyRun = false;
 window.connected = [];
 window.numConnected = 0;
 howmany = 50; // 1000 for max test
+
+function log(m) {
+	if(window.console && console.log) {
+		console.log(m);
+	}
+}
+
 function test() {
 	//    var script = document.createElement('script');
 	//    script.type = 'text/javascript';
@@ -51,21 +57,21 @@ function test() {
 	alreadyRun = true;
 
 	for(var i=0; i < howmany; i++) {
-		console.log(i);
+		log(i);
 		var s = new FlashSocket({
 			on_data: function(data) {
-				console.log('socket', this, 'got data');
+				log('socket', this, 'got data');
 				//document.getElementById('datapanel').value += data;
 			},
 			on_io_error: function(msg) {
-				console.log("IO ERROR: "+msg);
+				log("IO ERROR: "+msg);
 			},
 			on_security_error: function(msg) {
-				console.log("SECURITY ERROR: "+msg);
+				log("SECURITY ERROR: "+msg);
 			},
 			on_close: function(msg) {
 				window.numConnected -= 1;
-				console.log("Connection closed.");
+				log("Connection closed.");
 			},
 			on_connect: function() {
 				// if we don't do this, Firefox may keep textarea contents from previous page load.
@@ -83,7 +89,7 @@ function test() {
 started = false;
 
 function report() {
-	console.log('Connected:', window.numConnected);
+	log('Connected:', window.numConnected);
 	if(window.numConnected === 0) {
 		document.getElementById('messages').innerHTML += ('0 connections.' + '<br>');
 	}

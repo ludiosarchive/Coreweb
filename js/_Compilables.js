@@ -9,7 +9,6 @@ goog.require('cw.env');
 goog.require('cw.eq');
 goog.require('cw.eventual');
 goog.require('cw.externalinterface');
-goog.require('cw.firebugEmptyObjects');
 goog.require('cw.globalprops');
 goog.require('cw.loadflash');
 goog.require('cw.math');
