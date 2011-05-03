@@ -82,5 +82,5 @@ class Root(BetterResource):
 
 def makeSite(reactor, testPackages):
 	root = Root(reactor, testPackages)
-	site = ConnectionTrackingSite(root)
+	site = ConnectionTrackingSite(root, timeout=75)
 	return site
