@@ -11,7 +11,7 @@ work better when JavaScript is loaded from many files.
 import sys
 import struct
 import jinja2
-from webmagic import uriparse
+from urlparse import urljoin
 from cwtools import jsimp
 from twisted.web import resource, static
 from twisted.python.filepath import FilePath
@@ -66,7 +66,7 @@ def scriptSrc(script, mountedAt):
 
 	return template % (
 		script._underscoreName(),
-		uriparse.urljoin(mountedAt, script.getFilename()),
+		urljoin(mountedAt, script.getFilename()),
 		cacheBreaker)
 
 
