@@ -3,19 +3,41 @@ from __future__ import with_statement
 import os
 import jinja2
 
-from simplejson import dumps
+try:
+	import simplejson as json
+except ImportError:
+	import json
+
 from twisted.python.filepath import FilePath
 from twisted.web import resource
 
-from cwtools import jsimp
+
+
+def _extractOneArgFromFuncall(line, prefix):
+	"""
+	Sample usage:
+
+	>>> _extractOneArgFromFuncall('goog.provide("test one")', 'goog.provide')
+	'test one'
+
+	>>> _extractOneArgFromFuncall("goog.provide('test one')", 'goog.provide')
+	'test one'
+	"""
+	assert not '(' in prefix, prefix
+	# len(prefix) + 1 because C{prefix} doesn't include the "("
+	quotedString = line[len(prefix) + 1:line.index(')')]
+	# JSON strings are always double-quoted, never single-quoted; so, fix them if needed.
+	if quotedString[0] == "'" and quotedString[-1] == "'":
+		quotedString = '"' + quotedString[1:-1] + '"'
+	provide = json.loads(quotedString)
+	return provide
 
 
 def getFirstProvideLine(fp):
 	with open(fp.path, 'rb') as f:
 		for line in f:
 			if line.startswith("goog.provide("):
-				return jsimp._extractOneArgFromFuncall(line, 'goog.provide')
-
+				return _extractOneArgFromFuncall(line, 'goog.provide')
 
 
 class TestPage(resource.Resource):
@@ -65,7 +87,7 @@ class TestPage(resource.Resource):
 					modules.append(provideLine)
 
 		# ...but don't run the tests on the dependency modules
-		moduleString = dumps(modules)
+		moduleString = json.dumps(modules)
 
 		template = FilePath(__file__).sibling('TestRunnerPage.html').getContent().decode('utf-8')
 		dictionary = dict(
