@@ -337,32 +337,6 @@ E_val: N/A"}]}';
 	}
 
 
-	public function testLeadingZeroInPropertyBehavior():Void {
-		/*
-		 * Flash 10.1 b2 (possibly b1 too) has some very special
-		 * ideas about what to do with leading zeroes on properties.
-		 *
-		 * Also, not tested here, but when you iterate over the properties,
-		 * you will find "123" and not "0123".
-		 *
-		 * This bug was later fixed in Flash 10.1 RC1 or RC2.
-		 */
-		var n:Dynamic = JSON.decode('{"0123": "hi"}');
-
-		assertEquals(null, Reflect.field(n, "00123"));
-
-		// Fortunately, this still works in 10.1b2
-		assertEquals("hi", Reflect.field(n, "0123"));
-
-		var flashVersion:Dynamic = getPlayerVersion();
-		if(flashVersion.major >= 10 && flashVersion.minor == 1 && flashVersion.build < 53) {
-			assertEquals("hi", Reflect.field(n, "123"));
-		} else {
-			assertEquals(null, Reflect.field(n, "123"));
-		}
-	}
-
-
 	/**
 	 * Based on http://json.org/JSON_checker/test/pass1.json ; a better version of this test is also in simplejson
 	 */
