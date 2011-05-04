@@ -26,60 +26,10 @@
 	any of your JavaScript source files change.
 
 
-=== jsimp FAQ ===
-
-Q: Should I use jsimp?
-
-A: No, unless you need a large concatenated blob of JavaScript for an
-environment that has no <script> tags.
-
-
-Q: Why are my goog.provide(...) lines being ignored?
-
-A: The implementation stops reading the file after it doesn't see such a line after 100 lines.
-Move the provide lines closer together.
-
-
-Q: What's the point of all this `jsimp` stuff? Why not use Closure's built-in goog.require(...)
-<script> inserter?
-
-A: jsimp was written before Closure Library was released. It was originally used to assemble
-Divmod-style JS code, which had "// import Another.Module" lines. Today, the advantages
-and disadvantages are:
-
-Advantages of using jsimp over goog.require(...) loading:
-
--	The output from a jsimp.megaScript lands in one <script> tag instead of many
-	<script> tags, so this more closely resembles production conditions, where
-	there is one <script> tag with compiled JavaScript.
-
--	Reduced latency when loading a test page; the page will not require a ton
-	of round trips to load all of the required JavaScript files.
-
--	No need for an inotifywait script to regenerate deps.js all the time
-	(though you will sometimes suffer inconsistent state if goog.provide lines are moved between files)
-
--	No need to set up your development server to serve JavaScript code
-	from a directory.
-
-Advantages of using goog.require(...) loading over jsimp:
-
--	Line numbers and filenames in JavaScript tracebacks map correctly to
-	your JavaScript source code files.
-	(with jsimp.megaScript concatenation, you have to View Source on the
-	html page to figure out which line is the problem.)
-
--	It works without any server-side help, and you can even use it for file:///
-	URLs.
-
--	This is what Google and everyone else does, so people will understand
-	what you are doing, and share your problems.
-
-
 === Limited project scope ===
 
 Coreweb should contain JavaScript and Flash (haXe/AS3) files that assist in
-building web applications, but not related to any server-side technology.
+building web applications, but are not related to any server-side technology.
 
 For example, client-side Comet code should not be here, because Comet (as of 2009)
 requires a custom-built (and unstandardized) server.
@@ -98,9 +48,3 @@ files, which are expected to be served at /@testres_CW/
 
 Start the web server, navigate to its /@tests/ page.
 TODO: write more
-
-
-=== Command-line testing ===
-
-For the command line testing, a patched Node.js is required.
-UPDATE: command line testing is currently broken
