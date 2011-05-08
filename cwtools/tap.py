@@ -1,7 +1,7 @@
 import os
 
 from twisted.web import server
-from twisted.python import usage
+from twisted.python import usage, log
 from twisted.application import service, strports
 
 from cwtools import corewebsite
@@ -34,7 +34,7 @@ This starts a Coreweb Testrun."""
 
 
 def makeService(config):
-	from twisted.internet import reactor
+	from twisted.internet import reactor, task
 
 	s = service.MultiService()
 
@@ -52,10 +52,16 @@ def makeService(config):
 		serverb = strports.service(config['serverb'], site)
 		serverb.setServiceParent(s)
 
+	doReloading = bool(int(os.environ.get('PYRELOADING')))
+	if doReloading:
+		print 'Enabling reloader.'
+		from pyquitter import detector
+
+		stopper = detector.ChangeDetector(
+			lambda: reactor.callWhenRunning(reactor.stop),
+			logCallable=log.msg)
+
+		looping = task.LoopingCall(stopper.poll)
+		looping.start(2.5, now=True)
+
 	return s
-
-
-if os.environ.get('PYRELOADING'):
-	print 'Enabling reloader.'
-	from pypycpyo import detector
-	makeService = detector.reloadingService(1.5)(makeService)
