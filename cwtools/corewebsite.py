@@ -1,7 +1,3 @@
-import os
-import cgi
-import time
-
 from twisted.web import resource
 from twisted.python.filepath import FilePath
 

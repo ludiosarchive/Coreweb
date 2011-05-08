@@ -1,6 +1,5 @@
 import os
 
-from twisted.web import server
 from twisted.python import usage, log
 from twisted.application import service, strports
 from twisted.python.filepath import FilePath
