@@ -21,8 +21,6 @@ class Options(usage.Options):
 			"See twisted.application.strports for more examples."],
 		["serverb", "b", None,
 			"strports description for an optional second server."],
-		["packages", "p", None,
-			"comma-separated list of test packages to test"],
 		["closure-library", "c", "../closure-library",
 			'Path to closure-library'],
 	]
@@ -40,9 +38,8 @@ def makeService(config):
 
 	s = service.MultiService()
 
-	testPackages = config['packages'].split(',')
 	site = corewebsite.makeSite(
-		reactor, testPackages, FilePath(config['closure-library']))
+		reactor, FilePath(config['closure-library']))
 	site.displayTracebacks = not config["notracebacks"]
 
 	if not config['servera']:

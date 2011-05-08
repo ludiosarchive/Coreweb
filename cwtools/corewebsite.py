@@ -25,7 +25,7 @@ class CachedFile(BetterFile):
 
 class Root(BetterResource):
 
-	def __init__(self, reactor, testPackages, closureLibrary):
+	def __init__(self, reactor, closureLibrary):
 		import js_coreweb
 
 		resource.Resource.__init__(self)
@@ -43,7 +43,7 @@ class Root(BetterResource):
 
 
 
-def makeSite(reactor, testPackages, closureLibrary):
-	root = Root(reactor, testPackages, closureLibrary)
+def makeSite(reactor, closureLibrary):
+	root = Root(reactor, closureLibrary)
 	site = ConnectionTrackingSite(root, timeout=75)
 	return site
