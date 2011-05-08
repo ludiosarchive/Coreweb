@@ -27,6 +27,7 @@ class Root(BetterResource):
 		resource.Resource.__init__(self)
 
 		self.putChild('', BetterFile(here.child('index.html').path))
+		self.putChild('js_coreweb_tests.html', BetterFile(here.child('js_coreweb_tests.html').path))
 		self.putChild('compiled', BetterFile(here.child('compiled').path))
 		self.putChild('closure-library', BetterFile(closureLibrary.path))
 		self.putChild('js_coreweb', BetterFile(FilePath(js_coreweb.__file__).parent().path))
