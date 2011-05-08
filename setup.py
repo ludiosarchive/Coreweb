@@ -10,6 +10,9 @@ setup(
 	name='Coreweb',
 	version=cwtools.__version__,
 	description="Coreweb",
-	packages=['cwtools', 'cwtools.test', 'twisted.plugins'],
-	package_data={'cwtools': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],},
+	packages=['cwtools', 'cwtools.test', 'twisted.plugins', 'js_coreweb'],
+	package_data={
+		'cwtools': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],
+		'js_coreweb': ['*.js', '*/*.js', '*/*/*.js'],
+	},
 )
