@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Coreweb tests</title>
+</head>
+<body>
+
+<style>
+div, p, body {
+	font-size: 13px;
+	font-family: Tahoma, sans-serif;
+}
+</style>
+
+<a href="#" onclick="TestRunnerPage.toggleVisibility('TestRunnerPage-log');return false">Show/hide debug log</a><br>
+
+<div id="TestRunnerPage-log" style="background-color:#ddd;display:none"></div>
+<div id="TestRunnerPage-results" style="background-color:#ccc"></div>
+
+<script>var TestRunnerPage = window.TestRunnerPage || {};</script>
+<script>
+TestRunnerPage.modules = [
+	 "cw.Test.TestClass"
+	,"cw.Test.TestEq"
+	,"cw.Test.TestRepr"
+	,"cw.Test.TestClock"
+	,"cw.Test.TestUnitTest"
+	,"cw.Test.TestUnitTestAssertions"
+	,"cw.Test.TestEnv"
+	,"cw.Test.TestMath"
+	,"cw.Test.TestString"
+	,"cw.Test.TestDeferred"
+	,"cw.Test.TestEventual"
+	,"cw.Test.TestCheckType"
+	,"cw.Test.TestTabNexus"
+	,"cw.Test.TestExternalInterface"
+	,"cw.Test.TestAssumptions"
+];
+</script>
+<script src="/@testres_Coreweb/TestRunnerPage_pre.js"></script>
+<script src="/closure-library/closure/goog/base.js"></script>
+<script src="/@testres_Coreweb/TestRunnerPage_fix_provide.js"></script>
+<script src="/js_coreweb/deps.js"></script>
+<script src="/@testres_Coreweb/TestRunnerPage_post.js"></script>
+<script src="/@testres_Coreweb/TestRunnerPage_setup.js"></script>
+
+<script>
+window.onload = TestRunnerPage.startTests;
+</script>
+
+<br>
+
+</body>
+</html>
