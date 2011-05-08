@@ -3,4 +3,4 @@
 /_trial_temp
 /twistd.pid
 /build
-dropin.cache
+/twisted/plugins/dropin.cache
