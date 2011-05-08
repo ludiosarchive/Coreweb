@@ -19,7 +19,7 @@ function onLoadFired() {
 
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/analytics/wait_resource/?wait=4', true);
+	xhr.open('POST', '/wait_resource/?wait=4', true);
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4) {
 			document.getElementById('log').innerHTML += 'Got response; done.';

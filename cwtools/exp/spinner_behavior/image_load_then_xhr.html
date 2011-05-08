@@ -13,7 +13,7 @@ The spinner <em>should</em> spin for just 4 seconds (not 22 seconds).
 <noscript><strong>JS is off. This needs JavaScript enabled to work.</strong></noscript>
 <br><br>
 <div id="log"></div>
-<img src="/analytics/wait_resource/?wait=4" width=1 height=1>
+<img src="/wait_resource/?wait=4" width=1 height=1>
 <script>
 function onLoadFired() {
 	document.getElementById('log').innerHTML += 'window.onload fired.<br>';
@@ -23,7 +23,7 @@ window.onload = onLoadFired;
 
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/analytics/wait_resource/?wait=20', true);
+	xhr.open('POST', '/wait_resource/?wait=20', true);
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4) {
 			document.getElementById('log').innerHTML += 'Got response; done.';

@@ -28,7 +28,7 @@ function insertImage() {
 	// in Safari 5.0, so use an iframe instead.
 	//var iframe = document.createElement("img");
 	var iframe = document.createElement("iframe");
-	iframe.src = "/analytics/wait_resource/?wait=4&zx=" + Math.random();
+	iframe.src = "/wait_resource/?wait=4&zx=" + Math.random();
 	iframe.width = "16";
 	iframe.height = "16";
 	document.body.appendChild(iframe);
@@ -37,7 +37,7 @@ function insertImage() {
 
 function makeRequest() {
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/analytics/wait_resource/?wait=20', true);
+	xhr.open('POST', '/wait_resource/?wait=20', true);
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4) {
 			document.getElementById('log').innerHTML += 'Got response; done.';

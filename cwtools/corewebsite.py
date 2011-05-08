@@ -6,8 +6,8 @@ from twisted.web import resource
 from twisted.python.filepath import FilePath
 
 import cwtools
-from lytics.endpoint import Analytics
 from webmagic.untwist import BetterResource, BetterFile, ConnectionTrackingSite
+from webmagic.special import WaitResource
 
 here = FilePath(cwtools.__path__[0])
 
@@ -66,7 +66,7 @@ class Root(BetterResource):
 		self.putChild('exp', BetterFile(here.child('exp').path))
 		self.putChild('emptyjs_cached', CachedFile(here.child('exp').child('empty.js').path))
 		self.putChild('compiler', Compiler())
-		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/
+		self.putChild('wait_resource', WaitResource(clock=reactor))
 
 		testres_Coreweb = here.child('testres').path
 		self.putChild('@testres_Coreweb', BetterFile(testres_Coreweb))
