@@ -5,10 +5,10 @@ import time
 from twisted.web import resource
 from twisted.python.filepath import FilePath
 
-import cwtools
 from webmagic.untwist import BetterResource, BetterFile, ConnectionTrackingSite
 from webmagic.special import WaitResource
 
+import cwtools
 here = FilePath(cwtools.__path__[0])
 
 
