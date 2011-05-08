@@ -55,15 +55,17 @@ class CachedFile(BetterFile):
 
 class Root(BetterResource):
 
-	def __init__(self, reactor, testPackages):
+	def __init__(self, reactor, testPackages, closureLibrary):
+		import js_coreweb
 
 		resource.Resource.__init__(self)
 
-		JSPATH = FilePath(os.environ['JSPATH'])
+		JSPATH = FilePath(os.environ['JSPATH']) # TODO remove
 
 		self.putChild('', BetterFile(here.child('index.html').path))
 		self.putChild('compiled', BetterFile(here.child('compiled').path))
-		self.putChild('JSPATH', BetterFile(JSPATH.path))
+		self.putChild('closure-library', BetterFile(closureLibrary.path))
+		self.putChild('js_coreweb', BetterFile(FilePath(js_coreweb.__file__).parent().path))
 		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH))
 		self.putChild('emptyjs_cached', CachedFile(here.child('exp').child('empty.js').path, JSPATH))
 		self.putChild('compiler', Compiler())
@@ -75,7 +77,7 @@ class Root(BetterResource):
 
 
 
-def makeSite(reactor, testPackages):
-	root = Root(reactor, testPackages)
+def makeSite(reactor, testPackages, closureLibrary):
+	root = Root(reactor, testPackages, closureLibrary)
 	site = ConnectionTrackingSite(root, timeout=75)
 	return site
