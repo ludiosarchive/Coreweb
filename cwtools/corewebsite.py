@@ -12,35 +12,6 @@ import cwtools
 here = FilePath(cwtools.__path__[0])
 
 
-class Compiler(BetterResource):
-	isLeaf = True
-
-	def render_GET(self, request):
-		ewFile = here.child('compiled').child('_Compilables.js.ew')
-		ewContent = ewFile.getContent()
-		# We assume filesystem timestamps closely match reality.
-		age = time.time() - ewFile.getModificationTime()
-		return '''\
-<!doctype html>
-<head>
-	<title>_Compilables.js warnings and errors</title>
-	<style>
-		html, body { background-color: #d4d0c8; }
-	</style>
-</head>
-<body>
-_Compilables was last compiled %.1f second(s) ago.
-<ul>
-	<li><a href="/compiled/_Compilables.js">output file</a></li>
-	<li><a href="/compiled/_Compilables.js.log">log file</a></li>
-</ul>
-Errors and warnings from Closure Compiler:<br>
-<pre>%s</pre>
-</body>
-</html>
-''' % (age, cgi.escape(ewContent),)
-
-
 
 class CachedFile(BetterFile):
 	isLeaf = True
@@ -65,7 +36,6 @@ class Root(BetterResource):
 		self.putChild('js_coreweb', BetterFile(FilePath(js_coreweb.__file__).parent().path))
 		self.putChild('exp', BetterFile(here.child('exp').path))
 		self.putChild('emptyjs_cached', CachedFile(here.child('exp').child('empty.js').path))
-		self.putChild('compiler', Compiler())
 		self.putChild('wait_resource', WaitResource(clock=reactor))
 
 		testres_Coreweb = here.child('testres').path
