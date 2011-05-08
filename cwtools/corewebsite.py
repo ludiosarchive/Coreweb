@@ -66,7 +66,7 @@ class Root(BetterResource):
 		self.putChild('compiled', BetterFile(here.child('compiled').path))
 		self.putChild('closure-library', BetterFile(closureLibrary.path))
 		self.putChild('js_coreweb', BetterFile(FilePath(js_coreweb.__file__).parent().path))
-		self.putChild('exp', htmltools.LiveBox(here.child('exp').path, JSPATH))
+		self.putChild('exp', BetterFile(here.child('exp').path))
 		self.putChild('emptyjs_cached', CachedFile(here.child('exp').child('empty.js').path, JSPATH))
 		self.putChild('compiler', Compiler())
 		self.putChild('analytics', Analytics(clock=reactor, fsw=None)) # No need for fsw, but this breaks analytics/s/

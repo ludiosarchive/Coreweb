@@ -1,0 +1,21 @@
+* {
+	font-family: Verdana, sans-serif;
+	font-size: 13px;
+}
+
+pre, code {
+	font-family: Consolas, monospace;
+	font-size: 0.8em;
+}
+
+body, html {
+	background-color: #eee;
+}
+
+#log {
+	white-space: pre;
+}
+
+#doc {
+	white-space: pre-wrap;
+}
