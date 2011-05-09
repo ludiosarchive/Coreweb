@@ -436,7 +436,7 @@ cw.env.makeReport = function() {
 	report['scrollbarThickness'] = goog.style.getScrollbarWidth();
 	report['XHR.withCredentials'] = cw.env.getXHRDefaultWithCredentials();
 
-	report['new Date().getTime()'] = +date;
+	report['new Date().getTime()'] = date.getTime();
 	report['new Date().getTimezoneOffset()'] = date.getTimezoneOffset();
 
 	if(goog.userAgent.IE) {
@@ -446,7 +446,7 @@ cw.env.makeReport = function() {
 		report['ActiveXObjects'] = cw.env.probeActiveXObjects();
 	}
 
-	report['_timeToCollect'] = goog.now() - +date;
+	report['_timeToCollect'] = goog.now() - date.getTime();
 
 	return report;
 };
