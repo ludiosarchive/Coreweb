@@ -3,6 +3,8 @@
  * 	SharedWorker.  Used by {@link cw.crosstab.CrossSharedWorker}.
  */
 
+goog.provide('cw.tabnexus_worker');
+
 goog.require('cw.tabnexus');
 
 
