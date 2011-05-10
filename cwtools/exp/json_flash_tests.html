@@ -25,20 +25,20 @@ goog.require('cw.loadflash');
 <div id="swf"></div>
 
 <script>
-var load_cw_json_tests = function() {
-	var flashObject = new goog.ui.media.FlashObject("/exp/cw_json_tests.swf");
+var load_swf = function() {
+	var flashObject = new goog.ui.media.FlashObject("cw_json_tests.swf");
 	flashObject.setSize(1024, 768);
-	flashObject.setBackgroundColor("#eeeeee");
+	flashObject.setBackgroundColor("#eeeeee"); // must be set
 
 	var d = cw.loadflash.loadFlashObjectWithTimeout(
 		goog.global['window'], flashObject, '9', document.body, 5000/* timeout */);
 	d.addErrback(function(err) {
 		var s = goog.dom.getElement("swf");
-		goog.dom.setTextContent(s, "Failed to load cw_json_tests.swf: " + err);
+		goog.dom.setTextContent(s, "Failed to load swf: " + err);
 	});
 };
 
-load_cw_json_tests();
+load_swf();
 
 </script>
 

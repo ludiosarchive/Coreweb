@@ -23,18 +23,21 @@
 
 <script>
 goog.require('cw.autoTitle');
-goog.require('swfobject');
+goog.require('goog.dom');
+goog.require('goog.ui.media.FlashObject');
+goog.require('cw.loadflash');
 goog.require('goog.json.Serializer');
 goog.require('cw.externalinterface');
-//function eval(s) {alert(s)};
 </script>
 
 <div style="white-space: pre-wrap">
+If it's working, your browser will hang for a long time.
+
 Sending data from Flash->JS without full escaping looks like a total disaster.
 We can't send characters 8232-8233 for because they are line breaks in some crazy language.
 And when trying to send character 55296, it becomes 65532 on the JS side. The same for the next thousand or so characters.
 
-<a href="build_Experiments.log">build log</a>
+<a href="Experiments.swf.log">build log</a>
 </div>
 
 <div id="Experiments">
@@ -57,10 +60,6 @@ function ser(obj) {
 
 var serializer = new goog.json.Serializer();
 
-
-append('Flash version: ' + swfobject.ua.pv);
-
-var ob = null;
 
 var chars = [];
 var messages = [];
@@ -93,15 +92,29 @@ function doneGiving() {
 //	}
 }
 
-function ready() {
-	ob = document.getElementById('Experiments');
+function ready(ob) {
 	ob.send_all_chars();
 }
 
-var flashvars = {'onloadcallback': 'ready'};
-//var flashvars = {'onloadcallback': 'overflow'};
-var params = {};
-swfobject.embedSWF("Experiments.swf", "Experiments", "30", "30", [9, 0, 0], "expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+var load_swf = function() {
+	var flashObject = new goog.ui.media.FlashObject("Experiments.swf");
+	flashObject.setSize(30, 30);
+	flashObject.setBackgroundColor("#eeeeee");
+
+	var d = cw.loadflash.loadFlashObjectWithTimeout(
+		goog.global['window'], flashObject, '9', document.body, 5000/* timeout */);
+	d.addCallbacks(
+		function(obj) {
+			ready(obj);
+		},
+		function(err) {
+			var s = goog.dom.getElement("swf");
+			goog.dom.setTextContent(s, "Failed to load swf: " + err);
+		}
+	);
+};
+
+load_swf();
 
 </script>
 

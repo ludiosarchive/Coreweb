@@ -46,16 +46,17 @@ Three solutions to Flash->JS, only #3 is correct
 
 <script>
 goog.require('cw.autoTitle');
-goog.require('swfobject');
+goog.require('goog.dom');
+goog.require('goog.ui.media.FlashObject');
+goog.require('cw.loadflash');
 goog.require('goog.json.Serializer');
 goog.require('cw.externalinterface');
-//function eval(s) {alert(s)};
 </script>
 
 <div style="white-space: pre-wrap">
 Flash ExternalInterface tests, both JS->Flash and Flash->JS
 
-<a href="build_Experiments.log">build log</a>
+<a href="Experiments.swf.log">build log</a>
 </div>
 
 <div id="Experiments">
@@ -82,10 +83,6 @@ function fromFlash(msg) {
 	append('fromFlash: ' + ser(msg));
 }
 
-append('Flash version: ' + swfobject.ua.pv);
-
-var ob = null;
-
 
 // The return value of CallFunction is always a string that "should" be eval'ed, but of course,
 // it has the same backslashing problem as the Flash->JS calls.
@@ -100,7 +97,7 @@ var samples = [
 	"\ud800", // 55296
 	"\ud835\udc00" // U+1D400 MATHEMATICAL BOLD CAPITAL A
 ];
-function start() {
+function start(ob) {
 	for(var i=0; i < samples.length; i++) {
 		var sample = samples[i];
 		append("Now testing: " + ser(sample));
@@ -110,27 +107,36 @@ function start() {
 }
 
 
-function ready(arg) {
-	ob = document.getElementById('Experiments');
+function ready(ob, arg) {
 	append("ready, arg: " + arg + ", this == window: " + (this === window));
-	start();
+	start(ob);
 }
 
 
-function overflow(arg) {
-	if(!ob) {
-		ob = document.getElementById('Experiments');
-		//overflow(); // on purpose, to add 1 extra stack on JS side
-	} //else {
-		ob.overflow();
-	//}
+function overflow(ob, arg) {
+	ob.overflow();
 }
 
+var load_swf = function() {
+	var flashObject = new goog.ui.media.FlashObject("Experiments.swf");
+	flashObject.setSize(30, 30);
+	flashObject.setBackgroundColor("#eeeeee");
 
-var flashvars = {'onloadcallback': 'ready'};
-//var flashvars = {'onloadcallback': 'overflow'};
-var params = {};
-swfobject.embedSWF("Experiments.swf", "Experiments", "30", "30", [9, 0, 0], "expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+	var d = cw.loadflash.loadFlashObjectWithTimeout(
+		goog.global['window'], flashObject, '9', document.body, 5000/* timeout */);
+	d.addCallbacks(
+		function(obj) {
+			ready(obj);
+			//overflow(obj);
+		},
+		function(err) {
+			var s = goog.dom.getElement("swf");
+			goog.dom.setTextContent(s, "Failed to load swf: " + err);
+		}
+	);
+};
+
+load_swf();
 
 </script>
 
