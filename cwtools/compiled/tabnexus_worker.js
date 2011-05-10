@@ -1,5 +1,4 @@
-(function() {
-var f = this;
+(function() { var f = this;
 function g(a, c) {
   var b = a.split("."), d = f;
   !(b[0] in d) && d.execScript && d.execScript("var " + b[0]);
