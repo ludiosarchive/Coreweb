@@ -10,6 +10,7 @@
 --compiler_flags="--jscomp_warning=undefinedVars" \
 --compiler_flags="--jscomp_warning=checkTypes" \
 --compiler_flags="--output_wrapper=(function() { %output%})();" \
+--compiler_flags="--summary_detail_level=3" \
 --root=../closure-library \
 --namespace="cw.tabnexus_worker" \
 --root=js_coreweb \
