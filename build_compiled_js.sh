@@ -15,3 +15,4 @@
 --namespace="cw.tabnexus_worker" \
 --root=js_coreweb \
 --output_file=cwtools/compiled/tabnexus_worker.js \
+2>&1 | tee cwtools/compiled/tabnexus_worker.js.log
