@@ -12,7 +12,9 @@
 
 <script>
 goog.require('cw.autoTitle');
-goog.require('swfobject');
+goog.require('goog.dom');
+goog.require('goog.ui.media.FlashObject');
+goog.require('cw.loadflash');
 </script>
 
 
@@ -23,9 +25,21 @@ goog.require('swfobject');
 <div id="swf"></div>
 
 <script>
-flashvars = {}
-params = {}
-swfobject.embedSWF("cw_json_tests.swf", "swf", "1024", "768", [9, 0, 0], "expressInstall.swf", /*flashvars=*/flashvars, params); // no attributes
+var load_cw_json_tests = function() {
+	var flashObject = new goog.ui.media.FlashObject("/exp/cw_json_tests.swf");
+	flashObject.setSize(1024, 768);
+	flashObject.setBackgroundColor("#eeeeee");
+
+	var d = cw.loadflash.loadFlashObjectWithTimeout(
+		goog.global['window'], flashObject, '9', document.body, 5000/* timeout */);
+	d.addErrback(function(err) {
+		var s = goog.dom.getElement("swf");
+		goog.dom.setTextContent(s, "Failed to load cw_json_tests.swf: " + err);
+	});
+};
+
+load_cw_json_tests();
+
 </script>
 
 </body>
