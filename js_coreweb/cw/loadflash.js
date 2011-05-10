@@ -141,10 +141,6 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
  * Note that a timeout will not destroy the underlying Flash
  * applet, whether or not it has already been rendered to the page.
  *
- * Note that because of clock jumps, in extremely rare cases this will
- * spuriously fire the Deferred with a CancelledError.  If you care, try
- * `loadFlashObject` again if you get a {@link goog.async.Deferred.CancelledError}.
- *
  * @param {!cw.clock.IWindowTimeIntervalOptional} clock
  * @param {!goog.ui.media.FlashObject} flashObject
  * @param {string} minVersion Minimum Flash version required.
