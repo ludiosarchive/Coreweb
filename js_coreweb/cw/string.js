@@ -136,7 +136,7 @@ cw.string.strictIntegerRe = /^(0|\-?[1-9]\d*)$/;
 
 /**
  * A strict string->non-negative integer converter based on
- * {@code mypy.objops.strToNonNegLimit}.
+ * {@code minerva.objcheck.strToNonNegLimit}.
  *
  * @param {string} str String to convert to non-negative integer.
  * @param {number} limit Upper bound for the number.
@@ -155,7 +155,7 @@ cw.string.strToNonNegLimit = function(str, limit) {
 
 /**
  * A strict numeric-string to integer converter based on
- * {@code mypy.objops.strToIntInRange}.
+ * {@code minerva.objcheck.strToIntInRange}.
  *
  * @param {string} str String to convert to an integer.
  * @param {number} lower Lower bound for the number.
