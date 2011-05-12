@@ -24,6 +24,7 @@ goog.addDependency('../../../js_coreweb/cw/autoTitle.js', ['cw.autoTitle'], []);
 goog.addDependency('../../../js_coreweb/cw/checktype.js', ['cw.checktype'], ['goog.math']);
 goog.addDependency('../../../js_coreweb/cw/class.js', ['cw.Class'], ['cw.globalprops', 'goog.structs.Set']);
 goog.addDependency('../../../js_coreweb/cw/clock.js', ['cw.clock'], ['goog.Timer', 'goog.asserts', 'goog.debug.Error', 'goog.events', 'goog.functions']);
+goog.addDependency('../../../js_coreweb/cw/cookie.js', ['cw.cookie'], ['goog.net.cookies']);
 goog.addDependency('../../../js_coreweb/cw/crosstab.js', ['cw.crosstab'], ['cw.string', 'goog.array', 'goog.debug.Logger', 'goog.events', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.net.cookies', 'goog.structs.Map']);
 goog.addDependency('../../../js_coreweb/cw/deferred.js', ['cw.deferred'], ['goog.async.Deferred']);
 goog.addDependency('../../../js_coreweb/cw/dethrobber.js', ['cw.dethrobber'], ['goog.userAgent', 'goog.userAgent.product']);
