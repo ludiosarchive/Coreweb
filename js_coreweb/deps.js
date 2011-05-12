@@ -43,4 +43,3 @@ goog.addDependency('../../../js_coreweb/cw/string.js', ['cw.string'], ['goog.ass
 goog.addDependency('../../../js_coreweb/cw/tabnexus.js', ['cw.tabnexus'], ['cw.repr', 'goog.asserts']);
 goog.addDependency('../../../js_coreweb/cw/tabnexus_worker.js', ['cw.tabnexus_worker'], ['cw.tabnexus']);
 goog.addDependency('../../../js_coreweb/cw/unittest.js', ['cw.UnitTest'], ['cw.Class', 'cw.deferred', 'cw.eq', 'cw.func', 'cw.repr', 'goog.array', 'goog.asserts', 'goog.async.Deferred', 'goog.debug', 'goog.debug.Error', 'goog.debug.Logger', 'goog.object', 'goog.string', 'goog.testing.stacktrace', 'goog.userAgent']);
-goog.addDependency('../../../js_coreweb/cw/whoami.js', ['cw.whoami'], ['goog.net.cookies']);
