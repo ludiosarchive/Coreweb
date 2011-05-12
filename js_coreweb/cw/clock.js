@@ -398,23 +398,23 @@ cw.clock.Clock.prototype.setTime = function(time) {
 
 
 /**
- * @type { {
+ * @typedef { {
  * 	setTimeout: function(!Function, number): number,
  * 	clearTimeout: function(number): undefined,
  * 	setInterval: function(!Function, number): number,
  * 	clearInterval: function(number): undefined
  * } }
  */
-cw.clock.IWindowTimeAll = goog.typedef;
+cw.clock.IWindowTimeAll;
 
 
 /**
- * @type { {
+ * @typedef { {
  * 	setTimeout: function(!Function, number): number,
  * 	clearTimeout: function(number): undefined
  * } }
  */
-cw.clock.IWindowTimeIntervalOptional = goog.typedef;
+cw.clock.IWindowTimeIntervalOptional;
 
 
 /**
