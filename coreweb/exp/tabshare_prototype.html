@@ -47,9 +47,6 @@ TODO: fix issue where popup tries to open in FF3.5.
 Maybe unload event isn't removing the cookie fast enough?
  */
 
-document.domain = 'linuxwan.com';
-
-
 
 // doesn't seem to do anything really?
 //history.navigationMode = 'compatible';
@@ -202,7 +199,7 @@ var become_master = function() {
 };
 
 var update_cookie = function() {
-	document.cookie = tab_id +'=' + new Date().getTime()+';path=/;domain=.linuxwan.com';
+	document.cookie = tab_id +'=' + new Date().getTime()+';path=/';
 };
 
 var basic_listener = function(obj, evType, fn) {
