@@ -35,20 +35,21 @@ You'll need to install:
 
 Note that Twisted and Webmagic can be installed using `pip`.
 
-Put `closure-library` in the parent of the current directory, or specify
-the full path using `--closure-library=/abspath/closure-library` in
-the following command:
+To start the server, run:
 
-To start the server:
-
-`twistd -n coreweb_site -h tcp:9090:interface=127.0.0.1`
+`twistd -n coreweb_site -h tcp:9090:interface=127.0.0.1 --closure-library=/abspath/closure-library`
 
 or on Windows:
 
 ```
 set PYTHONPATH=C:\Coreweb's_parent_directory (if not already in PYTHONPATH)
-C:\Python27\python.exe C:\Python27\Scripts\twistd.py -n coreweb_site -h tcp:9090:interface=127.0.0.1
+C:\Python27\python.exe C:\Python27\Scripts\twistd.py -n coreweb_site -h tcp:9090:interface=127.0.0.1 --closure-library=C:\abspath\closure-library
 ```
+
+Note that if `closure-library` is in the parent of the current directory
+(`../closure-library`), you can omit `--closure-library=`.
+
+Then, navigate to `http://127.0.0.1:9090/` in your browser.
 
 
 
