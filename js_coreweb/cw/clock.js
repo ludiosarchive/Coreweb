@@ -438,7 +438,7 @@ cw.clock.EventType = {
 cw.clock.TIMER_FORGIVENESS = 400;
 
 
-// TODO XXX: Detect if the environment fires timers if the clock went backwards
+// TODO: Detect if the environment fires timers if the clock went backwards
 // (at least sometimes):
 // 	- If the clock went backwards on the next poll_, fire MAYBE_MONOTONIC
 //	- If the clock went backwards on a prod, preserve the old poll_ timer
@@ -746,18 +746,18 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
  * 		can even detect these "critical moments".
  */
 
-// TODO XXX: JumpDetectingClock is going to want to check *all*
+// TODO: JumpDetectingClock is going to want to check *all*
 // of the timers when prodded, because perhaps just one got
 // mischeduled by the browser.
 
-// TODO XXX: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
+// TODO: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
 // We want to avoid protectWindowSetTimeout because that adds too many
 // layers of functions. We already *need* to create a function in JumpDetectingClock.
 // BUT: is this really necessary? In all browsers but Opera, window.onerror
 // should do adequate error-detection for us.
 
 /**
- * DOES NOT ACTUALLY WORK YET - DO NOT USE
+ * JumpDetectingClock is NOT IMPLEMENTED YET.
  *
  * This is a clock that detects backwards time jumps and reschedules
  * calls if necessary. It wraps an existing clock, such as a real browser
@@ -835,7 +835,7 @@ cw.clock.JumpDetectingClock.prototype.rescheduleCalls_ = function(adjustment) {
 			this.clock.clearTimeout(Number(ticket));
 		}
 	}
-	throw Error("NIY");
+	throw Error("Not implemented yet");
 };
 
 /**
@@ -851,7 +851,7 @@ cw.clock.JumpDetectingClock.prototype.gotTimeJump_ = function(ev) {
 	// and user code assumes that timeouts are called directly from some
 	// kind of event loop (never under its current stack).
 
-	throw Error("NIY");
+	throw Error("Not implemented yet");
 	//var adjustment = 1/0;
 	//this.rescheduleCalls_(adjustment);
 };

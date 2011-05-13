@@ -1,5 +1,5 @@
 /**
- * @fileoverview Port of mypy.objops.totalSizeOf
+ * @fileoverview Functions to guess how much memory an object is using.
  */
 
 goog.provide('cw.objsize');

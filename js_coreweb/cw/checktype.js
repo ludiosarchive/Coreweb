@@ -1,5 +1,6 @@
 /**
- * @fileoverview Functions to check the type of objects, based on mypy.objops.
+ * @fileoverview Functions to check the type of objects, based on
+ * the Python {@code minerva.objcheck}.
  */
 
 
