@@ -447,15 +447,23 @@ cw.crosstab.Peer.prototype.__reprPush__ = function(sb, stack) {
 
 
 /**
- * An object that automatically sets up asynchronous connections
+ * CrossSharedWorker is DEPRECATED and may be removed at any time.
+ *
+ * CrossSharedWorker was intended to be just like CrossNamedWorker,
+ * except using a SharedWorker to set up connections between tabs.
+ * This design is very difficult to get right, and it's much simpler to just
+ * put the actual work in the SharedWorker, rather than electing some
+ * "master tab" like CrossNamedWorker.
+ *
+ * Original docs follow:
+ *
+ * CrossSharedWorker automatically sets up asynchronous connections
  * between tabs/windows, using a SharedWorker only to facilitate
  * the connections.
  *
  * Do not use with Opera because it doesn't fire onunload reliably.
  *
- * CrossSharedWorker is not reliable yet!  Don't use it.  We might have
- * to abandon it and have the SharedWorker itself do all of the hard work.
- * This was the TODO before ivank stopped working on it:
+ * This was the TODO before ivank abandoned it:
  *
  * - Make sure our use of postMessage is safe (other sites can't send msg)
  *

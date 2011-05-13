@@ -1,5 +1,7 @@
 /**
  * @fileoverview Used by CrossSharedWorker_demo.html
+ *
+ * This is DEPRECATED and may be removed at any time.
  */
 goog.provide('cswdemo');
 

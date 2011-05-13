@@ -2,6 +2,9 @@
  * @fileoverview The code run inside the SharedWorker by
  * 	{@link cw.crosstab.CrossSharedWorker}.
  *
+ * This is DEPRECATED and may be removed at any time.  See crosstab.js
+ * for an explanation.
+ *
  * It's okay to use goog.require(...) in this file, because we only load
  * the compiled version in the SharedWorker.
  *
