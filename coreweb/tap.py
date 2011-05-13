@@ -59,7 +59,7 @@ def makeService(config):
 		httpServer = strports.service(httpStrport, site)
 		httpServer.setServiceParent(multi)
 
-	doReloading = bool(int(os.environ.get('PYRELOADING')))
+	doReloading = bool(int(os.environ.get('PYRELOADING', '0')))
 	if doReloading:
 		print 'Enabling reloader.'
 		from pyquitter import detector
