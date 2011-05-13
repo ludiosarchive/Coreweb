@@ -1,5 +1,6 @@
 // This is code from my crazy attempt to send Unicode over the
-// ExternalInterface bridge.  Just don't bother and send ASCII instead.
+// ExternalInterface bridge.  Just don't bother with this idea; send
+// ASCII instead.
 
 package cw.exp;
 
