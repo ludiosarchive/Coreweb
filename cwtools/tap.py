@@ -9,9 +9,9 @@ from cwtools import corewebsite
 
 class Options(usage.Options):
 	"""
-	Define the options accepted by the I{twistd cwrun} plugin.
+	Define the options accepted by the I{twistd coreweb_site} plugin.
 	"""
-	synopsis = "[cwrun options]"
+	synopsis = "[coreweb_site options]"
 
 	optParameters = [
 		["http", "h", None,
@@ -28,8 +28,8 @@ class Options(usage.Options):
 	]
 
 	longdesc = """\
-This starts the Coreweb test server (cwrun), from which you can
-run the client-side unit tests in a browser.
+This starts the Coreweb test server (coreweb_site), from which you can
+run the client-side unit tests and browser experiments.
 
 See http://twistedmatrix.com/documents/9.0.0/api/twisted.application.strports.html
 or the source code for twisted.application.strports to see examples of strports

@@ -10,6 +10,6 @@ looper python -N \
 -W all \
 -W 'ignore:Not importing directory' \
 -W 'ignore:the sets module is deprecated' \
-`which twistd` -n cwrun \
+`which twistd` -n coreweb_site \
 -h tcp:9090:interface=$INTERFACE \
 -h ssl:443:privateKey=dev_keys/x.linuxwan.com-key.pem:interface=$INTERFACE \

@@ -1,8 +1,8 @@
 from twisted.application.service import ServiceMaker
 
 TwistedWeb = ServiceMaker(
-	"Coreweb Testrun",
+	"Coreweb site",
 	"cwtools.tap",
-	"A server that serves JavaScript tests",
-	"cwrun"
+	"Coreweb site with js_coreweb tests and experiments",
+	"coreweb_site"
 )
