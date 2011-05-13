@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# This should not install the JavaScript files - that's a seperate step.
-
 from distutils.core import setup
 
 import coreweb
