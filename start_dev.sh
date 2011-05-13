@@ -11,5 +11,5 @@ looper python -N \
 -W 'ignore:Not importing directory' \
 -W 'ignore:the sets module is deprecated' \
 `which twistd` -n cwrun \
--a tcp:9090:interface=$INTERFACE \
--b ssl:443:privateKey=dev_keys/x.linuxwan.com-key.pem:interface=$INTERFACE \
+-h tcp:9090:interface=$INTERFACE \
+-h ssl:443:privateKey=dev_keys/x.linuxwan.com-key.pem:interface=$INTERFACE \

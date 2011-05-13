@@ -14,12 +14,11 @@ class Options(usage.Options):
 	synopsis = "[cwrun options]"
 
 	optParameters = [
-		["servera", "a", None,
-			"strports description for the server. "
+		["http", "h", None,
+			"strports description for the HTTP server. "
 			"Example: 'tcp:80:interface=127.0.0.1'. "
-			"See twisted.application.strports for more examples."],
-		["serverb", "b", None,
-			"strports description for an optional second server."],
+			"Repeat this option for multiple servers."],
+
 		["closure-library", "c", "../closure-library",
 			'Path to closure-library'],
 	]
@@ -28,28 +27,37 @@ class Options(usage.Options):
 		["notracebacks", "n", "Don't display tracebacks in broken web pages."],
 	]
 
-	longdesc = """corewebsite server"""
+	longdesc = """\
+This starts the Coreweb test server (cwrun), from which you can
+run the client-side unit tests in a browser.
+
+See http://twistedmatrix.com/documents/9.0.0/api/twisted.application.strports.html
+or the source code for twisted.application.strports to see examples of strports
+descriptions.
+"""
+
+	def __init__(self):
+		usage.Options.__init__(self)
+		self['http'] = []
+
+
+	def opt_http(self, option):
+		self['http'].append(option)
 
 
 
 def makeService(config):
 	from twisted.internet import reactor, task
 
-	s = service.MultiService()
+	multi = service.MultiService()
 
 	site = corewebsite.makeSite(
 		reactor, FilePath(config['closure-library']))
 	site.displayTracebacks = not config["notracebacks"]
 
-	if not config['servera']:
-		raise ValueError("servera option is required.")
-
-	servera = strports.service(config['servera'], site)
-	servera.setServiceParent(s)
-
-	if config['serverb']:
-		serverb = strports.service(config['serverb'], site)
-		serverb.setServiceParent(s)
+	for httpStrport in config['http']:
+		httpServer = strports.service(httpStrport, site)
+		httpServer.setServiceParent(multi)
 
 	doReloading = bool(int(os.environ.get('PYRELOADING')))
 	if doReloading:
@@ -63,4 +71,4 @@ def makeService(config):
 		looping = task.LoopingCall(stopper.poll)
 		looping.start(2.5, now=True)
 
-	return s
+	return multi
