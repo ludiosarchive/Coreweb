@@ -12,7 +12,7 @@ should not be here, because that requires a custom-built server.
 The JavaScript code in Coreweb should not rely on complex server-side functionality,
 except for testing client-side code.
 
-Nothing here relies on special server code, so cwtools/testres/ contains only static
+Nothing here relies on special server code, so coreweb/testres/ contains only static
 files, which are expected to be served at /@testres_CW/
 
 

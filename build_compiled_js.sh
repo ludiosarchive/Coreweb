@@ -22,5 +22,5 @@ COMMON="../closure-library/closure/bin/build/closurebuilder.py \
 
 $COMMON \
 --namespace="cw.tabnexus_worker" \
---output_file=cwtools/compiled/tabnexus_worker.js \
-2>&1 | tee cwtools/compiled/tabnexus_worker.js.log
+--output_file=coreweb/compiled/tabnexus_worker.js \
+2>&1 | tee coreweb/compiled/tabnexus_worker.js.log

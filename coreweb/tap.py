@@ -4,7 +4,7 @@ from twisted.python import usage, log
 from twisted.application import service, strports
 from twisted.python.filepath import FilePath
 
-from cwtools import corewebsite
+from coreweb import corewebsite
 
 
 class Options(usage.Options):

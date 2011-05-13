@@ -3,5 +3,5 @@
 
 targets = [
 	{"inputs": ["cw/tabnexus_worker.js"],
-	"output": "cwtools/compiled/tabnexus_worker.js"},
+	"output": "coreweb/compiled/tabnexus_worker.js"},
 ]

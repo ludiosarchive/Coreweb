@@ -4,15 +4,15 @@
 
 from distutils.core import setup
 
-import cwtools
+import coreweb
 
 setup(
 	name='Coreweb',
-	version=cwtools.__version__,
+	version=coreweb.__version__,
 	description="Coreweb",
-	packages=['cwtools', 'twisted.plugins', 'js_coreweb'],
+	packages=['coreweb', 'twisted.plugins', 'js_coreweb'],
 	package_data={
-		'cwtools': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],
+		'coreweb': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],
 		'js_coreweb': ['*.js', '*/*.js', '*/*/*.js'],
 	},
 )

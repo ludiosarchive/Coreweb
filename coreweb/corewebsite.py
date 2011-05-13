@@ -4,8 +4,8 @@ from twisted.python.filepath import FilePath
 from webmagic.untwist import BetterResource, BetterFile, ConnectionTrackingSite
 from webmagic.special import WaitResource
 
-import cwtools
-here = FilePath(cwtools.__path__[0])
+import coreweb
+here = FilePath(coreweb.__path__[0])
 
 
 
