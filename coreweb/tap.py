@@ -4,7 +4,7 @@ from twisted.python import usage, log
 from twisted.application import service, strports
 from twisted.python.filepath import FilePath
 
-from coreweb import corewebsite
+from coreweb import coreweb_site
 
 
 class Options(usage.Options):
@@ -51,7 +51,7 @@ def makeService(config):
 
 	multi = service.MultiService()
 
-	site = corewebsite.makeSite(
+	site = coreweb_site.makeSite(
 		reactor, FilePath(config['closure-library']))
 	site.displayTracebacks = not config["notracebacks"]
 
