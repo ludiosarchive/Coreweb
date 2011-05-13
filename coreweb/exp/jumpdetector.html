@@ -35,7 +35,6 @@ goog.require('goog.debug.Logger');
 goog.require('cw.clock');
 goog.require('goog.events');
 goog.require('goog.events.EventHandler');
-goog.require('cw.UnitTest');
 </script>
 
 <script>
@@ -66,7 +65,7 @@ function pollHandler(ev) {
 var jd = new cw.clock.JumpDetector(goog.global['window'], 3000, 1); /* for IE, must use goog.global['window'], not window */ 
 jd.addEventListener(cw.clock.EventType.TIME_JUMP, jumpHandler, true);
 jd.addEventListener(cw.clock.EventType.TIME_COLLECTION_OVERFLOW, pollHandler, true);
-jd.start_();
+jd.start();
 
 var INPUT_EVENTS = [
 	goog.events.EventType.MOUSEDOWN,
