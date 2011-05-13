@@ -627,8 +627,6 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
 	// TODO: perhaps we should also fire something if the timer
 	// fired too early? But does it really matter if it does?
 
-	// Use a local variable to potentially speed up access times for IE6-IE8,
-	// assuming Compiler preserves it.
 	var timeLast = this.timeLast_;
 
 	//cw.UnitTest.logger.info('checkTimeJump_: ' +
