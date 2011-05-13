@@ -99,9 +99,10 @@ cw.loadflash.loadFlashObject = function(clock, flashObject, minVersion, renderIn
 	}
 
 	if(!goog.userAgent.flash.isVersion(minVersion)) {
+		var hadVersion = goog.userAgent.flash.VERSION;
 		return goog.async.Deferred.fail(new cw.loadflash.FlashLoadFailed(
-			"Need Flash Player " + minVersion + "+, had " +
-			goog.userAgent.flash.VERSION));
+			"Need Flash Player " + minVersion + "+; had " +
+			(hadVersion ? hadVersion : "none")));
 	}
 	// In non-IE browsers, flash.isVersion checks navigator.plugins.  Flash's
 	// presence in navigator.plugins doesn't guarantee that Flash is actually
