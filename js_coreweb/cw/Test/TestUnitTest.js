@@ -465,9 +465,9 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertErrorMessage(
-				self.result.errors[0][1],
-				"Test ended with 1 pending call(s): setTimeout_pending");
+			self.assertTrue(goog.string.startsWith(
+				self.result.errors[0][1].message,
+				"Test ended with 1 uncleared timeouts/intervals:"));
 		});
 		return d;
 	},
@@ -486,9 +486,9 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // just a sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertErrorMessage(
-				self.result.errors[0][1],
-				"Test ended with 1 pending call(s): setInterval_pending");
+			self.assertTrue(goog.string.startsWith(
+				self.result.errors[0][1].message,
+				"Test ended with 1 uncleared timeouts/intervals:"));
 		});
 		d.addBoth(function() {
 			// Cleanup
@@ -521,9 +521,9 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 			self.assertArraysEqual(self.result.getSummary(), [1, 0, 1, 0]);
 			self.assertIdentical(self.result.errors[0].length, 2); // sanity check
 			self.assertIdentical(self.result.errors[0][0], error);
-			self.assertErrorMessage(
-				self.result.errors[0][1],
-				"Test ended with 2 pending call(s): setTimeout_pending,setTimeout_pending");
+			self.assertTrue(goog.string.startsWith(
+				self.result.errors[0][1].message,
+				"Test ended with 2 uncleared timeouts/intervals:"));
 
 			// the inner test stopped tracking all the pending calls.
 			for (var k in cw.UnitTest.delayedCalls) {

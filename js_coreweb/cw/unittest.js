@@ -361,10 +361,17 @@ cw.UnitTest.canonicalizeStackTrace_ = function(stack) {
 
 cw.UnitTest.makeErrorElementForError_ = function(error) {
 	var pre = document.createElement("pre");
-	// JavaScript-based tracebacks are unfortunately worthless in
-	// our case, so right now we're out of luck in IE (and probably Safari and Opera).
-	error.stack = error.stack ?
-		cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+	if(!error.causedByUnclearedTimeout) {
+		// JavaScript-based tracebacks are unfortunately worthless in
+		// our case, so right now we're out of luck in IE (and probably Safari and Opera).
+		error.stack = error.stack ?
+			cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+	} else {
+		// The stack is useless in this case, because the source of the
+		// uncleared setTimeout/setInterval is the only thing that matters.
+		error.stack = '';
+	}
+
 	pre.innerHTML =
 		goog.string.htmlEscape(error.name + ': ' + error.message) +
 		((error.stack ? '\n' + error.stack : ''));
@@ -1164,24 +1171,26 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 
 				tearDownD.addBoth(function _TestCase_run_tearDownD_finally() {
 					if (success) {
-						var whichProblems = [];
+						var problemMessages = [];
 						for(var pendingType in cw.UnitTest.delayedCalls) {
 							for(var ticket in cw.UnitTest.delayedCalls[pendingType]) {
-								cw.UnitTest.logger.severe(
-									goog.string.subs(
-										"Leftover pending call: %s %s",
-										pendingType, ticket));
-								whichProblems.push(pendingType);
+								var stack = cw.UnitTest.delayedCalls[pendingType][ticket];
+								var message = pendingType + " #" +
+									ticket + ", created at:\n" + stack +"\n";
+								problemMessages.push(message);
 							}
 						}
 
-						if(whichProblems.length > 0) {
+						if(problemMessages.length > 0) {
 							success = false;
 
-							result.addError(that,
-								new Error(
-									"Test ended with " + whichProblems.length +
-									" pending call(s): " + whichProblems));
+							var error = new Error(
+								"Test ended with " + problemMessages.length +
+								" uncleared timeouts/intervals:\n\n" +
+								problemMessages.join("\n"));
+							// Mark the test so that its stack is not displayed.
+							error.causedByUnclearedTimeout = true;
+							result.addError(that, error);
 
 							// Cleanup everything. If we don't do
 							// this, test output is impossible
@@ -1587,6 +1596,7 @@ cw.UnitTest.stopTrackingDelayedCalls = function() {
 cw.UnitTest.stopTrackingDelayedCalls();
 
 
+
 /**
  * Install replacements for setTimeout, setInterval, clearTimeout,
  * and clearInterval. The replacements track any window-global
@@ -1619,8 +1629,6 @@ cw.UnitTest.installMonkeys = function() {
 	var originalClearInterval = window.clearInterval;
 
 	window.setTimeout = function(fn, time) {
-		//cw.UnitTest.logger.finest(
-		// 	'Inside replacement window.setTimeout. fn: ' + fn + ' ; time: ' + time);
 		function replacementCallable(ticket) {
 			delete cw.UnitTest.delayedCalls['setTimeout_pending'][ticket];
 
@@ -1638,8 +1646,14 @@ cw.UnitTest.installMonkeys = function() {
 			}, time);
 		}
 
-		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] = 1;
+		var error = new Error();
+		var stack = error.stack ?
+			cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+		//cw.UnitTest.logger.finest('Assigned ticket #' + ticket +
+		//	' to setTimeout(..., ' + time + ') from:\n' + stack);
 
+		cw.UnitTest.delayedCalls['setTimeout_pending'][ticket] =
+			stack || 'Stack not available';
 		return ticket;
 	};
 
@@ -1654,7 +1668,15 @@ cw.UnitTest.installMonkeys = function() {
 		} else {
 			var ticket = originalSetInterval(fn, time);
 		}
-		cw.UnitTest.delayedCalls['setInterval_pending'][ticket] = 1;
+
+		var error = new Error();
+		var stack = error.stack ?
+			cw.UnitTest.canonicalizeStackTrace_(error.stack) : error['stackTrace'];
+		//cw.UnitTest.logger.finest('Assigned ticket #' + ticket +
+		//	' to setInterval(..., ' + time + ') from:\n' + stack);
+
+		cw.UnitTest.delayedCalls['setInterval_pending'][ticket] =
+			stack || 'Stack not available';
 		return ticket;
 	};
 
