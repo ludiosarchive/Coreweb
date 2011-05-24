@@ -445,7 +445,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestDS
 
 
 
-cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLooseCalls').methods(
+cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestUnclearedCalls').methods(
 	function setUp(self) {
 		self.result = new cw.UnitTest.TestResult();
 		// Only need to test this with L{Mock}, not DMock or DSMock.
@@ -455,9 +455,9 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	/**
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
-	function test_setTimeoutLoose(self) {
+	function test_setTimeoutUncleared(self) {
 		var suite = new cw.UnitTest.TestSuite();
-		var error = self.mockModule._setTimeoutLoose('test_method');
+		var error = self.mockModule._setTimeoutUncleared('test_method');
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
@@ -476,9 +476,9 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	/**
 	 * Tests with leftover setTimeout calls should cause test to error.
 	 */
-	function test_setIntervalLoose(self) {
+	function test_setIntervalUncleared(self) {
 		var suite = new cw.UnitTest.TestSuite();
-		var error = self.mockModule._setIntervalLoose('test_method');
+		var error = self.mockModule._setIntervalUncleared('test_method');
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
@@ -498,22 +498,22 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 	},
 
 	/**
-	 * Confirm a deficiency in the current design: loose setTimeout calls
+	 * Confirm a deficiency in the current design: uncleared setTimeout calls
 	 * in a "parent" test will cause "child" tests to error, even when that
-	 * "child" test isn't responsible for the loose setTimeout.
+	 * "child" test isn't responsible for the uncleared setTimeout.
 	 *
 	 * The deficiency is caused by UnitTest not having nested delayed-calls tracking
 	 * (delayed calls are checked and removed after the teardown of *any* test).
 	 *
 	 * If the deficiency is fixed, a new test should be written.
 	 */
-	function test_setTimeoutLooseNested(self) {
-		// the loose call in this "parent" test
-		var looseTimeout = setTimeout(function() {}, 60);
+	function test_setTimeoutUnclearedNested(self) {
+		// the uncleared call in this "parent" test
+		var unclearedTimeout = setTimeout(function() {}, 60);
 
 		var suite = new cw.UnitTest.TestSuite();
-		// "child" test will have a loose call, too.
-		var error = self.mockModule._setTimeoutLoose('test_method');
+		// "child" test will have a uncleared call, too.
+		var error = self.mockModule._setTimeoutUncleared('test_method');
 		suite.addTests([error]);
 
 		var d = suite.run(self.result);
@@ -530,7 +530,7 @@ cw.Test.TestUnitTest.TestCaseTest.subclass(cw.Test.TestUnitTest, 'TestCaseTestLo
 				self.assertArraysEqual([], goog.object.getKeys(cw.UnitTest.delayedCalls[k]));
 			}
 
-			clearTimeout(looseTimeout); // This should be in an addCleanup above instead
+			clearTimeout(unclearedTimeout); // This should be in an addCleanup above instead
 		});
 		return d;
 	}

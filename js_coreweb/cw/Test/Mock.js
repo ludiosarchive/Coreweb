@@ -100,7 +100,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_BadTearDown').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setTimeoutLoose').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setTimeoutUncleared').methods(
 	function test_method(self) {
 		setTimeout(function() {}, 30);
 	}
@@ -108,7 +108,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setTimeoutLoose').methods(
 
 
 
-cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setIntervalLoose').methods(
+cw.UnitTest.TestCase.subclass(cw.Test.Mock, '_setIntervalUncleared').methods(
 	function test_method(self) {
 		self._interval = setInterval(function() {}, 10);
 	}
