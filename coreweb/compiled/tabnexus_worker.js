@@ -37,25 +37,25 @@ function h(a) {
   }
   return c
 }
-function i(a) {
+function i(a, c, b) {
   return a.call.apply(a.bind, arguments)
 }
-function j(a, c) {
-  var b = c || f;
+function j(a, c, b) {
+  var d = c || f;
   if(arguments.length > 2) {
-    var d = Array.prototype.slice.call(arguments, 2);
+    var e = Array.prototype.slice.call(arguments, 2);
     return function() {
-      var c = Array.prototype.slice.call(arguments);
-      Array.prototype.unshift.apply(c, d);
-      return a.apply(b, c)
+      var b = Array.prototype.slice.call(arguments);
+      Array.prototype.unshift.apply(b, e);
+      return a.apply(d, b)
     }
   }else {
     return function() {
-      return a.apply(b, arguments)
+      return a.apply(d, arguments)
     }
   }
 }
-function k() {
+function k(a, c, b) {
   k = Function.prototype.bind && Function.prototype.bind.toString().indexOf("native code") != -1 ? i : j;
   return k.apply(null, arguments)
 }
@@ -64,10 +64,7 @@ function k() {
 } : function(a, c, b) {
   b = b == null ? 0 : b < 0 ? Math.max(0, a.length + b) : b;
   if(typeof a == "string") {
-    if(typeof c != "string" || c.length != 1) {
-      return-1
-    }
-    return a.indexOf(c, b)
+    return typeof c != "string" || c.length != 1 ? -1 : a.indexOf(c, b)
   }
   for(;b < a.length;b++) {
     if(b in a && a[b] === c) {
