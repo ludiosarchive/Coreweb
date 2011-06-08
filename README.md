@@ -46,8 +46,8 @@ set PYTHONPATH=C:\Coreweb's_parent_directory (if not already in PYTHONPATH)
 C:\Python27\python.exe C:\Python27\Scripts\twistd.py -n coreweb_site -t tcp:9090:interface=127.0.0.1 --closure-library=C:\abspath\closure-library
 ```
 
-Note that if `closure-library` is in the parent of the current directory
-(`../closure-library`), you can omit `--closure-library=`.
+Note that if `closure-library` is in the parent of the source directory,
+you can omit `--closure-library=`.
 
 Then, navigate to `http://127.0.0.1:9090/` in your browser.
 
