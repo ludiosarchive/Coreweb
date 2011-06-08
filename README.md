@@ -37,13 +37,13 @@ Note that Twisted and Webmagic can be installed using `pip`.
 
 To start the server, run:
 
-`twistd -n coreweb_site -h tcp:9090:interface=127.0.0.1 --closure-library=/abspath/closure-library`
+`twistd -n coreweb_site -t tcp:9090:interface=127.0.0.1 --closure-library=/abspath/closure-library`
 
 or on Windows:
 
 ```
 set PYTHONPATH=C:\Coreweb's_parent_directory (if not already in PYTHONPATH)
-C:\Python27\python.exe C:\Python27\Scripts\twistd.py -n coreweb_site -h tcp:9090:interface=127.0.0.1 --closure-library=C:\abspath\closure-library
+C:\Python27\python.exe C:\Python27\Scripts\twistd.py -n coreweb_site -t tcp:9090:interface=127.0.0.1 --closure-library=C:\abspath\closure-library
 ```
 
 Note that if `closure-library` is in the parent of the current directory

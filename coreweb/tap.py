@@ -7,6 +7,9 @@ from twisted.python.filepath import FilePath
 from coreweb import coreweb_site
 
 
+_defaultClosureLibrary = FilePath(__file__).parent().parent().parent().child("closure-library").path
+assert isinstance(_defaultClosureLibrary, str), type(_defaultClosureLibrary)
+
 class Options(usage.Options):
 	"""
 	Define the options accepted by the I{twistd coreweb_site} plugin.
@@ -14,12 +17,12 @@ class Options(usage.Options):
 	synopsis = "[coreweb_site options]"
 
 	optParameters = [
-		["http", "h", None,
+		["http", "t", None,
 			"strports description for the HTTP server. "
 			"Example: 'tcp:80:interface=127.0.0.1'. "
 			"Repeat this option for multiple servers."],
 
-		["closure-library", "c", "../closure-library",
+		["closure-library", "c", _defaultClosureLibrary,
 			'Path to closure-library'],
 	]
 
