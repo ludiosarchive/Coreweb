@@ -1367,7 +1367,7 @@ cw.UnitTest.makeSummaryDiv = function(result) {
 cw.UnitTest.runWeb = function(test, div) {
 	var result = new cw.UnitTest.DIVTestResult(div);
 	var d = test.run(result);
-	d.addCallback(function _UnitTest_after_run(){	
+	d.addCallback(function _UnitTest_after_run() {
 		var timeTaken = new Date().getTime() - result.timeStarted;
 
 		var span = document.createElement('span');
