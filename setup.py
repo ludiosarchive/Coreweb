@@ -27,4 +27,8 @@ setup(
 		'coreweb': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],
 		'js_coreweb': ['*.js', '*/*.js', '*/*/*.js'],
 	},
+	install_requires=[
+		 'Twisted >= 8.2.0'
+		,'Webmagic >= 11.6.20.1'
+	],
 )
