@@ -41,17 +41,19 @@ function i(a, c, b) {
   return a.call.apply(a.bind, arguments)
 }
 function j(a, c, b) {
-  var d = c || f;
+  if(!a) {
+    throw Error();
+  }
   if(arguments.length > 2) {
-    var e = Array.prototype.slice.call(arguments, 2);
+    var d = Array.prototype.slice.call(arguments, 2);
     return function() {
       var b = Array.prototype.slice.call(arguments);
-      Array.prototype.unshift.apply(b, e);
-      return a.apply(d, b)
+      Array.prototype.unshift.apply(b, d);
+      return a.apply(c, b)
     }
   }else {
     return function() {
-      return a.apply(d, arguments)
+      return a.apply(c, arguments)
     }
   }
 }
