@@ -1,0 +1,19 @@
+<!--
+Found by no_gravity in #startups, modified to write out 100 canvases to break
+even 64-bit Firefox on Windows.
+-->
+
+<script>
+for(i=0; i < 100; i++) {
+	document.write('<canvas id=canvas' + i + ' width=20000 height=20000>');
+}
+</script>
+
+<script>
+for(i=0; i < 100; i++) {
+	canvas = document.getElementById("canvas" + i);
+	ctx = this.canvas.getContext("2d");
+	ctx.fillStyle = "rgb(0, 0, 100)";
+	ctx.fillRect(1,1,100,100);
+}
+</script>
