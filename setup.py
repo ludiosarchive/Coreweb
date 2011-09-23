@@ -67,3 +67,11 @@ setup(
 		,'Webmagic >= 11.6.20.1'
 	],
 )
+
+
+try:
+	from twisted.plugin import IPlugin, getPlugins
+except ImportError:
+	pass
+else:
+	list(getPlugins(IPlugin))
