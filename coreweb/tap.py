@@ -7,7 +7,7 @@ from twisted.python.filepath import FilePath
 from coreweb import coreweb_site
 
 
-_defaultClosureLibrary = FilePath(__file__).parent().parent().parent().child("closure-library").path
+_defaultClosureLibrary = FilePath(__file__).parent().parent().sibling("closure-library").path
 assert isinstance(_defaultClosureLibrary, str), type(_defaultClosureLibrary)
 
 class Options(usage.Options):
@@ -34,9 +34,9 @@ class Options(usage.Options):
 This starts the Coreweb test server (coreweb_site), from which you can
 run the client-side unit tests and browser experiments.
 
-See http://twistedmatrix.com/documents/9.0.0/api/twisted.application.strports.html
-or the source code for twisted.application.strports to see examples of strports
-descriptions.
+For strports examples, see
+http://twistedmatrix.com/documents/9.0.0/api/twisted.application.strports.html
+or the source code for twisted.application.strports.
 """
 
 	def __init__(self):
