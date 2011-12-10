@@ -2,34 +2,75 @@
 <html>
 <head>
 <title>coreweb_site</title>
+<style>
+h1 {
+	margin-top: 0;
+	font-size: 1.25em;
+}
+
+h1, h2, h3, body, li, p {
+	font-family: Arial, sans-serif;
+}
+
+li {
+	line-height: 1.5em;
+}
+</style>
 </head>
 <body>
-This index may be incomplete; browse to the exp/ directory and look around.
+<h1>coreweb_site index</h1>
 <ul>
-<li><a href="/js_coreweb_tests.html">js_coreweb tests</a></li>
-<li><a href="/exp/">Browser experiments and demos of cw.* modules</a>
+<li><a href="js_coreweb_tests.html">js_coreweb tests</a></li>
+<li><a href="exp/">All browser experiments and demos of cw.* modules</a>
+<li>Potentially useful pages
 	<ul>
-	<li><a href="/exp/json_flash_tests.html">cw.json Flash tests</a></li>
-	<li><a href="/exp/jumpdetector.html">cw.clock.JumpDetector test page</a></li>
-	<li><a href="/exp/native_json.html">Native JSON object behavior</a></li>
-	<li><a href="/exp/eval_speed.html">Eval speed benchmark</a></li>
-	<li><a href="/exp/externalinterface.html">ExternalInterface</a></li>
-	<li><a href="/exp/externalinterface_chartest.html">ExternalInterface character test</a></li>
-	<li><a href="/exp/back_forward_cache.html">Back-forward cache events</a></li>
-	<li><a href="/exp/recursion_limit.html">Recursion limit</a></li>
-	<li><a href="/exp/circular_reference.html">non-DOM circular reference</a></li>
-	<li><a href="/exp/heap_limit_array.html">JS Heap limit (array)</a></li>
-	<li><a href="/exp/heap_limit_string.html">JS Heap limit (long string)</a></li>
-	<li><a href="/exp/xmlhttp_creation_benchmark.html">XHR/XMLHTTP object creation speed</a></li>
-	<li><a href="/exp/setInterval_test.html">"backlogged" setInterval bug</a></li>
-	<li><a href="/exp/tabshare_prototype.html">TabShare prototype (grabbing window references)</a></li>
-	<li><a href="/exp/ie8_cross_process_overflow.html">IE8 cross-process stack overflow (nothing special)</a></li>
-	<li><a href="/exp/document_domain.html">document.domain test page</a></li>
-	<li>For testing keepalive behavior
+	<li><a href="exp/cw.env.html"><code>cw.env</code> demo</a> - shows browser environment info</li>
+	<li><a href="exp/CrossNamedWindow_demo.html"><code>CrossNamedWindow</code> demo</a> - cross-tab communication through <code>window.name</code>/<code>window.open</code></li>
+	<li><a href="exp/CrossSharedWorker_demo.html"><code>CrossSharedWorker</code> demo</a> - cross-tab communication using <code>SharedWorker</code> (abandoned)</li>
+	<li><a href="exp/json_flash_tests.html"><code>cw.json</code> Flash tests</a> - runs the unit tests written in haXe</li>
+	<li><a href="exp/jumpdetector.html"><code>cw.clock.JumpDetector</code> test page</a> - detects system time jumps</li>
+	<li><a href="exp/native_json.html">Native <code>JSON</code> object \u escape encoding behavior</a></li>
+	<li><a href="exp/back_forward_cache.html">Back-forward cache events</a></li>
+	<li><a href="exp/recursion_limit.html">Recursion limit</a></li>
+	<li><a href="exp/heap_limit_array.html">JS Heap limit (array)</a></li>
+	<li><a href="exp/heap_limit_string.html">JS Heap limit (long string)</a></li>
+	<li><a href="exp/setInterval_test.html">backlogged setInterval bug</a> probably affects only old Firefox</li>
+	<li><a href="exp/document_domain.html"><code>document.domain</code> test page</a> - verifies that calls across domains work</li>
+	<li><a href="exp/spinner_behavior/">Browser spinner behavior</a> (<a href="https://code.google.com/p/chromium/issues/detail?id=41726">related Chrome bug (fixed)</a>)</li>
+	<li><a href="exp/esc_stops_xhr.html">Does <code>ESC</code> stop XHR?</a> - (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=614304">Firefox bug</a>)</li>
+	<li>For testing HTTP keepalive behavior (see coreweb_site server output/log)
 		<ul>
-		<li><a href="/exp/test_keepalive_get.html">GET (XHR)</a></li>
-		<li><a href="/exp/test_keepalive_post.html">POST (XHR)</a></li>
-		<li><a href="/exp/test_keepalive_post_form.html">POST (form)</a></li>
+		<li><a href="exp/test_keepalive_get.html">GET (XHR)</a></li>
+		<li><a href="exp/test_keepalive_post.html">POST (XHR)</a></li>
+		<li><a href="exp/test_keepalive_post_form.html">POST (form)</a></li>
+		</ul>
+	</li>
+	<li>For testing cookie read/write races caused by multiple browser processes on a domain
+		<ul>
+		<li><a href="exp/cookie_read_write.html">Cookie read+write page</a></li>
+		<li><a href="exp/cookie_read.html">Cookie read test page</a></li>
+		</ul>
+	</li>
+	<li><a href="exp/iframe_open_window.html">Making 'Firefox has prevented this site from opening a pop-up window' go away</a></li>
+	</ul>
+</li>
+<li>Not very useful pages
+	<ul>
+	<li><a href="exp/eval_speed.html">Eval speed benchmark</a></li>
+	<li><a href="exp/basic_benchmarks.html">Function call benchmark</a></li>
+	<li><a href="exp/circular_reference.html">non-DOM circular reference</a></li>
+	<li><a href="exp/xmlhttp_creation_benchmark.html">XHR/XMLHTTP object creation speed</a></li>
+	<li><a href="exp/externalinterface_flash2js.html"><code>ExternalInterface</code>: how to call Flash->JS without backslash-related errors?</a></li>
+	<li><a href="exp/externalinterface_chartest.html"><code>ExternalInterface</code> character test</a></li>
+	<li><a href="exp/tabshare_prototype.html">TabShare prototype (with <code>window.name</code>/<code>window.open</code>)</a> - this is obsoleted by <code>CrossNamedWindow</code></li>
+	<li><a href="exp/pre_CrossSharedWorker_prototype.html">TabShare prototype (with <code>SharedWorker</code>)</a> - this is obsoleted by <code>CrossSharedWorker</code></li>
+	<li><a href="exp/ie8_cross_process_overflow.html">IE8 cross-process stack overflow (nothing special)</a></li>
+	<li><a href="exp/firefox_canvas_oom.html">Firefox canvas OOM</a> - don't click; maybe consume 3.5GB+</li>
+	<li><a href="exp/time_jump.html">Rudimentary setTimeout/setInterval page for testing clock jumps</a></li>
+	<li><code>Worker</code> exhaustion (<a href="https://code.google.com/p/chromium/issues/detail?id=37518">Chrome bug</a>)
+		<ul>
+		<li><a href="exp/worker_exhaust_processes.html">Start 17 <code>Worker</code>s</li>
+		<li><a href="exp/worker_fast_exhaust_processes.html">Start "infinite" <code>Worker</code>s, filling the queue</li>
 		</ul>
 	</li>
 	</ul>
