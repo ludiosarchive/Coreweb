@@ -67,11 +67,11 @@ def makeService(config):
 		print 'Enabling reloader.'
 		from pyquitter import detector
 
-		stopper = detector.ChangeDetector(
+		cd = detector.ChangeDetector(
 			lambda: reactor.callWhenRunning(reactor.stop),
 			logCallable=log.msg)
 
-		looping = task.LoopingCall(stopper.poll)
+		looping = task.LoopingCall(cd.poll)
 		looping.start(2.5, now=True)
 
 	return multi
