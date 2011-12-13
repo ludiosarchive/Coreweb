@@ -6,7 +6,7 @@ Coreweb is an assortment of JavaScript tools used by [Minerva](http://ludios.org
 In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw) you'll find:
 
 *	cw/unittest.js - JavaScript unit testing framework with Deferred
-	support, inspired by Twisted Trial.
+	support, inspired by [Twisted Trial](http://twistedmatrix.com/trac/wiki/TwistedTrial).
 
 *	cw/repr.js - Provides `cw.repr.repr`, a Python-like `repr` with
 	support for `__repr__` and an optimized variant `__reprPush__`
@@ -17,7 +17,8 @@ In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw)
 	See its docstring for the exact behavior.
 
 *	cw/eventual.js - Provides a `setTimeout(..., 0)` that guarantees
-	first-queued-first-called ordering.
+	first-queued-first-called ordering.  This is a port of
+	[Foolscap's eventual](http://foolscap.lothar.com/docs/api/foolscap.eventual-pysrc.html).
 
 *	cw/crosstab.js - Makes it possible to do synchronous funcalls
 	across already-open browser tabs (or windows), using
