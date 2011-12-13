@@ -1,7 +1,56 @@
 Coreweb overview
 ================
 
-[TODO]
+In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw) you'll find:
+
+*	cw/unittest.js - JavaScript unit testing framework with Deferred
+	support, inspired by Twisted Trial.
+
+*	cw/repr.js - Provides `cw.repr.repr`, a Python-like `repr` with
+	support for `__repr__` and an optimized variant `__reprPush__`
+	that avoids copying strings.  It also handles circular references.
+
+*	cw/eq.js - Provides `cw.eq.equals`, which can deep-compare objects
+	and calls `equals` methods on your objects.  See its docstring for
+	exact behavior.
+
+*	cw/eventual.js - Provides a `setTimeout(..., 0)` that guarantees
+	first-queued-first-called ordering.
+
+*	cw/crosstab.js - Makes it possible to do synchronous funcalls
+	across already-open browser tabs (or windows), using
+	`window.name`/`window.open`.  Not for Chrome or IE8+.
+
+*	cw/env.js - Provides many functions to grab information about the
+	browser environment.
+
+*	cw/externalinterface.js - A JS->Flash ExternalInterface that is
+	fast and not broken (unlike what Flash Player injects into the page.)
+
+*	cw/loadflash.js - Functions to load a Flash object that follows
+	our own `onloadcallback` protocol.  Returns and fires a Deferred
+	when loading has finished.
+
+*	cw/clock.js - Provides a deterministic clock for unit testing,
+	roughly equivalent to `twisted.internet.task.Clock` but with
+	`setTimeout` and `setInterval` methods.
+
+*	cw/string.js - String utilities, some inspired by Python.
+
+*	cw/deferred.js - Provides `cw.deferred.maybeDeferred`.
+
+*	cw/objsize.js - Provides a function to guess how much memory
+	an object is using.
+
+*	cw/math.js - Provides special numbers.
+
+*	cw/func.js - Provides `cw.func.isCallable`, which doesn't break with
+	IE's cross-window object proxies.
+
+*	cw/linkify.js - A copy of Ben Alman's [js-linkify](http://benalman.com/code/test/js-linkify/).
+
+
+[TODO: Write more]
 
 
 
@@ -70,6 +119,7 @@ Then run:
 ```
 
 
+
 Limited project scope
 =====================
 
@@ -79,3 +129,12 @@ rely on any server-side technology.
 
 An example: client-side code to synchronize the client's clock with a server
 should not be here, because that requires a custom-built server.
+
+
+
+Contributing
+============
+
+Patches and pull requests are welcome.
+
+This coding standard applies: http://ludios.org/coding-standard/

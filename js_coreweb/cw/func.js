@@ -1,5 +1,5 @@
 /**
- * @fileoverview
+ * @fileoverview Punctions involving functions
  */
 
 goog.provide('cw.func');

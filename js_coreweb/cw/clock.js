@@ -1,5 +1,5 @@
 /**
- * @fileoverview Deterministic clock; jump-detecting clock
+ * @fileoverview Deterministic clock; system time jump detector.
  */
 
 goog.provide('cw.clock');
