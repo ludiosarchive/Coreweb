@@ -1,6 +1,8 @@
 Coreweb overview
 ================
 
+Coreweb is an assortment of JavaScript tools used by [Minerva](http://ludios.org/minerva/).
+
 In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw) you'll find:
 
 *	cw/unittest.js - JavaScript unit testing framework with Deferred
@@ -11,24 +13,24 @@ In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw)
 	that avoids copying strings.  It also handles circular references.
 
 *	cw/eq.js - Provides `cw.eq.equals`, which can deep-compare objects
-	and calls `equals` methods on your objects.  See its docstring for
-	exact behavior.
+	using its own comparions and the `equals` method on your objects.
+	See its docstring for the exact behavior.
 
 *	cw/eventual.js - Provides a `setTimeout(..., 0)` that guarantees
 	first-queued-first-called ordering.
 
 *	cw/crosstab.js - Makes it possible to do synchronous funcalls
 	across already-open browser tabs (or windows), using
-	`window.name`/`window.open`.  Not for Chrome or IE8+.
+	`window.name`/`window.open`.  It doesn't work in Chrome or IE8+.
 
-*	cw/env.js - Provides many functions to grab information about the
-	browser environment.
+*	cw/env.js - Provides functions to grab information about the browser
+	environment: plugins, window properties, screen information, time zone.
 
 *	cw/externalinterface.js - A JS->Flash ExternalInterface that is
-	fast and not broken (unlike what Flash Player injects into the page.)
+	fast and not broken (unlike what Flash Player injects into the page).
 
 *	cw/loadflash.js - Functions to load a Flash object that follows
-	our own `onloadcallback` protocol.  Returns and fires a Deferred
+	our own `onloadcallback` protocol.  Returns a Deferred that fires
 	when loading has finished.
 
 *	cw/clock.js - Provides a deterministic clock for unit testing,
@@ -44,13 +46,16 @@ In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw)
 
 *	cw/math.js - Provides special numbers.
 
-*	cw/func.js - Provides `cw.func.isCallable`, which doesn't break with
-	IE's cross-window object proxies.
+*	cw/func.js - Provides `cw.func.isCallable`, which returns the right
+	result even when called on IE's cross-window object proxies.
 
 *	cw/linkify.js - A copy of Ben Alman's [js-linkify](http://benalman.com/code/test/js-linkify/).
 
+*	Tests for the above, in [js_coreweb/cw/Test/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw/Test).
 
-[TODO: Write more]
+Coreweb also includes a set of test pages and browser experiments in
+[coreweb/exp/](https://github.com/ludios/Coreweb/tree/master/coreweb/exp).  The
+convenient way to run these is to start the `coreweb_site` server (see below).
 
 
 
