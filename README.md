@@ -10,10 +10,10 @@ In [js_coreweb/cw/](https://github.com/ludios/Coreweb/tree/master/js_coreweb/cw)
 
 *	cw/repr.js - Provides `cw.repr.repr`, a Python-like `repr` with
 	support for `__repr__` and an optimized variant `__reprPush__`
-	that avoids copying strings.  It also handles circular references.
+	that avoids copying strings.  cw/repr.js handles circular references.
 
 *	cw/eq.js - Provides `cw.eq.equals`, which can deep-compare objects
-	using its own comparions and the `equals` method on your objects.
+	using its own comparisons and the `equals` method on your objects.
 	See its docstring for the exact behavior.
 
 *	cw/eventual.js - Provides a `setTimeout(..., 0)` that guarantees
