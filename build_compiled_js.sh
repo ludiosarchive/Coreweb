@@ -5,7 +5,8 @@
 
 ./build_depsjs.sh
 
-COMMON="../closure-library/closure/bin/build/closurebuilder.py \
+COMMON="nice -n 10 \
+../closure-library/closure/bin/build/closurebuilder.py \
 --output_mode=compiled \
 --compiler_jar=../closure-compiler/build/compiler.jar \
 --compiler_flags=--compilation_level=ADVANCED_OPTIMIZATIONS \
