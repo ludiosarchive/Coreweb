@@ -34,6 +34,15 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestRepr, 'ReprTests').methods(
 	},
 
 	/**
+	 * Test NaN, Infinity, -Infinity
+	 */
+	function test_weirdNumbers(self) {
+		self.assertIdentical(repr(Number.NaN), 'NaN');
+		self.assertIdentical(repr(Infinity), 'Infinity');
+		self.assertIdentical(repr(-Infinity), '-Infinity');
+	},
+
+	/**
 	 * Test that some simple values have a reasonable repr().
 	 */
 	function test_simpleValues(self) {
