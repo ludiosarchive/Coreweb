@@ -205,6 +205,18 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
 	},
 
+	function test_NaN(self) {
+		// Sanity checks
+		self.assertFalse(cw.eq.equals(Number.NaN, Number.NaN));
+		self.assertFalse(cw.eq.equals([Number.NaN], [Number.NaN]));
+
+		// Now, the interesting part: make sure there's no object-identity
+		// shortcut.
+		var one = [Number.NaN];
+		self.assertFalse(cw.eq.equals(one, one));
+		self.assertFalse(cw.eq.equals([one], [one]));
+	},
+
 	/**
 	 * The `messages` argument is optional.
 	 */
