@@ -205,7 +205,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 		self.assertIdentical(expectedMessages.join('\n'), messages.join('\n'));
 	},
 
-	function test_NaN(self) {
+	function test_NaNinArray(self) {
 		// Sanity checks
 		self.assertFalse(cw.eq.equals(Number.NaN, Number.NaN));
 		self.assertFalse(cw.eq.equals([Number.NaN], [Number.NaN]));
@@ -213,6 +213,14 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestEq, 'EqualsTests').methods(
 		// Now, the interesting part: make sure there's no object-identity
 		// shortcut.
 		var one = [Number.NaN];
+		self.assertFalse(cw.eq.equals(one, one));
+		self.assertFalse(cw.eq.equals([one], [one]));
+	},
+
+	function test_NaNinPlainObject(self) {
+		// Make sure there's no object-identity shortcut for objects marked
+		// with plainObject.
+		var one = plainObject({"hi": Number.NaN});
 		self.assertFalse(cw.eq.equals(one, one));
 		self.assertFalse(cw.eq.equals([one], [one]));
 	},
