@@ -57,6 +57,51 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'SplitTests').methods(
 
 
 /**
+ * Check that rsplit works as expected.
+ */
+cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'RSplitTests').methods(
+	function test_splitUnlimited(self) {
+		self.assertArraysEqual(["", "ello"], cw.string.rsplit("hello", "h"));
+		self.assertArraysEqual(["", ""], cw.string.rsplit("hello", "hello"));
+		self.assertArraysEqual(["", "ello", "ello"], cw.string.rsplit("hellohello", "h"));
+		self.assertArraysEqual(["1", "2", "3"], cw.string.rsplit("1xy2xy3", "xy"));
+	},
+
+
+	function test_splitLimited(self) {
+		self.assertArraysEqual(["one_two", "three"], cw.string.rsplit("one_two_three", "_", 1));
+		self.assertArraysEqual(["1", "2", "3", "4"], cw.string.rsplit("1_2_3_4", "_", 3));
+		self.assertArraysEqual(["1_2", "3", "4", "5"], cw.string.rsplit("1_2_3_4_5", "_", 3));
+		self.assertArraysEqual(["1__2", "3", "4", "5"], cw.string.rsplit("1__2__3__4__5", "__", 3));
+	},
+
+
+	function test_splitLimitedEdgeCase(self) {
+		self.assertArraysEqual(["hello"], cw.string.rsplit("hello", "_", 1));
+		self.assertArraysEqual(["hello", ""], cw.string.rsplit("hello_", "_", 1));
+		self.assertArraysEqual(["hello", "world", ""], cw.string.rsplit("hello_world_", "_", 2));
+		self.assertArraysEqual(["hello_world", ""], cw.string.rsplit("hello_world_", "_", 1));
+	},
+
+
+	function test_splitZero(self) {
+		self.assertArraysEqual(["hello"], cw.string.rsplit("hello", "h", 0));
+		self.assertArraysEqual(["1x2x3"], cw.string.rsplit("1x2x3", "x", 0));
+	},
+
+
+	function test_pythonCompat(self) {
+		// Numbers less than 0 act like not passing in a C{maxsplit}
+		self.assertArraysEqual(["", "ello"], cw.string.rsplit("hello", "h", -1));
+		self.assertArraysEqual(["xx", "yy", "zz"], cw.string.rsplit("xx_yy_zz", "_", -1));
+		self.assertArraysEqual(["xx", "yy", "zz"], cw.string.rsplit("xx_yy_zz", "_", -2));
+		self.assertArraysEqual(["xx", "yy", "zz"], cw.string.rsplit("xx_yy_zz", "_", -3));
+	}
+);
+
+
+
+/**
  * Check that cw.string.format works.
  */
 cw.UnitTest.TestCase.subclass(cw.Test.TestString, 'FormatTests').methods(

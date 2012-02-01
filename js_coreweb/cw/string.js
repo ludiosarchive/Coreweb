@@ -36,6 +36,34 @@ cw.string.split = function(s, sep, maxsplit) {
 
 
 /**
+ * Like Python's s.rsplit(delim, num) and s.rsplit(delim)
+ * This does *NOT* implement Python's no-argument s.rsplit()
+ *
+ * @param {string} s The string to rsplit.
+ * @param {string} sep The separator to rsplit by.
+ * @param {number} maxsplit Maximum number of times to rsplit.
+ *
+ * @return {!Array.<string>} The rsplitted string, as an array.
+ */
+cw.string.rsplit = function(s, sep, maxsplit) {
+	goog.asserts.assert(goog.isDef(sep),
+		"arguments[1] of cw.string.rsplit must be a separator string");
+	if(maxsplit === undefined || maxsplit < 0) {
+		return s.split(sep);
+	}
+	var pieces = s.split(sep);
+	var tail = pieces.splice(pieces.length - maxsplit, pieces.length);
+	// after the splice, pieces is shorter and no longer has the C{tail} elements.
+	if(pieces.length > 0) {
+		var head = pieces.join(sep);
+		tail.splice(0, 0, head); // no longer just the tail.
+	}
+	return tail;
+};
+
+
+
+/**
  * Like Python 2.6+ str.format, except no support auto-numbering.
  * Any literal "{}" will be left untouched.
  *
