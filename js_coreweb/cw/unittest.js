@@ -1036,8 +1036,6 @@ expectedError, callable, expectedMessage, _internalCall) {
  * Add a callback and an errback to the given Deferred which will assert
  * that it is errbacked with one of the specified error types.
  *
- * This "Failure" has to do with the "Failure" objects, not the assert failures.
- *
  * @param {!goog.async.Deferred} deferred The Deferred which is expected to fail.
  *
  * @param {!Array.<!Error>} errorTypes An Array of Error subclasses
