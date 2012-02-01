@@ -1057,8 +1057,8 @@ expectedError, callable, expectedMessage, _internalCall) {
  */
 cw.UnitTest.TestCase.prototype.assertFailure = function(
 deferred, errorTypes, _internalCall) {
-	if (errorTypes.length == 0) {
-		throw Error("Specify at least one error class to assertFailure");
+	if(!goog.isArray(errorTypes) || !errorTypes.length) {
+		throw Error("errorTypes must be an Array with at least one class");
 	}
 
 	var d = deferred.addCallbacks(
