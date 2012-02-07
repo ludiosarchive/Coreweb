@@ -1,0 +1,58 @@
+/**
+ * @fileoverview Provides a Record that works sort of like a Python namedtuple
+ * 	or a Clojure defrecord.
+ */
+
+goog.provide('cw.record');
+
+goog.require('cw.repr');
+goog.require('cw.eq');
+
+
+/**
+ * A Record that is equal to Records that have the same type and contents.
+ * Provides a nice repr as well.  See Test/TestRecord.js for an example.
+ * @param {string} recordName
+ * @param {!Array.<*>} contents
+ * @constructor
+ */
+cw.record.Record = function(recordName, contents) {
+	/**
+	 * @type {string}
+	 * @private
+	 */
+	this.recordName_ = recordName;
+	/**
+	 * @type {!Array.<*>}
+	 * @private
+	 */
+	this.contents_ = contents;
+};
+
+/**
+ * Test two Records for equality.
+ * @param {*} other
+ * @param {Array.<string>=} eqLog
+ * @return {boolean}
+ */
+cw.record.Record.prototype.equals = function(other, eqLog) {
+	return (
+		goog.isObject(other) &&
+		this.constructor == other.constructor &&
+		cw.eq.equals(this.contents_, other.contents_, eqLog));
+};
+
+/**
+ * @param {!Array.<string>} sb
+ * @param {!Array.<*>} stack
+ */
+cw.record.Record.prototype.__reprPush__ = function(sb, stack) {
+	sb.push("new ", this.recordName_, "(");
+	var comma = "";
+	for(var i=0; i < this.contents_.length; i++) {
+		sb.push(comma);
+		comma = ", ";
+		cw.repr.reprPush(this.contents_[i], sb, stack);
+	}
+	sb.push(")");
+};
