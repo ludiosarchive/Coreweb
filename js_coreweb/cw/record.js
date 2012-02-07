@@ -10,8 +10,12 @@ goog.require('cw.eq');
 
 
 /**
- * A Record that is equal to Records that have the same type and contents.
- * Provides a nice repr as well.  See Test/TestRecord.js for an example.
+ * A Record is equal to Records that have the same constructor and contents.
+ * Provides a nice repr as well.  This is useful only for immutable records,
+ * because you cannot change Record's view of the record contents.
+ *
+ * See Test/TestRecord.js for an example.
+ *
  * @param {string} recordName
  * @param {!Array.<*>} recordContents
  * @constructor

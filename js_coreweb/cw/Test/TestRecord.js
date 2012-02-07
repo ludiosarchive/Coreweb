@@ -4,6 +4,9 @@
 
 goog.provide('cw.Test.TestRecord');
 
+goog.require('cw.UnitTest');
+goog.require('cw.record');
+
 // An example of cw.record.Record usage:
 
 /**
