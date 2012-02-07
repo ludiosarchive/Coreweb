@@ -13,10 +13,10 @@ goog.require('cw.eq');
  * A Record that is equal to Records that have the same type and contents.
  * Provides a nice repr as well.  See Test/TestRecord.js for an example.
  * @param {string} recordName
- * @param {!Array.<*>} contents
+ * @param {!Array.<*>} recordContents
  * @constructor
  */
-cw.record.Record = function(recordName, contents) {
+cw.record.Record = function(recordName, recordContents) {
 	/**
 	 * @type {string}
 	 * @private
@@ -26,7 +26,7 @@ cw.record.Record = function(recordName, contents) {
 	 * @type {!Array.<*>}
 	 * @private
 	 */
-	this.contents_ = contents;
+	this.recordContents_ = recordContents;
 };
 
 /**
@@ -39,7 +39,7 @@ cw.record.Record.prototype.equals = function(other, eqLog) {
 	return (
 		goog.isObject(other) &&
 		this.constructor == other.constructor &&
-		cw.eq.equals(this.contents_, other.contents_, eqLog));
+		cw.eq.equals(this.recordContents_, other.recordContents_, eqLog));
 };
 
 /**
@@ -49,10 +49,10 @@ cw.record.Record.prototype.equals = function(other, eqLog) {
 cw.record.Record.prototype.__reprPush__ = function(sb, stack) {
 	sb.push("new ", this.recordName_, "(");
 	var comma = "";
-	for(var i=0; i < this.contents_.length; i++) {
+	for(var i=0; i < this.recordContents_.length; i++) {
 		sb.push(comma);
 		comma = ", ";
-		cw.repr.reprPush(this.contents_[i], sb, stack);
+		cw.repr.reprPush(this.recordContents_[i], sb, stack);
 	}
 	sb.push(")");
 };
