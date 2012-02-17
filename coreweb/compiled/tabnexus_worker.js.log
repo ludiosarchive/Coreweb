@@ -12,5 +12,5 @@ js_coreweb\cw\repr.js:120: WARNING - Property __repr__ never defined on obj
 
 0 error(s), 2 warning(s), 95.8% typed
 ../closure-library/closure/bin/build/closurebuilder.py: JavaScript compilation succeeded.
-Used closure-compiler r1776
-Used closure-library r1581
+Used closure-compiler r1780
+Used closure-library r1589
