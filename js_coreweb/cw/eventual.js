@@ -15,8 +15,8 @@
  * setTimeout call, the browser's stack is smaller and in a much better-
  * tested codepath, and therefore less likely to crash.
  * 
- * Inside your non-setTimeout event callbacks, by minimizing the work
- * you do to a CallQueue.eventually, you reduce the chance of
+ * Inside your non-setTimeout event callbacks, by reducing the work
+ * you do to just a CallQueue.eventually call, you reduce the chance of
  * hitting a re-entrancy bug.
  *
  * CallQueue is also very useful when making Flash->JavaScript calls
