@@ -14,6 +14,7 @@ goog.addDependency('../../../js_coreweb/cw/Test/TestEnv.js', ['cw.Test.TestEnv']
 goog.addDependency('../../../js_coreweb/cw/Test/TestEq.js', ['cw.Test.TestEq'], ['cw.UnitTest', 'cw.eq', 'cw.repr', 'goog.array']);
 goog.addDependency('../../../js_coreweb/cw/Test/TestEventual.js', ['cw.Test.TestEventual'], ['cw.UnitTest', 'cw.clock', 'cw.eventual']);
 goog.addDependency('../../../js_coreweb/cw/Test/TestExternalInterface.js', ['cw.Test.TestExternalInterface'], ['cw.UnitTest', 'cw.eq', 'cw.externalinterface', 'cw.loadflash', 'cw.repr', 'goog.async.Deferred', 'goog.dom', 'goog.ui.media.FlashObject', 'goog.userAgent']);
+goog.addDependency('../../../js_coreweb/cw/Test/TestJSON.js', ['cw.Test.TestJSON'], ['cw.UnitTest', 'cw.json']);
 goog.addDependency('../../../js_coreweb/cw/Test/TestMath.js', ['cw.Test.TestMath'], ['cw.Class', 'cw.UnitTest', 'cw.math']);
 goog.addDependency('../../../js_coreweb/cw/Test/TestRecord.js', ['cw.Test.TestRecord'], ['cw.UnitTest', 'cw.record']);
 goog.addDependency('../../../js_coreweb/cw/Test/TestRepr.js', ['cw.Test.TestRepr'], ['cw.Class', 'cw.UnitTest', 'cw.repr', 'goog.array']);
@@ -35,6 +36,7 @@ goog.addDependency('../../../js_coreweb/cw/eventual.js', ['cw.eventual'], ['cw.c
 goog.addDependency('../../../js_coreweb/cw/externalinterface.js', ['cw.externalinterface'], ['goog.string']);
 goog.addDependency('../../../js_coreweb/cw/func.js', ['cw.func'], []);
 goog.addDependency('../../../js_coreweb/cw/globalprops.js', ['cw.globalprops'], ['goog.structs.Set']);
+goog.addDependency('../../../js_coreweb/cw/json.js', ['cw.json'], ['goog.json']);
 goog.addDependency('../../../js_coreweb/cw/linkify.js', ['cw.linkify'], []);
 goog.addDependency('../../../js_coreweb/cw/loadflash.js', ['cw.loadflash'], ['cw.clock', 'cw.string', 'goog.asserts', 'goog.async.Deferred', 'goog.debug.Error', 'goog.dom', 'goog.ui.media.FlashObject', 'goog.userAgent', 'goog.userAgent.flash']);
 goog.addDependency('../../../js_coreweb/cw/math.js', ['cw.math'], []);
