@@ -49,8 +49,8 @@ there';
 	function test_nullEval(self) {
 		var func =  function() { return eval('"\u0000"'); };
 		// This property is available in IE9 regardless of IE's document mode
-		var ie9OrUp = goog.isDef(window.performance);
-		if(goog.userAgent.IE && !ie9OrUp) {
+		var ieIs9OrUp = goog.isDef(window.performance);
+		if(goog.userAgent.IE && !ieIs9OrUp) {
 			self.assertThrows(Error, func, "Unterminated string constant");
 		} else {
 			self.assertIdentical('\u0000', func());
@@ -250,14 +250,15 @@ there';
 	 * have the DontEnum attribute are not included in an enumeration."
 	   */
 	function test_incorrectDontEnumInheritance(self) {
-		var IEBefore9 = goog.userAgent.IE && !goog.userAgent.isVersion('9');
+		// This property is available in IE9 regardless of IE's document mode
+		var ieIs9OrUp = goog.isDef(window.performance);
 		var anObject = {'hello': 1, 'toString': 2, 'hasOwnProperty': 3, 'valueOf': 4};
 		var foundKeys = [];
 		for(var k in anObject) {
 			foundKeys.push(k);
 		}
 		foundKeys.sort();
-		if(IEBefore9) {
+		if(goog.userAgent.IE && !ieIs9OrUp) {
 			self.assertEqual(['hello'], foundKeys);
 		} else {
 			self.assertEqual(['hasOwnProperty', 'hello', 'toString', 'valueOf'], foundKeys);
