@@ -43,16 +43,19 @@ there';
 
 
 	/**
-	 * IE can't eval anything with a U+0000 in it; other browsers can.
+	 * IE6-8 can't eval anything with a U+0000 in it; other browsers can (including
+	 * IE9 in any document mode.)
 	 */
 	function test_nullEval(self) {
 		var func =  function() { return eval('"\u0000"'); };
-		if(!goog.userAgent.IE) {
+		// This property is available in IE9 regardless of IE's document mode
+		var ie9OrUp = goog.isDef(window.performance);
+		if(goog.userAgent.IE && !ie9OrUp) {
+			self.assertThrows(Error, func, "Unterminated string constant");
+		} else {
 			self.assertIdentical('\u0000', func());
 			self.assertIdentical(1, func().length);
 			self.assertNotIdentical('', func());
-		} else {
-			self.assertThrows(Error, func, "Unterminated string constant");
 		}
 	},
 
