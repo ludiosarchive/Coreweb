@@ -8,7 +8,7 @@ import shlex
 import pprint
 from subprocess import Popen, PIPE, STDOUT
 
-join = lambda *parts: "/".join(parts)
+join = lambda *parts: "/".join(parts) # avoid Windows backslashes
 
 CLOSURE_LIBRARY_HOME = os.environ.get("CLOSURE_LIBRARY_HOME", "../closure-library")
 CLOSURE_COMPILER_HOME = os.environ.get("CLOSURE_COMPILER_HOME", "../closure-compiler")
@@ -69,6 +69,8 @@ def get_js_list(roots, namespaces):
 	if proc.returncode != 0:
 		print stderr
 		raise RuntimeError("Got exit code %r from closurebuilder.py" % (proc.returncode,))
+	if os.name == 'nt':
+		stdout = stdout.replace("\\", "/") # You see, I really don't like backslashes...
 	return stdout.splitlines()
 
 
