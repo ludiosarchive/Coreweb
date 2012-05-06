@@ -46,7 +46,6 @@ COMPILER_FLAGS = [
 	,"--summary_detail_level=3"
 	,"--js=" + join(CLOSURE_LIBRARY_HOME, "closure", "goog", "deps.js")
 	,"--js=" + join(CLOSURE_LIBRARY_HOME, "third_party", "closure", "goog", "deps.js")
-	,"--js=" + join("js_coreweb", "deps.js")
 ]
 
 
@@ -73,11 +72,18 @@ def get_js_list(roots, namespaces):
 	return stdout.splitlines()
 
 
-def compile(roots, namespaces, output, output_log):
+def get_deps_list(roots):
+	return [join(root, "deps.js") for root in roots]
+
+
+def compile(roots, namespaces, output, output_log, defines={}):
 	print "Compiling %r" % (output,)
 
-	fileArgs = ["--js=" + fname for fname in get_js_list(roots, namespaces)]
-	args = CLOSURE_COMPILER_JAVA + ["com.google.javascript.jscomp.CommandLineRunner"] + COMPILER_FLAGS + fileArgs
+	fileArgs = ["--js=" + fname for fname in get_deps_list(roots) + get_js_list(roots, namespaces)]
+	defineArgs = ["--define=" + k + "=" + v for (k, v) in defines.iteritems()]
+	main = "com.google.javascript.jscomp.CommandLineRunner"
+	loggedArgs = COMPILER_FLAGS + defineArgs + fileArgs
+	args = CLOSURE_COMPILER_JAVA + [main] + loggedArgs
 	pprint.pprint(args)
 
 	proc = Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
@@ -90,7 +96,7 @@ def compile(roots, namespaces, output, output_log):
 		output_file.write(output_wrapper(stdout))
 
 	with open(output_log, "wb") as output_log_file:
-		output_log_file.write("Compiling with the following arguments: " + repr(COMPILER_FLAGS + fileArgs) + "\n")
+		output_log_file.write("Compiling with the following arguments: " + repr(loggedArgs) + "\n")
 		output_log_file.write(stderr.replace("\r\n", "\n"))
 		output_log_file.write("Used closure-compiler r" + get_svn_rev(CLOSURE_COMPILER_HOME) + "\n")
 		output_log_file.write("Used closure-library r" + get_svn_rev(CLOSURE_LIBRARY_HOME) + "\n")
