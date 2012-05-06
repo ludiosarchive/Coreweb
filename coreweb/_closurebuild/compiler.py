@@ -8,10 +8,10 @@ import shlex
 import pprint
 from subprocess import Popen, PIPE, STDOUT
 
-join = os.path.join
+join = lambda *parts: "/".join(parts)
 
-CLOSURE_LIBRARY_HOME = os.environ.get("CLOSURE_LIBRARY_HOME", join("..", "closure-library"))
-CLOSURE_COMPILER_HOME = os.environ.get("CLOSURE_COMPILER_HOME", join("..", "closure-compiler"))
+CLOSURE_LIBRARY_HOME = os.environ.get("CLOSURE_LIBRARY_HOME", "../closure-library")
+CLOSURE_COMPILER_HOME = os.environ.get("CLOSURE_COMPILER_HOME", "../closure-compiler")
 try:
 	# Warning: on Windows, do not put any backslashes in your CLOSURE_COMPILER_JAVA.
 	CLOSURE_COMPILER_JAVA = shlex.split(os.environ["CLOSURE_COMPILER_JAVA"])
@@ -24,7 +24,7 @@ except KeyError:
 
 
 def get_svn_rev(d):
-	if os.path.exists(os.path.join(d, ".git")):
+	if os.path.exists(join(d, ".git")):
 		command = 'git log --max-count=200 | grep -m 1 "git-svn-id: " | cut -d " " -f 6 | cut -d "@" -f 2'
 	else:
 		command = 'svnversion'
@@ -44,8 +44,8 @@ COMPILER_FLAGS = [
 	,"--jscomp_warning=undefinedVars"
 	,"--jscomp_warning=checkTypes"
 	,"--summary_detail_level=3"
-	,"--js=" + join(CLOSURE_LIBRARY_HOME, "closure", "goog", "deps.js")
-	,"--js=" + join(CLOSURE_LIBRARY_HOME, "third_party", "closure", "goog", "deps.js")
+	,"--js=" + join(CLOSURE_LIBRARY_HOME, "closure/goog/deps.js")
+	,"--js=" + join(CLOSURE_LIBRARY_HOME, "third_party/closure/goog/deps.js")
 ]
 
 
@@ -57,7 +57,7 @@ def get_js_list(roots, namespaces):
 	assert not isinstance(roots, basestring), "must be a list, not string"
 	assert not isinstance(namespaces, basestring), "must be a list, not string"
 
-	closurebuilder = join(CLOSURE_LIBRARY_HOME, "closure", "bin", "build", "closurebuilder.py")
+	closurebuilder = join(CLOSURE_LIBRARY_HOME, "closure/bin/build/closurebuilder.py")
 	args = [sys.executable, closurebuilder]
 	for root in [CLOSURE_LIBRARY_HOME] + roots:
 		args.append("--root=" + root)

@@ -4,14 +4,14 @@ import os
 import sys
 from subprocess import Popen, PIPE
 
-join = os.path.join
+join = lambda *parts: "/".join(parts)
 
-CLOSURE_LIBRARY_HOME = os.environ.get("CLOSURE_LIBRARY_HOME", join("..", "closure-library"))
+CLOSURE_LIBRARY_HOME = os.environ.get("CLOSURE_LIBRARY_HOME", "../closure-library")
 
 def write_depsjs(roots_with_prefix, output):
 	args = [
 		 sys.executable
-		,join(CLOSURE_LIBRARY_HOME, "closure", "bin", "build", "depswriter.py")
+		,join(CLOSURE_LIBRARY_HOME, "closure/bin/build/depswriter.py")
 	]
 	for rwp in roots_with_prefix:
 		args.append('--root_with_prefix=' + rwp)
