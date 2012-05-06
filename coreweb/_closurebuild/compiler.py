@@ -78,7 +78,7 @@ def get_deps_list(roots):
 	return [join(root, "deps.js") for root in roots]
 
 
-def compile(roots, namespaces, output, output_log, externs=[], defines={}):
+def compile(roots, namespaces, output, output_log, externs=[], defines={}, log_lines=()):
 	print "Compiling %r" % (output,)
 
 	fileArgs = ["--js=" + fname for fname in get_deps_list(roots) + get_js_list(roots, namespaces)]
@@ -104,6 +104,8 @@ def compile(roots, namespaces, output, output_log, externs=[], defines={}):
 		output_log_file.write(stderr.replace("\r\n", "\n"))
 		output_log_file.write("Used closure-compiler r" + get_svn_rev(CLOSURE_COMPILER_HOME) + "\n")
 		output_log_file.write("Used closure-library r" + get_svn_rev(CLOSURE_LIBRARY_HOME) + "\n")
+		for line in log_lines:
+			output_log_file.write(line + "\n")
 
 
 def main():
