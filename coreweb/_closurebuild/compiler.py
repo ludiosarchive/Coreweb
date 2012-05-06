@@ -76,13 +76,15 @@ def get_deps_list(roots):
 	return [join(root, "deps.js") for root in roots]
 
 
-def compile(roots, namespaces, output, output_log, defines={}):
+def compile(roots, namespaces, output, output_log, externs=[], defines={}):
 	print "Compiling %r" % (output,)
 
 	fileArgs = ["--js=" + fname for fname in get_deps_list(roots) + get_js_list(roots, namespaces)]
-	defineArgs = ["--define=" + k + "=" + v for (k, v) in defines.iteritems()]
+	moreArgs = \
+		["--define=" + k + "=" + v for (k, v) in defines.iteritems()] + \
+		["--externs=" + e for e in externs]
 	main = "com.google.javascript.jscomp.CommandLineRunner"
-	loggedArgs = COMPILER_FLAGS + defineArgs + fileArgs
+	loggedArgs = COMPILER_FLAGS + moreArgs + fileArgs
 	args = CLOSURE_COMPILER_JAVA + [main] + loggedArgs
 	pprint.pprint(args)
 
