@@ -1,4 +1,5 @@
-(function(){var f = this;
+(function() {
+var f = this;
 function g(a, c) {
   var b = a.split("."), d = f;
   !(b[0] in d) && d.execScript && d.execScript("var " + b[0]);
@@ -125,4 +126,5 @@ g("onconnect", function(a) {
   r.c.push(a);
   r.a ? p(r, a) : (r.a = a, r.a.b.postMessage(["become_master", null]))
 });
+
 })();
