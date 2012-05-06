@@ -57,7 +57,7 @@ setup(
 		'Topic :: Internet :: WWW/HTTP',
 		'License :: OSI Approved :: Apache Software License',
 	],
-	packages=['coreweb', 'twisted.plugins', 'js_coreweb'],
+	packages=['coreweb', 'coreweb._closurebuild', 'twisted.plugins', 'js_coreweb'],
 	package_data={
 		'coreweb': ['*.html', 'testres/*', 'exp/*.html', 'exp/*.swf', 'exp/spinner_behavior/*'],
 		'js_coreweb': ['*.js', '*/*.js', '*/*/*.js'],
