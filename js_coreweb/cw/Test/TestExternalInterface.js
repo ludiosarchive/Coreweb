@@ -223,8 +223,9 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 			flashObject.setSize(300, 30);
 			flashObject.setFlashVar('responsecallback', '__CW_TestRealFlash_response');
 
+			var elements = document.getElementById('TestExternalInterface-elements');
 			var d = cw.loadflash.loadFlashObjectWithTimeout(
-				goog.global['window'], flashObject, '9', document.body, 8000/* timeout */);
+				goog.global['window'], flashObject, '9', elements, 8000/* timeout */);
 			d.addCallbacks(
 				function(applet) {
 					self._object = applet;
