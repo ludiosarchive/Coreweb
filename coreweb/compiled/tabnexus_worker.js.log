@@ -14,5 +14,5 @@ required: (function ((MessageEvent|null)): ?|null)
 	^
 
 0 error(s), 3 warning(s), 95.7% typed
-Used closure-compiler r1966
-Used closure-library r1850
+Used closure-compiler r2000
+Used closure-library r1920
