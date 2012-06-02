@@ -58,7 +58,7 @@ cw.repr.serializeArray_ = function(arr, sb, stack) {
 cw.repr.serializeObject_ = function(obj, sb, stack) {
 	// For IE the for-in-loop (in getKeys) does not find any properties
 	// that are not enumerable on the prototype object, so concat
-	// PROTOTYPE_FIELDS_. See goog.object.extend for information.
+	// PROTOTYPE_FIELDS_.  See goog.object.extend for information.
 	var keys = goog.object.getKeys(obj).concat(goog.object.PROTOTYPE_FIELDS_);
 
 	// Above concat may have added duplicate keys, so remove them.
@@ -139,7 +139,7 @@ cw.repr.serializeAny_ = function(obj, sb, stack) {
 
 /**
  * Insert pieces of a string representation of an arbitrary value into
- * an Array. Pieces will be pushed into the Array. To get a human-readable
+ * an Array.  Pieces will be pushed into the Array.  To get a human-readable
  * value, you must join the pieces yourself with {@code .join('')}.
  *
  * This may be useful if you are trying to avoid unnecessary string copies.

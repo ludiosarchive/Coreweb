@@ -31,5 +31,5 @@ TestRunnerPage.logger = goog.debug.Logger.getLogger('TestRunnerPage');
 
 TestRunnerPage.logger.info(
 	"Took " + (TestRunnerPage.timers.scriptLoadEnd - TestRunnerPage.timers.scriptLoadStart) +
-	" ms to load scripts. If this is too long, disable browser extensions "+
+	" ms to load scripts.  If this is too long, disable browser extensions "+
 	"that watch HTTP requests, like HttpFox or Firebug.");

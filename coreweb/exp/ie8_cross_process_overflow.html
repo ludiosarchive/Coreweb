@@ -15,7 +15,7 @@
 <body>
 Talk.<br><br>
 
-<a href="/talk/">Self-link. For Testing Opera unload, or testing Chrome's "site" grouping.</a><br><br>
+<a href="/talk/">Self-link.  For Testing Opera unload, or testing Chrome's "site" grouping.</a><br><br>
 
 <a href="#" onclick="start_eating();return false">Start eating CPU (helps determine which process this tab is in)</a><br><br>
 
@@ -69,7 +69,7 @@ C_COOKIE_UPDATE_MS = 100;
 
 var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
-var tab_id = "bp" + (""+Math.random()).slice(2); // IE doesn't allow . or - in name, see http://msdn.microsoft.com/en-us/library/ms536651(VS.85).aspx
+var tab_id = "bp" + (""+Math.random()).slice(2); // IE doesn't allow "." or "-" in name, see http://msdn.microsoft.com/en-us/library/ms536651(VS.85).aspx
 window.name = tab_id;
 
 debug('I am ' + tab_id);
@@ -96,7 +96,7 @@ var hello_from = function(remote_tab_id, remote_tab_window) {
 };
 
 var find_master_and_gc = function() {
-	/* s[0] is cookie key, s[1] is cookie value. value for masters is the last time. */
+	/* s[0] is cookie key, s[1] is cookie value.  Value for masters is the last time. */
 
 	//var date_now = new Date().getTime();
 	var date_now = parseInt(new Date().getTime(), 10);
@@ -142,7 +142,7 @@ var check_master_alive = function(set_interval_ignored, remote_force_try_become_
 	// IE needs this additional first master_ref check
 	var master_lost = false;
 
-	// this .closed check is needed for Opera (9.62, Win). Otherwise Opera still thinks the window is open.
+	// this .closed check is needed for Opera (9.62, Win).  Otherwise Opera still thinks the window is open.
 	try {
 		if(master_ref.closed) {
 			master_lost = true;
@@ -151,7 +151,7 @@ var check_master_alive = function(set_interval_ignored, remote_force_try_become_
 
 	try {
 		var temp_tab_id = master_ref.tab_id; // was (master_ref && master_ref.tab_id);
-	} catch (e) { // we need 'catch' for IE (instead of just a regular variable true-ness check). IE fails hard.
+	} catch (e) { // we need 'catch' for IE (instead of just a regular variable true-ness check).  IE fails hard.
 		master_lost = true;
 	}
 	if(master_lost || remote_force_try_become_master === true) {
@@ -178,7 +178,7 @@ var connect_to_master = function(which_master) {
 	debug('attach to master ' + which_master);
 
 	if(which_master == tab_id) {
-		throw new Error("Fatal error. Tried to connect to our own tab.");
+		throw new Error("Fatal error.  Tried to connect to our own tab.");
 	}
 
 	master_ref = open('', which_master);
@@ -218,7 +218,7 @@ var broadcast_my_death = function() {
 	/* FF3 seems to keep object order stable (new keys go on the end), so in theory, this should get us the earliest tab to connect. */
 	/* for some reason IE7 raised an exception on: k in slave_pages */
 	for (var k in slave_pages) {
-		if(slave_pages[k].check_master_alive) { /* we should check, in case the tab closed but sent no onunload. this happens in Opera. */
+		if(slave_pages[k].check_master_alive) { /* We should check, in case the tab closed but sent no onunload.  This happens in Opera. */
 			slave_pages[k].check_master_alive(null, true /*remote_force_try_become_master*/);
 			break;
 		}

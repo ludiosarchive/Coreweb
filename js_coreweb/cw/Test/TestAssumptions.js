@@ -234,9 +234,9 @@ there';
 	 * "2.10 Enumerating shadowed [[DontEnum]] properties: §15.2.4
 	 *
 	 * Custom properties that shadow [[DontEnum]] properties on
-	 * Object.prototype are not enumerated using for-in. In the following
+	 * Object.prototype are not enumerated using for-in.  In the following
 	 * example toString is a property available on Object.prototype and is
-	 * shadowed on cowboy. Since such properties are not enumerated through
+	 * shadowed on cowboy.  Since such properties are not enumerated through
 	 * for-in, it is not possible to transfer them from a one object to another
 	 * using for-in."
 	 *
@@ -245,7 +245,7 @@ there';
 	 *
 	 * "Note that JScript 5.x defines properties (see [ECMA-262] section
 	 * 6.6.2.2) such that their DontEnum attribute is inherited from prototype
-	 * properties with the same name. As a result of this, any properties that
+	 * properties with the same name.  As a result of this, any properties that
 	 * have the same name as built-in properties of a prototype object that
 	 * have the DontEnum attribute are not included in an enumeration."
 	   */
@@ -275,7 +275,7 @@ there';
 	},
 
 	/**
-	 * Math.max tests. cw.net.client's ClientTransport relies on some of this.
+	 * Math.max tests.  cw.net.client's ClientTransport relies on some of this.
 	 */
 	function test_mathMax(self) {
 		self.assertEqual(0, Math.max(0, null));

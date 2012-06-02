@@ -3,13 +3,13 @@
  * 	to "avoid bugs" in browsers.
  * 
  * Unlike setTimeout, callables scheduled in a CallQueue
- * are guaranteed to be called in order. Also, callables scheduled
+ * are guaranteed to be called in order.  Also, callables scheduled
  * from inside a CallQueue-called callable are called only after
  * control is once again returned to the environment's event loop.
  *
  * CallQueue is especially useful for client-side code because browsers
  * have a tendency to crash or exhibit undefined behavior when
- * entering user JavaScript code from an event handler. The source
+ * entering user JavaScript code from an event handler.  The source
  * of these issues are re-entrancy bugs in nearly every web browser.
  * When the browser enters user JavaScript code from a queued
  * setTimeout call, the browser's stack is smaller and in a much better-
@@ -24,9 +24,9 @@
  * them.
  *
  * General note: In server-side code, you have the opportunity to write
- * extensive unit tests to verify that you have no re-entrancy bugs. You can't
+ * extensive unit tests to verify that you have no re-entrancy bugs.  You can't
  * do this for client-side code because you have no idea what browser
- * the user will arrive with. Every event dispatched by the browser
+ * the user will arrive with.  Every event dispatched by the browser
  * is a disaster waiting to happen.
  *
  * This is a port of {@code foolscap.eventual}, with less globalness,
@@ -38,7 +38,7 @@
  * 	_flushObservers -> emptyObservers_
  *
  * TODO: consider using postMessage as a faster alternative to
- * setTimeout(..., 0). See http://dbaron.org/log/20100309-faster-timeouts
+ * setTimeout(..., 0).  See http://dbaron.org/log/20100309-faster-timeouts
  * This might however defeat the lack-of-crashing guarantee of setTimeout.
  *
  * LICENSE note: directly translated from Foolscap's foolscap.eventually.
@@ -53,9 +53,9 @@ goog.require('cw.clock');
 
 /**
  * A call queue that supports the `eventually` operation, for
- * a specific clock. You should probably have just one CallQueue
- * for your application. Pass one CallQueue around just like you
- * would pass a clock around. In fact, you can skip passing a clock
+ * a specific clock.  You should probably have just one CallQueue
+ * for your application.  Pass one CallQueue around just like you
+ * would pass a clock around.  In fact, you can skip passing a clock
  * around, because you pass a CallQueue around, and just access
  * the clock via the {@code clock} property.
  *
@@ -64,7 +64,7 @@ goog.require('cw.clock');
  */
 cw.eventual.CallQueue = function(clock) {
 	/**
-	 * The clock to use. CallQueue needs only `setTimeout` and
+	 * The clock to use.  CallQueue needs only `setTimeout` and
 	 * `clearTimeout`, but users may correctly expect to also use
 	 * CallQueue.clock's `setInterval` and `clearInterval`.
 	 * @type {!cw.clock.IWindowTimeAll}
@@ -104,7 +104,7 @@ cw.eventual.CallQueue.prototype.timer_ = null;
 /**
  * Add a callable (with scope and arguments) to the call queue.
  * The callable will be invoked with {@code cb.apply(scope, args)}
- * after control is returned to the environment's event loop. Doing
+ * after control is returned to the environment's event loop.  Doing
  * 'eventually(a); eventually(b)' guarantees that a will be called before b.
  *
  * Any exceptions that occur in the callable will be rethrown to the window,
@@ -134,7 +134,7 @@ cw.eventual.CallQueue.prototype.eventually = function(cb, scope, args) {
  */
 cw.eventual.CallQueue.prototype.turn_ = function() {
 	this.timer_ = null;
-	// Flush all the messages that are currently in the queue. If anything
+	// Flush all the messages that are currently in the queue.  If anything
 	// gets added to the queue while we're doing this, those events will
 	// be put off until the next call to _turn.
 	var events = this.events_;
@@ -166,7 +166,7 @@ cw.eventual.CallQueue.prototype.turn_ = function() {
 		}
 	}
 	// Have some faith, there is probably no re-entrancy bug
-	// involving notifyEmpty here. Think about it.
+	// involving notifyEmpty here.  Think about it.
 };
 
 /**
@@ -199,7 +199,7 @@ cw.eventual.CallQueue.prototype.fireEventually = function(value) {
 
 
 /**
- * A global {@code CallQueue} for {@code window}. Don't use this if
+ * A global {@code CallQueue} for {@code window}.  Don't use this if
  * you want to be able to drive your application with a deterministic clock
  * (and you probably do).
  * 

@@ -19,7 +19,7 @@ class TestExternalInterface {
 
 	/**
 	 * To respond in a way that doesn't corrupt data, we must use ExternalInterface.call
-	 * with our own JSON encoder. We cannot `return' if we want to do it right.
+	 * with our own JSON encoder.  We cannot `return' if we want to do it right.
 	 */
 	public static function respond_correct(anything:Dynamic) {
 		ExternalInterface.call(responsecallback+'('+JSON.encode(anything)+')');

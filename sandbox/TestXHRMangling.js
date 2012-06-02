@@ -135,7 +135,7 @@
 //				 * and at state 4 for IE.  */
 //				if('\v' == 'v') {
 //					// We tried to catch error for checking .status when state was still 3,
-//					// but IE was making it hard/impossible. So the only thing we can do is
+//					// but IE was making it hard/impossible.  So the only thing we can do is
 //					// check that at least .status is available at state 4.
 //					if(state >= 4) {
 //						self.assertIdentical(200, xhr.status);
@@ -206,7 +206,7 @@
 //	 * Observed NULL behavior:
 //	 * IE6/7/8 cut off responseText at the first NULL.
 //	 * Opera 9 doesn't cut off, but ignores the NULLs anywhere.
-//	 * Firefox 2/3 handle fine. Safari handles fine. Chrome handles fine.
+//	 * Firefox 2/3 handle fine.  Safari handles fine.  Chrome handles fine.
 //	 */
 //	function _getExpectedLoss(self) {
 //		var expectedLoss;

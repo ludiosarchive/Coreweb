@@ -86,7 +86,7 @@ cw.crosstab.EventType = {
  *
  * "With the built-in popup blockers of Mozilla/Firefox and Internet Explorer 6 SP2,
  * you have to check the return value of window.open(): it will be null if the
- * window wasn't allowed to open. However, for most other popup blockers,
+ * window wasn't allowed to open.  However, for most other popup blockers,
  * there is no reliable way."
  */
 

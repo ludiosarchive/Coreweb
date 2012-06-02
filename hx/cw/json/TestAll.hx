@@ -223,7 +223,8 @@ E_val: N/A"}]}';
 	}
 
 	/**
-	 * We backslash slashes because goog.json does it. Decoder should decode them properly too.
+	 * We backslash slashes because goog.json does it.  Decoder should decode
+	 * them properly too.
 	 */
 	public function testSlashesBackslashed() {
 		var original:String = "hello/there//";
@@ -323,7 +324,7 @@ E_val: N/A"}]}';
 	public function getPlayerVersion() {
 		var flashVersion:Dynamic = {};
 
-		// Get a string like "WIN 9,0,0,0". We'll ignore the last number.
+		// Get a string like "WIN 9,0,0,0".  We'll ignore the last number.
 		var versionNumber:String = Capabilities.version;
 		var versionArray:Array<String> = versionNumber.split(",");
 		var osPlusVersion:Array<String> = versionArray[0].split(" ");

@@ -102,7 +102,7 @@ cw.clock.getFakeDateConstructor_ = function(clock) {
  * and `clearInterval`.
  *
  * Note that this does not mimic browser deficiencies in `setTimeout` and
- * `setInterval`. For example, the timeout in {@code setTimeout(callable, 1)}
+ * `setInterval`.  For example, the timeout in {@code setTimeout(callable, 1)}
  * will not be raised from 1ms to 13ms.
  *
  * This is inspired by {@code twisted.internet.task.Clock} but the
@@ -213,7 +213,7 @@ cw.clock.Clock.prototype.setTimeout = function(callable, when) {
  *
  * @param {!Function} callable The callable to call soon (possibly repeatedly).
  * @param {number} interval The delay between calls to {@code callable},
- * 	in milliseconds. If you want to, you may specify 0.
+ * 	in milliseconds.  If you want to, you may specify 0.
  *
  * @return {number} The ticket number for the added event.
  */
@@ -290,7 +290,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 		// Remember that callables can add or clear timeouts/intervals.
 		// New callables won't get called until at least the next `advance`,
 		// but cleared timeouts/intervals will be immediately removed, even
-		// while we're inside this loop. Note that callables should not expect
+		// while we're inside this loop.  Note that callables should not expect
 		// to reliably remove their "sibling" calls, because they run in an
 		// arbitrary order. ("sibling" means happening around the same time).
 		while(true) {
@@ -301,7 +301,7 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
 			var call = this.calls_.shift();
 
 			// If it needs to be respawned, do it now, before calling the callable,
-			// because the callable may raise an exception. Also because the
+			// because the callable may raise an exception.  Also because the
 			// callable may want to clear its own interval.
 			if(call.respawn_ === true) {
 				call.runAt_ += call.interval_;
@@ -336,16 +336,16 @@ cw.clock.Clock.prototype.internalAdvance_ = function(extraStopCondition) {
  * pending calls should be run.
  *
  * If a callable adds another timeout or interval, it will not be run until
- * the next {@link advance} (even if the timeout was set to 0). This
+ * the next {@link advance} (even if the timeout was set to 0).  This
  * makes the behavior unlike {@code twisted.internet.task.Clock},
  * where {@code advance} may call newly-added calls, and even get
  * stuck in a loop.
  *
- * If a callable throws an error, no more callables will be called. But if you
+ * If a callable throws an error, no more callables will be called.  But if you
  * {@link advance} again, they will.
  *
  * @param {number} amount How many milliseconds by which to advance
- * 	this clock's time. Must be positive number; not NaN or Infinity.
+ * 	this clock's time.  Must be positive number; not NaN or Infinity.
  */
 cw.clock.Clock.prototype.advance = function(amount) {
 	if(amount < 0) {
@@ -372,8 +372,8 @@ cw.clock.Clock.prototype.fireEverything = function() {
 };
 
 /**
- * Set the time on this clock to {@code time}. You may use this to move
- * the clock backwards. This will not call any scheduled calls, even if you move
+ * Set the time on this clock to {@code time}.  You may use this to move
+ * the clock backwards.  This will not call any scheduled calls, even if you move
  * it fowards.
  *
  * @param {number} time The new time for the clock.
@@ -443,23 +443,23 @@ cw.clock.TIMER_FORGIVENESS = 400;
 // 	- If the clock went backwards on the next poll_, fire MAYBE_MONOTONIC
 //	- If the clock went backwards on a prod, preserve the old poll_ timer
 //		and see if it fires in the "right amount of time" (it is not delayed for
-//		too long). If so, fire MAYBE_MONOTONIC.
+//		too long).  If so, fire MAYBE_MONOTONIC.
 
 /**
  * JumpDetector detects fowards and backwards clock jumps for any browser,
- * regardless of how it schedules timers. Browsers schedule timers by system
+ * regardless of how it schedules timers.  Browsers schedule timers by system
  * time, monotonic clock, or an insane hybrid of both (in at least
- * Chromium/Windows and Safari/Windows). JumpDetector may be unable to
+ * Chromium/Windows and Safari/Windows).  JumpDetector may be unable to
  * detect a backwards clock jump in Chromium/Windows, because it conceals
- * backwards time jumps. See [1]. JumpDetector also detects when the internal
- * timer is failing to fire, whether or not .getTime() has jumped. All of these
+ * backwards time jumps.  See [1].  JumpDetector also detects when the internal
+ * timer is failing to fire, whether or not .getTime() has jumped.  All of these
  * detections lead to a dispatching of a {@link TIME_JUMP} event, which has
  * three properties:
  * 	timeNow_: The time now.
  * 	timeLast_: The time last recorded, before a possible clock jump.
  * 	expectedFiringTime_: When the internal timer was expected to fire.
- * You should not strain too hard to extract meaning from the properties. Try
- * to care only about the dispatching of a {@link TIME_JUMP}. Especially do not
+ * You should not strain too hard to extract meaning from the properties.  Try
+ * to care only about the dispatching of a {@link TIME_JUMP}.  Especially do not
  * peek into the event properties to only reschedule calls on
  * "backwards time jumps". "Internal timer hasn't fired" events look like a
  * forward time jump, and it's very important to reschedule calls in this case.
@@ -467,17 +467,17 @@ cw.clock.TIMER_FORGIVENESS = 400;
  * JumpDetector does not distinguish between "forwards time jump" and
  * "internal timer hasn't fired", because doing so would require
  * JumpDetector to know intimate details about how the browser schedules
- * timers. This information is hard to obtain and keep up to date.
+ * timers.  This information is hard to obtain and keep up to date.
  *
  * To detect time jumps and internal lack of firing, your application code must
- * call {@link prod} often. See its JSDoc.
+ * call {@link prod} often.  See its JSDoc.
  *
  * Note: if the browser freezes for a short time (or JavaScript execution is
  * suspended), this may dispatch a {@link TIME_JUMP}.
  *
  * JumpDetector also collects the time every {@code pollInterval} ms.
  * You can retreive the times and flush the internal
- * array with {@link getNewTimes}. If you forget to do this often enough,
+ * array with {@link getNewTimes}.  If you forget to do this often enough,
  * {@link TIME_COLLECTION_OVERFLOW} will be dispatched with a property
  * {@code collection}.
  *
@@ -488,9 +488,9 @@ cw.clock.TIMER_FORGIVENESS = 400;
  * @param {!cw.clock.IWindowTimeAll} clock If !== goog.Timer.defaultTimerObject,
  * 	clock must implement getTime as well.
  *
- * @param {number} pollInterval Interval to poll at, in milliseconds. If this
+ * @param {number} pollInterval Interval to poll at, in milliseconds.  If this
  *	is too infrequent, and the clock jumps back in a non-monotonic browser,
- *	timeLast_ will be too obsolete. This will impact JumpDetectingClock,
+ *	timeLast_ will be too obsolete.  This will impact JumpDetectingClock,
  *	because the readjusted timers will take longer to fire than expected.
  *
  * @param {number} collectionSize Maximum size for time collection array
@@ -503,7 +503,7 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 	goog.events.EventTarget.call(this);
 	
 	/**
-	 * The clock to use. JumpDetector needs only `setTimeout` and
+	 * The clock to use.  JumpDetector needs only `setTimeout` and
 	 * `clearTimeout`, but users may correctly expect to also use
 	 * JumpDetector.clock's `setInterval` and `clearInterval`.
 	 * @type {cw.clock.IWindowTimeAll}
@@ -530,8 +530,8 @@ cw.clock.JumpDetector = function(clock, pollInterval, collectionSize) {
 
 	/**
 	 * An array of times limited to length {@code collectionSize}, useful for recording
-	 * and then uploading to the server. This information can be used to determine when
-	 * the users' browser is locking up (although another tab may be responsible). This
+	 * and then uploading to the server.  This information can be used to determine when
+	 * the users' browser is locking up (although another tab may be responsible).  This
 	 * will contain {@code null}s which indicate that the next item represents the time
 	 * when the internal timer was reset.
 	 * @type {!Array.<number>}
@@ -558,7 +558,7 @@ goog.inherits(cw.clock.JumpDetector, goog.events.EventTarget);
 
 /**
  * A monotonically increasing time that usually resembles how much time
- * was actually spent on the page. In some browsers, if the clock jumps
+ * was actually spent on the page.  In some browsers, if the clock jumps
  * backwards and JumpDetector is not being prodded, this will be
  * significantly less than the actual time spent on page.
  * @type {?number}
@@ -573,7 +573,7 @@ cw.clock.JumpDetector.prototype.pollerTicket_ = null;
 
 /**
  * Set up a timer to check the time every {@code pollInterval_} milliseconds.
- * You really want to call this. Remember to call it after you've set up
+ * You really want to call this.  Remember to call it after you've set up
  * event listeners.
  */
 cw.clock.JumpDetector.prototype.start = function() {
@@ -607,7 +607,7 @@ cw.clock.JumpDetector.prototype.getNewTimes = function() {
 };
 
 /**
- * Set up a new internal timer. If necessary, you must clearTimeout the old
+ * Set up a new internal timer.  If necessary, you must clearTimeout the old
  * one yourself.
  * @param {number} now The time.
  * @private
@@ -657,7 +657,7 @@ cw.clock.JumpDetector.prototype.checkTimeJump_ = function(now, prodded) {
  */
 cw.clock.JumpDetector.prototype.poll_ = function() {
 	// We use a repeated setTimeout because setInterval is more likely
-	// to be buggy. Proof of setInterval being buggy:
+	// to be buggy.  Proof of setInterval being buggy:
 	// 1) https://bugzilla.mozilla.org/show_bug.cgi?id=376643
 	//	The above is the bug that goog.Timer works around by using setTimeout
 	// 2) http://ludios.net/browser_bugs/clock_jump_test_page.html
@@ -750,7 +750,7 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
 
 // TODO: Allow calling a errorHandlerFn_ on error like goog.debug.errorhandler.
 // We want to avoid protectWindowSetTimeout because that adds too many
-// layers of functions. We already *need* to create a function in JumpDetectingClock.
+// layers of functions.  We already *need* to create a function in JumpDetectingClock.
 // BUT: is this really necessary? In all browsers but Opera, window.onerror
 // should do adequate error-detection for us.
 
@@ -758,13 +758,13 @@ cw.clock.JumpDetector.prototype.disposeInternal = function() {
  * JumpDetectingClock is NOT IMPLEMENTED YET.
  *
  * This is a clock that detects backwards time jumps and reschedules
- * calls if necessary. It wraps an existing clock, such as a real browser
+ * calls if necessary.  It wraps an existing clock, such as a real browser
  * Window or a deterministic cw.clock.Clock.
  *
  * Use JumpDetectingClock in all browsers, even in those where you
  * have confidence that timers are scheduled with a monotonic clock.
  * You can't be sure that timers are always scheduled with a monotonic
- * clock. For example, you might find a browser with a workaround to
+ * clock.  For example, you might find a browser with a workaround to
  * avoid using the monotonic clock on Athlon X2 CPUs (Chromium does
  * this.)
  *
@@ -821,9 +821,9 @@ cw.clock.JumpDetectingClock.prototype.getTime = function() {
 
 /**
  * @param {number} adjustment By how many milliseconds to adjust the timeout
- * 	for the rescheduled timeouts. Note: intervals cannot be adjusted, so they may
+ * 	for the rescheduled timeouts.  Note: intervals cannot be adjusted, so they may
  * 	take longer to fire.  If this receives too many spurious TIME_JUMP events,
- * 	intervals may never fire. You should avoid using setInterval in general
+ * 	intervals may never fire.  You should avoid using setInterval in general
  * 	(use goog.Timer instead).
  * @private
  */
@@ -878,7 +878,7 @@ cw.clock.JumpDetectingClock.prototype.setTimeout = function(callable, delay) {
  *
  * @param {!Function} callable The callable to call soon (possibly repeatedly).
  * @param {number} interval The delay between calls to {@code callable},
- * 	in milliseconds. If you want to, you may specify 0.
+ * 	in milliseconds.  If you want to, you may specify 0.
  *
  * @return {number} The ticket number for the added event.
  */

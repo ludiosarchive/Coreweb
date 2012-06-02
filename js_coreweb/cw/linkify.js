@@ -80,7 +80,7 @@ cw.linkify.defaultOptions_ = {
  * Options:
  *
  *  callback (Function) - default: undefined - if defined, this will be called
- *    for each link- or non-link-chunk with two arguments, text and href. If the
+ *    for each link- or non-link-chunk with two arguments, text and href.  If the
  *    chunk is non-link, href will be omitted.
  *
  *  punct_regexp (RegExp | Boolean) - a RegExp that can be used to trim trailing

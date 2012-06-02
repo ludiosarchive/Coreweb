@@ -74,7 +74,7 @@ function main() {
 	}
 
 	// Always set document.domain, even if the current domain matches
-	// the topDomain. If we don't do this, we'll get a security exception in IE6
+	// the topDomain.  If we don't do this, we'll get a security exception in IE6
 	// and probably many other browsers.
 	logger.info('domain was: ' + domain + ', changing to: ' + topDomain);
 	if(!queryData.get('dontSetIt')) {

@@ -29,11 +29,11 @@ Solution:
 
 Three solutions to Flash->JS, only #3 is correct
 	1) Pre-backslash everything before sending it over the barrier, as swfupload does.
-		Wrong: wastes time doing extra encoding, and (probably) an extra eval on the host page. Not resilient to changes in Flash.
+		Wrong: wastes time doing extra encoding, and (probably) an extra eval on the host page.  Not resilient to changes in Flash.
 
 	2) Replace eval with a pass-through function on the host page, and use something like
 		<code>s.slice(1, s.length - 1).replace(/\\"/g, '"');</code> to extract the original pre-mangled string.
-		Wrong: replacing eval doesn't seem to affect anything. Flash probably uses its own hidden-away version of eval. Even if it worked, it would not be resilient to changes in Flash or browsers.
+		Wrong: replacing eval doesn't seem to affect anything.  Flash probably uses its own hidden-away version of eval.  Even if it worked, it would not be resilient to changes in Flash or browsers.
 
 	3) Don't pass any more than one argument to ExternalInterface.call, and encode all data inside the function to be called, like this:
 		<code>ExternalInterface.call('(function(){fromFlash({"post": "eval\\tthis", "array": [null, undefined, true, false, 3.5]})})');</code>

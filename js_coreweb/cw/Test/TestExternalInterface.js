@@ -27,7 +27,7 @@ var plainObjectRecursive = cw.eq.plainObjectRecursive;
 
 /**
  * Don't actually rely on high fidelity transfer of objects between JS and Flash
- * if you can avoid it. Do ASCII-safe JSON encoding in JavaScript and give
+ * if you can avoid it.  Do ASCII-safe JSON encoding in JavaScript and give
  * Flash the flattest types you can (preferably just call a function with a few
  * arguments).
  *
@@ -151,8 +151,8 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestSerializer').m
 	},
 
 	/**
-	 * Objects from other frames are not instanceof Date, Array, and so on. But the XML
-	 * serialization must still work correctly.
+	 * Objects from other frames are not instanceof Date, Array, and so on.
+	 * But the XML serialization must still work correctly.
 	 */
 	function test_objectsFromIframe(self) {
 		var iframeNode = null;
@@ -307,7 +307,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	 * make it through JS->Flash->JS unaltered.
 	 *
 	 * Note: fails in Opera 10.60 build 3409, because it has a problem with
-	 * -Math.pow(2, 31). The value is represented as -0. Reported to Opera
+	 * -Math.pow(2, 31).  The value is represented as -0.  Reported to Opera
 	 * as DSK-301659.
 	 */
 	function test_mirrorExtremeNumbers(self) {
@@ -332,7 +332,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 			throw Error("failing early, IE9 seems to not get a response.");
 		}
 		var nums = [];
-		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range. This isn't a maximally-thorough test.
+		for(var i=1; i < 55295 + 1; i++) { // after 55295 we hit the surrogate range.  This isn't a maximally-thorough test.
 			nums.push(i);
 		}
 		var string = String.fromCharCode.apply(null, nums);
@@ -356,7 +356,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestExternalInterface, 'TestRealFlash').me
 	 * Test that nested objects make it through JS->Flash->JS unaltered.
 	 *
 	 * There is some really terrible O(N^3) or worse stuff going on in Flash
-	 * with nested objects. Try i < 20 to completely lock it up. TODO:
+	 * with nested objects.  Try i < 20 to completely lock it up.  TODO:
 	 * further investigation is needed.
 	 */
 	function test_mirrorNestedObjects(self) {

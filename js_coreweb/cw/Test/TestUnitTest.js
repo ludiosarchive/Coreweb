@@ -801,7 +801,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
 
 		clearTimeout(self._ticket1);
-		// ticket2 is *not* cleared. we want to test that setTimeout does work.
+		// ticket2 is *not* cleared.  We want to test that setTimeout does work.
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setTimeout_pending']).length);
 		self.assertIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setTimeout_pending'][self._ticket2]);
@@ -847,7 +847,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTest, 'TestMonkeys').methods(
 		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);
 
 		clearInterval(self._ticket1);
-		// ticket2 is *not* cleared yet. we want to test that setInterval does work.
+		// ticket2 is *not* cleared yet.  We want to test that setInterval does work.
 		self.assertIdentical(1, goog.object.getKeys(cw.UnitTest.delayedCalls['setInterval_pending']).length);
 		self.assertIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket1]);
 		self.assertNotIdentical(undefined, cw.UnitTest.delayedCalls['setInterval_pending'][self._ticket2]);

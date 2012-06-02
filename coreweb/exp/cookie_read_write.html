@@ -14,19 +14,19 @@ by other processes writing to the cookie at the same time.
 As of 2010-03-07, this is applicable to Chrome/Chromium and IE8.
 
 Opera note: If you open this page in two tabs in Opera 9.64 or 10.50 on
-Windows, you will see some incredibly strange behavior. The tab that is
-*not* focused will *always* (or almost?) get an inconsistent read. It's
-as if Opera is lying to it about storing the cookie. On Mac OS X 10.6 and
+Windows, you will see some incredibly strange behavior.  The tab that is
+*not* focused will *always* (or almost?) get an inconsistent read.  It's
+as if Opera is lying to it about storing the cookie.  On Mac OS X 10.6 and
 Opera 10.10, the non-active tab doesn't have this problem (although
 there are still some bad reads.)
 
 Chrome on XP note: An focused tab that has a 0% bad read rate, may get a
-much higher bad read rate when unfocused. But strangely this seems to
-depend on which tab. This behavior might be due to XP scheduling
+much higher bad read rate when unfocused.  But strangely this seems to
+depend on which tab.  This behavior might be due to XP scheduling
 foreground windows at higher priority.
 
 IE8 on XP note: IE8 on XP (maybe on Vista/Win7 too sometimes?) will
-often only use 2-3 processes, even if more tabs are open. You might see
+often only use 2-3 processes, even if more tabs are open.  You might see
 unusual behavior: If you have 3 tabs open to this page, 2 of them will
 occasionally get bad reads, while the third never does.
 
@@ -67,7 +67,7 @@ logger.info('Logger works.');
 var method;
 if(String(window.location).indexOf('?sessionStorage') != -1) {
 	// Note: sessionStorage doesn't seem to get shared across tabs
-	// in Chrome 5 dev, Firefox 3.6, or IE8. Making it pretty useless.
+	// in Chrome 5 dev, Firefox 3.6, or IE8.  Making it pretty useless.
 	method = 'sessionStorage';
 } else if(String(window.location).indexOf('?localStorage') != -1) {
 	method = 'localStorage';

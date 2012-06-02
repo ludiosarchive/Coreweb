@@ -210,12 +210,12 @@ cw.uri.joinAuthority = function(user, password, host, port) {
 
 
 /**
- * Represents a URL. You can modify a it with
- * {@code .setUrlProperty('property', 'value')}. You can clone a URL by
+ * Represents a URL.  You can modify a it with
+ * {@code .setUrlProperty('property', 'value')}.  You can clone a URL by
  * passing a {@link cw.uri.URL} instance into the constructor.
  * You serialize it to a string with {@code .toString()}.
  *
- * Do not modify any of the "public" attributes yourself. Use
+ * Do not modify any of the "public" attributes yourself.  Use
  * {@code setUrlProperty}.
  *
  * If you create a URL without an explicit port set, and you never updated
@@ -235,7 +235,7 @@ cw.uri.URL = function(urlObjOrString) {
 	var split;
 
 	if(urlObjOrString instanceof cw.uri.URL) {
-		// Clone it. We don't expect the object to have any crappy values like undefined,
+		// Clone it.  We don't expect the object to have any crappy values like undefined,
 		// but even if that's the case, there shouldn't be many problems.
 
 		// We must use strings here like 'scheme' instead of .scheme,

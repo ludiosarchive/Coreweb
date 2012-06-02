@@ -270,7 +270,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 
 	/**
 	 * If L{assertIdentical} is given a message as an optional third argument,
-	 * that message should appear in the raised exception's message. Test this.
+	 * that message should appear in the raised exception's message.
 	 */
 	function test_assertIdenticalNegativeWithMessage(self) {
 		try {
@@ -312,7 +312,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestUnitTestAssertions, 'AssertionTests').
 
 	/**
 	 * If L{assertNotIdentical} is given a message as an optional third argument,
-	 * that message should appear in the raised exception's message. Test this.
+	 * that message should appear in the raised exception's message.
 	 */
 	function test_assertNotIdenticalNegativeWithMessage(self) {
 		try {

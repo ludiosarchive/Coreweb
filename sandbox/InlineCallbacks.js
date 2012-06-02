@@ -115,7 +115,7 @@ CW.InlineCallbacks._inlineCallbacks = function(result, g, deferred) {
 
 /*
     inlineCallbacks helps you write Deferred-using code that looks like a
-    regular sequential function. This function uses features of JavaScript 1.7
+    regular sequential function.  This function uses features of JavaScript 1.7
     generators.  For example::
 
 	var thingummy = function() {
@@ -126,14 +126,14 @@ CW.InlineCallbacks._inlineCallbacks = function(result, g, deferred) {
 
     When you call anything that results in a Deferred, you can simply yield it;
     your generator will automatically be resumed when the Deferred's result is
-    available. The generator will be sent the result of the Deferred with the
+    available.  The generator will be sent the result of the Deferred with the
     'send' method on generators, or if the result was a failure, 'throw'.
 
     Your inlineCallbacks-enabled generator will return a Deferred object, which
     will result in the return value of the generator (or will fail with a
-    failure object if your generator raises an unhandled exception). Note that
+    failure object if your generator raises an unhandled exception).  Note that
     you can't use 'return result' to return a value; use 'returnValue(result)'
-    instead. Falling off the end of the generator, or simply using 'return'
+    instead.  Falling off the end of the generator, or simply using 'return'
     will cause the Deferred to have a result of `undefined'.
 
     The Deferred returned from your deferred generator may errback if your
@@ -250,7 +250,7 @@ def _inlineCallbacks(result, g, deferred):
 def inlineCallbacks(f):
     """
     inlineCallbacks helps you write Deferred-using code that looks like a
-    regular sequential function. This function uses features of Python 2.5
+    regular sequential function.  This function uses features of Python 2.5
     generators.  The older L{deferredGenerator} function accomplishes the
     same thing, but with somewhat more boilerplate.  For example::
 
@@ -261,14 +261,14 @@ def inlineCallbacks(f):
 
     When you call anything that results in a Deferred, you can simply yield it;
     your generator will automatically be resumed when the Deferred's result is
-    available. The generator will be sent the result of the Deferred with the
+    available.  The generator will be sent the result of the Deferred with the
     'send' method on generators, or if the result was a failure, 'throw'.
 
     Your inlineCallbacks-enabled generator will return a Deferred object, which
     will result in the return value of the generator (or will fail with a
-    failure object if your generator raises an unhandled exception). Note that
+    failure object if your generator raises an unhandled exception).  Note that
     you can't use 'return result' to return a value; use 'returnValue(result)'
-    instead. Falling off the end of the generator, or simply using 'return'
+    instead.  Falling off the end of the generator, or simply using 'return'
     will cause the Deferred to have a result of None.
 
     The Deferred returned from your deferred generator may errback if your

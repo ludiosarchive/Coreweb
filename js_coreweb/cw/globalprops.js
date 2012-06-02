@@ -1,6 +1,6 @@
 /**
  * @fileoverview Provides a set of common global properties that may exist
- * 	in a browser environment. Not comprehensive.
+ * 	in a browser environment.  Not comprehensive.
  */
 
 goog.provide('cw.globalprops');

@@ -35,7 +35,7 @@ cw.Test.TestClock.isTicketInCalls_ = function(calls, ticket) {
 cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 	/**
 	 * setTimeout and setInterval return tickets from the same pool
-	 * of numbers. None of the ticket numbers are the same.
+	 * of numbers.  None of the ticket numbers are the same.
 	 */
 	function test_setWhateverUseGlobalCounter(self) {
 		var clock = new cw.clock.Clock();
@@ -266,7 +266,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'ClockTests').methods(
 
 	/**
 	 * In a real browser environment, callables have no way of re-entrantly
-	 * pushing the event loop. In Twisted, it is similarly illega to re-entrantly
+	 * pushing the event loop.  In Twisted, it is similarly illega to re-entrantly
 	 * advance the reactor.
 	 *
 	 * Similarly, with {@link cw.clock.Clock}, it is also illegal.
@@ -431,7 +431,7 @@ cw.UnitTest.TestCase.subclass(cw.Test.TestClock, 'JumpDetectorTests').methods(
 
 	/**
 	 * TIME_COLLECTION_OVERFLOW is dispatched when timeCollection_
-	 * overflows. The event includes the property `collection` with all
+	 * overflows.  The event includes the property `collection` with all
 	 * times collected (except the last one).
 	 */
 	function test_timeCollectionOverflow(self) {

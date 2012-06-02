@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-Browsers do different things to scheduled calls when the system clock jumps. See instructions below.
+Browsers do different things to scheduled calls when the system clock jumps.  See instructions below.
 Results from manual testing on 2010-03-08:
 <div class="results">
 	<table border=1><tr>
@@ -142,8 +142,8 @@ Results from manual testing on 2010-03-08:
 <div class="info">
 <p>
 <b>Instructions:</b> Adjust your system clock forwards or backwards and see what
-happens. Scroll down to see if the timer is firing. If you want to, click the button to print the
-time manually. Append <code>?setInterval</code> to this page URL use setInterval
+happens.  Scroll down to see if the timer is firing.  If you want to, click the button to print the
+time manually.  Append <code>?setInterval</code> to this page URL use setInterval
 instead of setTimeout. <b>VMWare note:</b> Since you are manually adjusting the
 clock, you want to disable 'Time synchronization between the virtual machine' (click the
 VMWare Tools icon in your VMWare guest).
@@ -166,14 +166,14 @@ whether they fired too early.)
 
 <p>
 The <b>DELAYED</b> browsers appear to schedule timers exactly by the system time.
-If you move the clock back by N seconds, the timers will be delayed by N seconds. If you then
+If you move the clock back by N seconds, the timers will be delayed by N seconds.  If you then
 jump the clock forwards into the timer firing zone, the browsers fire the timer.
 Sometimes, you'll need to click on the browser to get the timer to fire after moving the clock forward.
 This is probably because the browser's event loop is sleeping (this happened in Firefox 3.6 on Mac).
 </p>
 
 </p>
-<b>PROBLEMATIC(#1)</b> Chromium/Windows is strange. If you move the clock back 2 minutes, this happens:
+<b>PROBLEMATIC(#1)</b> Chromium/Windows is strange.  If you move the clock back 2 minutes, this happens:
 <ul>
 	<li>For the next 40-50 seconds, timers fire in 1 second.
 	<li>Then, a timer is delayed by 1-3 minutes.
@@ -183,8 +183,8 @@ This is probably because the browser's event loop is sleeping (this happened in 
 
 <p>
 <b>PROBLEMATIC(#2)</b> Safari 4.0.4/3.1.2: Safari <em>sometimes</em> appears to keep timers firing when the
-clock jumps backwards, but often they don't. I don't know why this happens. After moving it
-back, moving the clock forward usually doesn't help the timers to fire. Sometimes, when
+clock jumps backwards, but often they don't.  I don't know why this happens.  After moving it
+back, moving the clock forward usually doesn't help the timers to fire.  Sometimes, when
 the clock moves back, a timer fires but the next one scheduled is delayed for a while:
 </p>
 
@@ -198,13 +198,13 @@ the clock moves back, a timer fires but the next one scheduled is delayed for a 
 </pre>
 
 <p>
-Safari on Mac OS X almost looks like DELAYED, but it probably isn't. The behavior appears
+Safari on Mac OS X almost looks like DELAYED, but it probably isn't.  The behavior appears
 subtly different from Safari/Windows, too.
 </p>
 
 <p>
 <b>PROBLEMATIC(#3)</b> Firefox/Windows: setTimeout works well, but setIntervals are
-not properly scheduled after the clock jumps backwards. Maybe there's some sort of
+not properly scheduled after the clock jumps backwards.  Maybe there's some sort of
 numerical overflow?
 </p>
 

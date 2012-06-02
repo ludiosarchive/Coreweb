@@ -111,7 +111,7 @@ cw.env.probeActiveXObjects = function() {
 		'Msxml2.XMLHTTP.6.0',
 		'Msxml2.DOMDocument',
 		 /* Instantiating htmlfile probably adds 16-30ms to the collection
-		 time, but we really want to know if we can. Maybe remove it later. */
+		 time, but we really want to know if we can.  Maybe remove it later. */
 		'htmlfile',
 		'AcroPDF.PDF.1', /* Adobe Reader plugin, version 7 or above */
 		'PDF.PdfCtrl.6' /* Adobe Reader plugin, version 6 */
@@ -139,7 +139,7 @@ cw.env.probeActiveXObjects = function() {
 /**
  * @return {?boolean|!Array.<(string|Object)>} If an XMLHttpRequest object
  * 	could be instantiated, returns the default value of its {@code withCredentials}
- * 	property (or null if has no such property). If it could not be instantiated,
+ * 	property (or null if has no such property).  If it could not be instantiated,
  * 	returns an Array containing error information.
  */
 cw.env.getXHRDefaultWithCredentials = function() {
@@ -197,9 +197,9 @@ cw.env.compressPluginSignature = function(psig) {
 
 /**
  * Convert a {@code navigator.plugins} pseudo-array into a a real array of
- * arrays containing the information we want. This also returns a
+ * arrays containing the information we want.  This also returns a
  * (possibly large) "signature" string that uniquely represents the installed
- * plugins 99.9% of the time. The signature array can be further
+ * plugins 99.9% of the time.  The signature array can be further
  * compressed with {@link cw.env.compressPluginSignature},
  * and used to first ask the server if it wants the full plugin report before
  * sending it.
@@ -212,7 +212,7 @@ cw.env.compressPluginSignature = function(psig) {
 cw.env.extractPlugins = function(plugins) {
 	var pluginList = [];
 	// We de-duplicate descriptions in the report because Quicktime has a
-	// long description (228 bytes) that is in ~6 different plugins. This
+	// long description (228 bytes) that is in ~6 different plugins.  This
 	// "compression" saves space even if Quicktime is not in the plugins.
 	// We prepend an underscore to every description in this map to avoid
 	// potential conflicts with a description being `toString` or similar.
@@ -241,7 +241,7 @@ cw.env.extractPlugins = function(plugins) {
 		for (var j = 0; j < p.length; j++) { // p.length is the length of the mimetypes
 			var m = p[j];
 			// `m` is almost always a non-null MimeType here, but in rare
-			// cases it is `null`. Around 2010-04, we observed `null` in
+			// cases it is `null`.  Around 2010-04, we observed `null` in
 			// at least two browsers:
 			// BlackBerry8110/4.5.0.182 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/102 Novarra-Vision/8.0
 			// SonyEricssonW995/R1GA Browser/NetFront/3.4 Profile/MIDP-2.1 Configuration/CLDC-1.1 JavaPlatform/JP-8.4.4 Novarra-Vision/8.0

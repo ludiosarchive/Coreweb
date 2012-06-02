@@ -105,7 +105,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
 	 */
 	subClass.subclass = cw.Class.subclass;
 
-	// Support both new and old-style subclassing. New-style is less verbose.
+	// Support both new and old-style subclassing.  New-style is less verbose.
 	// Old-style is still useful (especially for unit testing cw.UnitTest) because
 	// it doesn't bind the class to a property; it just returns it.
 
@@ -163,11 +163,11 @@ cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
 			if(!allowWindowPropertyNames) {
 			 	// If any named function passed to .method() or .methods()
 				// conflicts with a global property name, throw Error instead
-				// of letting a confusing disaster happen. The disaster happens
+				// of letting a confusing disaster happen.  The disaster happens
 				// only in IE6-8, where named functions clobber the scope.
 				// Note that we prevent such methods in all browsers.
 				// An example: this prevents the addition of a method like
- 				// `function window() {}' or `function print() {}'. If we
+ 				// `function window() {}' or `function print() {}'.  If we
 				// don't prevent these, the `print' method would get added,
 				// and another method might assume that `print()' actually
 				// prints the page (while now it actually does something unrelated).
@@ -234,7 +234,7 @@ cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
 	/**
 	 * Add many methods from an array of named functions.
 	 * This wraps each function with a function that passes in
-	 * `this' as the first argument. See comment for subClass.method.
+	 * `this' as the first argument.  See comment for subClass.method.
 	 *
 	 * @param {...!Function} var_args The methods to add.
 	 */
@@ -245,11 +245,11 @@ cw.Class.subclass = function(classNameOrModule, subclassName, overwriteOkay) {
 	};
 
 	/**
-	 * Add many methods from an object. Functions can be anonymous.
+	 * Add many methods from an object.  Functions can be anonymous.
 	 * This doesn't wrap the functions (like .methods/.method does).
 	 *
 	 * Note: JScript will not enumerate over things that it should (including
-	 * `toString'). See https://developer.mozilla.org/En/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
+	 * `toString').  See https://developer.mozilla.org/En/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
 	 * If you want to define a custom `toString' method for instances,
 	 * do not use .pmethods.
 	 * 

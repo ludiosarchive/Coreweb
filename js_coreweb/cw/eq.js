@@ -182,7 +182,7 @@ cw.eq.eqAny_ = function(one, two, eqLog) {
 
 	if(one == cw.eq.Wildcard || two == cw.eq.Wildcard) {
 		return true;
-	// See the JSDoc for cw.eq.equals. We let `equals` on either side to
+	// See the JSDoc for cw.eq.equals.  We let `equals` on either side to
 	// claim the object is equal to a primitive object.
 	} else if(one != null && typeof one.equals == 'function') {
 		if(eqLog) {
@@ -240,7 +240,7 @@ cw.eq.eqAny_ = function(one, two, eqLog) {
  * the context of the left object with two arguments:
  * 	#0 the right object
  * 	#1 an Array into which comparison progress messages are pushed in to.
- * In the `equals` method, return `true` if equal, `false` otherwise. You may
+ * In the `equals` method, return `true` if equal, `false` otherwise.  You may
  * also push strings into the `eqLog`.
  *
  * The `equals` function on the left object takes priority over the `equals`

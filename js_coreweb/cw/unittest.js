@@ -2,7 +2,7 @@
  * @fileoverview JavaScript unit testing framework with Deferred support,
  * 	inspired by Twisted Trial.
  *
- * This is based on Divmod UnitTest.js. It was heavily modified to:
+ * This is based on Divmod UnitTest.js.  It was heavily modified to:
  *
  * 	- support in-browser testing, rather than just SpiderMonkey/subunit.
  *
@@ -51,7 +51,7 @@ cw.UnitTest.logger = goog.debug.Logger.getLogger('cw.UnitTest');
 
 /**
  * @return {!cw.UnitTest.TestSuite} A suite which contains every test
- * defined in C{testClass}. Assumes that if a method name starts with
+ * defined in C{testClass}.  Assumes that if a method name starts with
  * C{test_}, then it is a test.
  */
 cw.UnitTest.loadFromClass = function(testClass) {
@@ -444,7 +444,7 @@ cw.UnitTest.DIVTestResult.prototype.addSuccess = function(test) {
 
 
 /**
- * Print tests results to the console, as they are run. If you try to use
+ * Print tests results to the console, as they are run.  If you try to use
  * this in a browser environment, it will repeatedly open the 'print page'
  * dialog.
  *
@@ -494,7 +494,7 @@ cw.UnitTest.ConsoleTestResult.prototype.addSuccess = function(test) {
 
 
 /**
- * Represents a collection of tests. Implements the Composite pattern.
+ * Represents a collection of tests.  Implements the Composite pattern.
  *
  * @param {!Array.<!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)>=} tests
  * @constructor
@@ -599,7 +599,7 @@ cw.UnitTest.TestSuite.prototype.run = function(result) {
 
 
 /**
- * I represent a single unit test. Subclass me for your own tests.
+ * I represent a single unit test.  Subclass me for your own tests.
  *
  * I will be instantiated once per your own test_ method, by
  * {@link cw.UnitTest.loadFromClass}.
@@ -685,7 +685,7 @@ cw.UnitTest.TestCase.prototype.visitSync = function(visitor) {
 
 
 /**
- * Get the right AssertionError. Direct use is useful for testing UnitTest and errbacks.
+ * Get the right AssertionError.  Direct use is useful for testing UnitTest and errbacks.
  *
  * @param {string} reason Why the test is being failed.
  * @return {!cw.UnitTest.AssertionError}
@@ -696,7 +696,7 @@ cw.UnitTest.TestCase.prototype.getFailError = function(reason) {
 
 
 /**
- * Fail the test. Equivalent to an invalid assertion.
+ * Fail the test.  Equivalent to an invalid assertion.
  *
  * @param {string} reason Why the test is being failed.
  */
@@ -872,7 +872,7 @@ cw.UnitTest.TestCase.prototype.assertNotIdentical = function(a, b, message, _int
 
 
 /**
- * Assert that C{a} is "in" C{b}. Remember that JavaScript "in" only
+ * Assert that C{a} is "in" C{b}.  Remember that JavaScript "in" only
  * checks if a property exists.
  *
  * See {@link #compare} for documentation on parameters.
@@ -890,7 +890,7 @@ cw.UnitTest.TestCase.prototype.assertIn = function(a, b, message, _internalCall)
 
 
 /**
- * Assert that C{a} is not "in" C{b}. Remember that JavaScript "in"
+ * Assert that C{a} is not "in" C{b}.  Remember that JavaScript "in"
  * only checks if a property exists.
  *
  * See {@link #compare} for documentation on parameters.
@@ -908,7 +908,7 @@ cw.UnitTest.TestCase.prototype.assertNotIn = function(a, b, message, _internalCa
 
 
 /**
- * Assert that C{a} and C{b} are deep-equal. See {@code cw.eq} for
+ * Assert that C{a} and C{b} are deep-equal.  See {@code cw.eq} for
  * limitations.
  *
  * If you give this function circularly-referenced objects, it will overflow
@@ -937,7 +937,7 @@ cw.UnitTest.TestCase.prototype.assertEqual = function(a, b, message, _internalCa
 
 
 /**
- * Assert that C{a} and C{b} are not deep-equal. See {@code cw.eq} for
+ * Assert that C{a} and C{b} are not deep-equal.  See {@code cw.eq} for
  * limitations.
  *
  * If you give this function circularly-referenced objects, it will overflow
@@ -998,7 +998,7 @@ e, expectedMessage, _internalCall) {
  * 	to throw an {@code expectedError}.
  *
  * @param {string} expectedMessage The message which the error is expected
- * to have. If you pass this argument, the {@code expectedError}
+ * to have.  If you pass this argument, the {@code expectedError}
  * must be of type {!Error} or a subclass of it.
  *
  * @param {boolean=} _internalCall Private.  Don't use.
@@ -1085,11 +1085,11 @@ deferred, errorTypes, _internalCall) {
 
 
 /**
- * Override me to provide code to set up a unit test. This method is called
+ * Override me to provide code to set up a unit test.  This method is called
  * before the test method.
  *
  * L{setUp} is most useful when a subclass contains many test methods which
- * require a common base configuration. L{tearDown} is the complement of
+ * require a common base configuration.  L{tearDown} is the complement of
  * L{setUp}.
  */
 cw.UnitTest.TestCase.prototype.setUp = function() {
@@ -1097,7 +1097,7 @@ cw.UnitTest.TestCase.prototype.setUp = function() {
 
 
 /**
- * Override me to provide code to clean up a unit test. This method is called
+ * Override me to provide code to clean up a unit test.  This method is called
  * after the test method.
  *
  * L{tearDown} is at its most useful when used to clean up resources that are
@@ -1108,7 +1108,7 @@ cw.UnitTest.TestCase.prototype.tearDown = function() {
 
 
 /**
- * Actually run this test. This is designed to operate very much like
+ * Actually run this test.  This is designed to operate very much like
  * {@code twisted.trial.unittest}
  */
 cw.UnitTest.TestCase.prototype.run = function(result) {
@@ -1190,7 +1190,7 @@ cw.UnitTest.TestCase.prototype.run = function(result) {
 							error.causedByUnclearedTimeout = true;
 							result.addError(that, error);
 
-							// Cleanup everything. If we don't do
+							// Cleanup everything.  If we don't do
 							// this, test output is impossible
 							// to decipher, because delayed calls
 							// "spill over" to future tests.
@@ -1353,7 +1353,7 @@ cw.UnitTest.makeSummaryDiv = function(result) {
 
 /**
  * Run the given test, printing the summary of results and any errors
- * to div {@code div}. After test completion, display a summary in the top-
+ * to div {@code div}.  After test completion, display a summary in the top-
  * right corner.
  *
  * @param {!(cw.UnitTest.TestCase|cw.UnitTest.TestSuite)} test The TestCase or
@@ -1556,7 +1556,7 @@ visitor, tests, completionDeferred) {
  */
 
 /**
- * Ignore Deferreds. Access something one by one. Useful for getting test counts.
+ * Ignore Deferreds.  Access something one by one.  Useful for getting test counts.
  *
  * This is how Divmod UnitTest worked.
  *
@@ -1576,7 +1576,7 @@ cw.UnitTest.DeferredIgnoringVisitor.prototype.traverse = function(visitor, tests
 
 
 /**
- * Note that this doesn't actually cancel anything. It just stops tracking
+ * Note that this doesn't actually cancel anything.  It just stops tracking
  * those delayed calls.
  *
  * This is called right before the tests start, and after the teardown of
@@ -1597,14 +1597,14 @@ cw.UnitTest.stopTrackingDelayedCalls();
 
 /**
  * Install replacements for setTimeout, setInterval, clearTimeout,
- * and clearInterval. The replacements track any window-global
+ * and clearInterval.  The replacements track any window-global
  * setTimeout/setInterval calls, and help you find if any scheduled calls
  * survived past the end of a test.
  *
  * This needs to be called before tests are started.
  *
  * Note: Closure Library also installs setTimeout/setInterval replacements,
- * 	mostly to catch and log errors. TODO: Investigate if our replacements
+ * 	mostly to catch and log errors.  TODO: Investigate if our replacements
  * 	and Closure Library's replacements interfere with each other.
  */
 cw.UnitTest.installMonkeys = function() {
@@ -1657,7 +1657,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	window.setInterval = function(fn, time) {
 		//cw.UnitTest.logger.finest(
-		// 	'Inside replacement window.setInterval. fn: ' + fn + ' ; time: ' + time);
+		// 	'Inside replacement window.setInterval.  fn: ' + fn + ' ; time: ' + time);
 		// interval callable repeats forever until we clearInterval,
 		// so we don't need any fancy replacementCallable.
 
@@ -1680,7 +1680,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	window.clearTimeout = function(ticket) {
 		//cw.UnitTest.logger.finest(
-		// 	'Inside replacement window.clearTimeout. ticket: ' + ticket);
+		// 	'Inside replacement window.clearTimeout.  ticket: ' + ticket);
 		if(!goog.userAgent.IE && originalClearTimeout.call) {
 			var output = originalClearTimeout.call(this, ticket);
 		} else {
@@ -1693,7 +1693,7 @@ cw.UnitTest.installMonkeys = function() {
 
 	window.clearInterval = function(ticket) {
 		//cw.UnitTest.logger.finest(
-		// 	'Inside replacement window.clearInterval. ticket: ' + ticket);
+		// 	'Inside replacement window.clearInterval.  ticket: ' + ticket);
 		if(!goog.userAgent.IE && originalClearInterval.call) {
 			var output = originalClearInterval.call(this, ticket);
 		} else {
@@ -1706,8 +1706,8 @@ cw.UnitTest.installMonkeys = function() {
 
 	// In non-IE browsers, the above overrides everything correctly,
 	// and both `setTimeout` and `window.setTimeout` use our special
-	// function. But in IE6-IE8, just `setTimeout` still calls the original
-	// browser function. So, we use execScript to override the "top-level"
+	// function.  But in IE6-IE8, just `setTimeout` still calls the original
+	// browser function.  So, we use execScript to override the "top-level"
 	// `setTimeout` as well.
 
 	// For unknown reasons, this is only needed for setTimeout,

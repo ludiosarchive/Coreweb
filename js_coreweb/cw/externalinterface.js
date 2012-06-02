@@ -26,7 +26,7 @@ goog.require('goog.string');
  *
  *
  * Note that for Flash->JS calls (ExternalInterface.call), Flash will use its own injected
- * __flash__toXML function to grab the return value. If you want to use the fixed serializer
+ * __flash__toXML function to grab the return value.  If you want to use the fixed serializer
  * for this, something like this might work (completely untested):
  *
  * window.__flash__toXML = function(obj) {
@@ -36,7 +36,7 @@ goog.require('goog.string');
  * }
  *
  * Note that if the JS function raises when called from Flash, Flash will
- * receive the value null (serialized as <null/>). There is no way to change this.
+ * receive the value null (serialized as <null/>).  There is no way to change this.
  */
 
 
@@ -152,7 +152,7 @@ cw.externalinterface.handleAny_ = function(buffer, value) {
  * Returns the XML string that can be used to call an ExternalInterface-exposed
  * Flash function, with arguments, on an any embedded Flash applet.
  *
- * @param {string} name The name of the function to invoke. Must not contain
+ * @param {string} name The name of the function to invoke.  Must not contain
  * 	the characters C{<>&"'}.
  * @param {...*} var_args The arguments to the function.
  * @return {string} The XML string that can be used in
