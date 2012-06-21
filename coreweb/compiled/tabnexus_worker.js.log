@@ -7,12 +7,6 @@ js_coreweb\cw\repr.js:120: WARNING - Property __repr__ never defined on obj
 			sb.push(obj.__repr__(stack));
 			        ^
 
-js_coreweb\cw\tabnexus.js:49: WARNING - assignment to property onmessage of cw.tabnexus.Client.port_
-found   : function (MessageEvent): undefined
-required: (function ((MessageEvent|null)): ?|null)
-	this.port_.onmessage = goog.bind(this.onMessageFromClient_, this);
-	^
-
-0 error(s), 3 warning(s), 95.7% typed
-Used closure-compiler r2000
-Used closure-library r1920
+0 error(s), 2 warning(s), 95.7% typed
+Used closure-compiler r2059
+Used closure-library r2001
