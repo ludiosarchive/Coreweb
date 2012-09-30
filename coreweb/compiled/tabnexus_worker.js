@@ -76,7 +76,7 @@ function k(a, c, b) {
 };
 function n(a, c) {
   this.d = a;
-  this.id = ++o;
+  this.id = ++p;
   this.b = c;
   this.b.onmessage = k(this.f, this)
 }
@@ -85,7 +85,8 @@ n.prototype.f = function(a) {
   if("array" == h(a) && "dying" == a[0]) {
     var c = a[1];
     this.b.close();
-    var a = this.d, b = a.a == this, d = a.c, e = m(d, this);
+    a = this.d;
+    var b = a.a == this, d = a.c, e = m(d, this);
     0 <= e && l.splice.call(d, e, 1);
     if(b) {
       if(a.c.length) {
@@ -93,7 +94,7 @@ n.prototype.f = function(a) {
         a.a.b.postMessage(["become_master", c]);
         c = a.c.slice(1);
         for(b = 0;b < c.length;b++) {
-          p(a, c[b])
+          q(a, c[b])
         }
       }
     }else {
@@ -101,12 +102,12 @@ n.prototype.f = function(a) {
     }
   }
 };
-var o = 0;
-function q(a) {
+var p = 0;
+function r(a) {
   this.e = a;
   this.c = []
 }
-function p(a, c) {
+function q(a, c) {
   var b = a.e();
   if(!a.a) {
     throw Error("connectSlave_: No master_?");
@@ -114,17 +115,17 @@ function p(a, c) {
   c.b.postMessage(["connect_to_master", a.a.id], [b.port1]);
   a.a.b.postMessage(["add_slave", c.id], [b.port2])
 }
-q.prototype.a = null;
-var r = new q(function() {
+r.prototype.a = null;
+var s = new r(function() {
   return new MessageChannel
 });
 g("onerror", function(a) {
-  r.c.length && r.c[0].b.postMessage(["error_in_worker", a])
+  s.c.length && s.c[0].b.postMessage(["error_in_worker", a])
 });
 g("onconnect", function(a) {
-  a = new n(r, a.ports[0]);
-  r.c.push(a);
-  r.a ? p(r, a) : (r.a = a, r.a.b.postMessage(["become_master", null]))
+  a = new n(s, a.ports[0]);
+  s.c.push(a);
+  s.a ? q(s, a) : (s.a = a, s.a.b.postMessage(["become_master", null]))
 });
 
 })();
