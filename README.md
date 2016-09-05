@@ -1,5 +1,5 @@
-Coreweb overview
-================
+Coreweb
+=======
 
 Coreweb is an assortment of JavaScript tools used by [Minerva](http://ludios.org/minerva/).
 
@@ -60,8 +60,7 @@ convenient way to run these is to start the `coreweb_site` server (see below).
 
 
 
-Use with Closure Library
-========================
+## Use with Closure Library
 
 If you want to use Coreweb in your JavaScript project, all you need is:
 
@@ -76,8 +75,7 @@ For compilation with Closure Compiler using closurebuilder, include
 
 
 
-Running the tests
-=================
+## Running the tests
 
 Right now, Coreweb requires using its built-in web server to run the tests.
 You'll need to install:
@@ -108,8 +106,7 @@ Then, navigate to `http://127.0.0.1:9090/` in your browser.
 
 
 
-Recompiling the compiled .js and .swf files
-===========================================
+## Recompiling the compiled .js and .swf files
 
 If you want to recompile the compiled-JavaScript and .swf files, you also need:
 
@@ -126,8 +123,7 @@ Then run:
 
 
 
-Limited project scope
-=====================
+## Limited project scope
 
 Why the separation between Coreweb and Minerva?  Coreweb should contain
 JavaScript and haXe files that assist in building web applications, but do not
@@ -135,12 +131,3 @@ rely on any server-side technology.
 
 An example: client-side code to synchronize the client's clock with a server
 should not be here, because that requires a custom-built server.
-
-
-
-Contributing
-============
-
-Patches and pull requests are welcome.
-
-This coding standard applies: http://ludios.org/coding-standard/
